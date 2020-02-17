@@ -1,0 +1,2 @@
+option('xwayland', type: 'boolean', value: 'false', description: 'Enable support for X11 applications')
+option('fuzz', type: 'boolean', value: 'false', description: 'Enable building fuzzer targets')

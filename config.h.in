@@ -1,0 +1,8 @@
+#ifndef CG_CONFIG_H
+#define CG_CONFIG_H
+
+#mesondefine CG_HAS_XWAYLAND
+
+#mesondefine CG_VERSION
+
+#endif

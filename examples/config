@@ -1,0 +1,72 @@
+######################
+# General settings an key bindings
+######################
+
+exec xterm
+
+workspaces 6
+background 0.25 0.21 0.2
+
+escape C-t
+
+bind s hsplit
+bind S vsplit
+bind Q only
+bind D quit
+bind Tab focus
+bind A-Tab focusprev
+bind n next
+bind p prev
+bind w exec firefox
+bind R setmode resize
+bind N nextscreen
+bind P prevscreen
+bind a time
+bind C-n movetonextscreen
+bind H exchangeleft
+bind J exchangedown
+bind K exchangeup
+bind L exchangeright
+bind h focusleft
+bind j focusdown
+bind k focusup
+bind l focusright
+bind t exec xterm
+definekey resize h resizeleft
+definekey resize l resizeright
+definekey resize j resizedown
+definekey resize k resizeup
+definekey resize Escape setmode top
+
+######################
+#Workspaces
+######################
+definekey top A-1 workspace 1
+definekey top A-2 workspace 2
+definekey top A-3 workspace 3
+definekey top A-4 workspace 4
+definekey top A-5 workspace 5
+definekey top A-6 workspace 6
+
+definekey top C-1 movetoworkspace 1
+definekey top C-2 movetoworkspace 2
+definekey top C-3 movetoworkspace 3
+definekey top C-4 movetoworkspace 4
+definekey top C-5 movetoworkspace 5
+definekey top C-6 movetoworkspace 6
+
+definekey top XF86_Switch_VT_1 switchvt 1
+definekey top XF86_Switch_VT_2 switchvt 2
+definekey top XF86_Switch_VT_3 switchvt 3
+definekey top XF86_Switch_VT_4 switchvt 4
+definekey top XF86_Switch_VT_5 switchvt 5
+definekey top XF86_Switch_VT_6 switchvt 6
+
+######################
+#Bind Function keys
+######################
+definekey top XF86AudioMute exec pactl set-sink-mute 0 toggle
+definekey top XF86AudioLowerVolume exec pactl set-sink-mute 0 off&&amixer set Master 1%-
+definekey top XF86AudioRaiseVolume exec pactl set-sink-mute 0 off&&amixer set Master 1%+
+definekey top XF86MonBrightnessDown exec xbacklight -dec 1
+definekey top XF86MonBrightnessUp exec xbacklight -inc 1

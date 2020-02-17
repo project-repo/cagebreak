@@ -1,0 +1,86 @@
+#ifndef KEYBINDING_H
+
+#define KEYBINDING_H
+
+#include "config.h"
+
+#include <sys/types.h>
+#include <wlr/types/wlr_keyboard.h>
+
+struct cg_server;
+
+/* Important: if you add a keybinding which uses data.c or requires "free"
+ * to be called, don't forget to add it to the function "keybinding_list_free"
+ * in keybinding.c */
+enum keybinding_action {
+	KEYBINDING_RUN_COMMAND, // data.c is the string to execute
+	KEYBINDING_SPLIT_VERTICAL,
+	KEYBINDING_SPLIT_HORIZONTAL,
+	KEYBINDING_CHANGE_TTY, // data.u is the desired tty
+	KEYBINDING_LAYOUT_FULLSCREEN,
+	KEYBINDING_CYCLE_VIEWS,  // data.b is 0 if forward, 1 if reverse
+	KEYBINDING_CYCLE_TILES,  // data.b is 0 if forward, 1 if reverse
+	KEYBINDING_CYCLE_OUTPUT, // data.b is 0 if forward, 1 if reverse
+	KEYBINDING_QUIT,
+	KEYBINDING_NOOP,
+	KEYBINDING_SWITCH_WORKSPACE,       // data.u is the desired workspace
+	KEYBINDING_SWITCH_MODE,            // data.u is the desired mode
+	KEYBINDING_SWITCH_DEFAULT_MODE,    // data.u is the desired mode
+	KEYBINDING_RESIZE_TILE_HORIZONTAL, // data.i is the number of pixels to add
+	                                   // to the current width
+	KEYBINDING_RESIZE_TILE_VERTICAL, // data.i is the number of pixels to add to
+	                                 // the current height
+	KEYBINDING_MOVE_VIEW_TO_WORKSPACE, // data.u is the desired workspace
+	KEYBINDING_MOVE_VIEW_TO_NEXT_OUTPUT,
+	KEYBINDING_SHOW_TIME,
+
+	KEYBINDING_SWAP_LEFT,
+	KEYBINDING_SWAP_RIGHT,
+	KEYBINDING_SWAP_TOP,
+	KEYBINDING_SWAP_BOTTOM,
+
+	KEYBINDING_FOCUS_LEFT,
+	KEYBINDING_FOCUS_RIGHT,
+	KEYBINDING_FOCUS_TOP,
+	KEYBINDING_FOCUS_BOTTOM,
+};
+
+union keybinding_params {
+	char *c;
+	uint32_t u;
+	int32_t i;
+	bool b;
+};
+
+struct keybinding {
+	uint16_t mode;
+	xkb_mod_mask_t modifiers;
+	xkb_keysym_t key;
+	enum keybinding_action action;
+	union keybinding_params data; // See enum keybinding_action for details
+};
+
+struct keybinding_list {
+	uint32_t length;
+	uint32_t capacity;
+	struct keybinding **keybindings;
+};
+
+int
+keybinding_list_push(struct keybinding_list *list,
+                     struct keybinding *keybinding);
+void
+keybinding_list_free(struct keybinding_list *list);
+void
+keybinding_cycle_outputs(struct cg_server *server, bool reverse);
+struct keybinding **
+find_keybinding(const struct keybinding_list *list,
+                const struct keybinding *keybinding);
+struct keybinding_list *
+keybinding_list_init();
+
+int
+run_action(enum keybinding_action action, struct cg_server *server,
+           union keybinding_params data);
+
+#endif /* end of include guard KEYBINDINGS_H */

@@ -1,0 +1,231 @@
+project('cagebreak', 'c',
+  version: '1.0.0',
+  license: 'MIT',
+  default_options: [
+    'c_std=c11',
+    'warning_level=3',
+  ],
+)
+
+add_project_arguments(
+  [
+    '-DWLR_USE_UNSTABLE',
+    '-Wall',
+    '-Wundef',
+    '-Wno-unused-parameter',
+  ],
+  language: 'c',
+)
+
+if get_option('buildtype').startswith('debug')
+  add_project_arguments(
+	[
+	  '-DDEBUG',
+	  '-g',
+	],
+	language : 'c',
+)
+endif
+
+cc = meson.get_compiler('c')
+
+fuzz_compile_args = []
+fuzz_link_args = []
+if get_option('fuzz')
+  fuzzing_engine = meson.get_compiler('c').find_library('Fuzzer', required : false)
+  if fuzzing_engine.found()
+	fuzz_compile_args += '-fsanitize-coverage=trace-pc-guard,trace-cmp'
+  elif cc.has_argument('-fsanitize=fuzzer-no-link')
+	fuzz_compile_args += '-fsanitize=fuzzer-no-link'
+	fuzz_link_args += '-fsanitize=fuzzer-no-link'
+  else
+    error('Looks like neither libFuzzer nor -fsanitize=fuzzer-no-link is supported. Disable fuzzing using -Dfuzz=false to build without fuzzers.')
+  endif
+endif
+
+is_freebsd = host_machine.system().startswith('freebsd')
+if is_freebsd
+  add_project_arguments(
+    [
+      '-Wno-format-extra-args',
+      '-Wno-gnu-zero-variadic-macro-arguments',
+    ],
+    language: 'c'
+  )
+endif
+
+wlroots        = dependency('wlroots', version: '>= 0.9.1')
+wayland_protos = dependency('wayland-protocols', version: '>=1.14')
+wayland_server = dependency('wayland-server')
+wayland_cursor = dependency('wayland-cursor')
+wayland_client = dependency('wayland-client')
+pixman         = dependency('pixman-1')
+xkbcommon      = dependency('xkbcommon')
+cairo          = dependency('cairo')
+pango          = dependency('pango')
+pangocairo     = dependency('pangocairo')
+math           = cc.find_library('m')
+
+wl_protocol_dir = wayland_protos.get_pkgconfig_variable('pkgdatadir')
+wayland_scanner = find_program('wayland-scanner')
+wayland_scanner_server = generator(
+  wayland_scanner,
+  output: '@BASENAME@-protocol.h',
+  arguments: ['server-header', '@INPUT@', '@OUTPUT@'],
+)
+
+server_protocols = [
+  [wl_protocol_dir, 'stable/xdg-shell/xdg-shell.xml'],
+]
+
+server_protos_headers = []
+
+foreach p : server_protocols
+  xml = join_paths(p)
+  server_protos_headers += wayland_scanner_server.process(xml)
+endforeach
+
+server_protos = declare_dependency(
+  sources: server_protos_headers,
+)
+
+if get_option('xwayland')
+  wlroots_has_xwayland = cc.get_define('WLR_HAS_XWAYLAND', prefix: '#include <wlr/config.h>', dependencies: wlroots) == '1'
+  if not wlroots_has_xwayland
+    error('Cannot build Cagebreak with XWayland support: wlroots has been built without it')
+  else
+    have_xwayland = true
+  endif
+else
+  have_xwayland = false
+endif
+
+git = find_program('git', native: true, required: false)
+if git.found()
+  git_commit = run_command([git, 'rev-parse', '--short', 'HEAD'])
+  git_branch = run_command([git, 'rev-parse', '--abbrev-ref', 'HEAD'])
+  if git_commit.returncode() == 0 and git_branch.returncode() == 0
+    version = '@0@-@1@ (branch \'@2@\')'.format(
+      meson.project_version(),
+      git_commit.stdout().strip(),
+      git_branch.stdout().strip(),
+    )
+  endif
+else
+  version = '@0@'.format(meson.project_version())
+endif
+
+conf_data = configuration_data()
+conf_data.set10('CG_HAS_XWAYLAND', have_xwayland)
+conf_data.set_quoted('CG_VERSION', version)
+
+
+cagebreak_main_file = [ 'cagebreak.c', ]
+cagebreak_source_strings = [
+  'idle_inhibit_v1.c',
+  'keybinding.c',
+  'workspace.c',
+  'output.c',
+  'parse.c',
+  'render.c',
+  'seat.c',
+  'util.c',
+  'view.c',
+  'xdg_shell.c',
+  'server.c',
+  'message.c',
+  'pango.c',
+]
+
+cagebreak_header_strings = [
+  'idle_inhibit_v1.h',
+  'keybinding.h',
+  'workspace.h',
+  'output.h',
+  'parse.h',
+  'render.h',
+  'seat.h',
+  'server.h',
+  'util.h',
+  'view.h',
+  'xdg_shell.h',
+  'pango.h',
+  'message.h',
+]
+
+if conf_data.get('CG_HAS_XWAYLAND', 0) == 1
+  cagebreak_source_strings += 'xwayland.c'
+  cagebreak_header_strings += 'xwayland.h'
+endif
+
+cagebreak_sources = [
+  configure_file(input: 'config.h.in',
+		 output: 'config.h',
+		 configuration: conf_data),
+  ]
+
+cagebreak_headers = []
+
+foreach source : cagebreak_source_strings
+  cagebreak_sources += files(source)
+endforeach
+
+foreach header : cagebreak_header_strings
+  cagebreak_headers += files(header)
+endforeach
+
+cagebreak_dependencies = [
+  server_protos,
+  wayland_server,
+  wayland_client,
+  wayland_cursor,
+  wlroots,
+  xkbcommon,
+  pixman,
+  math,
+  pango,
+  cairo,
+  pangocairo,
+]
+
+executable(
+  meson.project_name(),
+  cagebreak_main_file + cagebreak_sources + cagebreak_headers,
+  dependencies: cagebreak_dependencies,
+  install: true,
+  link_args: fuzz_link_args,
+  c_args: fuzz_compile_args,
+)
+
+pandoc = find_program('pandoc')
+mandir1 = join_paths(get_option('mandir'), 'man1')
+mandir5 = join_paths(get_option('mandir'), 'man5')
+
+cagebreak_man = custom_target('cagebreak_man',
+  output : 'cagebreak.1',
+  input : 'man/cagebreak.1.md',
+  command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
+  install: true,
+  install_dir: mandir1
+  )
+
+cagebreak_man = custom_target('cagebreak_config_man',
+  output : 'cagebreak-config.5',
+  input : 'man/cagebreak-config.5.md',
+  command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
+  install: true,
+  install_dir: mandir5
+  )
+
+if get_option('fuzz')
+  subdir('fuzz')
+endif
+
+summary = [
+	'',
+	'Cagebreak @0@'.format(version),
+	'',
+	'    xwayland: @0@'.format(have_xwayland),
+	''
+]
+message('\n'.join(summary))
