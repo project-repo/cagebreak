@@ -15,21 +15,21 @@
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_box.h>
 #include <wlr/types/wlr_output.h>
+#include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_surface.h>
-#include <wlr/types/wlr_output_damage.h>
 
 #include "output.h"
 #include "seat.h"
 #include "server.h"
+#include "view.h"
 #include "workspace.h"
 #include "xdg_shell.h"
-#include "view.h"
 #if CG_HAS_XWAYLAND
 #include "xwayland.h"
 #endif
 
-struct cg_view*
+struct cg_view *
 view_get_prev_view(struct cg_view *view) {
 	struct cg_view *prev = NULL;
 
@@ -230,10 +230,14 @@ view_unmap(struct cg_view *view) {
 #endif
 	{
 		if(view_is_visible(view)) {
-			struct cg_view* prev = view_get_prev_view(view);
-			struct cg_tile* view_tile = view_get_tile(view);
-			wlr_output_damage_add_box(view_tile->workspace->output->damage, &view_tile->tile);
-			if(view->workspace->server->seat->seat->keyboard_state.focused_surface == NULL || view->workspace->server->seat->seat->keyboard_state.focused_surface == view->wlr_surface) {
+			struct cg_view *prev = view_get_prev_view(view);
+			struct cg_tile *view_tile = view_get_tile(view);
+			wlr_output_damage_add_box(view_tile->workspace->output->damage,
+			                          &view_tile->tile);
+			if(view->workspace->server->seat->seat->keyboard_state
+			           .focused_surface == NULL ||
+			   view->workspace->server->seat->seat->keyboard_state
+			           .focused_surface == view->wlr_surface) {
 				seat_set_focus(view->workspace->server->seat, prev);
 			} else {
 				view_tile->view = prev;
@@ -246,8 +250,12 @@ view_unmap(struct cg_view *view) {
 #if CG_HAS_XWAYLAND
 	else {
 		view_damage_whole(view);
-		if(view->workspace->server->seat->seat->keyboard_state.focused_surface == NULL || view->workspace->server->seat->seat->keyboard_state.focused_surface == view->wlr_surface) {
-			seat_set_focus(view->workspace->server->seat, view->workspace->server->seat->focused_view);
+		if(view->workspace->server->seat->seat->keyboard_state
+		           .focused_surface == NULL ||
+		   view->workspace->server->seat->seat->keyboard_state
+		           .focused_surface == view->wlr_surface) {
+			seat_set_focus(view->workspace->server->seat,
+			               view->workspace->server->seat->focused_view);
 		}
 	}
 #endif
@@ -297,13 +305,15 @@ view_map(struct cg_view *view, struct wlr_surface *surface) {
 
 void
 view_destroy(struct cg_view *view) {
-	struct cg_output* curr_output = view->workspace->server->curr_output;
+	struct cg_output *curr_output = view->workspace->server->curr_output;
 	if(view->wlr_surface != NULL) {
 		view_unmap(view);
 	}
 
 	view->impl->destroy(view);
-	view_activate(curr_output->workspaces[curr_output->curr_workspace]->focused_tile->view, true);
+	view_activate(curr_output->workspaces[curr_output->curr_workspace]
+	                  ->focused_tile->view,
+	              true);
 }
 
 void

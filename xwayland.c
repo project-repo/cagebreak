@@ -11,8 +11,8 @@
 #include <stdlib.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_box.h>
-#include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_output_damage.h>
+#include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/log.h>
 #include <wlr/xwayland.h>
 #include <xcb/xproto.h>
@@ -77,24 +77,35 @@ maximize(struct cg_view *view, int width, int height) {
 	struct cg_xwayland_view *xwayland_view = xwayland_view_from_view(view);
 	struct cg_output *output = view->workspace->output;
 
-	struct wlr_box* box = wlr_output_layout_get_box(view->workspace->server->output_layout, view->workspace->output->wlr_output);
-	struct wlr_xwayland_surface_size_hints *hints = xwayland_view->xwayland_surface->size_hints;
+	struct wlr_box *box =
+	    wlr_output_layout_get_box(view->workspace->server->output_layout,
+	                              view->workspace->output->wlr_output);
+	struct wlr_xwayland_surface_size_hints *hints =
+	    xwayland_view->xwayland_surface->size_hints;
 
 	if(hints != NULL && hints->flags & PMaxSize) {
 		if(width > hints->max_width) {
-			wlr_output_damage_add_box(output->damage, &(struct wlr_box){.x=view->ox + box->x, .y = view->oy + box->y, .width = width, .height=height});
+			wlr_output_damage_add_box(output->damage,
+			                          &(struct wlr_box){.x = view->ox + box->x,
+			                                            .y = view->oy + box->y,
+			                                            .width = width,
+			                                            .height = height});
 			width = hints->max_width;
 		}
 
 		if(height > hints->max_height) {
-			wlr_output_damage_add_box(output->damage, &(struct wlr_box){.x=view->ox + box->x, .y = view->oy + box->y, .width = width, .height=height});
+			wlr_output_damage_add_box(output->damage,
+			                          &(struct wlr_box){.x = view->ox + box->x,
+			                                            .y = view->oy + box->y,
+			                                            .width = width,
+			                                            .height = height});
 			height = hints->max_height;
 		}
 	}
 
-	wlr_xwayland_surface_configure(
-	    xwayland_view->xwayland_surface, view->ox + box->x,
-	    view->oy + box->y, width, height);
+	wlr_xwayland_surface_configure(xwayland_view->xwayland_surface,
+	                               view->ox + box->x, view->oy + box->y, width,
+	                               height);
 	wlr_xwayland_surface_set_maximized(xwayland_view->xwayland_surface, true);
 }
 

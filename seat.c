@@ -1094,8 +1094,9 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 	}
 
 #if CG_HAS_XWAYLAND
-	if(view->type == CG_XWAYLAND_VIEW && ! xwayland_view_should_manage(view)) {
-		const struct cg_xwayland_view *xwayland_view = xwayland_view_from_view(view);
+	if(view->type == CG_XWAYLAND_VIEW && !xwayland_view_should_manage(view)) {
+		const struct cg_xwayland_view *xwayland_view =
+		    xwayland_view_from_view(view);
 		if(!wlr_xwayland_or_surface_wants_focus(
 		       xwayland_view->xwayland_surface)) {
 			return;
