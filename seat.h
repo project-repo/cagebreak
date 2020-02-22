@@ -14,22 +14,11 @@ struct wlr_backend;
 #define DEFAULT_XCURSOR "left_ptr"
 #define XCURSOR_SIZE 24
 
-struct cg_keyboard_group {
-	struct cg_keyboard *keyboard;
-
-	struct wlr_keyboard_group *wlr_group;
-	struct cg_seat *seat;
-	struct wl_listener key;
-	struct wl_listener modifiers;
-	struct wl_list link;
-};
-
 struct cg_seat {
 	struct wlr_seat *seat;
 	struct cg_server *server;
 	struct wl_listener destroy;
 
-	struct wl_list keyboards;
 	struct wl_list keyboard_groups;
 	struct wl_list pointers;
 	struct wl_list touch;
@@ -66,14 +55,16 @@ struct cg_seat {
 	struct cg_view *focused_view;
 };
 
-struct cg_keyboard {
-	struct wl_list link; // seat::keyboards
+struct cg_keyboard_group {
+	struct wlr_keyboard_group *wlr_group;
 	struct cg_seat *seat;
-	struct wlr_input_device *device;
 
-	struct wl_listener destroy;
-	struct keybinding **repeat_keybinding;
+	struct wl_listener key;
+	struct wl_listener modifiers;
+	struct wl_list link;
+
 	struct wl_event_source *key_repeat_timer;
+	struct keybinding **repeat_keybinding;
 };
 
 struct cg_pointer {
