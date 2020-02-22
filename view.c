@@ -233,7 +233,7 @@ view_unmap(struct cg_view *view) {
 			struct cg_view* prev = view_get_prev_view(view);
 			struct cg_tile* view_tile = view_get_tile(view);
 			wlr_output_damage_add_box(view_tile->workspace->output->damage, &view_tile->tile);
-			if(seat_get_focus(view->workspace->server->seat) == view) {
+			if(view->workspace->server->seat->seat->keyboard_state.focused_surface == NULL || view->workspace->server->seat->seat->keyboard_state.focused_surface == view->wlr_surface) {
 				seat_set_focus(view->workspace->server->seat, prev);
 			} else {
 				view_tile->view = prev;
@@ -246,6 +246,9 @@ view_unmap(struct cg_view *view) {
 #if CG_HAS_XWAYLAND
 	else {
 		view_damage_whole(view);
+		if(view->workspace->server->seat->seat->keyboard_state.focused_surface == NULL || view->workspace->server->seat->seat->keyboard_state.focused_surface == view->wlr_surface) {
+			seat_set_focus(view->workspace->server->seat, view->workspace->server->seat->focused_view);
+		}
 	}
 #endif
 
