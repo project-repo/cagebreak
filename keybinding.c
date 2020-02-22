@@ -9,11 +9,11 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <wayland-server-core.h>
+#include <wlr/backend/multi.h>
+#include <wlr/backend/session.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/log.h>
-#include <wlr/backend/session.h>
-#include <wlr/backend/multi.h>
 
 #include "keybinding.h"
 #include "message.h"
@@ -422,9 +422,9 @@ keybinding_workspace_fullscreen(struct cg_server *server) {
 
 // Switch to a differerent virtual terminal
 static int
-keybinding_switch_vt(struct wlr_backend* backend, unsigned int vt) {
+keybinding_switch_vt(struct wlr_backend *backend, unsigned int vt) {
 	if(wlr_backend_is_multi(backend)) {
-		struct wlr_session* session = wlr_backend_get_session(backend);
+		struct wlr_session *session = wlr_backend_get_session(backend);
 		if(session) {
 			wlr_session_change_vt(session, vt);
 		}
@@ -581,7 +581,8 @@ keybinding_cycle_views(struct cg_server *server, bool reverse) {
 		return;
 	}
 
-	wlr_output_damage_add_box(curr_workspace->output->damage, &curr_workspace->focused_tile->tile);
+	wlr_output_damage_add_box(curr_workspace->output->damage,
+	                          &curr_workspace->focused_tile->tile);
 	seat_set_focus(server->seat, new_view);
 	/* Move the previous view to the end of the list unless we are focused on
 	 * the desktop*/

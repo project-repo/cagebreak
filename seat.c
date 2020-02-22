@@ -1089,22 +1089,26 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 		}
 	}
 
-	if(prev_view == view) {
+	if(seat->seat->keyboard_state.focused_surface == view->wlr_surface) {
 		return;
 	}
 
 #if CG_HAS_XWAYLAND
-	if(view->type == CG_XWAYLAND_VIEW) {
-		const struct cg_xwayland_view *xwayland_view = xwayland_view_from_view(view);
+	if(view->type == CG_XWAYLAND_VIEW && !xwayland_view_should_manage(view)) {
+		const struct cg_xwayland_view *xwayland_view =
+		    xwayland_view_from_view(view);
 		if(!wlr_xwayland_or_surface_wants_focus(
 		       xwayland_view->xwayland_surface)) {
 			return;
 		}
-	}
+	} else
 #endif
+	{
+		if(prev_view != NULL) {
+			view_activate(prev_view, false);
+		}
 
-	if(prev_view != NULL) {
-		view_activate(prev_view, false);
+		seat->focused_view = view;
 	}
 
 	view_activate(view, true);
@@ -1122,8 +1126,6 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 		wlr_seat_keyboard_notify_enter(wlr_seat, view->wlr_surface, NULL, 0,
 		                               NULL);
 	}
-
-	seat->focused_view = view;
 
 	process_cursor_motion(seat, -1);
 }

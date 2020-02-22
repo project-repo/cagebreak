@@ -17,7 +17,7 @@ struct cg_server {
 	struct wl_event_loop *event_loop;
 
 	struct cg_seat *seat;
-	struct wlr_backend* backend;
+	struct wlr_backend *backend;
 	struct wlr_idle *idle;
 	struct wlr_idle_inhibit_manager_v1 *idle_inhibit_v1;
 	struct wl_listener new_idle_inhibitor_v1;

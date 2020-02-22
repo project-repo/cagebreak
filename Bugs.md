@@ -10,3 +10,19 @@ submitted on the issue tracker, should any other forms of contact become
 available.
 
 ## Issues
+
+### Issue 1
+
+  * Github issue number: N/A
+  * Fixed: 1.0.2
+
+This issue is a focussing bug when using anki in release 1.0.1 and earlier
+on arch linux systems.
+
+Steps to reproduce:
+
+  * start anki
+  * Click "Add" to add cards
+  * enter text into the "Tags" field
+  * if autocompletion of tags pops up, the keyboard will not enter further
+    keystrokes into the text field
