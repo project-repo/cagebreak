@@ -480,6 +480,67 @@ handle_output_destroy(struct wl_listener *listener, void *data) {
 	output_destroy(output);
 }
 
+struct cg_output_config*
+output_find_config(struct cg_server* server, struct wlr_output* output) {
+	struct cg_output_config *config;
+	wl_list_for_each(config, &server->output_config, link) {
+		if(strcmp(config->output_name, output->name) == 0) {
+			return config;
+		}
+	}
+	return NULL;
+}
+
+static void output_set_mode(struct wlr_output *output, int width, int height,
+		float refresh_rate) {
+	int mhz = (int)(refresh_rate * 1000);
+
+	if (wl_list_empty(&output->modes)) {
+		wlr_log(WLR_DEBUG, "Assigning custom mode to %s", output->name);
+		wlr_output_set_custom_mode(output, width, height,
+			refresh_rate > 0 ? mhz : 0);
+		return;
+	}
+
+	struct wlr_output_mode *mode, *best = NULL;
+	wl_list_for_each(mode, &output->modes, link) {
+		if (mode->width == width && mode->height == height) {
+			if (mode->refresh == mhz) {
+				best = mode;
+				break;
+			}
+			if (best == NULL || mode->refresh > best->refresh) {
+				best = mode;
+			}
+		}
+	}
+	if (!best) {
+		wlr_log(WLR_ERROR, "Configured mode for %s not available", output->name);
+		wlr_log(WLR_INFO, "Picking preferred mode instead");
+		best = wlr_output_preferred_mode(output);
+	} else {
+		wlr_log(WLR_DEBUG, "Assigning configured mode to %s", output->name);
+	}
+	wlr_output_set_mode(output, best);
+}
+
+void
+output_configure(struct cg_server* server, struct cg_output *output) {
+	struct wlr_output *wlr_output = output->wlr_output;
+	struct cg_output_config *config = output_find_config(server, wlr_output);
+	if(config == NULL) {
+		wlr_output_layout_add_auto(server->output_layout, wlr_output);
+
+		struct wlr_output_mode *preferred_mode =
+		    wlr_output_preferred_mode(wlr_output);
+		if(preferred_mode) {
+			wlr_output_set_mode(wlr_output, preferred_mode);
+		}
+	} else {
+		output_set_mode(wlr_output, config->pos.width, config->pos.height, config->refresh_rate);
+	}
+}
+
 void
 handle_new_output(struct wl_listener *listener, void *data) {
 	struct cg_server *server = wl_container_of(listener, server, new_output);
@@ -508,7 +569,8 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	wl_signal_add(&output->damage->events.destroy, &output->damage_destroy);
 
 	wlr_output_set_transform(wlr_output, server->output_transform);
-	wlr_output_layout_add_auto(server->output_layout, wlr_output);
+
+	output_configure(server, output);
 
 	output->workspaces = malloc(server->nws * sizeof(struct cg_workspace *));
 	for(unsigned int i = 0; i < server->nws; ++i) {
@@ -519,12 +581,6 @@ handle_new_output(struct wl_listener *listener, void *data) {
 
 	output->curr_workspace = 0;
 	wl_list_init(&output->messages);
-
-	struct wlr_output_mode *preferred_mode =
-	    wlr_output_preferred_mode(wlr_output);
-	if(preferred_mode) {
-		wlr_output_set_mode(wlr_output, preferred_mode);
-	}
 
 	if(wlr_xcursor_manager_load(server->seat->xcursor_manager,
 	                            wlr_output->scale)) {

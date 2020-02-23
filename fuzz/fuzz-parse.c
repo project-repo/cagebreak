@@ -5,6 +5,7 @@
 #include "../parse.h"
 #include "../seat.h"
 #include "../server.h"
+#include "../output.h"
 #include <signal.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -58,6 +59,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	/* new_xwayland_surface */
 	server.keybindings = keybinding_list_init();
 	server.output_transform = 0;
+	wl_list_init(&server.output_config);
 
 	server.running = true;
 	server.modes = malloc(sizeof(char *));
@@ -82,5 +84,13 @@ LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 	free(str);
 	keybinding_list_free(server.keybindings);
 	server.keybindings = keybinding_list_init();
+
+	struct cg_output_config *output_config, *output_config_tmp;
+	wl_list_for_each_safe(output_config, output_config_tmp, &server.output_config, link) {
+		wl_list_remove(&output_config->link);
+		free(output_config->output_name);
+		free(output_config);
+	}
+
 	return 0;
 }
