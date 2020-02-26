@@ -182,6 +182,13 @@ by prepending a line with the # symbol.
 
 > Enter mode "`<mode>`". After a keybinding is processed, return to default mode
 
+**output <name> pos <xpos> <ypos> res <width>x<height> rate <rate>**
+
+> Configure the output "<name>". <xpos> and <ypos> are the position of the monitor
+> in pixels. The top-left monitor should have the coordinates 0 0. <width> and
+> <height> specify the resolution in pixels and <rate> sets the refresh rate of
+> the monitor (often this is 50 or 60).
+
 **setmode <mode>**
 
 > Set the default mode to `<mode>`
