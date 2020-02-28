@@ -528,6 +528,10 @@ void
 output_configure(struct cg_server* server, struct cg_output *output) {
 	struct wlr_output *wlr_output = output->wlr_output;
 	struct cg_output_config *config = output_find_config(server, wlr_output);
+	if(output->wlr_output->enabled) {
+		wlr_output_layout_remove(server->output_layout, wlr_output);
+	}
+
 	if(config == NULL) {
 		wlr_output_layout_add_auto(server->output_layout, wlr_output);
 
@@ -538,6 +542,7 @@ output_configure(struct cg_server* server, struct cg_output *output) {
 		}
 	} else {
 		output_set_mode(wlr_output, config->pos.width, config->pos.height, config->refresh_rate);
+		wlr_output_layout_add(server->output_layout, wlr_output, config->pos.x, config->pos.y);
 	}
 }
 
