@@ -26,3 +26,10 @@ Steps to reproduce:
   * enter text into the "Tags" field
   * if autocompletion of tags pops up, the keyboard will not enter further
     keystrokes into the text field
+
+### Issue 2
+
+  * Github issue number: N/A
+  * Fixed: 1.0.4
+
+This issue fixes wrong consumption of modifier key on some keyboards.
