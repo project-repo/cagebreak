@@ -338,7 +338,7 @@ handle_key_event(struct cg_keyboard_group *group, struct cg_seat *seat,
 			xkb_mod_mask_t consumed_modifiers =
 			    xkb_state_key_get_consumed_mods2(device->keyboard->xkb_state,
 			                                     keycode,
-			                                     XKB_CONSUMED_MODE_XKB);
+			                                     XKB_CONSUMED_MODE_GTK);
 			if(handle_command_key_bindings(seat->server, syms[i],
 			                               modifiers & ~consumed_modifiers,
 			                               seat->mode, group)) {
