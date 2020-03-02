@@ -74,12 +74,18 @@ it is merged into `master`, creating a new release, which is tagged and signed.
 Merging into master is always done by
 
 ```
-git merge --no-ff development
-git tag -u keyid version
-git push origin master
+git checkout development
+git pull origin development
+git checkout master
+git merge --squash development
+git tag -u keyid version HEAD
+git tag -v version
+git push --tags origin master
 ```
 
 and a log message roughly describing the features is added in the commit.
+
+In the past, our git history did not always reflect this scheme.
 
 ### Releases
 
