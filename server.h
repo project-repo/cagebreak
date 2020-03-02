@@ -11,6 +11,7 @@ struct cg_output;
 struct keybinding_list;
 struct wlr_output_layout;
 struct wlr_idle_inhibit_manager_v1;
+struct cg_output_config;
 
 struct cg_server {
 	struct wl_display *wl_display;
@@ -35,6 +36,7 @@ struct cg_server {
 #endif
 
 	struct keybinding_list *keybindings;
+	struct wl_list output_config;
 
 	enum wl_output_transform output_transform;
 

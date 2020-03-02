@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <wlr/util/log.h>
+#include <limits.h>
 
 #include "keybinding.h"
 #include "output.h"
@@ -344,6 +345,104 @@ parse_definemode(char ***modes, char **saveptr) {
 }
 
 int
+parse_uint(char **saveptr, const char* delim) {
+	char *uint_str = strtok_r(NULL, delim, saveptr);
+	if(uint_str == NULL) {
+		wlr_log(WLR_ERROR, "Expected a non-negative integer, got nothing");
+		return -1;
+	}
+	long uint = strtol(uint_str, NULL, 10);
+	if(uint >= 0 && uint <= INT_MAX) {
+		return uint;
+	} else {
+		wlr_log(WLR_ERROR, "Error parsing non-negative integer. Must be a number larger or equal to 0 and less or equal to %d",INT_MAX);
+		return -1;
+	}
+}
+
+float
+parse_float(char **saveptr, const char* delim) {
+	char *uint_str = strtok_r(NULL, delim, saveptr);
+	if(uint_str == NULL) {
+		wlr_log(WLR_ERROR, "Expected a non-negative float, got nothing");
+		return -1;
+	}
+	float ufloat = strtof(uint_str, NULL);
+	if(ufloat >= 0) {
+		return ufloat;
+	} else {
+		wlr_log(WLR_ERROR, "Error parsing non-negative float. Must be a number larger or equal to 0");
+		return -1;
+	}
+}
+
+int
+parse_output_config(struct wl_list *config_list, char **saveptr) {
+	struct cg_output_config* cfg = malloc(sizeof(struct cg_output_config));
+	char *name = strtok_r(NULL, " ", saveptr);
+	if(name == NULL) {
+		wlr_log(WLR_ERROR, "Expected name of output to be configured, got none");
+		goto error;
+	}
+	char *pos_str = strtok_r(NULL, " ", saveptr);
+	if(pos_str == NULL || strcmp(pos_str, "pos") != 0) {
+		wlr_log(WLR_ERROR, "Expected keyword \"pos\" in output configuration for output %s", name);
+		goto error;
+	}
+
+	cfg->pos.x = parse_uint(saveptr, " ");
+	if(cfg->pos.x < 0) {
+		wlr_log(WLR_ERROR, "Error parsing x coordinate of output configuration for output %s", name);
+		goto error;
+	}
+
+	cfg->pos.y = parse_uint(saveptr, " ");
+	if(cfg->pos.y < 0) {
+		wlr_log(WLR_ERROR, "Error parsing y coordinate of output configuration for output %s", name);
+		goto error;
+	}
+
+	char *res_str = strtok_r(NULL, " ", saveptr);
+	if(res_str == NULL || strcmp(res_str, "res") != 0) {
+		wlr_log(WLR_ERROR, "Expected keyword \"res\" in output configuration for output %s", name);
+		goto error;
+	}
+
+	cfg->pos.width = parse_uint(saveptr, "x");
+	if(cfg->pos.width <= 0) {
+		wlr_log(WLR_ERROR, "Error parsing width of output configuration for output %s (hint: width must be larger than 0)", name);
+		goto error;
+	}
+
+	cfg->pos.height = parse_uint(saveptr, " ");
+	if(cfg->pos.height <= 0) {
+		wlr_log(WLR_ERROR, "Error parsing height of output configuration for output %s (hint: height must e larger than 0)", name);
+		goto error;
+	}
+
+	char *rate_str = strtok_r(NULL, " ", saveptr);
+	if(rate_str == NULL || strcmp(rate_str, "rate") != 0) {
+		wlr_log(WLR_ERROR, "Expected keyword \"rate\" in output configuration for output %s", name);
+		goto error;
+	}
+
+	cfg->refresh_rate = parse_float(saveptr, " ");
+	if(cfg->refresh_rate <= 0.0) {
+		wlr_log(WLR_ERROR, "Error parsing refresh rate of output configuration for output %s", name);
+		goto error;
+	}
+
+	cfg->output_name = strdup(name);
+	wl_list_insert(config_list, &cfg->link);
+	return 0;
+
+error:
+	free(cfg);
+	wlr_log(WLR_ERROR, "Output configuration must be of the form \"output <name> pos <x> <y> res <width>x<height> rate <refresh_rate>");
+	return -1;
+}
+
+int
 parse_rc_line(struct cg_server *server, char *line) {
 	char *saveptr = NULL; // Used internally by strtok_r
 	char *command = strtok_r(line, " ", &saveptr);
@@ -372,6 +471,10 @@ parse_rc_line(struct cg_server *server, char *line) {
 		}
 	} else if(strcmp(command, "exec") == 0) {
 		if(parse_and_run_exec(&saveptr) != 0) {
+			return -1;
+		}
+	} else if(strcmp(command, "output") == 0) {
+		if(parse_output_config(&server->output_config, &saveptr) != 0) {
 			return -1;
 		}
 	} else if(strcmp(command, "workspaces") == 0) {
