@@ -147,6 +147,7 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 
 	message_set_output(output, buffer, box, CG_MESSAGE_TOP_RIGHT);
 	free(buffer);
+	free(box);
 	alarm(output->server->message_timeout);
 }
 
