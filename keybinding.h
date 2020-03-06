@@ -43,6 +43,11 @@ enum keybinding_action {
 	KEYBINDING_FOCUS_RIGHT,
 	KEYBINDING_FOCUS_TOP,
 	KEYBINDING_FOCUS_BOTTOM,
+
+	KEYBINDING_DEFINEKEY, // data.kb is the keybinding definition
+	KEYBINDING_BACKGROUND, //data.color is the background color
+	KEYBINDING_DEFINEMODE, //data.c is the mode name
+	KEYBINDING_WORKSPACES, //data.i is the number of workspaces
 };
 
 union keybinding_params {
@@ -50,6 +55,8 @@ union keybinding_params {
 	uint32_t u;
 	int32_t i;
 	bool b;
+	float color[3];
+	struct keybinding* kb;
 };
 
 struct keybinding {
@@ -82,5 +89,7 @@ keybinding_list_init();
 int
 run_action(enum keybinding_action action, struct cg_server *server,
            union keybinding_params data);
+void
+keybinding_free(struct keybinding *keybinding, bool recursive);
 
 #endif /* end of include guard KEYBINDINGS_H */

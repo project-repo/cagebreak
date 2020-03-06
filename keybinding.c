@@ -54,12 +54,19 @@ find_keybinding(const struct keybinding_list *list,
 }
 
 void
-keybinding_free(struct keybinding *keybinding) {
+keybinding_free(struct keybinding *keybinding, bool recursive) {
 	switch(keybinding->action) {
+	case KEYBINDING_DEFINEMODE:
 	case KEYBINDING_RUN_COMMAND:
 		if(keybinding->data.c != NULL) {
 			free(keybinding->data.c);
 		}
+		break;
+	case KEYBINDING_DEFINEKEY:
+		if(keybinding->data.kb != NULL && recursive) {
+			keybinding_free(keybinding->data.kb, true);
+		}
+		break;
 	default:
 		break;
 	}
@@ -79,7 +86,7 @@ keybinding_list_push(struct keybinding_list *list,
 	 * exist*/
 	struct keybinding **found_keybinding = find_keybinding(list, keybinding);
 	if(found_keybinding != NULL) {
-		keybinding_free(*found_keybinding);
+		keybinding_free(*found_keybinding,true);
 		*found_keybinding = keybinding;
 		wlr_log(WLR_DEBUG, "A keybinding was found twice in the config file.");
 	} else {
@@ -101,7 +108,7 @@ keybinding_list_init() {
 void
 keybinding_list_free(struct keybinding_list *list) {
 	for(unsigned int i = 0; i < list->length; ++i) {
-		keybinding_free(list->keybindings[i]);
+		keybinding_free(list->keybindings[i], true);
 	}
 	free(list->keybindings);
 	free(list);
@@ -634,6 +641,7 @@ keybinding_show_time(struct cg_server *server) {
 	msg[strcspn(msg, "\n")] = '\0'; /* Remove the newline */
 
 	message_printf(server->curr_output, "%s", msg);
+	free(msg);
 }
 
 void
@@ -668,6 +676,60 @@ keybinding_move_view_to_next_output(struct cg_server *server) {
 		view_position(view);
 		seat_set_focus(server->seat, view);
 	}
+}
+
+void
+keybinding_set_nws(struct cg_server *server, int nws) {
+	struct cg_output *output;
+	wl_list_for_each(output, &server->outputs, link) {
+		for(unsigned int i = nws; i < server->nws; ++i) {
+			workspace_free(output->workspaces[i]);
+		}
+		struct cg_workspace **new_workspaces = realloc(
+		    output->workspaces, nws * sizeof(struct cg_workspace *));
+		if(new_workspaces == NULL) {
+			wlr_log(WLR_ERROR, "Error reallocating memory for workspaces.");
+			return;
+		}
+		output->workspaces = new_workspaces;
+		for(int i = server->nws; i < nws; ++i) {
+			output->workspaces[i] = full_screen_workspace(output);
+			wl_list_init(&output->workspaces[i]->views);
+			wl_list_init(&output->workspaces[i]->unmanaged_views);
+		}
+
+		if(output->curr_workspace >= nws) {
+			output->curr_workspace = nws-1;
+		}
+	}
+	server->nws = nws;
+}
+
+void
+keybinding_definemode(struct cg_server *server, char* mode) {
+	int length = 0;
+	while(server->modes[length++] != NULL);
+	char **tmp = realloc(server->modes, (length + 1) * sizeof(char *));
+	if(tmp == NULL) {
+		wlr_log(WLR_ERROR, "Could not allocate memory for storing modes.");
+		return;
+	}
+	server->modes = tmp;
+	server->modes[length] = NULL;
+
+	server->modes[length - 1] = strdup(mode);
+}
+
+void
+keybinding_definekey(struct cg_server *server, struct keybinding *kb) {
+	keybinding_list_push(server->keybindings,kb);
+}
+
+void
+keybinding_set_background(struct cg_server *server, float* bg) {
+	server->bg_color[0] = bg[0];
+	server->bg_color[1] = bg[1];
+	server->bg_color[2] = bg[2];
 }
 
 void
@@ -808,6 +870,18 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_move_view_to_next_output(server);
 		break;
 	}
+	case KEYBINDING_DEFINEKEY:
+		keybinding_definekey(server,data.kb);
+		break;
+	case KEYBINDING_BACKGROUND:
+		keybinding_set_background(server, data.color);
+		break;
+	case KEYBINDING_DEFINEMODE:
+		keybinding_definemode(server, data.c);
+		break;
+	case KEYBINDING_WORKSPACES:
+		keybinding_set_nws(server, data.i);
+		break;
 	default: {
 		wlr_log(WLR_ERROR,
 		        "run_action was called with a value not present in \"enum "
