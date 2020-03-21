@@ -51,7 +51,6 @@ workspace_focus_tile(struct cg_workspace *ws, struct cg_tile *tile) {
 	box->x = tile->tile.x + tile->tile.width / 2;
 	box->y = tile->tile.y + tile->tile.height / 2;
 	message_printf_pos(ws->output, box, CG_MESSAGE_CENTER, "Current frame");
-	free(box);
 }
 
 void
