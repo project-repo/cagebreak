@@ -58,7 +58,8 @@ parse_key(struct keybinding *keybinding, const char *key_def) {
 }
 
 int
-parse_command(struct cg_server *server, struct keybinding *keybinding, char *saveptr);
+parse_command(struct cg_server *server, struct keybinding *keybinding,
+              char *saveptr);
 
 /* Parse a keybinding definition and return it if successful, else return NULL
  */
@@ -116,28 +117,31 @@ parse_background(struct cg_server *server, float *color, char **saveptr) {
 	for(unsigned int i = 0; i < 3; ++i) {
 		char *nstr = strtok_r(NULL, " \n", saveptr);
 		int nstrlen;
-		if(nstr == NULL||(nstrlen = strlen(nstr))== 0) {
+		if(nstr == NULL || (nstrlen = strlen(nstr)) == 0) {
 			wlr_log(WLR_ERROR,
 			        "Expected three space-separated numbers (rgb) for "
 			        "background color setting. Got %d.",
 			        i);
 			return -1;
 		}
-		if(nstr[nstrlen-1] == '\n') {
-			nstr[nstrlen-1] = '\0';
+		if(nstr[nstrlen - 1] == '\n') {
+			nstr[nstrlen - 1] = '\0';
 			--nstrlen;
 		}
 		char *endptr = NULL;
 		float nval = strtof(nstr, &endptr);
-		if(endptr != nstr+nstrlen) {
+		if(endptr != nstr + nstrlen) {
 			wlr_log(
 			    WLR_ERROR,
 			    "Could not parse number \"%s\" for background color setting.",
 			    nstr);
 			return -1;
 		}
-		if(nval<0||nval>1) {
-			wlr_log(WLR_ERROR, "Expected a number between 0 and 1 for setting of background color. Got %f.",nval);
+		if(nval < 0 || nval > 1) {
+			wlr_log(WLR_ERROR,
+			        "Expected a number between 0 and 1 for setting of "
+			        "background color. Got %f.",
+			        nval);
 			return -1;
 		}
 		color[i] = nval;
@@ -161,7 +165,7 @@ parse_escape(char **saveptr) {
 	return keybinding;
 }
 
-char*
+char *
 parse_definemode(char **saveptr) {
 	char *mode = strtok_r(NULL, " ", saveptr);
 	if(mode == NULL) {
@@ -182,8 +186,7 @@ parse_workspaces(char **saveptr) {
 	long nws = strtol(nws_str, NULL, 10);
 	if(!(1 <= nws && nws <= 30)) {
 		wlr_log(WLR_ERROR,
-		        "More than 30 workspaces are not supported. Received %li",
-		        nws);
+		        "More than 30 workspaces are not supported. Received %li", nws);
 		return -1;
 	}
 	return nws;
@@ -191,12 +194,10 @@ parse_workspaces(char **saveptr) {
 
 int
 parse_command(struct cg_server *server, struct keybinding *keybinding,
-             char *saveptr) {
+              char *saveptr) {
 	char *action = strtok_r(NULL, " ", &saveptr);
 	if(action == NULL) {
-		wlr_log(
-		    WLR_ERROR,
-		    "Expected an action to parse, got none.");
+		wlr_log(WLR_ERROR, "Expected an action to parse, got none.");
 		return -1;
 	}
 	keybinding->data = (union keybinding_params){.c = NULL};
@@ -260,10 +261,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 
 		long ws = strtol(nws_str, NULL, 10);
-		if(!(1 <= ws && ws <= server->nws)) {
-			wlr_log(WLR_ERROR,
-			        "Requested binding for workspace %li, but have %u", ws,
-			        server->nws);
+		if(ws < 1) {
+			wlr_log(WLR_ERROR, "Workspace number must be a integer number larger or equal to 1. Got %ld", ws);
 			return -1;
 		}
 		keybinding->data.u = ws - 1;
@@ -277,11 +276,9 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 
 		long ws = strtol(nws_str, NULL, 10);
-		if(!(1 <= ws && ws <= server->nws)) {
+		if(ws < 1) {
 			wlr_log(
-			    WLR_ERROR,
-			    "Requested binding for moving to workspace %li, but have %u",
-			    ws, server->nws);
+			    WLR_ERROR, "Workspace number must be an integer larger or equal to 1. Got %ld", ws);
 			return -1;
 		}
 		keybinding->data.u = ws - 1;
@@ -357,7 +354,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 	} else if(strcmp(action, "background") == 0) {
 		keybinding->action = KEYBINDING_BACKGROUND;
-		if(parse_background(server, keybinding->data.color,&saveptr) != 0) {
+		if(parse_background(server, keybinding->data.color, &saveptr) != 0) {
 			return -1;
 		}
 	} else if(strcmp(action, "escape") == 0) {
@@ -374,8 +371,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 	} else if(strcmp(action, "workspaces") == 0) {
 		keybinding->action = KEYBINDING_WORKSPACES;
-		keybinding->data.i=parse_workspaces(&saveptr);
-		if(keybinding->data.i<0) {
+		keybinding->data.i = parse_workspaces(&saveptr);
+		if(keybinding->data.i < 0) {
 			return -1;
 		}
 	} else {
@@ -391,7 +388,8 @@ parse_rc_line(struct cg_server *server, char *line) {
 
 	struct keybinding *keybinding = malloc(sizeof(struct keybinding));
 	if(keybinding == NULL) {
-		wlr_log(WLR_ERROR, "Failed to allocate memory for temporary keybinding struct.");
+		wlr_log(WLR_ERROR,
+		        "Failed to allocate memory for temporary keybinding struct.");
 		free(keybinding);
 		free(saveptr);
 		return -1;
