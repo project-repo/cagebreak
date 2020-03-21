@@ -45,12 +45,12 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	// Therefore, we cannot use cairo_create(NULL).
 	cairo_surface_t *dummy_surface =
 	    cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 0, 0);
-	cairo_t *c = cairo_create(dummy_surface);
-
 	// This occurs when we are fuzzing. In that case, do nothing
-	if(c == NULL) {
+	if(dummy_surface == NULL) {
 		return NULL;
 	}
+
+	cairo_t *c = cairo_create(dummy_surface);
 
 	cairo_set_antialias(c, CAIRO_ANTIALIAS_BEST);
 	cairo_font_options_t *fo = cairo_font_options_create();
