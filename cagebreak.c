@@ -10,11 +10,11 @@
 
 #include "config.h"
 
+#include <fcntl.h>
 #include <fontconfig/fontconfig.h>
+#include <getopt.h>
 #include <pango.h>
 #include <pango/pangocairo.h>
-#include <fcntl.h>
-#include <getopt.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>

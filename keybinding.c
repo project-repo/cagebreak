@@ -649,7 +649,7 @@ int
 keybinding_switch_ws(struct cg_server *server, uint32_t ws) {
 	if(ws >= server->nws) {
 		wlr_log(WLR_ERROR,
-		        "Requested workspace %u, but only have %u workspaces.", ws+1,
+		        "Requested workspace %u, but only have %u workspaces.", ws + 1,
 		        server->nws);
 		return -1;
 	}
@@ -716,15 +716,19 @@ keybinding_set_nws(struct cg_server *server, int nws) {
 	wl_list_for_each(output, &server->outputs, link) {
 		for(unsigned int i = nws; i < server->nws; ++i) {
 			struct cg_view *view, *tmp;
-			wl_list_for_each_safe(view,tmp, &output->workspaces[i]->views,link) {
+			wl_list_for_each_safe(view, tmp, &output->workspaces[i]->views,
+			                      link) {
 				wl_list_remove(&view->link);
-				wl_list_insert(&output->workspaces[nws-1]->views,&view->link);
-				view->workspace = output->workspaces[nws-1];
+				wl_list_insert(&output->workspaces[nws - 1]->views,
+				               &view->link);
+				view->workspace = output->workspaces[nws - 1];
 			}
-			wl_list_for_each_safe(view,tmp,&output->workspaces[i]->unmanaged_views,link) {
+			wl_list_for_each_safe(
+			    view, tmp, &output->workspaces[i]->unmanaged_views, link) {
 				wl_list_remove(&view->link);
-				wl_list_insert(&output->workspaces[nws-1]->unmanaged_views,&view->link);
-				view->workspace = output->workspaces[nws-1];
+				wl_list_insert(&output->workspaces[nws - 1]->unmanaged_views,
+				               &view->link);
+				view->workspace = output->workspaces[nws - 1];
 			}
 			workspace_free(output->workspaces[i]);
 		}
@@ -746,7 +750,10 @@ keybinding_set_nws(struct cg_server *server, int nws) {
 		}
 	}
 	server->nws = nws;
-	seat_set_focus(server->seat,server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile->view);
+	seat_set_focus(
+	    server->seat,
+	    server->curr_output->workspaces[server->curr_output->curr_workspace]
+	        ->focused_tile->view);
 }
 
 void

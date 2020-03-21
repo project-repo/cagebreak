@@ -262,7 +262,10 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 
 		long ws = strtol(nws_str, NULL, 10);
 		if(ws < 1) {
-			wlr_log(WLR_ERROR, "Workspace number must be a integer number larger or equal to 1. Got %ld", ws);
+			wlr_log(WLR_ERROR,
+			        "Workspace number must be a integer number larger or equal "
+			        "to 1. Got %ld",
+			        ws);
 			return -1;
 		}
 		keybinding->data.u = ws - 1;
@@ -277,8 +280,10 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 
 		long ws = strtol(nws_str, NULL, 10);
 		if(ws < 1) {
-			wlr_log(
-			    WLR_ERROR, "Workspace number must be an integer larger or equal to 1. Got %ld", ws);
+			wlr_log(WLR_ERROR,
+			        "Workspace number must be an integer larger or equal to 1. "
+			        "Got %ld",
+			        ws);
 			return -1;
 		}
 		keybinding->data.u = ws - 1;

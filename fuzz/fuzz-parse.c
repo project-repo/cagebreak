@@ -51,11 +51,11 @@
 #include "keybinding.h"
 #include "message.h"
 #include "output.h"
-#include "workspace.h"
 #include "parse.h"
 #include "seat.h"
 #include "server.h"
 #include "view.h"
+#include "workspace.h"
 #include "xdg_shell.h"
 #if CG_HAS_XWAYLAND
 #include "xwayland.h"
@@ -423,7 +423,7 @@ LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 	           (union keybinding_params){.c = NULL});
 	wl_display_flush_clients(server.wl_display);
 	wl_display_destroy_clients(server.wl_display);
-	struct cg_output* output;
+	struct cg_output *output;
 	wl_list_for_each(output, &server.outputs, link) {
 		message_clear(output);
 		struct cg_view *view;

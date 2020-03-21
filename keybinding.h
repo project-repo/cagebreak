@@ -44,10 +44,10 @@ enum keybinding_action {
 	KEYBINDING_FOCUS_TOP,
 	KEYBINDING_FOCUS_BOTTOM,
 
-	KEYBINDING_DEFINEKEY, // data.kb is the keybinding definition
-	KEYBINDING_BACKGROUND, //data.color is the background color
-	KEYBINDING_DEFINEMODE, //data.c is the mode name
-	KEYBINDING_WORKSPACES, //data.i is the number of workspaces
+	KEYBINDING_DEFINEKEY,  // data.kb is the keybinding definition
+	KEYBINDING_BACKGROUND, // data.color is the background color
+	KEYBINDING_DEFINEMODE, // data.c is the mode name
+	KEYBINDING_WORKSPACES, // data.i is the number of workspaces
 };
 
 union keybinding_params {
@@ -56,7 +56,7 @@ union keybinding_params {
 	int32_t i;
 	bool b;
 	float color[3];
-	struct keybinding* kb;
+	struct keybinding *kb;
 };
 
 struct keybinding {
