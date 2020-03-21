@@ -86,7 +86,7 @@ keybinding_list_push(struct keybinding_list *list,
 	 * exist*/
 	struct keybinding **found_keybinding = find_keybinding(list, keybinding);
 	if(found_keybinding != NULL) {
-		keybinding_free(*found_keybinding,true);
+		keybinding_free(*found_keybinding, true);
 		*found_keybinding = keybinding;
 		wlr_log(WLR_DEBUG, "A keybinding was found twice in the config file.");
 	} else {
@@ -255,10 +255,27 @@ is_between_strict(int a, int b, int x) {
 	return a < x && x < b;
 }
 
+int
+get_compl_coord(struct cg_tile *tile, int *(*get_coord)(struct cg_tile *tile)) {
+	return tile->tile.x + tile->tile.y - *get_coord(tile);
+}
+
+int
+get_compl_dim(struct cg_tile *tile, int *(*get_dim)(struct cg_tile *tile)) {
+	return tile->tile.width + tile->tile.height - *get_dim(tile);
+}
+
 bool
-resize_allowed(struct cg_tile *tile, struct cg_tile *parent, int coord_offset,
-               int dim_offset, int *(*get_coord)(struct cg_tile *tile),
-               int *(*get_dim)(struct cg_tile *tile)) {
+intervalls_intersect(int x1, int x2, int y1, int y2) {
+	return y2 > x1 && y1 < x2;
+}
+
+bool
+resize_allowed(struct cg_tile *tile, const struct cg_tile *parent,
+               int coord_offset, int dim_offset,
+               int *(*get_coord)(struct cg_tile *tile),
+               int *(*get_dim)(struct cg_tile *tile), struct cg_tile *orig) {
+
 	if(coord_offset == 0 && dim_offset == 0) {
 		return true;
 	} else if(*get_dim(tile) - coord_offset + dim_offset <= 0) {
@@ -267,17 +284,25 @@ resize_allowed(struct cg_tile *tile, struct cg_tile *parent, int coord_offset,
 
 	for(struct cg_tile *it = tile->next; it != tile && it != NULL;
 	    it = it->next) {
-		if(it == parent) {
+		if(it == parent || it == orig) {
 			continue;
 		}
-		if(it->tile.x == tile->tile.x + tile->tile.width) {
-			if(!resize_allowed(it, tile, dim_offset, -dim_offset, get_coord,
-			                   get_dim)) {
-				return false;
-			}
-		} else if(it->tile.x + it->tile.width == tile->tile.x) {
-			if(!resize_allowed(it, tile, 0, coord_offset, get_coord, get_dim)) {
-				return false;
+		if(intervalls_intersect(
+		       get_compl_coord(tile, get_coord),
+		       get_compl_coord(tile, get_coord) + get_compl_dim(tile, get_dim),
+		       get_compl_coord(it, get_coord),
+		       get_compl_coord(it, get_coord) + get_compl_dim(it, get_dim))) {
+			if(*get_coord(it) == *get_coord(tile) + *get_dim(tile)) {
+				if(!resize_allowed(it, tile, dim_offset + coord_offset,
+				                   -dim_offset - coord_offset, get_coord,
+				                   get_dim, orig)) {
+					return false;
+				}
+			} else if(*get_coord(it) + *get_dim(it) == *get_coord(tile)) {
+				if(!resize_allowed(it, tile, 0, coord_offset, get_coord,
+				                   get_dim, orig)) {
+					return false;
+				}
 			}
 		}
 	}
@@ -287,20 +312,27 @@ resize_allowed(struct cg_tile *tile, struct cg_tile *parent, int coord_offset,
 void
 resize(struct cg_tile *tile, const struct cg_tile *parent, int coord_offset,
        int dim_offset, int *(*get_coord)(struct cg_tile *tile),
-       int *(*get_dim)(struct cg_tile *tile)) {
+       int *(*get_dim)(struct cg_tile *tile), struct cg_tile *orig) {
 	if(coord_offset == 0 && dim_offset == 0) {
 		return;
 	}
 
 	for(struct cg_tile *it = tile->next; it != tile && it != NULL;
 	    it = it->next) {
-		if(it == parent) {
+		if(it == parent || it == orig) {
 			continue;
 		}
-		if(*get_coord(it) == *get_coord(tile) + *get_dim(tile)) {
-			resize(it, tile, dim_offset, -dim_offset, get_coord, get_dim);
-		} else if(*get_coord(it) + *get_dim(it) == *get_coord(tile)) {
-			resize(it, tile, 0, coord_offset, get_coord, get_dim);
+		if(intervalls_intersect(
+		       get_compl_coord(tile, get_coord),
+		       get_compl_coord(tile, get_coord) + get_compl_dim(tile, get_dim),
+		       get_compl_coord(it, get_coord),
+		       get_compl_coord(it, get_coord) + get_compl_dim(it, get_dim))) {
+			if(*get_coord(it) == *get_coord(tile) + *get_dim(tile)) {
+				resize(it, tile, dim_offset + coord_offset,
+				       -dim_offset - coord_offset, get_coord, get_dim, orig);
+			} else if(*get_coord(it) + *get_dim(it) == *get_coord(tile)) {
+				resize(it, tile, 0, coord_offset, get_coord, get_dim, orig);
+			}
 		}
 	}
 
@@ -342,26 +374,26 @@ bool
 resize_allowed_horizontal(struct cg_tile *tile, struct cg_tile *parent,
                           int x_offset, int width_offset) {
 	return resize_allowed(tile, parent, x_offset, width_offset, get_x,
-	                      get_width);
+	                      get_width, tile);
 }
 
 bool
 resize_allowed_vertical(struct cg_tile *tile, struct cg_tile *parent,
                         int y_offset, int height_offset) {
 	return resize_allowed(tile, parent, y_offset, height_offset, get_y,
-	                      get_height);
+	                      get_height, tile);
 }
 
 void
 resize_horizontal(struct cg_tile *tile, struct cg_tile *parent, int x_offset,
                   int width_offset) {
-	resize(tile, parent, x_offset, width_offset, get_x, get_width);
+	resize(tile, parent, x_offset, width_offset, get_x, get_width, tile);
 }
 
 void
 resize_vertical(struct cg_tile *tile, struct cg_tile *parent, int y_offset,
                 int height_offset) {
-	resize(tile, parent, y_offset, height_offset, get_y, get_height);
+	resize(tile, parent, y_offset, height_offset, get_y, get_height, tile);
 }
 
 /* hpixs: positiv -> right, negative -> left; vpixs: positiv -> down, negative
@@ -615,9 +647,9 @@ keybinding_cycle_tiles(struct cg_server *server, bool reverse) {
 
 int
 keybinding_switch_ws(struct cg_server *server, uint32_t ws) {
-	if(ws > server->nws) {
+	if(ws >= server->nws) {
 		wlr_log(WLR_ERROR,
-		        "Requested workspace %u, but only have %u workspaces.", ws,
+		        "Requested workspace %u, but only have %u workspaces.", ws+1,
 		        server->nws);
 		return -1;
 	}
@@ -683,10 +715,21 @@ keybinding_set_nws(struct cg_server *server, int nws) {
 	struct cg_output *output;
 	wl_list_for_each(output, &server->outputs, link) {
 		for(unsigned int i = nws; i < server->nws; ++i) {
+			struct cg_view *view, *tmp;
+			wl_list_for_each_safe(view,tmp, &output->workspaces[i]->views,link) {
+				wl_list_remove(&view->link);
+				wl_list_insert(&output->workspaces[nws-1]->views,&view->link);
+				view->workspace = output->workspaces[nws-1];
+			}
+			wl_list_for_each_safe(view,tmp,&output->workspaces[i]->unmanaged_views,link) {
+				wl_list_remove(&view->link);
+				wl_list_insert(&output->workspaces[nws-1]->unmanaged_views,&view->link);
+				view->workspace = output->workspaces[nws-1];
+			}
 			workspace_free(output->workspaces[i]);
 		}
-		struct cg_workspace **new_workspaces = realloc(
-		    output->workspaces, nws * sizeof(struct cg_workspace *));
+		struct cg_workspace **new_workspaces =
+		    realloc(output->workspaces, nws * sizeof(struct cg_workspace *));
 		if(new_workspaces == NULL) {
 			wlr_log(WLR_ERROR, "Error reallocating memory for workspaces.");
 			return;
@@ -699,16 +742,18 @@ keybinding_set_nws(struct cg_server *server, int nws) {
 		}
 
 		if(output->curr_workspace >= nws) {
-			output->curr_workspace = nws-1;
+			output->curr_workspace = nws - 1;
 		}
 	}
 	server->nws = nws;
+	seat_set_focus(server->seat,server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile->view);
 }
 
 void
-keybinding_definemode(struct cg_server *server, char* mode) {
+keybinding_definemode(struct cg_server *server, char *mode) {
 	int length = 0;
-	while(server->modes[length++] != NULL);
+	while(server->modes[length++] != NULL)
+		;
 	char **tmp = realloc(server->modes, (length + 1) * sizeof(char *));
 	if(tmp == NULL) {
 		wlr_log(WLR_ERROR, "Could not allocate memory for storing modes.");
@@ -722,11 +767,11 @@ keybinding_definemode(struct cg_server *server, char* mode) {
 
 void
 keybinding_definekey(struct cg_server *server, struct keybinding *kb) {
-	keybinding_list_push(server->keybindings,kb);
+	keybinding_list_push(server->keybindings, kb);
 }
 
 void
-keybinding_set_background(struct cg_server *server, float* bg) {
+keybinding_set_background(struct cg_server *server, float *bg) {
 	server->bg_color[0] = bg[0];
 	server->bg_color[1] = bg[1];
 	server->bg_color[2] = bg[2];
@@ -871,7 +916,7 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	}
 	case KEYBINDING_DEFINEKEY:
-		keybinding_definekey(server,data.kb);
+		keybinding_definekey(server, data.kb);
 		break;
 	case KEYBINDING_BACKGROUND:
 		keybinding_set_background(server, data.color);
