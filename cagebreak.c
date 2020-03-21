@@ -10,6 +10,9 @@
 
 #include "config.h"
 
+#include <fontconfig/fontconfig.h>
+#include <pango.h>
+#include <pango/pangocairo.h>
 #include <fcntl.h>
 #include <getopt.h>
 #include <signal.h>
@@ -533,5 +536,10 @@ end:
 	   with a proper wl_display. */
 	wl_display_destroy(server.wl_display);
 	wlr_output_layout_destroy(server.output_layout);
+
+	pango_cairo_font_map_set_default(NULL);
+	cairo_debug_reset_static_data();
+	FcFini();
+
 	return ret;
 }
