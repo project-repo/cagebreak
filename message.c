@@ -46,6 +46,12 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	cairo_surface_t *dummy_surface =
 	    cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 0, 0);
 	cairo_t *c = cairo_create(dummy_surface);
+
+	// This occurs when we are fuzzing. In that case, do nothing
+	if(c == NULL) {
+		return NULL;
+	}
+
 	cairo_set_antialias(c, CAIRO_ANTIALIAS_BEST);
 	cairo_font_options_t *fo = cairo_font_options_create();
 	cairo_font_options_set_hint_style(fo, CAIRO_HINT_STYLE_FULL);
@@ -147,7 +153,6 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 
 	message_set_output(output, buffer, box, CG_MESSAGE_TOP_RIGHT);
 	free(buffer);
-	free(box);
 	alarm(output->server->message_timeout);
 }
 
