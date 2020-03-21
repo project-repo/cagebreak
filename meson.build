@@ -64,6 +64,7 @@ xkbcommon      = dependency('xkbcommon')
 cairo          = dependency('cairo')
 pango          = dependency('pango')
 pangocairo     = dependency('pangocairo')
+fontconfig     = dependency('fontconfig')
 math           = cc.find_library('m')
 
 wl_protocol_dir = wayland_protos.get_pkgconfig_variable('pkgdatadir')
@@ -180,6 +181,7 @@ cagebreak_dependencies = [
   wayland_cursor,
   wlroots,
   xkbcommon,
+  fontconfig,
   pixman,
   math,
   pango,
