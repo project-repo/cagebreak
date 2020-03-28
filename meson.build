@@ -64,7 +64,7 @@ xkbcommon      = dependency('xkbcommon')
 cairo          = dependency('cairo')
 pango          = dependency('pango')
 pangocairo     = dependency('pangocairo')
-math           = cc.find_library('m')
+fontconfig     = dependency('fontconfig')
 
 wl_protocol_dir = wayland_protos.get_pkgconfig_variable('pkgdatadir')
 wayland_scanner = find_program('wayland-scanner')
@@ -173,19 +173,47 @@ foreach header : cagebreak_header_strings
   cagebreak_headers += files(header)
 endforeach
 
-cagebreak_dependencies = [
-  server_protos,
-  wayland_server,
-  wayland_client,
-  wayland_cursor,
-  wlroots,
-  xkbcommon,
-  pixman,
-  math,
-  pango,
-  cairo,
-  pangocairo,
-]
+cagebreak_dependencies_dict = {
+  'server_protos': server_protos,
+  'wayland_server': wayland_server,
+  'wayland_client': wayland_client,
+  'wayland_cursor': wayland_cursor,
+  'wlroots': wlroots,
+  'xkbcommon': xkbcommon,
+  'fontconfig': fontconfig,
+  'pixman': pixman,
+  'pango': pango,
+  'cairo': cairo,
+  'pangocairo': pangocairo,
+}
+
+reproducible_build_versions = { 
+  'server_protos': '1.0.5',
+  'wayland_server': '1.18.0',
+  'wayland_client': '1.18.0',
+  'wayland_cursor': '1.18.0',
+  'wlroots': '0.10.1',
+  'xkbcommon': '0.10.0',
+  'fontconfig': '2.13.91',
+  'pixman': '0.38.4',
+  'pango': '1.44.7',
+  'cairo': '1.17.3',
+  'pangocairo': '1.44.7',
+}
+
+cagebreak_dependencies = []
+
+foreach name, dep : cagebreak_dependencies_dict
+  cagebreak_dependencies += dep
+endforeach
+
+foreach name, dep : cagebreak_dependencies_dict
+  if reproducible_build_versions[name] != dep.version()
+    warning('The installed version of "' + name + '" on your machine (' + dep.version() + ') differs from the one used to generate the hash specified in the "Reproducible Build" section of the manual (' + reproducible_build_versions[name] + '). There is therefore no guaranty that the hashes of the binaries match.'
+    )
+	break
+  endif
+endforeach
 
 executable(
   meson.project_name(),
