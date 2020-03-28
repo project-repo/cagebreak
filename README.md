@@ -129,7 +129,7 @@ The full public keys can be found in `keys/` along with any revocation certifica
 ### Reproducible Builds
 
 Cagebreak offers reproducible builds given the exact library versions specified
-in `meson.build`. Should the versions not match, a warning will be emitted. We have
+in `meson.build`. Should a version mismatch occur, a warning will be emitted. We have
 decided on this compromise to allow flexibility and security. In general we will
 adapt the versions to the packages available under archlinux at the time of
 release.
