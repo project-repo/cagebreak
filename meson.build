@@ -209,7 +209,7 @@ endforeach
 
 foreach name, dep : cagebreak_dependencies_dict
   if reproducible_build_versions[name] != dep.version()
-    warning('The installed version of "' + name + '" on your machine (' + dep.version() + ') differs from the one used to generate the hash specified in the "Reproducible Build" section of the manual (' + reproducible_build_versions[name] + '). There is therefore no guaranty that the hashes of the binaries match.'
+    warning('The installed version of "' + name + '" on your machine (' + dep.version() + ') differs from the one used to generate the hash specified in the "Reproducible Build" section of the README (' + reproducible_build_versions[name] + '). There is therefore no guaranty that the hashes of the binaries match.'
     )
 	break
   endif
