@@ -65,6 +65,7 @@ cairo          = dependency('cairo')
 pango          = dependency('pango')
 pangocairo     = dependency('pangocairo')
 fontconfig     = dependency('fontconfig')
+math           = cc.find_library('m')
 
 wl_protocol_dir = wayland_protos.get_pkgconfig_variable('pkgdatadir')
 wayland_scanner = find_program('wayland-scanner')
@@ -185,6 +186,7 @@ cagebreak_dependencies_dict = {
   'pango': pango,
   'cairo': cairo,
   'pangocairo': pangocairo,
+  'math': math
 }
 
 reproducible_build_versions = { 
@@ -199,6 +201,7 @@ reproducible_build_versions = {
   'pango': '1.44.7',
   'cairo': '1.17.3',
   'pangocairo': '1.44.7',
+  'math': '-1'
 }
 
 cagebreak_dependencies = []
@@ -208,7 +211,7 @@ foreach name, dep : cagebreak_dependencies_dict
 endforeach
 
 foreach name, dep : cagebreak_dependencies_dict
-  if reproducible_build_versions[name] != dep.version()
+  if reproducible_build_versions[name] != '-1' and reproducible_build_versions[name] != dep.version()
     warning('The installed version of "' + name + '" on your machine (' + dep.version() + ') differs from the one used to generate the hash specified in the "Reproducible Build" section of the README (' + reproducible_build_versions[name] + '). There is therefore no guaranty that the hashes of the binaries match.'
     )
 	break
