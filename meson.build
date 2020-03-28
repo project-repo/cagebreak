@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.0.5',
+  version: '1.0.6',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -212,7 +212,7 @@ endforeach
 
 foreach name, dep : cagebreak_dependencies_dict
   if reproducible_build_versions[name] != '-1' and reproducible_build_versions[name] != dep.version()
-    warning('The installed version of "' + name + '" on your machine (' + dep.version() + ') differs from the one used to generate the hash specified in the "Reproducible Build" section of the README (' + reproducible_build_versions[name] + '). There is therefore no guaranty that the hashes of the binaries match.'
+    warning('The installed version of "' + name + '" on your machine (' + dep.version() + ') differs from the one used to generate the binary specified in the README section "Reproducible Builds" (' + reproducible_build_versions[name] + '). Cagebreak does not guarantee a reproducible build for this configuration.'
     )
 	break
   endif
