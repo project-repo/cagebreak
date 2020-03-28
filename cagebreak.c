@@ -160,7 +160,7 @@ parse_args(struct cg_server *server, int argc, char *argv[]) {
 			usage(stdout, argv[0]);
 			return false;
 		case 'v':
-			fprintf(stdout, "Cagebreak version " CG_VERSION "\n");
+			fprintf(stdout, "Cagebreak version 1.0.6\n");
 			exit(0);
 		default:
 			usage(stderr, argv[0]);

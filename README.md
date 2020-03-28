@@ -105,6 +105,8 @@ Release checklist
       * [ ] wiki
     * [ ] Changelog in README
     * [ ] Document fixed bugs in Bugs.md
+    * [ ] Update hashes of the binary
+    * [ ] Update signature of the binary
   * [ ] Signature
   * [ ] Branching Strategy
 
@@ -126,10 +128,36 @@ The full public keys can be found in `keys/` along with any revocation certifica
 
 ### Reproducible Builds
 
-Currently our project seems to build the same way on any given system, when compiled
-multiple times. However, at the moment we are unable to supply instructions
-for building our software reproducibly. Reproducible builds are planned for the
-near future.
+Cagebreak offers reproducible builds given the exact library versions specified
+in `meson.build`. Should the versions not match, a warning will be emitted. We have
+decided on this compromise to allow flexibility and security. In general we will
+adapt the versions to the packages available under archlinux at the time of
+release.
+
+#### Reproducible Build Instructions
+
+All hashes and signatures are provided for the following build instructions.
+
+```
+meson build -Dxwayland=true --buildtype=release
+ninja -C build
+```
+
+#### Hashes for Builds
+
+For every release after 1.0.5, hashes will be provided.
+
+1.0.6
+
+  * sha 256: 875d77ae0d1266ace899b143ca738e6adc514ea26b2dae58a0ce5989139149f2
+  * sha 512: 066829ed30b299a21ef74d5d9c7f3ff8021b877ac18a141a0aa77aae1acf880305743eedf546cba0aa06acc53d26750bf989b7fb029f0ea5ac01b3804288ab88
+
+#### GPG Signatures
+
+For every release after 1.0.5, a GPG signature will be provided in `signatures`.
+
+The current signature is called `cagebreak.sig`, whereas all older signatures
+will be named after their release version.
 
 ### Fuzzing
 
