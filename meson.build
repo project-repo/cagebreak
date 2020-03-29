@@ -181,7 +181,7 @@ cagebreak_dependencies_dict = {
 }
 
 reproducible_build_versions = { 
-  'server_protos': '1.0.6',
+  'server_protos': '-1',
   'wayland_server': '1.18.0',
   'wayland_client': '1.18.0',
   'wayland_cursor': '1.18.0',
