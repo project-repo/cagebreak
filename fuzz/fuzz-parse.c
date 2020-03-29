@@ -86,7 +86,9 @@ drop_permissions(void) {
 static bool
 parse_args(struct cg_server *server, int argc, char *argv[]) {
 	server->output_transform = WL_OUTPUT_TRANSFORM_NORMAL;
+#ifdef DEBUG
 	server->debug_damage_tracking = false;
+#endif
 	return true;
 }
 
