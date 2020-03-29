@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.0.6',
+  version: '1.0.7',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -164,6 +164,41 @@ endforeach
 
 foreach header : cagebreak_header_strings
   cagebreak_headers += files(header)
+endforeach
+cagebreak_dependencies_dict = {
+  'server_protos': server_protos,
+  'wayland_server': wayland_server,
+  'wayland_client': wayland_client,
+  'wayland_cursor': wayland_cursor,
+  'wlroots': wlroots,
+  'xkbcommon': xkbcommon,
+  'fontconfig': fontconfig,
+  'pixman': pixman,
+  'pango': pango,
+  'cairo': cairo,
+  'pangocairo': pangocairo,
+  'math': math
+}
+
+reproducible_build_versions = { 
+  'server_protos': '1.0.6',
+  'wayland_server': '1.18.0',
+  'wayland_client': '1.18.0',
+  'wayland_cursor': '1.18.0',
+  'wlroots': '0.10.1',
+  'xkbcommon': '0.10.0',
+  'fontconfig': '2.13.91',
+  'pixman': '0.38.4',
+  'pango': '1.44.7',
+  'cairo': '1.17.3',
+  'pangocairo': '1.44.7',
+  'math': '-1'
+}
+
+cagebreak_dependencies = []
+
+foreach name, dep : cagebreak_dependencies_dict
+  cagebreak_dependencies += dep
 endforeach
 
 cagebreak_dependencies_dict = {

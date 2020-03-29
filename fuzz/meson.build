@@ -17,6 +17,7 @@ endif
 
 override_lib = shared_library('execl_override',
   [ 'execl_override.c' ],
+  dependencies: [ pixman,cairo,pango,pangocairo ],
   install: false
   )
 
