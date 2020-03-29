@@ -74,12 +74,18 @@ it is merged into `master`, creating a new release, which is tagged and signed.
 Merging into master is always done by
 
 ```
-git merge --no-ff development
-git tag -u keyid version
-git push origin master
+git checkout development
+git pull origin development
+git checkout master
+git merge --squash development
+git tag -u keyid version HEAD
+git tag -v version
+git push --tags origin master
 ```
 
 and a log message roughly describing the features is added in the commit.
+
+In the past, our git history did not always reflect this scheme.
 
 ### Releases
 
@@ -99,6 +105,8 @@ Release checklist
       * [ ] wiki
     * [ ] Changelog in README
     * [ ] Document fixed bugs in Bugs.md
+    * [ ] Update hashes of the binary
+    * [ ] Update signature of the binary
   * [ ] Signature
   * [ ] Branching Strategy
 
@@ -120,10 +128,36 @@ The full public keys can be found in `keys/` along with any revocation certifica
 
 ### Reproducible Builds
 
-Currently our project seems to build the same way on any given system, when compiled
-multiple times. However, at the moment we are unable to supply instructions
-for building our software reproducibly. Reproducible builds are planned for the
-near future.
+Cagebreak offers reproducible builds given the exact library versions specified
+in `meson.build`. Should a version mismatch occur, a warning will be emitted. We have
+decided on this compromise to allow flexibility and security. In general we will
+adapt the versions to the packages available under archlinux at the time of
+release.
+
+#### Reproducible Build Instructions
+
+All hashes and signatures are provided for the following build instructions.
+
+```
+meson build -Dxwayland=true --buildtype=release
+ninja -C build
+```
+
+#### Hashes for Builds
+
+For every release after 1.0.5, hashes will be provided.
+
+1.0.6
+
+  * sha 256: 712ae9a8f17a9e589e108f0d503da203cc5eaf1c4a6ca6efb5b4c83b432ce0b8
+  * sha 512: d574003023a00cfd6623aac986a5a7f397cfd0bc9114017629a8c72731b0df3977c4a31768502dfa8a6607be06930089b2ccf6ffca9b5bcd1096b7ca0aede226
+
+#### GPG Signatures
+
+For every release after 1.0.5, a GPG signature will be provided in `signatures`.
+
+The current signature is called `cagebreak.sig`, whereas all older signatures
+will be named after their release version.
 
 ### Fuzzing
 

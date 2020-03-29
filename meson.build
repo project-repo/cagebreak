@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.0.2',
+  version: '1.0.7',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -101,18 +101,10 @@ else
   have_xwayland = false
 endif
 
-version = '@0@'.format(meson.project_version())
-git = find_program('git', native: true, required: false)
-if git.found()
-  git_commit = run_command([git, 'rev-parse', '--short', 'HEAD'])
-  git_branch = run_command([git, 'rev-parse', '--abbrev-ref', 'HEAD'])
-  if git_commit.returncode() == 0 and git_branch.returncode() == 0
-    version = '@0@-@1@ (branch \'@2@\')'.format(
-      meson.project_version(),
-      git_commit.stdout().strip(),
-      git_branch.stdout().strip(),
-    )
-  endif
+if get_option('version_override') != ''
+  version = '@0@'.format(get_option('version_override'))
+else
+  version = '@0@'.format(meson.project_version())
 endif
 
 conf_data = configuration_data()
@@ -173,21 +165,49 @@ endforeach
 foreach header : cagebreak_header_strings
   cagebreak_headers += files(header)
 endforeach
+cagebreak_dependencies_dict = {
+  'server_protos': server_protos,
+  'wayland_server': wayland_server,
+  'wayland_client': wayland_client,
+  'wayland_cursor': wayland_cursor,
+  'wlroots': wlroots,
+  'xkbcommon': xkbcommon,
+  'fontconfig': fontconfig,
+  'pixman': pixman,
+  'pango': pango,
+  'cairo': cairo,
+  'pangocairo': pangocairo,
+  'math': math
+}
 
-cagebreak_dependencies = [
-  server_protos,
-  wayland_server,
-  wayland_client,
-  wayland_cursor,
-  wlroots,
-  xkbcommon,
-  fontconfig,
-  pixman,
-  math,
-  pango,
-  cairo,
-  pangocairo,
-]
+reproducible_build_versions = { 
+  'server_protos': '1.0.6',
+  'wayland_server': '1.18.0',
+  'wayland_client': '1.18.0',
+  'wayland_cursor': '1.18.0',
+  'wlroots': '0.10.1',
+  'xkbcommon': '0.10.0',
+  'fontconfig': '2.13.91',
+  'pixman': '0.38.4',
+  'pango': '1.44.7',
+  'cairo': '1.17.3',
+  'pangocairo': '1.44.7',
+  'math': '-1'
+}
+
+cagebreak_dependencies = []
+
+foreach name, dep : cagebreak_dependencies_dict
+  cagebreak_dependencies += dep
+endforeach
+
+foreach name, dep : cagebreak_dependencies_dict
+  if reproducible_build_versions[name] != '-1' and reproducible_build_versions[name] != dep.version()
+    warning('The installed version of "' + name + '" on your machine (' + dep.version() + ') differs from the one used to generate the binary specified in the README section "Reproducible Builds" (' + reproducible_build_versions[name] + '). Cagebreak does not guarantee a reproducible build for this configuration.'
+    )
+	break
+  endif
+endforeach
 
 executable(
   meson.project_name(),

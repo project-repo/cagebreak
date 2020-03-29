@@ -26,3 +26,56 @@ Steps to reproduce:
   * enter text into the "Tags" field
   * if autocompletion of tags pops up, the keyboard will not enter further
     keystrokes into the text field
+
+### Issue 2
+
+  * Github issue number: N/A
+  * Fixed: 1.0.4
+
+This issue fixes wrong consumption of modifier key on some keyboards.
+
+### Issue 3
+
+  * github issue number: N/A
+  * Fixed: 1.0.5
+
+This issue is a bug causing crashes in cagebreak under specific circumstances.
+
+Steps to reproduce:
+
+  * start cagebreak
+  * vertical split
+  * open a terminal on the left pane
+  * open firefox on the right pane
+  * focus the left pane
+  * close the terminal
+  * close firefox using the mouse while keeping focus on the left pane
+  * this causes a crash with the following error message:
+
+```
+(EE) failed to read Wayland events: Broken pipe
+```
+
+### Issue 4
+
+  github issue number: #1
+  Fixed: 1.0.7
+
+This issue is code duplication in `parse.c`.
+
+Github issue text:
+
+```
+As of right now, the actions which can be run in the config file and the
+actions which can be run as a keybinding are parsed separately in `parse.c`.
+This leads to a lot of code duplication. Furthermore, unifying these
+functionalities would enable a more versatile configuration. For instance, it
+would enable the user to write `hsplit` into the configuration file to split
+the output on startup and workspace 2 to set the default workspace to
+workspace 2. Therefore, this change would simplify the code base, while at
+the same time increasing the feature set.
+
+PS: As a side effect, this would allow quirky statements such as
+`bind dbind r hsplit` which would bind the d key to binding the r key to
+split the output...
+```
