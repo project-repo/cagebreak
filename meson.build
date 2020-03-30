@@ -201,42 +201,6 @@ foreach name, dep : cagebreak_dependencies_dict
   cagebreak_dependencies += dep
 endforeach
 
-cagebreak_dependencies_dict = {
-  'server_protos': server_protos,
-  'wayland_server': wayland_server,
-  'wayland_client': wayland_client,
-  'wayland_cursor': wayland_cursor,
-  'wlroots': wlroots,
-  'xkbcommon': xkbcommon,
-  'fontconfig': fontconfig,
-  'pixman': pixman,
-  'pango': pango,
-  'cairo': cairo,
-  'pangocairo': pangocairo,
-  'math': math
-}
-
-reproducible_build_versions = { 
-  'server_protos': '1.0.6',
-  'wayland_server': '1.18.0',
-  'wayland_client': '1.18.0',
-  'wayland_cursor': '1.18.0',
-  'wlroots': '0.10.1',
-  'xkbcommon': '0.10.0',
-  'fontconfig': '2.13.91',
-  'pixman': '0.38.4',
-  'pango': '1.44.7',
-  'cairo': '1.17.3',
-  'pangocairo': '1.44.7',
-  'math': '-1'
-}
-
-cagebreak_dependencies = []
-
-foreach name, dep : cagebreak_dependencies_dict
-  cagebreak_dependencies += dep
-endforeach
-
 foreach name, dep : cagebreak_dependencies_dict
   if reproducible_build_versions[name] != '-1' and reproducible_build_versions[name] != dep.version()
     warning('The installed version of "' + name + '" on your machine (' + dep.version() + ') differs from the one used to generate the binary specified in the README section "Reproducible Builds" (' + reproducible_build_versions[name] + '). Cagebreak does not guarantee a reproducible build for this configuration.'
