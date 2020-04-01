@@ -179,7 +179,7 @@ Here is an example workflow:
 
 ```
 rm -rf build
-CC=clang meson build -Dfuzz=true
+CC=clang meson build -Dfuzz=true -Db_sanitize=address,undefined -Db_lundef=false
 ninja -C build/
 mkdir build/fuzz_corpus
 cp examples/config build/fuzz_corpus/
