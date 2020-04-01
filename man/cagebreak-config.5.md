@@ -1,4 +1,4 @@
-% CAGEBREAK-CONFIG(1) Version 1.0 | Cagebreak Manual
+% CAGEBREAK-CONFIG(1) Version 1.1 | Cagebreak Manual
 
 # NAME
 
@@ -21,16 +21,16 @@ by prepending a line with the # symbol.
 **background - Set background color**
 
 > Set the background color. This command expects three floating point numbers
-> between 0 and 1, specifying the r,g and b values respectively.
+> between 0 and 1, specifying the r, g and b values respectively.
 > (e.g. "background 1.0 0.0 0.0" sets to background color to red)
 > There is no support for specifying a background image.
 
-**bind - Bind key to action in command mode**
+**bind - Bind key to command in root mode**
 
-> This command requires a key (see **KEY DEFINITIONS**) and an action (see **ACTIONS**) as an argument.
+> This command requires a key (see **KEY DEFINITIONS**) and a command (see **COMMANDS**) as an argument.
 > Subsequently, pressing this key while in command mode executes the
-> supplied action. `bind <key> <keybinding>` is equivalent to
-> `definekey root <key> <action>`
+> supplied action. `bind <key> <command>` is equivalent to
+>> `definekey root <key> <command>`
 
 **definekey - Bind key to action in arbitrary mode**
 
@@ -38,13 +38,13 @@ by prepending a line with the # symbol.
 > difference that the mode in which the keybinding is activated is
 > specified by the user. A call to this function is to be structured as follows:
 >
->> `definekey <mode> <key> <action>`
+>> `definekey <mode> <key> <command>`
 
 **definemode**
 
 > This command requires a single argument; the name of the mode to be defined.
 > Subsequent to a call to this function, the defined mode may be used along with
-> the definekey command to create a custom keymapping. Synopsis:
+> the definekey command to create a custom key mapping. Synopsis:
 >
 >> `definemode <mode>`
 
@@ -63,8 +63,6 @@ by prepending a line with the # symbol.
 
 > Requires a single integer larger than 1 and less than 30 as an argument. Sets the number of
 > workspaces to the supplied number
-
-# ACTIONS
 
 **vsplit**
 
@@ -100,7 +98,7 @@ by prepending a line with the # symbol.
 
 **abort**
 
-> Return to the default mode without running any action
+> Return to the default mode without running any command
 
 **time**
 

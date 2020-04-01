@@ -1,7 +1,7 @@
 # Cagebreak: A Wayland Tiling Compositor Inspired by Ratpoison
 
 This is Cagebreak, a Wayland tiling compositor. The goal of this project is to
-provide a successor to ratpoison for wayland users. However, this is
+provide a successor to ratpoison for Wayland users. However, this is
 no reimplementation of ratpoison. Should you like to know if a feature
 will be implemented, open an issue or get in touch with the development team.
 
@@ -83,7 +83,7 @@ git tag -v version
 git push --tags origin master
 ```
 
-and a log message roughly describing the features is added in the commit.
+and a log message roughly describing the features added in the commit.
 
 In the past, our git history did not always reflect this scheme.
 
@@ -94,8 +94,9 @@ Release checklist
   * [ ] Cursory testing
     * [ ] libfuzzer testing
   * [ ] Version Number
-    * [ ] -v flag
+    * [ ] meson.build
     * [ ] git tag
+    * [ ] man pages
   * [ ] Relevant Documentation
     * [ ] New features documented
       * [ ] man page
@@ -131,7 +132,7 @@ The full public keys can be found in `keys/` along with any revocation certifica
 Cagebreak offers reproducible builds given the exact library versions specified
 in `meson.build`. Should a version mismatch occur, a warning will be emitted. We have
 decided on this compromise to allow flexibility and security. In general we will
-adapt the versions to the packages available under archlinux at the time of
+adapt the versions to the packages available under arch linux at the time of
 release.
 
 #### Reproducible Build Instructions
@@ -163,11 +164,27 @@ will be named after their release version.
 
 Along with the project source code, a fuzzing framework based on `libfuzzer` is
 supplied. This allows for the testing of the parsing code responsible for reading
-the `cagebreak` configuration file. When the `libfuzzer` is available (please
+the `cagebreak` configuration file. When `libfuzzer` is available (please
 use the `clang` compiler to enable it), building the fuzz-testing software can
 be enabled by passing `-Dfuzz=true` to meson. This generates a `build/fuzz/fuzz-parse`
 binary according to the `libfuzzer` specifications. Further documentation on
 how to run this binary can be found [here](https://llvm.org/docs/LibFuzzer.html).
+
+Here is an example workflow:
+
+```
+rm -rf build
+CC=clang meson build -Dfuzz=true
+ninja -C build/
+mkdir build/fuzz_corpus
+cp examples/config build/fuzz_corpus/
+WLR_BACKENDS=headless ./build/fuzz/fuzz-parse -jobs=12 -max_len=50000 -close_fd_mask=3 build/fuzz_corpus/
+```
+
+You may want to tweak `-jobs` or add other options depending on your own setup.
+We have found code path discovery to increase rapidly when the fuzzer is supplied
+with an initial config file. We are working on improving our fuzzing coverage to
+find bugs in other areas of the code.
 
 ## Bugs
 

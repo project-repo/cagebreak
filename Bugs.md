@@ -59,7 +59,7 @@ Steps to reproduce:
 ### Issue 4
 
   github issue number: #1
-  Fixed: 1.0.7
+  Fixed: 1.1.0
 
 This issue is code duplication in `parse.c`.
 
