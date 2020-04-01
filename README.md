@@ -148,6 +148,11 @@ ninja -C build
 
 For every release after 1.0.5, hashes will be provided.
 
+1.1.0
+
+  * sha 256: fc393e225c549f893b9e21e8b904e546d5857bac1d905b3d26334c8f8a1cda11
+  * sha 512: 8b94b1069e767202bcab087cb592eadc42f0453d17ee119d48760be00bc66278cf0fa60bb09308d30cb551df6a7a3e26e2ab8b29c04f0e953cc6906542cd2d6f
+
 1.0.6
 
   * sha 256: 712ae9a8f17a9e589e108f0d503da203cc5eaf1c4a6ca6efb5b4c83b432ce0b8
@@ -200,6 +205,10 @@ independent of github, in case this service is unavailable.
 ### Release 1.0.0
 
 Adds basic tiling window manager functionality to cage.
+
+### Release 1.1.0
+
+Unifies commands and actions. See Issue 4 in Bugs.md.
 
 ## License
 
