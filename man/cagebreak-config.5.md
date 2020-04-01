@@ -18,6 +18,10 @@ by prepending a line with the # symbol.
 
 ## COMMANDS
 
+**abort**
+
+> Return to the default mode without running any command
+
 **background - Set background color**
 
 > Set the background color. This command expects three floating point numbers
@@ -53,88 +57,9 @@ by prepending a line with the # symbol.
 > Defines the key with which the current mode can be changed to "root".
 > `escape <key>` is equivalent to `definekey top <key> switch_mode root`
 
-**exec**
+**exchangedown**
 
-> Executes the supplied shell command using *`sh -c "<command>"`*. Synopsis:
->
->> `exec <command>`
-
-**workspaces**
-
-> Requires a single integer larger than 1 and less than 30 as an argument. Sets the number of
-> workspaces to the supplied number
-
-**vsplit**
-
-> Split current tile vertically
-
-**hsplit**
-
-> Split current tile horizontally
-
-**quit**
-
-> Exit cagebreak
-
-**focus**
-
-> Focus next tile
-
-**focusprev**
-
-> Focus previous tile
-
-**next**
-
-> Focus next window in current tile
-
-**prev**
-
-> Focus previous window in current tile
-
-**only**
-
-> Remove all splits and make the current window fill the entire screen
-
-**abort**
-
-> Return to the default mode without running any command
-
-**time**
-
-> Display time
-
-**nextscreen**
-
-> Focus the next screen
-
-**prevscreen**
-
-> Focus the previous screen
-
-**resizeleft**
-
-> Resize the current tile towards the left
-
-**resizeright**
-
-> Resize the current tile towards the right
-
-**resizedown**
-
-> Resize the current tile towards the bottom
-
-**resizeup**
-
-> Resize the current tile towards the top
-
-**workspace <n>**
-
-> Change to the n-th workspace
-
-**movetoworkspace <n>**
-
-> Move the currently focused window to the n-th workspace
+> Exchange the current window with the window in the tile to the bottom
 
 **exchangeleft**
 
@@ -148,13 +73,27 @@ by prepending a line with the # symbol.
 
 > Exchange the current window with the window in the tile to the top
 
-**exchangedown**
+**exec**
 
-> Exchange the current window with the window in the tile to the bottom
+> Executes the supplied shell command using *`sh -c "<command>"`*. Synopsis:
+>
+>> `exec <command>`
+
+**focus**
+
+> Focus next tile
+
+**focusdown**
+
+> Focus the tile to the bottom
 
 **focusleft**
 
 > Focus the tile to the left
+
+**focusprev**
+
+> Focus previous tile
 
 **focusright**
 
@@ -164,25 +103,86 @@ by prepending a line with the # symbol.
 
 > Focus the tile to the top
 
-**focusdown**
+**hsplit**
 
-> Focus the tile to the bottom
-
-**movetonextscreen**
-
-> Move the current window to the next screen
-
-**switchvt <n>**
-
-> Switch to tty n
+> Split current tile horizontally
 
 **mode <mode>**
 
 > Enter mode "`<mode>`". After a keybinding is processed, return to default mode
 
+**movetonextscreen**
+
+> Move the current window to the next screen
+
+**movetoworkspace <n>**
+
+> Move the currently focused window to the n-th workspace
+
+**next**
+
+> Focus next window in current tile
+
+**nextscreen**
+
+> Focus the next screen
+
+**only**
+
+> Remove all splits and make the current window fill the entire screen
+
+**prev**
+
+> Focus previous window in current tile
+
+**prevscreen**
+
+> Focus the previous screen
+
+**quit**
+
+> Exit cagebreak
+
+**resizedown**
+
+> Resize the current tile towards the bottom
+
+**resizeleft**
+
+> Resize the current tile towards the left
+
+**resizeright**
+
+> Resize the current tile towards the right
+
+**resizeup**
+
+> Resize the current tile towards the top
+
 **setmode <mode>**
 
 > Set the default mode to `<mode>`
+
+**switchvt <n>**
+
+> Switch to tty n
+
+**time**
+
+> Display time
+
+**vsplit**
+
+> Split current tile vertically
+
+**workspace <n>**
+
+> Change to the n-th workspace
+
+**workspaces**
+
+> Requires a single integer larger than 1 and less than 30 as an argument. Sets the number of
+> workspaces to the supplied number
 
 # MODES
 
