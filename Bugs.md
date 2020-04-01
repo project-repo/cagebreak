@@ -55,3 +55,27 @@ Steps to reproduce:
 ```
 (EE) failed to read Wayland events: Broken pipe
 ```
+
+### Issue 4
+
+  github issue number: #1
+  Fixed: 1.1.0
+
+This issue is code duplication in `parse.c`.
+
+Github issue text:
+
+```
+As of right now, the actions which can be run in the config file and the
+actions which can be run as a keybinding are parsed separately in `parse.c`.
+This leads to a lot of code duplication. Furthermore, unifying these
+functionalities would enable a more versatile configuration. For instance, it
+would enable the user to write `hsplit` into the configuration file to split
+the output on startup and workspace 2 to set the default workspace to
+workspace 2. Therefore, this change would simplify the code base, while at
+the same time increasing the feature set.
+
+PS: As a side effect, this would allow quirky statements such as
+`bind dbind r hsplit` which would bind the d key to binding the r key to
+split the output...
+```

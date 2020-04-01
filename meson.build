@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.0.6',
+  version: '1.1.0',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -165,7 +165,6 @@ endforeach
 foreach header : cagebreak_header_strings
   cagebreak_headers += files(header)
 endforeach
-
 cagebreak_dependencies_dict = {
   'server_protos': server_protos,
   'wayland_server': wayland_server,
@@ -182,7 +181,7 @@ cagebreak_dependencies_dict = {
 }
 
 reproducible_build_versions = { 
-  'server_protos': '1.0.6',
+  'server_protos': '-1',
   'wayland_server': '1.18.0',
   'wayland_client': '1.18.0',
   'wayland_cursor': '1.18.0',
