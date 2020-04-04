@@ -310,6 +310,8 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 
+	wl_list_init(&server.output_config);
+
 	renderer = wlr_backend_get_renderer(backend);
 	wlr_renderer_init_wl_display(renderer, server.wl_display);
 
@@ -509,6 +511,13 @@ main(int argc, char *argv[]) {
 		free(config_file);
 	}
 
+	{
+		struct cg_output *output;
+		wl_list_for_each(output, &server.outputs, link) {
+			output_configure(&server, output);
+		}
+	}
+
 	/* Place the cursor to the topl left of the output layout. */
 	wlr_cursor_warp(server.seat->cursor, NULL, 0, 0);
 
@@ -525,6 +534,13 @@ end:
 		free(server.modes[i]);
 	}
 	free(server.modes);
+
+	struct cg_output_config *output_config, *output_config_tmp;
+	wl_list_for_each_safe(output_config, output_config_tmp, &server.output_config, link) {
+		wl_list_remove(&output_config->link);
+		free(output_config->output_name);
+		free(output_config);
+	}
 
 	keybinding_list_free(server.keybindings);
 	wl_event_source_remove(sigint_source);
