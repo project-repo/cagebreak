@@ -200,6 +200,8 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		goto end;
 	}
 
+	wl_list_init(&server.output_config);
+
 	renderer = wlr_backend_get_renderer(backend);
 	wlr_renderer_init_wl_display(renderer, server.wl_display);
 
