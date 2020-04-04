@@ -47,18 +47,18 @@
 #include <wlr/xwayland.h>
 #endif
 
-#include "idle_inhibit_v1.h"
-#include "keybinding.h"
-#include "message.h"
-#include "output.h"
-#include "parse.h"
-#include "seat.h"
-#include "server.h"
-#include "view.h"
-#include "workspace.h"
-#include "xdg_shell.h"
+#include "../idle_inhibit_v1.h"
+#include "../keybinding.h"
+#include "../message.h"
+#include "../output.h"
+#include "../parse.h"
+#include "../seat.h"
+#include "../server.h"
+#include "../view.h"
+#include "../workspace.h"
+#include "../xdg_shell.h"
 #if CG_HAS_XWAYLAND
-#include "xwayland.h"
+#include "../xwayland.h"
 #endif
 
 #ifndef WAIT_ANY
