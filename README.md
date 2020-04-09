@@ -210,6 +210,10 @@ Adds basic tiling window manager functionality to cage.
 
 Unifies commands and actions. See Issue 4 in Bugs.md.
 
+### Release 1.2.0
+
+Adds output configuration as described in the man pages.
+
 ## License
 
 Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE)
