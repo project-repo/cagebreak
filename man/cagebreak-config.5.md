@@ -1,4 +1,4 @@
-% CAGEBREAK-CONFIG(1) Version 1.1 | Cagebreak Manual
+% CAGEBREAK-CONFIG(1) Version 1.2 | Cagebreak Manual
 
 # NAME
 
@@ -130,6 +130,13 @@ by prepending a line with the # symbol.
 **only**
 
 > Remove all splits and make the current window fill the entire screen
+
+**output <name> pos <xpos> <ypos> res <width>x<height> rate <rate>**
+
+> Configure the output "<name>". <xpos> and <ypos> are the position of the monitor
+> in pixels. The top-left monitor should have the coordinates 0 0. <width> and
+> <height> specify the resolution in pixels and <rate> sets the refresh rate of
+> the monitor (often this is 50 or 60).
 
 **prev**
 

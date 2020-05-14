@@ -8,10 +8,13 @@
 
 #define _POSIX_C_SOURCE 200812L
 
-#include "config.h"
 
-#include <fcntl.h>
-#include <getopt.h>
+#include "../keybinding.h"
+#include "../parse.h"
+#include "../seat.h"
+#include "../server.h"
+#include "../output.h"
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -47,18 +50,18 @@
 #include <wlr/xwayland.h>
 #endif
 
-#include "idle_inhibit_v1.h"
-#include "keybinding.h"
-#include "message.h"
-#include "output.h"
-#include "parse.h"
-#include "seat.h"
-#include "server.h"
-#include "view.h"
-#include "workspace.h"
-#include "xdg_shell.h"
+#include "../idle_inhibit_v1.h"
+#include "../keybinding.h"
+#include "../message.h"
+#include "../output.h"
+#include "../parse.h"
+#include "../seat.h"
+#include "../server.h"
+#include "../view.h"
+#include "../workspace.h"
+#include "../xdg_shell.h"
 #if CG_HAS_XWAYLAND
-#include "xwayland.h"
+#include "../xwayland.h"
 #endif
 
 #ifndef WAIT_ANY
@@ -196,6 +199,8 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		ret = 1;
 		goto end;
 	}
+
+	wl_list_init(&server.output_config);
 
 	renderer = wlr_backend_get_renderer(backend);
 	wlr_renderer_init_wl_display(renderer, server.wl_display);
@@ -443,5 +448,13 @@ LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 	}
 	server.modes[3] = NULL;
 	server.modes = realloc(server.modes, 4 * sizeof(char *));
+
+	struct cg_output_config *output_config, *output_config_tmp;
+	wl_list_for_each_safe(output_config, output_config_tmp, &server.output_config, link) {
+		wl_list_remove(&output_config->link);
+		free(output_config->output_name);
+		free(output_config);
+	}
+
 	return 0;
 }
