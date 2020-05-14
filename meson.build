@@ -10,7 +10,6 @@ project('cagebreak', 'c',
 add_project_arguments(
   [
     '-DWLR_USE_UNSTABLE',
-    '-Wall',
     '-Wundef',
     '-Wno-unused-parameter',
   ],
