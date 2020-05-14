@@ -1,4 +1,4 @@
-% CAGEBREAK-CONFIG(1) Version 1.1 | Cagebreak Manual
+% CAGEBREAK-CONFIG(1) Version 1.2 | Cagebreak Manual
 
 # NAME
 
