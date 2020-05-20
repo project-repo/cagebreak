@@ -453,8 +453,10 @@ keybinding_workspace_fullscreen(struct cg_server *server) {
 	}
 
 	workspace_free_tiles(output->workspaces[output->curr_workspace]);
-	full_screen_workspace_tiles(output,
-	                            output->workspaces[output->curr_workspace]);
+	if(full_screen_workspace_tiles(server->output_layout,output->wlr_output, output->workspaces[output->curr_workspace])!=0) {
+		wlr_log(WLR_ERROR, "Failed to allocate space for fullscreen workspace");
+		return;
+	}
 
 	seat_set_focus(server->seat, current_view);
 }
@@ -517,6 +519,10 @@ keybinding_split_output(struct cg_output *output, bool vertical) {
 	}
 
 	struct cg_tile *new_tile = calloc(1, sizeof(struct cg_tile));
+	if(!new_tile) {
+		wlr_log(WLR_ERROR, "Failed to allocate new tile for splitting");
+		return;
+	}
 	new_tile->tile.x = new_x;
 	new_tile->tile.y = new_y;
 	new_tile->tile.width = x + width - new_x;
@@ -741,6 +747,11 @@ keybinding_set_nws(struct cg_server *server, int nws) {
 		output->workspaces = new_workspaces;
 		for(int i = server->nws; i < nws; ++i) {
 			output->workspaces[i] = full_screen_workspace(output);
+			if(!output->workspaces[i]) {
+				wlr_log(WLR_ERROR, "Failed to allocate additional workspaces");
+				return;
+			}
+
 			wl_list_init(&output->workspaces[i]->views);
 			wl_list_init(&output->workspaces[i]->unmanaged_views);
 		}

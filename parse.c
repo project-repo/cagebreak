@@ -67,7 +67,11 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 struct keybinding *
 parse_keybinding(struct cg_server *server, char **saveptr) {
 	struct keybinding *keybinding = malloc(sizeof(struct keybinding));
-	char *key = strtok_r(NULL, " ", saveptr);
+	if(keybinding == NULL) {
+		wlr_log(WLR_ERROR, "Failed to allocate memory for keybinding in parse_keybinding");
+		return NULL;
+	}
+char *key = strtok_r(NULL, " ", saveptr);
 	if(parse_key(keybinding, key) != 0) {
 		wlr_log(WLR_ERROR, "Could not parse key definition \"%s\"", key);
 		free(keybinding);
@@ -153,6 +157,10 @@ parse_background(struct cg_server *server, float *color, char **saveptr) {
 struct keybinding *
 parse_escape(char **saveptr) {
 	struct keybinding *keybinding = malloc(sizeof(struct keybinding));
+	if(keybinding == NULL) {
+		wlr_log(WLR_ERROR, "Failed to allocate memory for keybinding in parse_escape");
+		return NULL;
+	}
 	char *key = strtok_r(NULL, " ", saveptr);
 	if(parse_key(keybinding, key) != 0) {
 		wlr_log(WLR_ERROR,
@@ -228,6 +236,10 @@ parse_float(char **saveptr, const char* delim) {
 int
 parse_output_config(struct wl_list *config_list, char **saveptr) {
 	struct cg_output_config* cfg = malloc(sizeof(struct cg_output_config));
+	if(cfg == NULL) {
+		wlr_log(WLR_ERROR, "Failed to allocate memory for output configuration");
+		goto error;
+	}
 	char *name = strtok_r(NULL, " ", saveptr);
 	if(name == NULL) {
 		wlr_log(WLR_ERROR, "Expected name of output to be configured, got none");
