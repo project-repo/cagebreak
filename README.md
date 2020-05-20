@@ -93,6 +93,7 @@ Release checklist
 
   * [ ] Cursory testing
     * [ ] libfuzzer testing
+  * [ ] ninja -C build clang-format
   * [ ] Version Number
     * [ ] meson.build
     * [ ] git tag
