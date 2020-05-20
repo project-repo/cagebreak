@@ -264,7 +264,7 @@ main(int argc, char *argv[]) {
 
 	server.modes = malloc(4 * sizeof(char *));
 	if(!server.modes) {
-		wlr_log(WLR_ERROR,"Error allocating mode array");
+		wlr_log(WLR_ERROR, "Error allocating mode array");
 		return -1;
 	}
 
@@ -286,8 +286,8 @@ main(int argc, char *argv[]) {
 	server.modes[1] = strdup("root");
 	server.modes[2] = strdup("resize");
 	server.modes[3] = NULL;
-	if(!server.modes[0]||!server.modes[1]||server.modes[2]) {
-		wlr_log(WLR_ERROR,"Error allocating default modes");
+	if(!server.modes[0] || !server.modes[1] || server.modes[2]) {
+		wlr_log(WLR_ERROR, "Error allocating default modes");
 		goto end;
 	}
 
@@ -551,7 +551,8 @@ end:
 	free(server.modes);
 
 	struct cg_output_config *output_config, *output_config_tmp;
-	wl_list_for_each_safe(output_config, output_config_tmp, &server.output_config, link) {
+	wl_list_for_each_safe(output_config, output_config_tmp,
+	                      &server.output_config, link) {
 		wl_list_remove(&output_config->link);
 		free(output_config->output_name);
 		free(output_config);

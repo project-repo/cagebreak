@@ -8,12 +8,11 @@
 
 #define _POSIX_C_SOURCE 200812L
 
-
 #include "../keybinding.h"
+#include "../output.h"
 #include "../parse.h"
 #include "../seat.h"
 #include "../server.h"
-#include "../output.h"
 #include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -450,7 +449,8 @@ LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 	server.modes = realloc(server.modes, 4 * sizeof(char *));
 
 	struct cg_output_config *output_config, *output_config_tmp;
-	wl_list_for_each_safe(output_config, output_config_tmp, &server.output_config, link) {
+	wl_list_for_each_safe(output_config, output_config_tmp,
+	                      &server.output_config, link) {
 		wl_list_remove(&output_config->link);
 		free(output_config->output_name);
 		free(output_config);

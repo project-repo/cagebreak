@@ -21,7 +21,8 @@
 #include "workspace.h"
 
 int
-full_screen_workspace_tiles(struct wlr_output_layout *layout,struct wlr_output *output,
+full_screen_workspace_tiles(struct wlr_output_layout *layout,
+                            struct wlr_output *output,
                             struct cg_workspace *workspace) {
 	workspace->focused_tile = calloc(1, sizeof(struct cg_tile));
 	if(!workspace->focused_tile) {
@@ -45,8 +46,9 @@ full_screen_workspace(struct cg_output *output) {
 	if(!workspace) {
 		return NULL;
 	}
-	workspace->server=output->server;
-	if(full_screen_workspace_tiles(output->server->output_layout, output->wlr_output, workspace)!=0) {
+	workspace->server = output->server;
+	if(full_screen_workspace_tiles(output->server->output_layout,
+	                               output->wlr_output, workspace) != 0) {
 		free(workspace);
 		return NULL;
 	}

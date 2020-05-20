@@ -453,7 +453,9 @@ keybinding_workspace_fullscreen(struct cg_server *server) {
 	}
 
 	workspace_free_tiles(output->workspaces[output->curr_workspace]);
-	if(full_screen_workspace_tiles(server->output_layout,output->wlr_output, output->workspaces[output->curr_workspace])!=0) {
+	if(full_screen_workspace_tiles(
+	       server->output_layout, output->wlr_output,
+	       output->workspaces[output->curr_workspace]) != 0) {
 		wlr_log(WLR_ERROR, "Failed to allocate space for fullscreen workspace");
 		return;
 	}
