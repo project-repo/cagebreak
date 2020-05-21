@@ -223,17 +223,15 @@ view_for_each_popup(struct cg_view *view, wlr_surface_iterator_func_t iterator,
 	view->impl->for_each_popup(view, iterator, data);
 }
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-null-dereference"
 void
 view_unmap(struct cg_view *view) {
 #if CG_HAS_XWAYLAND
 	if((view->type != CG_XWAYLAND_VIEW || xwayland_view_should_manage(view)))
 #endif
 	{
-		if(view_is_visible(view)) {
+		struct cg_tile *view_tile = view_get_tile(view);
+		if(view_tile != NULL) {
 			struct cg_view *prev = view_get_prev_view(view);
-			struct cg_tile *view_tile = view_get_tile(view);
 			wlr_output_damage_add_box(view_tile->workspace->output->damage,
 			                          &view_tile->tile);
 			if((view->workspace->server->seat->seat->keyboard_state
@@ -265,7 +263,6 @@ view_unmap(struct cg_view *view) {
 		}
 	}
 #endif
-#pragma GCC diagnostic pop
 
 	wl_list_remove(&view->link);
 
