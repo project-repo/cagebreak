@@ -545,6 +545,8 @@ main(int argc, char *argv[]) {
 	wl_display_destroy_clients(server.wl_display);
 
 end:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-double-free"
 	for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
 		free(server.modes[i]);
 	}
@@ -575,3 +577,4 @@ end:
 
 	return ret;
 }
+#pragma GCC diagnostic pop

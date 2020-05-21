@@ -223,6 +223,8 @@ view_for_each_popup(struct cg_view *view, wlr_surface_iterator_func_t iterator,
 	view->impl->for_each_popup(view, iterator, data);
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-null-dereference"
 void
 view_unmap(struct cg_view *view) {
 #if CG_HAS_XWAYLAND
@@ -263,6 +265,7 @@ view_unmap(struct cg_view *view) {
 		}
 	}
 #endif
+#pragma GCC diagnostic pop
 
 	wl_list_remove(&view->link);
 
