@@ -21,7 +21,7 @@
 #include "workspace.h"
 
 #pragma GCC diagnostic push
-#pragma GCC ignored "-Wanalyzer-malloc-leak"
+#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
 int
 full_screen_workspace_tiles(struct wlr_output_layout *layout,
                             struct wlr_output *output,
