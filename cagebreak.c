@@ -286,7 +286,7 @@ main(int argc, char *argv[]) {
 	server.modes[1] = strdup("root");
 	server.modes[2] = strdup("resize");
 	server.modes[3] = NULL;
-	if(!server.modes[0] || !server.modes[1] || server.modes[2]) {
+	if(server.modes[0] == NULL || server.modes[1] == NULL || server.modes[2] == NULL) {
 		wlr_log(WLR_ERROR, "Error allocating default modes");
 		goto end;
 	}
