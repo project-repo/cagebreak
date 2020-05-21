@@ -511,6 +511,8 @@ main(int argc, char *argv[]) {
 	wlr_xwayland_set_seat(xwayland, server.seat->seat);
 #endif
 
+	ipc_init(&server);
+
 	{ // config_file should only be visible as long as it is valid
 		char *config_file = get_config_file();
 		if(config_file == NULL) {
@@ -532,8 +534,6 @@ main(int argc, char *argv[]) {
 			output_configure(&server, output);
 		}
 	}
-
-	ipc_init(&server);
 
 	/* Place the cursor to the top left of the output layout. */
 	wlr_cursor_warp(server.seat->cursor, NULL, 0, 0);
