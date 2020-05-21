@@ -95,8 +95,10 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	return texture;
 }
 
+#if CG_HAS_FANALYZE
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
+#endif
 void
 message_set_output(struct cg_output *output, const char *string,
                    struct wlr_box *box, enum cg_message_align align) {
@@ -172,7 +174,9 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 	free(buffer);
 	alarm(output->server->message_timeout);
 }
+#if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop
+#endif
 
 void
 message_printf_pos(struct cg_output *output, struct wlr_box *position,

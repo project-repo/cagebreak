@@ -100,6 +100,12 @@ else
   have_xwayland = false
 endif
 
+if cc.get_id() == 'gcc' and cc.version().version_compare('>=10')
+  have_fanalyze=true
+else
+  have_fanalyze=false
+endif
+
 if get_option('version_override') != ''
   version = '@0@'.format(get_option('version_override'))
 else
@@ -108,6 +114,7 @@ endif
 
 conf_data = configuration_data()
 conf_data.set10('CG_HAS_XWAYLAND', have_xwayland)
+conf_data.set10('CG_HAS_FANALYZE', have_fanalyze)
 conf_data.set_quoted('CG_VERSION', version)
 
 

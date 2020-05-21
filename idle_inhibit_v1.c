@@ -22,8 +22,10 @@ struct cg_idle_inhibitor_v1 {
 	struct wl_listener destroy;
 };
 
+#if CG_HAS_FANALYZE
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
+#endif
 static void
 idle_inhibit_v1_check_active(struct cg_server *server) {
 	/* As of right now, this does not check whether the inhibitor
@@ -31,7 +33,9 @@ idle_inhibit_v1_check_active(struct cg_server *server) {
 	bool inhibited = !wl_list_empty(&server->inhibitors);
 	wlr_idle_set_enabled(server->idle, NULL, !inhibited);
 }
+#if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop
+#endif
 
 static void
 handle_destroy(struct wl_listener *listener, void *data) {
