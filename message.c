@@ -139,7 +139,6 @@ message_set_output(struct cg_output *output, const char *string,
 	}
 	wlr_output_damage_add_box(output->damage, message->position);
 }
-#pragma GCC diagnostic pop
 
 void
 message_printf(struct cg_output *output, const char *fmt, ...) {
@@ -173,6 +172,7 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 	free(buffer);
 	alarm(output->server->message_timeout);
 }
+#pragma GCC diagnostic pop
 
 void
 message_printf_pos(struct cg_output *output, struct wlr_box *position,

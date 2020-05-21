@@ -325,9 +325,12 @@ parse_output_config(struct wl_list *config_list, char **saveptr) {
 		goto error;
 	}
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
 	cfg->output_name = strdup(name);
 	wl_list_insert(config_list, &cfg->link);
 	return 0;
+#pragma GCC diagnostic pop
 
 error:
 	free(cfg);

@@ -550,6 +550,8 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 	}
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
 void
 handle_new_output(struct wl_listener *listener, void *data) {
 	struct cg_server *server = wl_container_of(listener, server, new_output);
@@ -627,6 +629,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	                                     DEFAULT_XCURSOR, server->seat->cursor);
 	wlr_cursor_warp(server->seat->cursor, NULL, 0, 0);
 }
+#pragma GCC diagnostic pop
 
 void
 output_set_window_title(struct cg_output *output, const char *title) {

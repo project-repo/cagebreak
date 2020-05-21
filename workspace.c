@@ -20,6 +20,8 @@
 #include "view.h"
 #include "workspace.h"
 
+#pragma GCC diagnostic push
+#pragma GCC ignored "-Wanalyzer-malloc-leak"
 int
 full_screen_workspace_tiles(struct wlr_output_layout *layout,
                             struct wlr_output *output,
@@ -39,6 +41,7 @@ full_screen_workspace_tiles(struct wlr_output_layout *layout,
 	workspace->focused_tile->view = NULL;
 	return 0;
 }
+#pragma GCC diagnostic pop
 
 struct cg_workspace *
 full_screen_workspace(struct cg_output *output) {
