@@ -95,6 +95,8 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	return texture;
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
 void
 message_set_output(struct cg_output *output, const char *string,
                    struct wlr_box *box, enum cg_message_align align) {
@@ -137,6 +139,7 @@ message_set_output(struct cg_output *output, const char *string,
 	}
 	wlr_output_damage_add_box(output->damage, message->position);
 }
+#pragma GCC diagnostic pop
 
 void
 message_printf(struct cg_output *output, const char *fmt, ...) {
