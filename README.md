@@ -61,6 +61,35 @@ Nonetheless, don't be intimidated by the (slightly lengthy) release checklist or
 part of this file. Do what you can, open an issue and we will collaborate
 toward a solution.
 
+### GCC and -fanalyzer
+
+Cagebreak should be buildable with any reasonably new gcc or clang. Consider
+a gcc version of at least [10.1](https://gcc.gnu.org/gcc-10/changes.html) if
+you want to get the benefit of the brand-new
+[-fanalyzer](https://gcc.gnu.org/onlinedocs/gcc/Static-Analyzer-Options.html)
+flag. However, this new flag sometimes produces false-postives and we
+selectively disable warnings for affected code segments as described below.
+
+Meson is configured to set 'CG_HAS_FANALYZE' if '-fanalyzer' is available.
+Because we also compile with clang for fuzzing, please use the following
+preprocessor statements before
+
+```
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "WARNING OPTION"
+#endif
+```
+and after
+
+```
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic pop
+#endif
+```
+
+the offending part of the code iff the warning is a false positive.
+
 ### Branching strategy
 
 All features are to be developed on feature branches, named after the feature.
