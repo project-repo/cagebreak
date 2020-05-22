@@ -70,7 +70,7 @@ you want to get the benefit of the brand-new
 flag. However, this new flag sometimes produces false-postives and we
 selectively disable warnings for affected code segments as described below.
 
-Meson is configured to set 'CG_HAS_FANALYZE' if '-fanalyzer' is available.
+Meson is configured to set `CG_HAS_FANALYZE` if `-fanalyzer` is available.
 Because we also compile with clang for fuzzing, please use the following
 preprocessor statements before
 
