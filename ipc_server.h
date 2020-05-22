@@ -20,7 +20,7 @@ struct cg_ipc_client {
 	size_t write_buffer_size;
 	char *write_buffer;
 	// The following is for storing data between event_loop calls
-	uint8_t read_buf_len;
+	uint16_t read_buf_len;
 	uint8_t read_discard;// 1 if the current line is to be discarded
 	char *read_buffer;
 };

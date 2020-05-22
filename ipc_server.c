@@ -172,7 +172,7 @@ int ipc_client_handle_readable(int client_fd, uint32_t mask, void *data) {
 	}
 
 	int read_available;
-	if (ioctl(client_fd, FIONREAD, &read_available) == -1) {
+	if (ioctl(client_fd, FIONREAD, &read_available) < 0) {
 		wlr_log(WLR_ERROR, "Unable to read IPC socket buffer size");
 		ipc_client_disconnect(client);
 		return 0;
@@ -219,7 +219,7 @@ void ipc_client_handle_command(struct cg_ipc_client *client) {
 	}
 	client->read_buffer[client->read_buf_len]='\0';
 	char *nl_pos;
-	int offset=0;
+	uint32_t offset=0;
 	while((nl_pos = strchr(client->read_buffer+offset,'\n')) != NULL){
 		if(client->read_discard) {
 			client->read_discard = 0;
@@ -233,11 +233,11 @@ void ipc_client_handle_command(struct cg_ipc_client *client) {
 				}
 			}
 		}
-		offset+=(nl_pos-client->read_buffer)+1;
+		offset=(nl_pos-client->read_buffer)+1;
 	}
-	if(client->read_buf_len-offset == MAX_LINE_SIZE+1) {
+	if(offset == 0) {
 		wlr_log(WLR_ERROR, "Line received was longer that %d, discarding it",MAX_LINE_SIZE);
-		client->read_buf_len =0;
+		client->read_buf_len = 0;
 		client->read_discard = 1;
 		return;
 	}
