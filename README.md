@@ -63,7 +63,7 @@ toward a solution.
 
 ### GCC and -fanalyzer
 
-Cagebreak should be buildable with any reasonably new gcc or clang. Consider
+Cagebreak should compile with any reasonably new gcc or clang. Consider
 a gcc version of at least [10.1](https://gcc.gnu.org/gcc-10/changes.html) if
 you want to get the benefit of the brand-new
 [-fanalyzer](https://gcc.gnu.org/onlinedocs/gcc/Static-Analyzer-Options.html)
@@ -71,8 +71,8 @@ flag. However, this new flag sometimes produces false-postives and we
 selectively disable warnings for affected code segments as described below.
 
 Meson is configured to set `CG_HAS_FANALYZE` if `-fanalyzer` is available.
-Because we also compile with clang for fuzzing, please use the following
-preprocessor statements before
+Therefore, to maintain portability, false-positive fanalyzer warnings are to be
+disabled using the following syntax:
 
 ```
 #if CG_HAS_FANALYZE
@@ -87,8 +87,6 @@ and after
 #pragma GCC diagnostic pop
 #endif
 ```
-
-the offending part of the code iff the warning is a false positive.
 
 ### Branching strategy
 
@@ -112,7 +110,8 @@ git tag -v version
 git push --tags origin master
 ```
 
-and a log message roughly describing the features added in the commit.
+and a log message roughly describing the features added in the commit is
+included.
 
 In the past, our git history did not always reflect this scheme.
 
