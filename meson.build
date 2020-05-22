@@ -100,8 +100,10 @@ else
   have_xwayland = false
 endif
 
-if cc.get_id() == 'gcc' and cc.version().version_compare('>=10')
+fanalyzer_compile_flag=[]
+if cc.has_argument('-fanalyzer')
   have_fanalyze=true
+  fanalyzer_compile_flag=[ '-fanalyzer' ]
 else
   have_fanalyze=false
 endif
@@ -220,7 +222,7 @@ executable(
   cagebreak_main_file + cagebreak_sources + cagebreak_headers,
   dependencies: cagebreak_dependencies,
   install: true,
-  link_args: fuzz_link_args,
+  link_args: fuzz_link_args+fanalyzer_compile_flag,
   c_args: fuzz_compile_args,
 )
 
