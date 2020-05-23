@@ -195,10 +195,14 @@ set_configuration(struct cg_server *server,
 	    fgets(line, MAX_LINE_SIZE, config_file) != NULL; ++line_num) {
 		line[strcspn(line, "\n")] = '\0';
 		if(*line != '\0' && *line != '#') {
-			if(parse_rc_line(server, line) != 0) {
+			char *errstr;
+			if(parse_rc_line(server, line, &errstr) != 0) {
 				wlr_log(WLR_ERROR, "Error in config file \"%s\", line %d\n",
 				        config_file_path, line_num);
 				fclose(config_file);
+				if(errstr != NULL) {
+					free(errstr);
+				}
 				return -1;
 			}
 		}

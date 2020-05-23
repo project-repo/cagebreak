@@ -228,8 +228,14 @@ void ipc_client_handle_command(struct cg_ipc_client *client) {
 			char *line=client->read_buffer+offset;
 			if(*line != '\0' && *line != '#') {
 				message_clear(client->server->curr_output);
-				if(parse_rc_line(client->server, line) != 0) {
-					wlr_log(WLR_ERROR, "Error parsing input from IPC socket.");
+				char *errstr;
+				if(parse_rc_line(client->server, line, &errstr) != 0) {
+					if(errstr != NULL) {
+						message_printf(client->server->curr_output, "%s", errstr);
+						wlr_log(WLR_ERROR, "%s",errstr);
+						free(errstr);
+					}
+					wlr_log(WLR_ERROR, "Error parsing input from IPC socket");
 				}
 			}
 		}

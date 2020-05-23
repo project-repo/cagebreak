@@ -406,7 +406,11 @@ set_configuration(struct cg_server *server, char *content) {
 	    (line = strtok_r(NULL, "\n", &content)) != NULL; ++line_num) {
 		line[strcspn(line, "\n")] = '\0';
 		if(*line != '\0' && *line != '#') {
-			if(parse_rc_line(server, line) != 0) {
+			char *errstr;
+			if(parse_rc_line(server, line, &errstr) != 0) {
+				if(errstr != NULL) {
+					free(errstr);
+				}
 				return -1;
 			}
 		}
