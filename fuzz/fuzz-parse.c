@@ -416,9 +416,13 @@ set_configuration(struct cg_server *server, char *content) {
 
 int
 LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
-	char *str = malloc(size * sizeof(char) + 1);
-	strncpy(str, (char *)data, size);
-	str[size] = 0;
+	if(size == 0) {
+		return 0;
+	}
+	int max_line_size=256>size?size:256;
+	char *str = malloc(sizeof(char)*max_line_size);
+	strncpy(str, (char *)data, max_line_size);
+	str[max_line_size-1] = 0;
 	set_configuration(&server, str);
 	free(str);
 	keybinding_list_free(server.keybindings);
