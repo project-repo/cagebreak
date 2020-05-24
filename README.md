@@ -164,6 +164,9 @@ decided on this compromise to allow flexibility and security. In general we will
 adapt the versions to the packages available under arch linux at the time of
 release.
 
+There are reproducibility issues up to and including release `1.2.0`. See
+`Issue 5` in [Bugs.md](Bugs.md).
+
 #### Reproducible Build Instructions
 
 All hashes and signatures are provided for the following build instructions.
