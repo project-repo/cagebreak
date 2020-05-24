@@ -229,9 +229,9 @@ view_unmap(struct cg_view *view) {
 	if((view->type != CG_XWAYLAND_VIEW || xwayland_view_should_manage(view)))
 #endif
 	{
-		if(view_is_visible(view)) {
+		struct cg_tile *view_tile = view_get_tile(view);
+		if(view_tile != NULL) {
 			struct cg_view *prev = view_get_prev_view(view);
-			struct cg_tile *view_tile = view_get_tile(view);
 			wlr_output_damage_add_box(view_tile->workspace->output->damage,
 			                          &view_tile->tile);
 			if((view->workspace->server->seat->seat->keyboard_state

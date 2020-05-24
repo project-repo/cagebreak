@@ -25,8 +25,9 @@ struct cg_workspace {
 
 struct cg_workspace *
 full_screen_workspace(struct cg_output *output);
-void
-full_screen_workspace_tiles(const struct cg_output *output,
+int
+full_screen_workspace_tiles(struct wlr_output_layout *layout,
+                            struct wlr_output *output,
                             struct cg_workspace *workspace);
 void
 workspace_free_tiles(struct cg_workspace *workspace);

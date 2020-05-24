@@ -61,6 +61,33 @@ Nonetheless, don't be intimidated by the (slightly lengthy) release checklist or
 part of this file. Do what you can, open an issue and we will collaborate
 toward a solution.
 
+### GCC and -fanalyzer
+
+Cagebreak should compile with any reasonably new gcc or clang. Consider
+a gcc version of at least [10.1](https://gcc.gnu.org/gcc-10/changes.html) if
+you want to get the benefit of the brand-new
+[-fanalyzer](https://gcc.gnu.org/onlinedocs/gcc/Static-Analyzer-Options.html)
+flag. However, this new flag sometimes produces false-postives and we
+selectively disable warnings for affected code segments as described below.
+
+Meson is configured to set `CG_HAS_FANALYZE` if `-fanalyzer` is available.
+Therefore, to maintain portability, false-positive fanalyzer warnings are to be
+disabled using the following syntax:
+
+```
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "WARNING OPTION"
+#endif
+```
+and after
+
+```
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic pop
+#endif
+```
+
 ### Branching strategy
 
 All features are to be developed on feature branches, named after the feature.
@@ -83,7 +110,8 @@ git tag -v version
 git push --tags origin master
 ```
 
-and a log message roughly describing the features added in the commit.
+and a log message roughly describing the features added in the commit is
+included.
 
 In the past, our git history did not always reflect this scheme.
 
@@ -93,6 +121,7 @@ Release checklist
 
   * [ ] Cursory testing
     * [ ] libfuzzer testing
+  * [ ] ninja -C build clang-format
   * [ ] Version Number
     * [ ] meson.build
     * [ ] git tag
@@ -135,6 +164,9 @@ decided on this compromise to allow flexibility and security. In general we will
 adapt the versions to the packages available under arch linux at the time of
 release.
 
+There are reproducibility issues up to and including release `1.2.0`. See
+`Issue 5` in [Bugs.md](Bugs.md).
+
 #### Reproducible Build Instructions
 
 All hashes and signatures are provided for the following build instructions.
@@ -147,6 +179,11 @@ ninja -C build
 #### Hashes for Builds
 
 For every release after 1.0.5, hashes will be provided.
+
+1.2.1
+
+  * sha 256: 803f7667dc4997062f9ec95afcdca0cac68c82a7cf057cef83fe1ccfee33b8bc
+  * sha 512: 4d6b7efea10d190a153f893123b1715f290f4b131b490f3d23f489e2dd8edbb886001282849aad9575ad2f40375bbbded59c1cb6157115fcc14dd6a2a061b103
 
 1.2.0
 

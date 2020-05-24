@@ -58,8 +58,8 @@ Steps to reproduce:
 
 ### Issue 4
 
-  github issue number: #1
-  Fixed: 1.1.0
+  * github issue number: #1
+  * Fixed: 1.1.0
 
 This issue is code duplication in `parse.c`.
 
@@ -79,3 +79,21 @@ PS: As a side effect, this would allow quirky statements such as
 `bind dbind r hsplit` which would bind the d key to binding the r key to
 split the output...
 ```
+
+### Issue 5
+
+  * github issue number : N/A
+  * Fixed: 1.2.1
+
+Cagebreak up to and including release 1.2.0 does not warn of irreproducibility
+if a different compiler or compiler version is used. This makes cagebreak
+difficult to reproduce.
+
+### Issue 6
+
+  * github issue number : N/A
+  * Fixed: 1.2.1
+
+Our fuzzing framework up to and including release 1.2.0 does not the limit line
+lengths. This can crash the fuzzing framework with a segfault due to running
+out of memory.

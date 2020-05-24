@@ -198,10 +198,12 @@ set_configuration(struct cg_server *server,
 			if(parse_rc_line(server, line) != 0) {
 				wlr_log(WLR_ERROR, "Error in config file \"%s\", line %d\n",
 				        config_file_path, line_num);
+				fclose(config_file);
 				return -1;
 			}
 		}
 	}
+	fclose(config_file);
 	return 0;
 }
 
@@ -218,6 +220,10 @@ get_config_file() {
 	}
 	char *config_path = malloc(
 	    (strlen(config_home_path) + strlen(addition) + 1) * sizeof(char));
+	if(!config_path) {
+		wlr_log(WLR_ERROR, "Failed to allocate space for configuration path");
+		return NULL;
+	}
 	sprintf(config_path, "%s%s", config_home_path, addition);
 	return config_path;
 }
@@ -256,6 +262,12 @@ main(int argc, char *argv[]) {
 	wlr_log_init(WLR_ERROR, NULL);
 #endif
 
+	server.modes = malloc(4 * sizeof(char *));
+	if(!server.modes) {
+		wlr_log(WLR_ERROR, "Error allocating mode array");
+		return -1;
+	}
+
 	/* Wayland requires XDG_RUNTIME_DIR to be set. */
 	if(!getenv("XDG_RUNTIME_DIR")) {
 		wlr_log(WLR_ERROR, "XDG_RUNTIME_DIR is not set in the environment");
@@ -270,11 +282,15 @@ main(int argc, char *argv[]) {
 
 	server.running = true;
 
-	server.modes = malloc(4 * sizeof(char *));
 	server.modes[0] = strdup("top");
 	server.modes[1] = strdup("root");
 	server.modes[2] = strdup("resize");
 	server.modes[3] = NULL;
+	if(server.modes[0] == NULL || server.modes[1] == NULL ||
+	   server.modes[2] == NULL) {
+		wlr_log(WLR_ERROR, "Error allocating default modes");
+		goto end;
+	}
 
 	server.nws = 1;
 	server.message_timeout = 2;
@@ -530,13 +546,18 @@ main(int argc, char *argv[]) {
 	wl_display_destroy_clients(server.wl_display);
 
 end:
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-double-free"
+#endif
 	for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
 		free(server.modes[i]);
 	}
 	free(server.modes);
 
 	struct cg_output_config *output_config, *output_config_tmp;
-	wl_list_for_each_safe(output_config, output_config_tmp, &server.output_config, link) {
+	wl_list_for_each_safe(output_config, output_config_tmp,
+	                      &server.output_config, link) {
 		wl_list_remove(&output_config->link);
 		free(output_config->output_name);
 		free(output_config);
@@ -559,3 +580,6 @@ end:
 
 	return ret;
 }
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic pop
+#endif

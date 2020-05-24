@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.2.0',
+  version: '1.2.1',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -100,6 +100,14 @@ else
   have_xwayland = false
 endif
 
+fanalyzer_compile_flag=[]
+if cc.has_argument('-fanalyzer')
+  have_fanalyze=true
+  fanalyzer_compile_flag=[ '-fanalyzer' ]
+else
+  have_fanalyze=false
+endif
+
 if get_option('version_override') != ''
   version = '@0@'.format(get_option('version_override'))
 else
@@ -108,6 +116,7 @@ endif
 
 conf_data = configuration_data()
 conf_data.set10('CG_HAS_XWAYLAND', have_xwayland)
+conf_data.set10('CG_HAS_FANALYZE', have_fanalyze)
 conf_data.set_quoted('CG_VERSION', version)
 
 
@@ -208,12 +217,23 @@ foreach name, dep : cagebreak_dependencies_dict
   endif
 endforeach
 
+reproducible_build_compiler = 'gcc'
+reproducible_build_compiler_version = '10.1.0'
+
+if cc.get_id() != reproducible_build_compiler
+  warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in the README section "Reproducible Builds" (' + reproducible_build_compiler + ').')
+endif
+
+if cc.version() != reproducible_build_compiler_version
+  warning('The version of ' + cc.get_id() + ' (' + cc.version() + ') differs from the one used to generate the binary specified in the README section "Reproducible Builds" ' + reproducible_build_compiler_version + '.')
+endif
+
 executable(
   meson.project_name(),
   cagebreak_main_file + cagebreak_sources + cagebreak_headers,
   dependencies: cagebreak_dependencies,
   install: true,
-  link_args: fuzz_link_args,
+  link_args: fuzz_link_args+fanalyzer_compile_flag,
   c_args: fuzz_compile_args,
 )
 

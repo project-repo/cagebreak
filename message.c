@@ -7,6 +7,7 @@
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/util/log.h>
 
 #include "cairo.h"
 #include "message.h"
@@ -94,10 +95,19 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	return texture;
 }
 
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
+#endif
 void
 message_set_output(struct cg_output *output, const char *string,
                    struct wlr_box *box, enum cg_message_align align) {
 	struct cg_message *message = malloc(sizeof(struct cg_message));
+	if(!message) {
+		wlr_log(WLR_ERROR, "Error allocating message structure");
+		free(box);
+		return;
+	}
 	message->message = create_message_texture(string, output);
 	message->position = box;
 	wl_list_insert(&output->messages, &message->link);
@@ -136,6 +146,10 @@ void
 message_printf(struct cg_output *output, const char *fmt, ...) {
 	uint16_t buf_len = 256;
 	char *buffer = (char *)malloc(buf_len * sizeof(char));
+	if(buffer == NULL) {
+		wlr_log(WLR_ERROR, "Failed to allocate buffer in message_printf");
+		return;
+	}
 	va_list ap;
 
 	va_start(ap, fmt);
@@ -143,6 +157,11 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 	va_end(ap);
 
 	struct wlr_box *box = malloc(sizeof(struct wlr_box));
+	if(box == NULL) {
+		wlr_log(WLR_ERROR, "Failed to allocate box in message_printf");
+		free(buffer);
+		return;
+	}
 	struct wlr_box *output_box = wlr_output_layout_get_box(
 	    output->server->output_layout, output->wlr_output);
 
@@ -155,6 +174,9 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 	free(buffer);
 	alarm(output->server->message_timeout);
 }
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic pop
+#endif
 
 void
 message_printf_pos(struct cg_output *output, struct wlr_box *position,

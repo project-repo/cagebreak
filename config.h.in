@@ -2,6 +2,7 @@
 #define CG_CONFIG_H
 
 #mesondefine CG_HAS_XWAYLAND
+#mesondefine CG_HAS_FANALYZE
 
 #mesondefine CG_VERSION
 
