@@ -89,3 +89,11 @@ Cagebreak up to and including release 1.2.0 does not warn of irreproducibility
 if a different compiler or compiler version is used. This makes cagebreak
 difficult to reproduce.
 
+### Issue 6
+
+  * github issue number : N/A
+  * Fixed: 1.2.1
+
+Our fuzzing framework up to and including release 1.2.0 does not the limit line
+lengths. This can crash the fuzzing framework with a segfault due to running
+out of memory.
