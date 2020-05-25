@@ -18,10 +18,16 @@ in contrast to the original `ratpoison`, has native support for
 multi-workspace operation.
 
 All interactions between the user and `cagebreak` are done via
-the keyboard. Configuration of this behaviour is specified
-in the **\$XDG_CONFIG_PATH/cagebreak/config** file (See **cagebreak-config(5)**).
+the keyboard.
 
-## OPTIONS
+Configuration of this behaviour is specified in the
+**\$XDG_CONFIG_PATH/cagebreak/config** file (See **cagebreak-config(5)**).
+
+Scripting support is provided through the inter process communication
+socket **\$CAGEBREAK_SOCKET**.
+Errors are displayed in the top right corner of the screen.
+
+# OPTIONS
 
 -h
 
@@ -36,6 +42,11 @@ in the **\$XDG_CONFIG_PATH/cagebreak/config** file (See **cagebreak-config(5)**)
 : Show version number and exit
 
 # ENVIRONMENT
+
+`CAGEBREAK_SOCKET`
+
+: The inter process communication unix domain socket address accepting
+everything specified in **cagebreak-config(5)**
 
 `XKB_DEFAULT_LAYOUT`
 
