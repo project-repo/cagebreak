@@ -139,6 +139,9 @@ Release checklist
     * [ ] Update signature of the binary
   * [ ] Signature
   * [ ] Branching Strategy
+  * [ ] git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .
+  * [ ] gpg --detach-sign -u keyid release_version.tar.gz
+  * [ ] upload build assets
 
 ### Signing Key
 
