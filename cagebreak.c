@@ -47,6 +47,7 @@
 #endif
 
 #include "idle_inhibit_v1.h"
+#include "ipc_server.h"
 #include "keybinding.h"
 #include "message.h"
 #include "output.h"
@@ -55,7 +56,6 @@
 #include "server.h"
 #include "view.h"
 #include "xdg_shell.h"
-#include "ipc_server.h"
 #if CG_HAS_XWAYLAND
 #include "xwayland.h"
 #endif
@@ -290,7 +290,8 @@ main(int argc, char *argv[]) {
 	server.modes[1] = strdup("root");
 	server.modes[2] = strdup("resize");
 	server.modes[3] = NULL;
-	if(server.modes[0] == NULL || server.modes[1] == NULL || server.modes[2] == NULL) {
+	if(server.modes[0] == NULL || server.modes[1] == NULL ||
+	   server.modes[2] == NULL) {
 		wlr_log(WLR_ERROR, "Error allocating default modes");
 		return 1;
 	}

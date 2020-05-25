@@ -2,7 +2,7 @@
 
 #define PARSE_H
 
-# define MAX_LINE_SIZE 256
+#define MAX_LINE_SIZE 256
 
 struct cg_server;
 
