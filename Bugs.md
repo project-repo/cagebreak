@@ -94,6 +94,6 @@ difficult to reproduce.
   * github issue number : N/A
   * Fixed: 1.2.1
 
-Our fuzzing framework up to and including release 1.2.0 does not the limit line
+Our fuzzing framework up to and including release 1.2.0 does not limit line
 lengths. This can crash the fuzzing framework with a segfault due to running
 out of memory.
