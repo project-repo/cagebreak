@@ -259,6 +259,10 @@ Unifies commands and actions. See Issue 4 in Bugs.md.
 
 Adds output configuration as described in the man pages.
 
+### Release 1.3.0
+
+Adds IPC as described in the man pages.
+
 ## License
 
 Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE)
