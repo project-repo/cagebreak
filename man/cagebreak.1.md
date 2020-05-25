@@ -23,9 +23,12 @@ the keyboard.
 Configuration of this behaviour is specified in the
 **\$XDG_CONFIG_PATH/cagebreak/config** file (See **cagebreak-config(5)**).
 
-Scripting support is provided through the inter process communication
-socket **\$CAGEBREAK_SOCKET**.
-Errors are displayed in the top right corner of the screen.
+Scripting support is provided through the IPC
+socket specified in the environment variable **\$CAGEBREAK_SOCKET**.
+The syntax accepted through this socket is identical to
+that of the configuration file (see **cagebreak-config(5)**).
+Errors which occur during interaction over IPC channel
+are displayed in a message box at the top right of the screen.
 
 # OPTIONS
 
@@ -45,8 +48,8 @@ Errors are displayed in the top right corner of the screen.
 
 `CAGEBREAK_SOCKET`
 
-: The inter process communication unix domain socket address accepting
-everything specified in **cagebreak-config(5)**
+: The IPC unix domain socket address accepting
+commands as specified in **cagebreak-config(5)**
 
 `XKB_DEFAULT_LAYOUT`
 
