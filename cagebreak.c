@@ -515,7 +515,11 @@ main(int argc, char *argv[]) {
 	wlr_xwayland_set_seat(xwayland, server.seat->seat);
 #endif
 
-	ipc_init(&server);
+	if(ipc_init(&server) != 0) {
+		wlr_log(WLR_ERROR, "Failed to initialize IPC");
+		ret = 1;
+		goto end;
+	}
 
 	{ // config_file should only be visible as long as it is valid
 		char *config_file = get_config_file();

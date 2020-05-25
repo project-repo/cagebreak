@@ -73,6 +73,7 @@ int ipc_init(struct cg_server *server) {
 	if (max_path_size <= snprintf(ipc->sockaddr->sun_path, max_path_size,
 			"%s/cagebreak-ipc.%i.%i.sock", sockdir, getuid(), getpid())) {
 		wlr_log(WLR_ERROR,"Unable to write socket path to ipc->sockaddr->sun_path. Path too long");
+		free(ipc->sockaddr);
 		return -1;
 	}
 
@@ -80,11 +81,14 @@ int ipc_init(struct cg_server *server) {
 
 	if (bind(ipc->socket, (struct sockaddr *)ipc->sockaddr, sizeof(*ipc->sockaddr)) == -1) {
 		wlr_log(WLR_ERROR, "Unable to bind IPC socket");
+		free(ipc->sockaddr);
 		return -1;
 	}
 
 	if (listen(ipc->socket, 3) == -1) {
 		wlr_log(WLR_ERROR, "Unable to listen on IPC socket");
+		free(ipc->sockaddr);
+		return -1;
 	}
 
 	setenv("CAGEBREAK_SOCKET", ipc->sockaddr->sun_path, 1);
