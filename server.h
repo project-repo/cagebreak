@@ -2,6 +2,7 @@
 #define CG_SERVER_H
 
 #include "config.h"
+#include "ipc_server.h"
 
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
@@ -39,6 +40,8 @@ struct cg_server {
 	struct wl_list output_config;
 
 	enum wl_output_transform output_transform;
+
+	struct cg_ipc_handle ipc;
 
 	bool running;
 	char **modes;

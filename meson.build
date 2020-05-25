@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.2.1',
+  version: '1.3.0',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -123,6 +123,7 @@ conf_data.set_quoted('CG_VERSION', version)
 cagebreak_main_file = [ 'cagebreak.c', ]
 cagebreak_source_strings = [
   'idle_inhibit_v1.c',
+  'ipc_server.c',
   'keybinding.c',
   'workspace.c',
   'output.c',
@@ -139,6 +140,7 @@ cagebreak_source_strings = [
 
 cagebreak_header_strings = [
   'idle_inhibit_v1.h',
+  'ipc_server.h',
   'keybinding.h',
   'workspace.h',
   'output.h',

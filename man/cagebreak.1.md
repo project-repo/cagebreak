@@ -1,4 +1,4 @@
-% CAGEBREAK(1) Version 1.2.1 | Cagebreak Manual
+% CAGEBREAK(1) Version 1.3.0 | Cagebreak Manual
 
 # NAME
 
@@ -18,10 +18,19 @@ in contrast to the original `ratpoison`, has native support for
 multi-workspace operation.
 
 All interactions between the user and `cagebreak` are done via
-the keyboard. Configuration of this behaviour is specified
-in the **\$XDG_CONFIG_PATH/cagebreak/config** file (See **cagebreak-config(5)**).
+the keyboard.
 
-## OPTIONS
+Configuration of this behaviour is specified in the
+**\$XDG_CONFIG_PATH/cagebreak/config** file (See **cagebreak-config(5)**).
+
+Scripting support is provided through the IPC
+socket specified in the environment variable **\$CAGEBREAK_SOCKET**.
+The syntax accepted through this socket is identical to
+that of the configuration file (see **cagebreak-config(5)**).
+Errors which occur during interaction over IPC channel
+are displayed in a message box at the top right of the screen.
+
+# OPTIONS
 
 -h
 
@@ -36,6 +45,11 @@ in the **\$XDG_CONFIG_PATH/cagebreak/config** file (See **cagebreak-config(5)**)
 : Show version number and exit
 
 # ENVIRONMENT
+
+`CAGEBREAK_SOCKET`
+
+: The IPC unix domain socket address accepting
+commands as specified in **cagebreak-config(5)**
 
 `XKB_DEFAULT_LAYOUT`
 
