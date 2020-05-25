@@ -55,6 +55,7 @@
 #include "server.h"
 #include "view.h"
 #include "xdg_shell.h"
+#include "ipc_server.h"
 #if CG_HAS_XWAYLAND
 #include "xwayland.h"
 #endif
@@ -189,16 +190,19 @@ set_configuration(struct cg_server *server,
 		        config_file_path);
 		return -1;
 	}
-	size_t max_line_size = 256;
-	char line[max_line_size * sizeof(char)];
+	char line[MAX_LINE_SIZE * sizeof(char)];
 	for(unsigned int line_num = 1;
-	    fgets(line, max_line_size, config_file) != NULL; ++line_num) {
+	    fgets(line, MAX_LINE_SIZE, config_file) != NULL; ++line_num) {
 		line[strcspn(line, "\n")] = '\0';
 		if(*line != '\0' && *line != '#') {
-			if(parse_rc_line(server, line) != 0) {
+			char *errstr;
+			if(parse_rc_line(server, line, &errstr) != 0) {
 				wlr_log(WLR_ERROR, "Error in config file \"%s\", line %d\n",
 				        config_file_path, line_num);
 				fclose(config_file);
+				if(errstr != NULL) {
+					free(errstr);
+				}
 				return -1;
 			}
 		}
@@ -286,10 +290,9 @@ main(int argc, char *argv[]) {
 	server.modes[1] = strdup("root");
 	server.modes[2] = strdup("resize");
 	server.modes[3] = NULL;
-	if(server.modes[0] == NULL || server.modes[1] == NULL ||
-	   server.modes[2] == NULL) {
+	if(server.modes[0] == NULL || server.modes[1] == NULL || server.modes[2] == NULL) {
 		wlr_log(WLR_ERROR, "Error allocating default modes");
-		goto end;
+		return 1;
 	}
 
 	server.nws = 1;
@@ -512,6 +515,12 @@ main(int argc, char *argv[]) {
 	wlr_xwayland_set_seat(xwayland, server.seat->seat);
 #endif
 
+	if(ipc_init(&server) != 0) {
+		wlr_log(WLR_ERROR, "Failed to initialize IPC");
+		ret = 1;
+		goto end;
+	}
+
 	{ // config_file should only be visible as long as it is valid
 		char *config_file = get_config_file();
 		if(config_file == NULL) {
@@ -534,7 +543,7 @@ main(int argc, char *argv[]) {
 		}
 	}
 
-	/* Place the cursor to the topl left of the output layout. */
+	/* Place the cursor to the top left of the output layout. */
 	wlr_cursor_warp(server.seat->cursor, NULL, 0, 0);
 
 	wl_display_run(server.wl_display);

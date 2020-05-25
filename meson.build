@@ -123,6 +123,7 @@ conf_data.set_quoted('CG_VERSION', version)
 cagebreak_main_file = [ 'cagebreak.c', ]
 cagebreak_source_strings = [
   'idle_inhibit_v1.c',
+  'ipc_server.c',
   'keybinding.c',
   'workspace.c',
   'output.c',
@@ -139,6 +140,7 @@ cagebreak_source_strings = [
 
 cagebreak_header_strings = [
   'idle_inhibit_v1.h',
+  'ipc_server.h',
   'keybinding.h',
   'workspace.h',
   'output.h',
