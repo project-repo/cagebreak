@@ -224,9 +224,7 @@ reproducible_build_compiler_version = '10.1.0'
 
 if cc.get_id() != reproducible_build_compiler
   warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in the README section "Reproducible Builds" (' + reproducible_build_compiler + ').')
-endif
-
-if cc.version() != reproducible_build_compiler_version
+elif cc.version() != reproducible_build_compiler_version
   warning('The version of ' + cc.get_id() + ' (' + cc.version() + ') differs from the one used to generate the binary specified in the README section "Reproducible Builds" ' + reproducible_build_compiler_version + '.')
 endif
 
