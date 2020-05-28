@@ -238,10 +238,10 @@ view_unmap(struct cg_view *view) {
 			            .focused_surface == NULL ||
 			    view->workspace->server->seat->seat->keyboard_state
 			            .focused_surface == view->wlr_surface) &&
-			   view->workspace->server->curr_output
-			           ->workspaces[view->workspace->server->curr_output
-			                            ->curr_workspace]
-			           ->focused_tile == view_tile) {
+			    view->workspace->server->curr_output
+			            ->workspaces[view->workspace->server->curr_output
+			                             ->curr_workspace]
+			            ->focused_tile == view_tile) {
 				seat_set_focus(view->workspace->server->seat, prev);
 			} else {
 				view_tile->view = prev;
