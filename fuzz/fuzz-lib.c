@@ -20,6 +20,7 @@
 
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
+#include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_cursor.h>
@@ -313,12 +314,6 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	    wlr_gamma_control_manager_v1_create(server.wl_display);
 	if(!gamma_control_manager) {
 		wlr_log(WLR_ERROR, "Unable to create the gamma control manager");
-		ret = 1;
-		goto end;
-	}
-
-	if(!compositor) {
-		wlr_log(WLR_ERROR, "Unable to create the wlroots compositor");
 		ret = 1;
 		goto end;
 	}
