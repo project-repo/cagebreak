@@ -108,6 +108,9 @@ git merge --squash development
 git tag -u keyid version HEAD
 git tag -v version
 git push --tags origin master
+git checkout development
+git merge master
+git push --tags origin development
 ```
 
 and a log message roughly describing the features added in the commit is
@@ -119,6 +122,7 @@ In the past, our git history did not always reflect this scheme.
 
 Release checklist
 
+  * [ ] Check cage for possible code merges
   * [ ] Cursory testing
     * [ ] libfuzzer testing
   * [ ] ninja -C build clang-format
@@ -140,8 +144,9 @@ Release checklist
   * [ ] Signature
   * [ ] Branching Strategy
   * [ ] git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .
+  * [ ] Extract, build and verify reproducibility of archive
   * [ ] gpg --detach-sign -u keyid release_version.tar.gz
-  * [ ] upload build assets
+  * [ ] Upload archive and signature as build assets
 
 ### Signing Key
 
