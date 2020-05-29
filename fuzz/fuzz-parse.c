@@ -32,28 +32,6 @@
 #include "fuzz-lib.h"
 
 int
-fuzz_cmds(struct cg_server *server, char *line) {
-	if(strncmp(line, "mcurs",5) == 0) {
-		move_cursor(&line[5], server);
-		return 0;
-	} else if(strncmp(line, "noutp",5) == 0) {
-		create_output(&line[5], server);
-		return 0;
-	} else if(strncmp(line, "doutp",5) == 0) {
-		destroy_output(&line[5], server);
-		return 0;
-	} else if(strncmp(line, "crdev",5) == 0) {
-		return -1;
-		create_input_device(&line[5], server);
-		return 0;
-	} else if(strncmp(line, "ddev",5) == 0) {
-		destroy_input_device(&line[5], server);
-		return 0;
-	}
-	return -1;
-}
-
-int
 set_configuration(struct cg_server *server, char *content) {
 	char *line;
 	for(unsigned int line_num = 1;
@@ -62,9 +40,6 @@ set_configuration(struct cg_server *server, char *content) {
 		if(*line != '\0' && *line != '#') {
 			char *errstr;
 			server->running=true;
-			if(fuzz_cmds(server, line) == 0) {
-				continue;
-			}
 			if(parse_rc_line(server, line, &errstr) != 0) {
 				if(errstr != NULL) {
 					free(errstr);
@@ -93,20 +68,9 @@ LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 	           (union keybinding_params){.i = 1});
 	run_action(KEYBINDING_LAYOUT_FULLSCREEN, &server,
 	           (union keybinding_params){.c = NULL});
-	wl_display_flush_clients(server.wl_display);
-	wl_display_destroy_clients(server.wl_display);
 	struct cg_output *output;
 	wl_list_for_each(output, &server.outputs, link) {
 		message_clear(output);
-		struct cg_view *view;
-		wl_list_for_each(view, &(*output->workspaces)->views, link) {
-			view_unmap(view);
-			view_destroy(view);
-		}
-		wl_list_for_each(view, &(*output->workspaces)->unmanaged_views, link) {
-			view_unmap(view);
-			view_destroy(view);
-		}
 	}
 	for(unsigned int i = 3; server.modes[i] != NULL; ++i) {
 		free(server.modes[i]);
@@ -121,25 +85,5 @@ LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 		free(output_config->output_name);
 		free(output_config);
 	}
-	struct cg_keyboard_group *group, *group_tmp;
-	wl_list_for_each_safe(group, group_tmp, &server.seat->keyboard_groups, link) {
-		wl_list_remove(&group->link);
-		wlr_keyboard_group_destroy(group->wlr_group);
-		wl_event_source_remove(group->key_repeat_timer);
-		free(group);
-	}
-	struct cg_pointer *pointer, *pointer_tmp;
-	wl_list_for_each_safe(pointer, pointer_tmp, &server.seat->pointers, link) {
-		pointer->destroy.notify(&pointer->destroy, NULL);
-	}
-	struct cg_touch *touch, *touch_tmp;
-	wl_list_for_each_safe(touch, touch_tmp, &server.seat->touch, link) {
-		touch->destroy.notify(&touch->destroy, NULL);
-	}
-
-	while(wl_list_length(&server.outputs) != 1) {
-		server.curr_output->damage_destroy.notify(&server.curr_output->damage_destroy,NULL);
-	}
-
 	return 0;
 }
