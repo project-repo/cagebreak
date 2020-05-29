@@ -8,12 +8,8 @@
 
 #define _POSIX_C_SOURCE 200812L
 
-#include "../keybinding.h"
-#include "../output.h"
-#include "../parse.h"
-#include "../seat.h"
-#include "../server.h"
 #include "config.h"
+
 #include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -22,11 +18,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include <fontconfig/fontconfig.h>
-#include <pango.h>
-#include <pango/pangocairo.h>
 #include <wayland-server-core.h>
-#include <wayland-client.h>
 #include <wlr/backend.h>
 #include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/render/wlr_renderer.h>
@@ -53,6 +45,11 @@
 #include <wlr/xwayland.h>
 #endif
 
+#include "../keybinding.h"
+#include "../output.h"
+#include "../parse.h"
+#include "../seat.h"
+#include "../server.h"
 #include "../idle_inhibit_v1.h"
 #include "../xdg_shell.h"
 #if CG_HAS_XWAYLAND

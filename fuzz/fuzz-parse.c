@@ -9,10 +9,12 @@
 #define _POSIX_C_SOURCE 200812L
 
 #include <stdlib.h>
+#include <string.h>
 
 #include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/types/wlr_xdg_shell.h>
 #include <wlr/util/log.h>
+#include <wayland-server-core.h>
 
 #include "config.h"
 #include "../keybinding.h"
@@ -22,6 +24,7 @@
 #include "../seat.h"
 #include "../server.h"
 #include "../workspace.h"
+#include "../view.h"
 #if CG_HAS_XWAYLAND
 #include "../xwayland.h"
 #endif
