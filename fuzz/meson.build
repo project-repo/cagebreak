@@ -1,9 +1,11 @@
 fuzz_sources = [
   'fuzz-parse.c', 
+  'fuzz-lib.c',
   ]
 
 fuzz_headers = [
   '../parse.h',
+  'fuzz-lib.h',
   ]
 
 inc = include_directories(['..','../build/'])
