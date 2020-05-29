@@ -53,7 +53,6 @@ fuzz_cmds(struct cg_server *server, char *line) {
 	return -1;
 }
 
-/* Parse config file. Lines longer than "max_line_size" are ignored */
 int
 set_configuration(struct cg_server *server, char *content) {
 	char *line;
