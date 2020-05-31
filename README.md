@@ -7,7 +7,9 @@ will be implemented, open an issue or get in touch with the development team.
 
 This README is only relevant for development resources and instructions. For a
 description of Cagebreak and installation instructions for end-users, please see
-the man page supplied in the `man/` directory and the [Wiki](https://github.com/project-repo/cagebreak/wiki/).
+the man pages for [cagebreak](man/cagebreak.1.md) and cagebreak
+[configuration](man/cagebreak-config.5.md) and the
+[Wiki](https://github.com/project-repo/cagebreak/wiki/).
 
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
 compositor.
