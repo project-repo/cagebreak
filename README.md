@@ -59,6 +59,17 @@ within an existing X11 or Wayland session, it will open in a virtual output as
 a window in your existing session. If you run it in a TTY, it'll run with the
 KMS+DRM backend. For more configuration options, see the man pages.
 
+## Experimenting with Cagebreak
+
+Cagebreak is currently being developed under arch linux and uses the libraries
+as they are obtained through pacman. However, cagebreak should also work on
+other distributions given the proper library versions.
+
+You can build Cagebreak with the [meson](https://mesonbuild.com/) build system. It
+requires wayland, wlroots and xkbcommon to be installed. Note that Cagebreak is
+developed against the latest tag of wlroots, in order not to constantly chase
+breaking changes as soon as they occur.
+
 ## Contributing to Cagebreak
 
 Cagebreak is currently developed to fit the needs of its creators. Should you desire
