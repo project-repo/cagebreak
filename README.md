@@ -14,6 +14,10 @@ the man pages for [cagebreak](man/cagebreak.1.md) and cagebreak
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
 compositor.
 
+Cagebreak is currently being developed under arch linux and uses the libraries
+as they are obtained through pacman. However, cagebreak should also work on
+other distributions given the proper library versions.
+
 ## Installation
 
 ### Obtaining Source Code
@@ -31,6 +35,11 @@ There are corresponding methods of verifying you obtained the correct code:
   * release assets starting at release 1.2.1 contain a signature for the tarball
 
 ### Building Cagebreak
+
+You can build Cagebreak with the [meson](https://mesonbuild.com/) build system. It
+requires wayland, wlroots and xkbcommon to be installed. Note that Cagebreak is
+developed against the latest tag of wlroots, in order not to constantly chase
+breaking changes as soon as they occur.
 
 Simply execute the following steps to build Cagebreak:
 
@@ -58,17 +67,6 @@ You can start Cagebreak by running `./build/cagebreak`. If you run it from
 within an existing X11 or Wayland session, it will open in a virtual output as
 a window in your existing session. If you run it in a TTY, it'll run with the
 KMS+DRM backend. For more configuration options, see the man pages.
-
-## Experimenting with Cagebreak
-
-Cagebreak is currently being developed under arch linux and uses the libraries
-as they are obtained through pacman. However, cagebreak should also work on
-other distributions given the proper library versions.
-
-You can build Cagebreak with the [meson](https://mesonbuild.com/) build system. It
-requires wayland, wlroots and xkbcommon to be installed. Note that Cagebreak is
-developed against the latest tag of wlroots, in order not to constantly chase
-breaking changes as soon as they occur.
 
 ## Contributing to Cagebreak
 
