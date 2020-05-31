@@ -5,8 +5,8 @@ provide a successor to ratpoison for Wayland users. However, this is
 no reimplementation of ratpoison. Should you like to know if a feature
 will be implemented, open an issue or get in touch with the development team.
 
-This README is only relevant for development resources and instructions. For a
-description of Cagebreak and installation instructions for end-users, please see
+This README is only relevant for development resources and instructions. For
+documentation of Cagebreak, please see
 the man pages for [cagebreak](man/cagebreak.1.md) and cagebreak
 [configuration](man/cagebreak-config.5.md) and the
 [Wiki](https://github.com/project-repo/cagebreak/wiki/).
@@ -14,16 +14,23 @@ the man pages for [cagebreak](man/cagebreak.1.md) and cagebreak
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
 compositor.
 
-## Experimenting with Cagebreak
+## Installation
 
-Cagebreak is currently being developed under arch linux and uses the libraries
-as they are obtained through pacman. However, cagebreak should also work on
-other distributions given the proper library versions.
+### Obtaining Source Code
 
-You can build Cagebreak with the [meson](https://mesonbuild.com/) build system. It
-requires wayland, wlroots and xkbcommon to be installed. Note that Cagebreak is
-developed against the latest tag of wlroots, in order not to constantly chase
-breaking changes as soon as they occur.
+There are different ways to obtain cagebreak source:
+
+  * git clone (for all releases)
+  * download release asset tarballs (starting at release 1.2.1)
+
+### Verifying Source Code
+
+There are corresponding methods of verifying you obtained the correct code:
+
+  * our git history includes signed tags for releases
+  * release assets starting at release 1.2.1 contain a signature for the tarball
+
+### Building Cagebreak
 
 Simply execute the following steps to build Cagebreak:
 
