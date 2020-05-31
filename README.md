@@ -107,21 +107,6 @@ Release checklist
   * [ ] gpg --detach-sign -u keyid release_version.tar.gz
   * [ ] Upload archive and signature as build assets
 
-### Signing Key
-
-All releases are signed by at least one of the following collection of
-keys.
-
-  * E79F6D9E113529F4B1FFE4D5C4F974D70CEC2C5B
-  * 4739D329C9187A1C2795C20A02ABFDEC3A40545F
-
-Should we at any point retire a key, we will only replace it with keys signed
-by at least one of the above collection.
-
-Should we at any point have official mail addresses, their keys will be signed by
-a valid key noted above.
-
-The full public keys can be found in `keys/` along with any revocation certificates.
 
 ### Reproducible Builds
 
@@ -178,6 +163,22 @@ For every release after 1.0.5, a GPG signature will be provided in `signatures`.
 
 The current signature is called `cagebreak.sig`, whereas all older signatures
 will be named after their release version.
+
+#### Signing Key
+
+All releases are signed by at least one of the following collection of
+keys.
+
+  * E79F6D9E113529F4B1FFE4D5C4F974D70CEC2C5B
+  * 4739D329C9187A1C2795C20A02ABFDEC3A40545F
+
+Should we at any point retire a key, we will only replace it with keys signed
+by at least one of the above collection.
+
+Should we at any point have official mail addresses, their keys will be signed by
+a valid key noted above.
+
+The full public keys can be found in `keys/` along with any revocation certificates.
 
 ### GCC and -fanalyzer
 
