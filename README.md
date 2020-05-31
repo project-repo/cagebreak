@@ -14,7 +14,7 @@ the man pages for [cagebreak](man/cagebreak.1.md) and cagebreak
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
 compositor.
 
-Cagebreak is currently being developed under arch linux and uses the libraries
+Cagebreak is currently being developed under Arch Linux and uses the libraries
 as they are obtained through pacman. However, cagebreak should also work on
 other distributions given the proper library versions.
 
@@ -29,7 +29,7 @@ There are different ways to obtain cagebreak source:
 
 ### Verifying Source Code
 
-There are corresponding methods of verifying you obtained the correct code:
+There are corresponding methods of verifying that you obtained the correct code:
 
   * our git history includes signed tags for releases
   * release assets starting at release 1.2.1 contain a signature for the tarball
@@ -95,8 +95,8 @@ In the past, our git history did not perfectly reflect this scheme.
 
 ### Releases
 
-The release checklist has to be completely fullfilled in one run for a release to
-occur. Once any failure occurs the entire checklist has to be completed again.
+The release checklist must be completely fulfilled in one run for a release to
+occur. Once any failure occurs the entire checklist must be completed from scratch.
 
   * [ ] `git checkout development`
   * [ ] `git pull origin development`
@@ -154,7 +154,7 @@ occur. Once any failure occurs the entire checklist has to be completed again.
 Cagebreak offers reproducible builds given the exact library versions specified
 in `meson.build`. Should a version mismatch occur, a warning will be emitted. We have
 decided on this compromise to allow flexibility and security. In general we will
-adapt the versions to the packages available under arch linux at the time of
+adapt the versions to the packages available under Arch Linux at the time of
 release.
 
 There are reproducibility issues up to and including release `1.2.0`. See
