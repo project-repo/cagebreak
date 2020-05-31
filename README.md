@@ -63,7 +63,7 @@ Nonetheless, don't be intimidated by the (slightly lengthy) release checklist or
 part of this file. Do what you can, open an issue and we will collaborate
 toward a solution.
 
-### Branching strategy
+### Branching Strategy and Versioning
 
 All features are to be developed on feature branches, named after the feature.
 
@@ -73,25 +73,9 @@ are merged for final testing.
 Once `development` is ready for a release, meaning that the release checklist is fulfilled,
 it is merged into `master`, creating a new release, which is tagged and signed.
 
-Merging into master is always done by
+All releases are tagged according to [semantic versioning](https://semver.org) guidelines.
 
-```
-git checkout development
-git pull origin development
-git checkout master
-git merge --squash development
-git tag -u keyid version HEAD
-git tag -v version
-git push --tags origin master
-git checkout development
-git merge master
-git push --tags origin development
-```
-
-and a log message roughly describing the features added in the commit is
-included.
-
-In the past, our git history did not always reflect this scheme.
+In the past, our git history did not perfectly reflect this scheme.
 
 ### Releases
 
