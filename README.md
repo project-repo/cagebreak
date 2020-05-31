@@ -79,34 +79,59 @@ In the past, our git history did not perfectly reflect this scheme.
 
 ### Releases
 
-Release checklist
+The release checklist has to be completely fullfilled in one run for a release to
+occur. Once any failure occurs the entire checklist has to be completed again.
 
+  * [ ] `git checkout development`
+  * [ ] `git pull origin development`
+  * [ ] `git push origin development`
   * [ ] Check cage for possible code merges
-  * [ ] Cursory testing
-    * [ ] libfuzzer testing
   * [ ] ninja -C build clang-format
+  * [ ] Determine new version number according to [semantic versioning](https://semver.org) guidelines
+  * [ ] Relevant Documentation
+    * [ ] New features documented
+      * [ ] man pages
+        * [ ] man/cagebreak
+        * [ ] man/cagebreak-config
+      * [ ] wiki
+      * [ ] README.md Changelog
+    * [ ] Document fixed bugs in Bugs.md
+  * [ ] Testing
+    * [ ] Manual testing
+    * [ ] Libfuzzer testing
   * [ ] Version Number
     * [ ] meson.build
     * [ ] git tag
     * [ ] man pages
-  * [ ] Relevant Documentation
-    * [ ] New features documented
-      * [ ] man page
-      * [ ] wiki
-    * [ ] New configuration documented
-      * [ ] man page
-      * [ ] wiki
-    * [ ] Changelog in README
-    * [ ] Document fixed bugs in Bugs.md
-    * [ ] Update hashes of the binary
-    * [ ] Update signature of the binary
-  * [ ] Signature
-  * [ ] Branching Strategy
-  * [ ] git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .
-  * [ ] Extract, build and verify reproducibility of archive
-  * [ ] gpg --detach-sign -u keyid release_version.tar.gz
-  * [ ] Upload archive and signature as build assets
-
+  * [ ] `git add` relevant files
+  * [ ] `git commit`
+  * [ ] `git push origin development`
+  * [ ] Check reproducibility on multiple machines
+  * [ ] Document Reproducible Builds Artefacts
+    * [ ] Add hashes of the binary
+    * [ ] Rename cagebreak.sig to previous_signature.sig
+    * [ ] Add signature of the binary as cagebreak.sig
+  * [ ] Determine commit and tag message (Start with "Release version_number\n\n")
+  * [ ] `git checkout master`
+  * [ ] `git merge --squash development`
+  * [ ] `git commit` and insert message
+  * [ ] `git tag -u keyid version HEAD` and insert message
+  * [ ] `git tag -v version` and check signing key
+  * [ ] `git push --tags origin master`
+  * [ ] `git checkout development`
+  * [ ] `git merge master`
+  * [ ] `git push --tags origin development`
+  * [ ] `git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .`
+  * [ ] Check archive
+    * [ ] tar -xvf release_version.tar.gz
+    * [ ] cd cagebreak
+    * [ ] meson build --buildtype=release
+    * [ ] ninja -C build
+    * [ ] gpg --verify ../signatures/cagebreak.sig build/cagebreak
+    * [ ] cd ..
+    * [ ] rm -rf cagebreak
+  * [ ] `gpg --detach-sign -u keyid release_version.tar.gz`
+  * [ ] Upload archive and signature as release assets
 
 ### Reproducible Builds
 
