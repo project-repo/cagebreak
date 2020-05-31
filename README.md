@@ -61,33 +61,6 @@ Nonetheless, don't be intimidated by the (slightly lengthy) release checklist or
 part of this file. Do what you can, open an issue and we will collaborate
 toward a solution.
 
-### GCC and -fanalyzer
-
-Cagebreak should compile with any reasonably new gcc or clang. Consider
-a gcc version of at least [10.1](https://gcc.gnu.org/gcc-10/changes.html) if
-you want to get the benefit of the brand-new
-[-fanalyzer](https://gcc.gnu.org/onlinedocs/gcc/Static-Analyzer-Options.html)
-flag. However, this new flag sometimes produces false-postives and we
-selectively disable warnings for affected code segments as described below.
-
-Meson is configured to set `CG_HAS_FANALYZE` if `-fanalyzer` is available.
-Therefore, to maintain portability, false-positive fanalyzer warnings are to be
-disabled using the following syntax:
-
-```
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "WARNING OPTION"
-#endif
-```
-and after
-
-```
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic pop
-#endif
-```
-
 ### Branching strategy
 
 All features are to be developed on feature branches, named after the feature.
@@ -219,6 +192,33 @@ For every release after 1.0.5, a GPG signature will be provided in `signatures`.
 
 The current signature is called `cagebreak.sig`, whereas all older signatures
 will be named after their release version.
+
+### GCC and -fanalyzer
+
+Cagebreak should compile with any reasonably new gcc or clang. Consider
+a gcc version of at least [10.1](https://gcc.gnu.org/gcc-10/changes.html) if
+you want to get the benefit of the brand-new
+[-fanalyzer](https://gcc.gnu.org/onlinedocs/gcc/Static-Analyzer-Options.html)
+flag. However, this new flag sometimes produces false-postives and we
+selectively disable warnings for affected code segments as described below.
+
+Meson is configured to set `CG_HAS_FANALYZE` if `-fanalyzer` is available.
+Therefore, to maintain portability, false-positive fanalyzer warnings are to be
+disabled using the following syntax:
+
+```
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "WARNING OPTION"
+#endif
+```
+and after
+
+```
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic pop
+#endif
+```
 
 ### Fuzzing
 
