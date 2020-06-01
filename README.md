@@ -20,6 +20,10 @@ other distributions given the proper library versions.
 
 ## Installation
 
+If you are using archlinux, just use the [PKGBUILD](https://aur.archlinux.org/cagebreak.git) from the aur.
+
+See [cagebreak-pkgbuild](https://github.com/project-repo/cagebreak-pkgbuild) for details.
+
 ### Obtaining Source Code
 
 There are different ways to obtain cagebreak source:
@@ -219,7 +223,6 @@ Should we at any point retire a key, we will only replace it with keys signed
 by at least one of the above collection.
 
 We registered project-repo.co and added mail addresses after release `1.3.0`.
-This allows for verified releases.
 
 We now have a mail address and its key is signed by signing keys. See Security
 Bugs for details.
