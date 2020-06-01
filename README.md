@@ -205,19 +205,24 @@ For every release after 1.0.5, a GPG signature will be provided in `signatures`.
 The current signature is called `cagebreak.sig`, whereas all older signatures
 will be named after their release version.
 
-#### Signing Key
+#### Signing Keys
 
 All releases are signed by at least one of the following collection of
 keys.
 
   * E79F6D9E113529F4B1FFE4D5C4F974D70CEC2C5B
   * 4739D329C9187A1C2795C20A02ABFDEC3A40545F
+  * 7535AB89220A5C15A728B75F74104CC7DCA5D7A8
+  * 827BC2320D535AEAD0540E6E2E66F65D99761A6F
 
 Should we at any point retire a key, we will only replace it with keys signed
 by at least one of the above collection.
 
-Should we at any point have official mail addresses, their keys will be signed by
-a valid key noted above.
+We registered project-repo.co and added mail addresses after release `1.3.0`.
+This allows for verified releases.
+
+We now have a mail address and its key is signed by signing keys. See Security
+Bugs for details.
 
 The full public keys can be found in `keys/` along with any revocation certificates.
 
@@ -282,6 +287,23 @@ issue](https://github.com/project-repo/cagebreak/issues/new) on
 
 Fixed bugs are to be assigned a number and summarized inside Bugs.md for future reference
 independent of github, in case this service is unavailable.
+
+### Security Bugs
+
+Should you want to get in touch with the developers of cagebreak to report a
+security vulnerability or a different issue confidentially, contact
+`cagebreak @ project-repo . co`.
+
+We will try to respond to everything that is not obvious spam.
+
+Please encrypt your email with the appropriate [GPG key](keys/cagebreak@project-repo.co.pub).
+
+  * B15B92642760E11FE002DE168708D42451A94AB5
+
+Note that the key is signed by cagebreak signing keys.
+
+If you want us to answer by GPG-encrypted mail, please include your own
+public key or provide the fingerprint and directions to obtain the key.
 
 ## Changelog
 
