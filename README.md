@@ -48,12 +48,12 @@ $ meson build
 $ ninja -C build
 ```
 
-### Release Build
+#### Release Build
 
 By default, this builds a debug build. To build a release build, use `meson
 build --buildtype=release`.
 
-### Xwayland Support
+#### Xwayland Support
 
 Cagebreak comes with compile-time support for XWayland. To enable this,
 first make sure that your version of wlroots is compiled with this
