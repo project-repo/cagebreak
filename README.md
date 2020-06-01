@@ -20,7 +20,7 @@ other distributions given the proper library versions.
 
 ## Installation
 
-If you are using archlinux, just use the [PKGBUILD](https://aur.archlinux.org/cagebreak.git) from the aur.
+If you are using archlinux, just clone the [PKGBUILD](https://aur.archlinux.org/cagebreak.git) from the aur.
 
 See [cagebreak-pkgbuild](https://github.com/project-repo/cagebreak-pkgbuild) for details.
 
