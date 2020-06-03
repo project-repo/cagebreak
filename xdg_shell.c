@@ -16,8 +16,8 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
 #include <wlr/types/wlr_xdg_shell.h>
-#include <wlr/util/log.h>
 #include <wlr/util/edges.h>
+#include <wlr/util/log.h>
 
 #include "output.h"
 #include "server.h"
@@ -120,7 +120,8 @@ popup_unconstrain(struct cg_xdg_popup *popup) {
 	wlr_xdg_popup_unconstrain_from_box(popup->wlr_popup, &output_toplevel_box);
 }
 
-static void xdg_popup_get_coords(struct cg_view_child *child, int *x, int *y) {
+static void
+xdg_popup_get_coords(struct cg_view_child *child, int *x, int *y) {
 	if(!child) {
 		return;
 	}
@@ -130,11 +131,9 @@ static void xdg_popup_get_coords(struct cg_view_child *child, int *x, int *y) {
 	int x_offset = -surface->geometry.x;
 	int y_offset = -surface->geometry.y;
 
-	wlr_xdg_popup_get_toplevel_coords(surface->popup,
-		x_offset + surface->popup->geometry.x,
-		y_offset + surface->popup->geometry.y,
-		x, y);
-
+	wlr_xdg_popup_get_toplevel_coords(
+	    surface->popup, x_offset + surface->popup->geometry.x,
+	    y_offset + surface->popup->geometry.y, x, y);
 }
 
 static void
@@ -216,7 +215,8 @@ static void
 maximize(struct cg_view *view, int width, int height) {
 	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
 	wlr_xdg_toplevel_set_size(xdg_shell_view->xdg_surface, width, height);
-	enum wlr_edges edges = WLR_EDGE_LEFT|WLR_EDGE_RIGHT|WLR_EDGE_TOP|WLR_EDGE_BOTTOM;
+	enum wlr_edges edges =
+	    WLR_EDGE_LEFT | WLR_EDGE_RIGHT | WLR_EDGE_TOP | WLR_EDGE_BOTTOM;
 	wlr_xdg_toplevel_set_tiled(xdg_shell_view->xdg_surface, edges);
 }
 

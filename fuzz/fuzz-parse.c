@@ -11,20 +11,20 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <wayland-server-core.h>
 #include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/types/wlr_xdg_shell.h>
 #include <wlr/util/log.h>
-#include <wayland-server-core.h>
 
-#include "config.h"
 #include "../keybinding.h"
 #include "../message.h"
 #include "../output.h"
 #include "../parse.h"
 #include "../seat.h"
 #include "../server.h"
-#include "../workspace.h"
 #include "../view.h"
+#include "../workspace.h"
+#include "config.h"
 #if CG_HAS_XWAYLAND
 #include "../xwayland.h"
 #endif
@@ -39,7 +39,7 @@ set_configuration(struct cg_server *server, char *content) {
 		line[strcspn(line, "\n")] = '\0';
 		if(*line != '\0' && *line != '#') {
 			char *errstr;
-			server->running=true;
+			server->running = true;
 			if(parse_rc_line(server, line, &errstr) != 0) {
 				if(errstr != NULL) {
 					free(errstr);
@@ -69,9 +69,7 @@ LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 	run_action(KEYBINDING_LAYOUT_FULLSCREEN, &server,
 	           (union keybinding_params){.c = NULL});
 	struct cg_output *output;
-	wl_list_for_each(output, &server.outputs, link) {
-		message_clear(output);
-	}
+	wl_list_for_each(output, &server.outputs, link) { message_clear(output); }
 	for(unsigned int i = 3; server.modes[i] != NULL; ++i) {
 		free(server.modes[i]);
 	}

@@ -25,18 +25,25 @@ struct wlr_xwayland *xwayland;
 struct wlr_xcursor_manager *xcursor_manager;
 #endif
 
-void cleanup();
+void
+cleanup();
 
-int LLVMFuzzerInitialize(int *argc, char ***argv);
+int
+LLVMFuzzerInitialize(int *argc, char ***argv);
 
-void move_cursor(char *line, struct cg_server *server);
+void
+move_cursor(char *line, struct cg_server *server);
 
-void create_output(char *line, struct cg_server *server);
+void
+create_output(char *line, struct cg_server *server);
 
-void create_input_device(char *line, struct cg_server *server);
+void
+create_input_device(char *line, struct cg_server *server);
 
-void destroy_input_device(char *line, struct cg_server *server);
+void
+destroy_input_device(char *line, struct cg_server *server);
 
-void destroy_output(char *line, struct cg_server *server);
+void
+destroy_output(char *line, struct cg_server *server);
 
 #endif

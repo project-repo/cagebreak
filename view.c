@@ -14,11 +14,11 @@
 #include <string.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_box.h>
+#include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_surface.h>
-#include <wlr/types/wlr_compositor.h>
 
 #include "output.h"
 #include "seat.h"
@@ -46,14 +46,14 @@ view_get_prev_view(struct cg_view *view) {
 }
 
 void
-view_damage_child(struct cg_view_child *child, int x, int y,bool whole);
+view_damage_child(struct cg_view_child *child, int x, int y, bool whole);
 
 static void
 view_child_handle_commit(struct wl_listener *listener, void *_data) {
 	struct cg_view_child *child = wl_container_of(listener, child, commit);
-	int x,y;
+	int x, y;
 	child->get_coords(child, &x, &y);
-	view_damage_child(child,child->view->ox+x,child->view->oy+y,false);
+	view_damage_child(child, child->view->ox + x, child->view->oy + y, false);
 }
 
 static void
@@ -73,9 +73,9 @@ view_child_finish(struct cg_view_child *child) {
 		return;
 	}
 
-	int x,y;
+	int x, y;
 	child->get_coords(child, &x, &y);
-	view_damage_child(child,child->view->ox+x,child->view->oy+y,true);
+	view_damage_child(child, child->view->ox + x, child->view->oy + y, true);
 
 	wl_list_remove(&child->link);
 	wl_list_remove(&child->commit.link);
@@ -124,10 +124,10 @@ subsurface_get_coords(struct cg_view_child *child, int *x, int *y) {
 	*y = 0;
 
 	if(!(child->view && child->view->impl)) {
-		while (surface && wlr_surface_is_subsurface(surface)) {
+		while(surface && wlr_surface_is_subsurface(surface)) {
 			struct wlr_subsurface *subsurface =
-				wlr_subsurface_from_wlr_surface(surface);
-			if (subsurface == NULL) {
+			    wlr_subsurface_from_wlr_surface(surface);
+			if(subsurface == NULL) {
 				break;
 			}
 			*x += subsurface->current.x;
@@ -135,7 +135,6 @@ subsurface_get_coords(struct cg_view_child *child, int *x, int *y) {
 			surface = subsurface->parent;
 		}
 	}
-
 }
 
 static void
@@ -202,7 +201,9 @@ view_is_visible(const struct cg_view *view) {
 void
 view_damage(struct cg_view *view, bool whole) {
 	struct cg_tile *view_tile = view_get_tile(view);
-	if(view_tile != NULL&&(view->wlr_surface->current.width != view_tile->tile.width || view->wlr_surface->current.height != view_tile->tile.height)) {
+	if(view_tile != NULL &&
+	   (view->wlr_surface->current.width != view_tile->tile.width ||
+	    view->wlr_surface->current.height != view_tile->tile.height)) {
 		view_maximize(view, &view_tile->tile);
 	}
 	output_damage_surface(view->workspace->output, view->wlr_surface, view->ox,
@@ -210,7 +211,7 @@ view_damage(struct cg_view *view, bool whole) {
 }
 
 void
-view_damage_child(struct cg_view_child *child, int x, int y,bool whole) {
+view_damage_child(struct cg_view_child *child, int x, int y, bool whole) {
 	output_damage_surface(child->view->workspace->output, child->wlr_surface, x,
 	                      y, whole);
 }
@@ -279,10 +280,10 @@ view_unmap(struct cg_view *view) {
 			            .focused_surface == NULL ||
 			    view->workspace->server->seat->seat->keyboard_state
 			            .focused_surface == view->wlr_surface) &&
-			    view->workspace->server->curr_output
-			            ->workspaces[view->workspace->server->curr_output
-			                             ->curr_workspace]
-			            ->focused_tile == view_tile) {
+			   view->workspace->server->curr_output
+			           ->workspaces[view->workspace->server->curr_output
+			                            ->curr_workspace]
+			           ->focused_tile == view_tile) {
 				seat_set_focus(view->workspace->server->seat, prev);
 			} else {
 				view_tile->view = prev;

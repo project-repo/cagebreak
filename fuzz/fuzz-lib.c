@@ -20,21 +20,21 @@
 
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
-#include <wlr/types/wlr_compositor.h>
-#include <wlr/types/wlr_keyboard_group.h>
+#include <wlr/backend/headless.h>
+#include <wlr/backend/multi.h>
 #include <wlr/render/wlr_renderer.h>
+#include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_export_dmabuf_v1.h>
 #include <wlr/types/wlr_gamma_control_v1.h>
 #include <wlr/types/wlr_idle.h>
 #include <wlr/types/wlr_idle_inhibit_v1.h>
+#include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_screencopy_v1.h>
 #include <wlr/types/wlr_server_decoration.h>
-#include <wlr/backend/headless.h>
-#include <wlr/backend/multi.h>
 #if CG_HAS_XWAYLAND
 #include <wlr/types/wlr_xcursor_manager.h>
 #endif
@@ -46,12 +46,12 @@
 #include <wlr/xwayland.h>
 #endif
 
+#include "../idle_inhibit_v1.h"
 #include "../keybinding.h"
 #include "../output.h"
 #include "../parse.h"
 #include "../seat.h"
 #include "../server.h"
-#include "../idle_inhibit_v1.h"
 #include "../xdg_shell.h"
 #if CG_HAS_XWAYLAND
 #include "../xwayland.h"
@@ -172,17 +172,18 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	}
 	server.backend = backend;
 
-	struct wlr_backend *headless_backend=wlr_headless_backend_create(server.wl_display, NULL);
+	struct wlr_backend *headless_backend =
+	    wlr_headless_backend_create(server.wl_display, NULL);
 	if(!headless_backend) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots headless backend");
 		ret = 1;
 		goto end;
 	}
-	wlr_headless_add_output(headless_backend,600,300);
-
+	wlr_headless_add_output(headless_backend, 600, 300);
 
 	if(!wlr_multi_backend_add(backend, headless_backend)) {
-		wlr_log(WLR_ERROR, "Unable to insert headless backend into multi backend");
+		wlr_log(WLR_ERROR,
+		        "Unable to insert headless backend into multi backend");
 		ret = 1;
 		goto end;
 	};
@@ -389,7 +390,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	/* Place the cursor to the topl left of the output layout. */
 	wlr_cursor_warp(server.seat->cursor, NULL, 0, 0);
 	atexit(cleanup);
-	//server.wl_display->run = 1;
+	// server.wl_display->run = 1;
 	return 0;
 end:
 	cleanup();
@@ -398,57 +399,59 @@ end:
 
 void
 move_cursor(char *line, struct cg_server *server) {
-	return;//TODO
-	long del=0;
+	return; // TODO
+	long del = 0;
 	char *delstr = strtok_r(NULL, ";", &line);
-	enum wlr_axis_orientation orientation = (*(line++)=='0')? WLR_AXIS_ORIENTATION_VERTICAL:WLR_AXIS_ORIENTATION_HORIZONTAL;
+	enum wlr_axis_orientation orientation =
+	    (*(line++) == '0') ? WLR_AXIS_ORIENTATION_VERTICAL
+	                       : WLR_AXIS_ORIENTATION_HORIZONTAL;
 	if(delstr == NULL) {
 		return;
 	}
-	del=strtol(delstr,NULL,10);
-	struct wlr_event_pointer_axis event = {
-		.device = NULL,
-		.time_msec = 0,
-		.source = WLR_AXIS_SOURCE_WHEEL,
-		.orientation = orientation,
-		.delta = del * 15,
-		.delta_discrete = del
-	};
-	//TODO dispatch_cursor_axis(server->seat->cursor, &event);
+	del = strtol(delstr, NULL, 10);
+	struct wlr_event_pointer_axis event = {.device = NULL,
+	                                       .time_msec = 0,
+	                                       .source = WLR_AXIS_SOURCE_WHEEL,
+	                                       .orientation = orientation,
+	                                       .delta = del * 15,
+	                                       .delta_discrete = del};
+	// TODO dispatch_cursor_axis(server->seat->cursor, &event);
 }
 
-void add_output_callback(struct wlr_backend *backend, void *data) {
-	long *dims=data;
+void
+add_output_callback(struct wlr_backend *backend, void *data) {
+	long *dims = data;
 	wlr_headless_add_output(backend, dims[0], dims[1]);
 }
 
 void
 create_output(char *line, struct cg_server *server) {
 	char *widthstr = strtok_r(NULL, ";", &line);
-	long dims[2]= {600, 200};
+	long dims[2] = {600, 200};
 	if(widthstr != NULL) {
-		dims[0]=strtol(widthstr,NULL,10);
+		dims[0] = strtol(widthstr, NULL, 10);
 		if(line[0] != '\0') {
 			++line;
 		}
 	}
 	char *heightstr = strtok_r(NULL, ";", &line);
 	if(heightstr != NULL) {
-		dims[1]=strtol(heightstr,NULL,10);
+		dims[1] = strtol(heightstr, NULL, 10);
 	}
 	long max_dim = 10000;
-	if (dims[0] > max_dim || dims[0] <= 0 ) {
+	if(dims[0] > max_dim || dims[0] <= 0) {
 		wlr_log(WLR_ERROR, "height out of range.");
 		return;
-	} else if (dims[1] > max_dim || dims[1] <= 0) {
+	} else if(dims[1] > max_dim || dims[1] <= 0) {
 		wlr_log(WLR_ERROR, "width out of range.");
 		return;
 	}
 	wlr_multi_for_each_backend(server->backend, add_output_callback, dims);
 }
 
-void add_input_device_callback(struct wlr_backend *backend, void *data) {
-	enum wlr_input_device_type *type=data;
+void
+add_input_device_callback(struct wlr_backend *backend, void *data) {
+	enum wlr_input_device_type *type = data;
 	wlr_headless_add_input_device(backend, *type);
 }
 
@@ -456,33 +459,37 @@ void
 create_input_device(char *line, struct cg_server *server) {
 	enum wlr_input_device_type type;
 	if(*line != '\0') {
-		if(strncmp(line,"kbd",3) == 0) {
+		if(strncmp(line, "kbd", 3) == 0) {
 			type = WLR_INPUT_DEVICE_KEYBOARD;
-			wlr_multi_for_each_backend(server->backend, add_input_device_callback, &type);
-		} else if(strncmp(line,"ptr",3) == 0) {
+			wlr_multi_for_each_backend(server->backend,
+			                           add_input_device_callback, &type);
+		} else if(strncmp(line, "ptr", 3) == 0) {
 			type = WLR_INPUT_DEVICE_POINTER;
-			wlr_multi_for_each_backend(server->backend, add_input_device_callback, &type);
-		} else if(strncmp(line,"tch",3) == 0) {
+			wlr_multi_for_each_backend(server->backend,
+			                           add_input_device_callback, &type);
+		} else if(strncmp(line, "tch", 3) == 0) {
 			type = WLR_INPUT_DEVICE_TOUCH;
-			wlr_multi_for_each_backend(server->backend, add_input_device_callback, &type);
+			wlr_multi_for_each_backend(server->backend,
+			                           add_input_device_callback, &type);
 		}
 	}
 }
 
 void
 destroy_input_device(char *line, struct cg_server *server) {
-	long devn=0;
+	long devn = 0;
 	if(line[0] != '\0') {
-		devn = strtol(line+1,NULL,10);
+		devn = strtol(line + 1, NULL, 10);
 	}
 	if(line != NULL) {
-		if(strncmp(line,"k",1) == 0) {
+		if(strncmp(line, "k", 1) == 0) {
 			if(wl_list_empty(&server->seat->keyboard_groups)) {
 				return;
 			}
 			devn = devn % wl_list_length(&server->seat->keyboard_groups);
 			struct cg_keyboard_group *group, *group_tmp;
-			wl_list_for_each_safe(group, group_tmp, &server->seat->keyboard_groups, link) {
+			wl_list_for_each_safe(group, group_tmp,
+			                      &server->seat->keyboard_groups, link) {
 				if(devn == 0) {
 					wl_list_remove(&group->link);
 					wlr_keyboard_group_destroy(group->wlr_group);
@@ -492,55 +499,56 @@ destroy_input_device(char *line, struct cg_server *server) {
 				}
 				--devn;
 			}
-		} else if(strncmp(line,"p",1) == 0) {
+		} else if(strncmp(line, "p", 1) == 0) {
 			if(wl_list_empty(&server->seat->pointers)) {
 				return;
 			}
 			devn = devn % wl_list_length(&server->seat->pointers);
 			struct cg_pointer *pointer, *pointer_tmp;
-			wl_list_for_each_safe(pointer, pointer_tmp, &server->seat->pointers, link) {
+			wl_list_for_each_safe(pointer, pointer_tmp, &server->seat->pointers,
+			                      link) {
 				if(devn == 0) {
 					pointer->destroy.notify(&pointer->destroy, NULL);
 					break;
 				}
 				--devn;
 			}
-		} else if(strncmp(line,"t",1) == 0) {
+		} else if(strncmp(line, "t", 1) == 0) {
 			if(wl_list_empty(&server->seat->touch)) {
 				return;
 			}
 			devn = devn % wl_list_length(&server->seat->touch);
 			struct cg_touch *touch, *touch_tmp;
-			wl_list_for_each_safe(touch, touch_tmp, &server->seat->touch, link) {
+			wl_list_for_each_safe(touch, touch_tmp, &server->seat->touch,
+			                      link) {
 				if(devn == 0) {
 					touch->destroy.notify(&touch->destroy, NULL);
 					break;
 				}
 				--devn;
 			}
-
 		}
 	}
 }
 
 void
 destroy_output(char *line, struct cg_server *server) {
-	if(wl_list_length(&server->outputs)<2) {
+	if(wl_list_length(&server->outputs) < 2) {
 		return;
 	}
 	char *outpnstr = strtok_r(NULL, ";", &line);
 	long outpn = 0;
 	if(outpnstr != NULL) {
-		outpn=strtol(outpnstr,NULL,10);
+		outpn = strtol(outpnstr, NULL, 10);
 	}
-	outpn=outpn%wl_list_length(&server->outputs);
+	outpn = outpn % wl_list_length(&server->outputs);
 	struct cg_output *it;
-	wl_list_for_each(it,&server->outputs,link) {
+	wl_list_for_each(it, &server->outputs, link) {
 		if(outpn == 0) {
 			break;
 		} else {
 			--outpn;
 		}
 	}
-	it->damage_destroy.notify(&it->damage_destroy,NULL);
+	it->damage_destroy.notify(&it->damage_destroy, NULL);
 }
