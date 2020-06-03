@@ -14,6 +14,7 @@
 #include <string.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_box.h>
+#include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
@@ -44,10 +45,15 @@ view_get_prev_view(struct cg_view *view) {
 	return prev;
 }
 
+void
+view_damage_child(struct cg_view_child *child, int x, int y, bool whole);
+
 static void
 view_child_handle_commit(struct wl_listener *listener, void *_data) {
 	struct cg_view_child *child = wl_container_of(listener, child, commit);
-	view_damage_part(child->view);
+	int x, y;
+	child->get_coords(child, &x, &y);
+	view_damage_child(child, child->view->ox + x, child->view->oy + y, false);
 }
 
 static void
@@ -67,7 +73,9 @@ view_child_finish(struct cg_view_child *child) {
 		return;
 	}
 
-	view_damage_whole(child->view);
+	int x, y;
+	child->get_coords(child, &x, &y);
+	view_damage_child(child, child->view->ox + x, child->view->oy + y, true);
 
 	wl_list_remove(&child->link);
 	wl_list_remove(&child->commit.link);
@@ -109,6 +117,27 @@ subsurface_handle_destroy(struct wl_listener *listener, void *_data) {
 }
 
 static void
+subsurface_get_coords(struct cg_view_child *child, int *x, int *y) {
+
+	struct wlr_surface *surface = child->wlr_surface;
+	*x = 0;
+	*y = 0;
+
+	if(!(child->view && child->view->impl)) {
+		while(surface && wlr_surface_is_subsurface(surface)) {
+			struct wlr_subsurface *subsurface =
+			    wlr_subsurface_from_wlr_surface(surface);
+			if(subsurface == NULL) {
+				break;
+			}
+			*x += subsurface->current.x;
+			*y += subsurface->current.y;
+			surface = subsurface->parent;
+		}
+	}
+}
+
+static void
 subsurface_create(struct cg_view *view, struct wlr_subsurface *wlr_subsurface) {
 	struct cg_subsurface *subsurface = calloc(1, sizeof(struct cg_subsurface));
 	if(!subsurface) {
@@ -117,6 +146,7 @@ subsurface_create(struct cg_view *view, struct wlr_subsurface *wlr_subsurface) {
 
 	view_child_init(&subsurface->view_child, view, wlr_subsurface->surface);
 	subsurface->view_child.destroy = subsurface_destroy;
+	subsurface->view_child.get_coords = subsurface_get_coords;
 	subsurface->wlr_subsurface = wlr_subsurface;
 
 	subsurface->destroy.notify = subsurface_handle_destroy;
@@ -170,8 +200,20 @@ view_is_visible(const struct cg_view *view) {
 
 void
 view_damage(struct cg_view *view, bool whole) {
+	struct cg_tile *view_tile = view_get_tile(view);
+	if(view_tile != NULL &&
+	   (view->wlr_surface->current.width != view_tile->tile.width ||
+	    view->wlr_surface->current.height != view_tile->tile.height)) {
+		view_maximize(view, &view_tile->tile);
+	}
 	output_damage_surface(view->workspace->output, view->wlr_surface, view->ox,
 	                      view->oy, whole);
+}
+
+void
+view_damage_child(struct cg_view_child *child, int x, int y, bool whole) {
+	output_damage_surface(child->view->workspace->output, child->wlr_surface, x,
+	                      y, whole);
 }
 
 void

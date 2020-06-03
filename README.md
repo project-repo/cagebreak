@@ -5,18 +5,40 @@ provide a successor to ratpoison for Wayland users. However, this is
 no reimplementation of ratpoison. Should you like to know if a feature
 will be implemented, open an issue or get in touch with the development team.
 
-This README is only relevant for development resources and instructions. For a
-description of Cagebreak and installation instructions for end-users, please see
-the man page supplied in the `man/` directory and the [Wiki](https://github.com/project-repo/cagebreak/wiki/).
+This README is only relevant for development resources and instructions. For
+documentation of Cagebreak, please see
+the man pages for [cagebreak](man/cagebreak.1.md) and cagebreak
+[configuration](man/cagebreak-config.5.md) and the
+[Wiki](https://github.com/project-repo/cagebreak/wiki/).
 
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
 compositor.
 
-## Experimenting with Cagebreak
-
-Cagebreak is currently being developed under arch linux and uses the libraries
+Cagebreak is currently being developed under Arch Linux and uses the libraries
 as they are obtained through pacman. However, cagebreak should also work on
 other distributions given the proper library versions.
+
+## Installation
+
+If you are using archlinux, just clone the [PKGBUILD](https://aur.archlinux.org/cagebreak.git) from the aur.
+
+See [cagebreak-pkgbuild](https://github.com/project-repo/cagebreak-pkgbuild) for details.
+
+### Obtaining Source Code
+
+There are different ways to obtain cagebreak source:
+
+  * git clone (for all releases)
+  * download release asset tarballs (starting at release 1.2.1)
+
+### Verifying Source Code
+
+There are corresponding methods of verifying that you obtained the correct code:
+
+  * our git history includes signed tags for releases
+  * release assets starting at release 1.2.1 contain a signature for the tarball
+
+### Building Cagebreak
 
 You can build Cagebreak with the [meson](https://mesonbuild.com/) build system. It
 requires wayland, wlroots and xkbcommon to be installed. Note that Cagebreak is
@@ -30,12 +52,12 @@ $ meson build
 $ ninja -C build
 ```
 
-### Release Build
+#### Release Build
 
 By default, this builds a debug build. To build a release build, use `meson
 build --buildtype=release`.
 
-### Xwayland Support
+#### Xwayland Support
 
 Cagebreak comes with compile-time support for XWayland. To enable this,
 first make sure that your version of wlroots is compiled with this
@@ -61,34 +83,7 @@ Nonetheless, don't be intimidated by the (slightly lengthy) release checklist or
 part of this file. Do what you can, open an issue and we will collaborate
 toward a solution.
 
-### GCC and -fanalyzer
-
-Cagebreak should compile with any reasonably new gcc or clang. Consider
-a gcc version of at least [10.1](https://gcc.gnu.org/gcc-10/changes.html) if
-you want to get the benefit of the brand-new
-[-fanalyzer](https://gcc.gnu.org/onlinedocs/gcc/Static-Analyzer-Options.html)
-flag. However, this new flag sometimes produces false-postives and we
-selectively disable warnings for affected code segments as described below.
-
-Meson is configured to set `CG_HAS_FANALYZE` if `-fanalyzer` is available.
-Therefore, to maintain portability, false-positive fanalyzer warnings are to be
-disabled using the following syntax:
-
-```
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "WARNING OPTION"
-#endif
-```
-and after
-
-```
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic pop
-#endif
-```
-
-### Branching strategy
+### Branching Strategy and Versioning
 
 All features are to be developed on feature branches, named after the feature.
 
@@ -98,73 +93,73 @@ are merged for final testing.
 Once `development` is ready for a release, meaning that the release checklist is fulfilled,
 it is merged into `master`, creating a new release, which is tagged and signed.
 
-Merging into master is always done by
+All releases are tagged according to [semantic versioning](https://semver.org) guidelines.
 
-```
-git checkout development
-git pull origin development
-git checkout master
-git merge --squash development
-git tag -u keyid version HEAD
-git tag -v version
-git push --tags origin master
-```
-
-and a log message roughly describing the features added in the commit is
-included.
-
-In the past, our git history did not always reflect this scheme.
+In the past, our git history did not perfectly reflect this scheme.
 
 ### Releases
 
-Release checklist
+The release checklist must be completely fulfilled in one run for a release to
+occur. Once any failure occurs the entire checklist must be completed from scratch.
 
-  * [ ] Cursory testing
-    * [ ] libfuzzer testing
-  * [ ] ninja -C build clang-format
+  * [ ] `git checkout development`
+  * [ ] `git pull origin development`
+  * [ ] `git push origin development`
+  * [ ] Cage has no reasonable code merges
+  * [ ] `ninja -C build clang-format` makes no changes
+  * [ ] New version number determined according to [semantic versioning](https://semver.org) guidelines
+  * [ ] Relevant Documentation completed
+    * [ ] New features
+      * [ ] man pages
+        * [ ] man/cagebreak
+        * [ ] man/cagebreak-config
+      * [ ] wiki
+      * [ ] README.md Changelog for major and minor releases but not patches
+    * [ ] Fixed bugs documented in Bugs.md
+  * [ ] Testing
+    * [ ] Manual testing
+    * [ ] Libfuzzer testing
   * [ ] Version Number
     * [ ] meson.build
     * [ ] git tag
     * [ ] man pages
-  * [ ] Relevant Documentation
-    * [ ] New features documented
-      * [ ] man page
-      * [ ] wiki
-    * [ ] New configuration documented
-      * [ ] man page
-      * [ ] wiki
-    * [ ] Changelog in README
-    * [ ] Document fixed bugs in Bugs.md
-    * [ ] Update hashes of the binary
-    * [ ] Update signature of the binary
-  * [ ] Signature
-  * [ ] Branching Strategy
-  * [ ] git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .
-  * [ ] gpg --detach-sign -u keyid release_version.tar.gz
-  * [ ] upload build assets
-
-### Signing Key
-
-All releases are signed by at least one of the following collection of
-keys.
-
-  * E79F6D9E113529F4B1FFE4D5C4F974D70CEC2C5B
-  * 4739D329C9187A1C2795C20A02ABFDEC3A40545F
-
-Should we at any point retire a key, we will only replace it with keys signed
-by at least one of the above collection.
-
-Should we at any point have official mail addresses, their keys will be signed by
-a valid key noted above.
-
-The full public keys can be found in `keys/` along with any revocation certificates.
+  * [ ] `git add` relevant files
+  * [ ] `git commit`
+  * [ ] `git push origin development`
+  * [ ] meson.build reproducible build versions are current archlinux libraries and gcc
+  * [ ] Cagebreak is reproducible on multiple machines
+  * [ ] Documented reproducible build artefacts
+    * [ ] Hashes of the binary
+    * [ ] Renamed cagebreak.sig to previous_release_tag.sig
+    * [ ] Signature of the binary as cagebreak.sig with appropriate signing key
+  * [ ] Determined commit and tag message (Start with "Release version_number\n\n")
+  * [ ] `git checkout master`
+  * [ ] `git merge --squash development`
+  * [ ] `git commit` and insert message
+  * [ ] `git tag -u keyid version HEAD` and insert message
+  * [ ] `git tag -v version` and check signing key
+  * [ ] `git push --tags origin master`
+  * [ ] `git checkout development`
+  * [ ] `git merge master`
+  * [ ] `git push --tags origin development`
+  * [ ] `git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .`
+  * [ ] Checked archive
+    * [ ] tar -xvf release_version.tar.gz
+    * [ ] cd cagebreak
+    * [ ] meson build --buildtype=release
+    * [ ] ninja -C build
+    * [ ] gpg --verify ../signatures/cagebreak.sig build/cagebreak
+    * [ ] cd ..
+    * [ ] rm -rf cagebreak
+  * [ ] `gpg --detach-sign -u keyid release_version.tar.gz`
+  * [ ] Upload archive and signature as release assets
 
 ### Reproducible Builds
 
 Cagebreak offers reproducible builds given the exact library versions specified
 in `meson.build`. Should a version mismatch occur, a warning will be emitted. We have
 decided on this compromise to allow flexibility and security. In general we will
-adapt the versions to the packages available under arch linux at the time of
+adapt the versions to the packages available under Arch Linux at the time of
 release.
 
 There are reproducibility issues up to and including release `1.2.0`. See
@@ -182,6 +177,11 @@ ninja -C build
 #### Hashes for Builds
 
 For every release after 1.0.5, hashes will be provided.
+
+1.3.1
+
+  * sha 256: 71be224cd99d20da4f039675ec5c48213dd14ef027b804501fa3241886b2b08b
+  * sha 512: d094b786e5a74b01699997a85747943e6de3544cc903dd1c5dba449c66bd925b6378de800d3734969dabf8a20c7004dc3402e3c59577db09ce107b68a1f7bd21
 
 1.3.0
 
@@ -214,6 +214,53 @@ For every release after 1.0.5, a GPG signature will be provided in `signatures`.
 
 The current signature is called `cagebreak.sig`, whereas all older signatures
 will be named after their release version.
+
+#### Signing Keys
+
+All releases are signed by at least one of the following collection of
+keys.
+
+  * E79F6D9E113529F4B1FFE4D5C4F974D70CEC2C5B
+  * 4739D329C9187A1C2795C20A02ABFDEC3A40545F
+  * 7535AB89220A5C15A728B75F74104CC7DCA5D7A8
+  * 827BC2320D535AEAD0540E6E2E66F65D99761A6F
+
+Should we at any point retire a key, we will only replace it with keys signed
+by at least one of the above collection.
+
+We registered project-repo.co and added mail addresses after release `1.3.0`.
+
+We now have a mail address and its key is signed by signing keys. See Security
+Bugs for details.
+
+The full public keys can be found in `keys/` along with any revocation certificates.
+
+### GCC and -fanalyzer
+
+Cagebreak should compile with any reasonably new gcc or clang. Consider
+a gcc version of at least [10.1](https://gcc.gnu.org/gcc-10/changes.html) if
+you want to get the benefit of the brand-new
+[-fanalyzer](https://gcc.gnu.org/onlinedocs/gcc/Static-Analyzer-Options.html)
+flag. However, this new flag sometimes produces false-postives and we
+selectively disable warnings for affected code segments as described below.
+
+Meson is configured to set `CG_HAS_FANALYZE` if `-fanalyzer` is available.
+Therefore, to maintain portability, false-positive fanalyzer warnings are to be
+disabled using the following syntax:
+
+```
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "WARNING OPTION"
+#endif
+```
+and after
+
+```
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic pop
+#endif
+```
 
 ### Fuzzing
 
@@ -249,6 +296,23 @@ issue](https://github.com/project-repo/cagebreak/issues/new) on
 
 Fixed bugs are to be assigned a number and summarized inside Bugs.md for future reference
 independent of github, in case this service is unavailable.
+
+### Security Bugs
+
+Should you want to get in touch with the developers of cagebreak to report a
+security vulnerability or a different issue confidentially, contact
+`cagebreak @ project-repo . co`.
+
+We will try to respond to everything that is not obvious spam.
+
+Please encrypt your email with the appropriate [GPG key](keys/cagebreak@project-repo.co.pub).
+
+  * B15B92642760E11FE002DE168708D42451A94AB5
+
+Note that the key is signed by cagebreak signing keys.
+
+If you want us to respond via GPG-encrypted mail, please include your own
+public key or provide the fingerprint and directions to obtain the key.
 
 ## Changelog
 

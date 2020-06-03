@@ -10,19 +10,18 @@
 
 #include "config.h"
 
-#include <fcntl.h>
-#include <fontconfig/fontconfig.h>
-#include <getopt.h>
-#include <pango.h>
-#include <pango/pangocairo.h>
 #include <signal.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
+#include <wlr/backend/headless.h>
+#include <wlr/backend/multi.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
@@ -31,6 +30,7 @@
 #include <wlr/types/wlr_gamma_control_v1.h>
 #include <wlr/types/wlr_idle.h>
 #include <wlr/types/wlr_idle_inhibit_v1.h>
+#include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_screencopy_v1.h>
@@ -46,56 +46,29 @@
 #include <wlr/xwayland.h>
 #endif
 
-#include "idle_inhibit_v1.h"
-#include "ipc_server.h"
-#include "keybinding.h"
-#include "message.h"
-#include "output.h"
-#include "parse.h"
-#include "seat.h"
-#include "server.h"
-#include "view.h"
-#include "xdg_shell.h"
+#include "../idle_inhibit_v1.h"
+#include "../keybinding.h"
+#include "../output.h"
+#include "../parse.h"
+#include "../seat.h"
+#include "../server.h"
+#include "../xdg_shell.h"
 #if CG_HAS_XWAYLAND
-#include "xwayland.h"
+#include "../xwayland.h"
 #endif
 
-#ifndef WAIT_ANY
-#define WAIT_ANY -1
-#endif
-
-void
-set_sig_handler(int sig, void (*action)(int)) {
-	struct sigaction act;
-
-	memset(&act, 0, sizeof(act));
-	act.sa_handler = action;
-	sigemptyset(&act.sa_mask);
-	if(sigaction(sig, &act, NULL)) {
-		wlr_log(WLR_ERROR, "Error setting signal handler: %s\n",
-		        strerror(errno));
-	}
-}
-
-void
-sig_chld_handler(int signal) {
-	int pid = 1;
-	while(pid > 0) {
-		pid = waitpid(WAIT_ANY, NULL, WNOHANG);
-	}
-}
+#include "fuzz-lib.h"
 
 static bool
 drop_permissions(void) {
 	if(getuid() != geteuid() || getgid() != getegid()) {
-		// Set gid before uid
-		if(setgid(getgid()) != 0 || setuid(getuid()) != 0) {
+		if(setuid(getuid()) != 0 || setgid(getgid()) != 0) {
 			wlr_log(WLR_ERROR, "Unable to drop root, refusing to start");
 			return false;
 		}
 	}
 
-	if(setgid(0) != -1 || setuid(0) != -1) {
+	if(setuid(0) != -1) {
 		wlr_log(WLR_ERROR, "Unable to drop root (we shouldn't be able to "
 		                   "restore it after setuid), refusing to start");
 		return false;
@@ -104,142 +77,45 @@ drop_permissions(void) {
 	return true;
 }
 
-static int
-handle_signal(int signal, void *const data) {
-	struct cg_server *server = data;
-
-	switch(signal) {
-	case SIGINT:
-		/* Fallthrough */
-	case SIGTERM:
-		display_terminate(server);
-		return 0;
-	case SIGALRM: {
-		struct cg_output *output;
-		wl_list_for_each(output, &server->outputs, link) {
-			message_clear(output);
-		}
-		return 0;
-	}
-	default:
-		return 0;
-	}
-}
-
-static void
-usage(FILE *file, const char *const cage) {
-	fprintf(file,
-	        "Usage: %s [OPTIONS]\n"
-	        "\n"
-	        " -r\t Rotate the output 90 degrees clockwise, specify up to three "
-	        "times\n"
-#ifdef DEBUG
-	        " -D\t Turn on damage tracking debugging\n"
-#endif
-	        " -h\t Display this help message\n"
-	        " -v\t Show the version number and exit\n",
-	        cage);
-}
-
 static bool
 parse_args(struct cg_server *server, int argc, char *argv[]) {
-	int c;
+	server->output_transform = WL_OUTPUT_TRANSFORM_NORMAL;
 #ifdef DEBUG
-	while((c = getopt(argc, argv, "rDhv")) != -1) {
-#else
-	while((c = getopt(argc, argv, "rhv")) != -1) {
+	server->debug_damage_tracking = false;
 #endif
-		switch(c) {
-		case 'r':
-			server->output_transform++;
-			if(server->output_transform > WL_OUTPUT_TRANSFORM_270) {
-				server->output_transform = WL_OUTPUT_TRANSFORM_NORMAL;
-			}
-			break;
-#ifdef DEBUG
-		case 'D':
-			server->debug_damage_tracking = true;
-			break;
-#endif
-		case 'h':
-			usage(stdout, argv[0]);
-			return false;
-		case 'v':
-			fprintf(stdout, "Cagebreak version " CG_VERSION "\n");
-			exit(0);
-		default:
-			usage(stderr, argv[0]);
-			return false;
-		}
-	}
-
-	if(optind > argc) {
-		usage(stderr, argv[0]);
-		return false;
-	}
-
 	return true;
 }
 
-/* Parse config file. Lines longer than "max_line_size" are ignored */
-int
-set_configuration(struct cg_server *server,
-                  const char *const config_file_path) {
-	FILE *config_file = fopen(config_file_path, "r");
-	if(config_file == NULL) {
-		wlr_log(WLR_ERROR, "Could not open config file \"%s\"",
-		        config_file_path);
-		return -1;
+void
+cleanup() {
+	server.running = false;
+#if CG_HAS_XWAYLAND
+	if(xwayland != NULL) {
+		wlr_xwayland_destroy(xwayland);
 	}
-	char line[MAX_LINE_SIZE * sizeof(char)];
-	for(unsigned int line_num = 1;
-	    fgets(line, MAX_LINE_SIZE, config_file) != NULL; ++line_num) {
-		line[strcspn(line, "\n")] = '\0';
-		if(*line != '\0' && *line != '#') {
-			char *errstr;
-			if(parse_rc_line(server, line, &errstr) != 0) {
-				wlr_log(WLR_ERROR, "Error in config file \"%s\", line %d\n",
-				        config_file_path, line_num);
-				fclose(config_file);
-				if(errstr != NULL) {
-					free(errstr);
-				}
-				return -1;
-			}
-		}
+	if(xcursor_manager != NULL) {
+		wlr_xcursor_manager_destroy(xcursor_manager);
 	}
-	fclose(config_file);
-	return 0;
-}
+#endif
+	wl_display_destroy_clients(server.wl_display);
 
-char *
-get_config_file() {
-	const char *config_home_path = getenv("XDG_CONFIG_HOME");
-	char *addition = "/cagebreak/config";
-	if(config_home_path == NULL || config_home_path[0] == '\0') {
-		config_home_path = getenv("HOME");
-		if(config_home_path == NULL || config_home_path[0] == '\0') {
-			return NULL;
-		}
-		addition = "/.config/cagebreak/config";
+	for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
+		free(server.modes[i]);
 	}
-	char *config_path = malloc(
-	    (strlen(config_home_path) + strlen(addition) + 1) * sizeof(char));
-	if(!config_path) {
-		wlr_log(WLR_ERROR, "Failed to allocate space for configuration path");
-		return NULL;
-	}
-	sprintf(config_path, "%s%s", config_home_path, addition);
-	return config_path;
+	free(server.modes);
+
+	keybinding_list_free(server.keybindings);
+
+	seat_destroy(server.seat);
+	/* This function is not null-safe, but we only ever get here
+	   with a proper wl_display. */
+	wl_display_destroy(server.wl_display);
+	wlr_output_layout_destroy(server.output_layout);
 }
 
 int
-main(int argc, char *argv[]) {
-	struct cg_server server = {0};
+LLVMFuzzerInitialize(int *argc, char ***argv) {
 	struct wl_event_loop *event_loop = NULL;
-	struct wl_event_source *sigint_source = NULL;
-	struct wl_event_source *sigterm_source = NULL;
-	struct wl_event_source *sigalrm_source = NULL;
 	struct wlr_backend *backend = NULL;
 	struct wlr_renderer *renderer = NULL;
 	struct wlr_compositor *compositor = NULL;
@@ -250,14 +126,9 @@ main(int argc, char *argv[]) {
 	struct wlr_screencopy_manager_v1 *screencopy_manager = NULL;
 	struct wlr_xdg_output_manager_v1 *output_manager = NULL;
 	struct wlr_gamma_control_manager_v1 *gamma_control_manager = NULL;
-	struct wlr_xdg_shell *xdg_shell = NULL;
-#if CG_HAS_XWAYLAND
-	struct wlr_xwayland *xwayland = NULL;
-	struct wlr_xcursor_manager *xcursor_manager = NULL;
-#endif
 	int ret = 0;
 
-	if(!parse_args(&server, argc, argv)) {
+	if(!parse_args(&server, *argc, *argv)) {
 		return 1;
 	}
 
@@ -266,12 +137,6 @@ main(int argc, char *argv[]) {
 #else
 	wlr_log_init(WLR_ERROR, NULL);
 #endif
-
-	server.modes = malloc(4 * sizeof(char *));
-	if(!server.modes) {
-		wlr_log(WLR_ERROR, "Error allocating mode array");
-		return -1;
-	}
 
 	/* Wayland requires XDG_RUNTIME_DIR to be set. */
 	if(!getenv("XDG_RUNTIME_DIR")) {
@@ -287,37 +152,41 @@ main(int argc, char *argv[]) {
 
 	server.running = true;
 
+	server.modes = malloc(4 * sizeof(char *));
 	server.modes[0] = strdup("top");
 	server.modes[1] = strdup("root");
 	server.modes[2] = strdup("resize");
 	server.modes[3] = NULL;
-	if(server.modes[0] == NULL || server.modes[1] == NULL ||
-	   server.modes[2] == NULL) {
-		wlr_log(WLR_ERROR, "Error allocating default modes");
-		return 1;
-	}
 
 	server.nws = 1;
 	server.message_timeout = 2;
 
 	event_loop = wl_display_get_event_loop(server.wl_display);
-	sigint_source =
-	    wl_event_loop_add_signal(event_loop, SIGINT, handle_signal, &server);
-	sigterm_source =
-	    wl_event_loop_add_signal(event_loop, SIGTERM, handle_signal, &server);
-	sigalrm_source =
-	    wl_event_loop_add_signal(event_loop, SIGALRM, handle_signal, &server);
 	server.event_loop = event_loop;
 
-	set_sig_handler(SIGCHLD, sig_chld_handler);
-
-	backend = wlr_backend_autocreate(server.wl_display, NULL);
+	backend = wlr_multi_backend_create(server.wl_display);
 	if(!backend) {
-		wlr_log(WLR_ERROR, "Unable to create the wlroots backend");
+		wlr_log(WLR_ERROR, "Unable to create the wlroots multi backend");
 		ret = 1;
 		goto end;
 	}
 	server.backend = backend;
+
+	struct wlr_backend *headless_backend =
+	    wlr_headless_backend_create(server.wl_display, NULL);
+	if(!headless_backend) {
+		wlr_log(WLR_ERROR, "Unable to create the wlroots headless backend");
+		ret = 1;
+		goto end;
+	}
+	wlr_headless_add_output(headless_backend, 600, 300);
+
+	if(!wlr_multi_backend_add(backend, headless_backend)) {
+		wlr_log(WLR_ERROR,
+		        "Unable to insert headless backend into multi backend");
+		ret = 1;
+		goto end;
+	};
 
 	if(!drop_permissions()) {
 		ret = 1;
@@ -336,19 +205,16 @@ main(int argc, char *argv[]) {
 	renderer = wlr_backend_get_renderer(backend);
 	wlr_renderer_init_wl_display(renderer, server.wl_display);
 
-	server.bg_color = (float[4]){0, 0, 0, 1};
+	server.bg_color = malloc(4 * sizeof(float));
+	server.bg_color[0] = 0;
+	server.bg_color[1] = 0;
+	server.bg_color[2] = 0;
+	server.bg_color[3] = 1;
 	wl_list_init(&server.outputs);
 
 	server.output_layout = wlr_output_layout_create();
 	if(!server.output_layout) {
 		wlr_log(WLR_ERROR, "Unable to create output layout");
-		ret = 1;
-		goto end;
-	}
-
-	compositor = wlr_compositor_create(server.wl_display, renderer);
-	if(!compositor) {
-		wlr_log(WLR_ERROR, "Unable to create the wlroots compositor");
 		ret = 1;
 		goto end;
 	}
@@ -453,6 +319,13 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 
+	compositor = wlr_compositor_create(server.wl_display, renderer);
+	if(!compositor) {
+		wlr_log(WLR_ERROR, "Unable to create the wlroots compositor");
+		ret = 1;
+		goto end;
+	}
+
 #if CG_HAS_XWAYLAND
 	xwayland = wlr_xwayland_create(server.wl_display, compositor, true);
 	if(!xwayland) {
@@ -489,6 +362,7 @@ main(int argc, char *argv[]) {
 		                        image->width, image->height, image->hotspot_x,
 		                        image->hotspot_y);
 	}
+
 #endif
 
 	const char *socket = wl_display_add_socket_auto(server.wl_display);
@@ -513,84 +387,168 @@ main(int argc, char *argv[]) {
 		        socket);
 	}
 
-#if CG_HAS_XWAYLAND
-	wlr_xwayland_set_seat(xwayland, server.seat->seat);
-#endif
-
-	if(ipc_init(&server) != 0) {
-		wlr_log(WLR_ERROR, "Failed to initialize IPC");
-		ret = 1;
-		goto end;
-	}
-
-	{ // config_file should only be visible as long as it is valid
-		char *config_file = get_config_file();
-		if(config_file == NULL) {
-			wlr_log(WLR_ERROR, "Unable to get path to config file");
-			ret = 1;
-			goto end;
-		}
-		if(set_configuration(&server, config_file) != 0) {
-			free(config_file);
-			ret = 1;
-			goto end;
-		}
-		free(config_file);
-	}
-
-	{
-		struct cg_output *output;
-		wl_list_for_each(output, &server.outputs, link) {
-			output_configure(&server, output);
-		}
-	}
-
-	/* Place the cursor to the top left of the output layout. */
+	/* Place the cursor to the topl left of the output layout. */
 	wlr_cursor_warp(server.seat->cursor, NULL, 0, 0);
-
-	wl_display_run(server.wl_display);
-
-#if CG_HAS_XWAYLAND
-	wlr_xwayland_destroy(xwayland);
-	wlr_xcursor_manager_destroy(xcursor_manager);
-#endif
-	wl_display_destroy_clients(server.wl_display);
-
+	atexit(cleanup);
+	// server.wl_display->run = 1;
+	return 0;
 end:
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-double-free"
-#endif
-	for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
-		free(server.modes[i]);
-	}
-	free(server.modes);
-
-	struct cg_output_config *output_config, *output_config_tmp;
-	wl_list_for_each_safe(output_config, output_config_tmp,
-	                      &server.output_config, link) {
-		wl_list_remove(&output_config->link);
-		free(output_config->output_name);
-		free(output_config);
-	}
-
-	keybinding_list_free(server.keybindings);
-	wl_event_source_remove(sigint_source);
-	wl_event_source_remove(sigterm_source);
-	wl_event_source_remove(sigalrm_source);
-
-	seat_destroy(server.seat);
-	/* This function is not null-safe, but we only ever get here
-	   with a proper wl_display. */
-	wl_display_destroy(server.wl_display);
-	wlr_output_layout_destroy(server.output_layout);
-
-	pango_cairo_font_map_set_default(NULL);
-	cairo_debug_reset_static_data();
-	FcFini();
-
+	cleanup();
 	return ret;
 }
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic pop
-#endif
+
+void
+move_cursor(char *line, struct cg_server *server) {
+	return; // TODO
+	long del = 0;
+	char *delstr = strtok_r(NULL, ";", &line);
+	enum wlr_axis_orientation orientation =
+	    (*(line++) == '0') ? WLR_AXIS_ORIENTATION_VERTICAL
+	                       : WLR_AXIS_ORIENTATION_HORIZONTAL;
+	if(delstr == NULL) {
+		return;
+	}
+	del = strtol(delstr, NULL, 10);
+	struct wlr_event_pointer_axis event = {.device = NULL,
+	                                       .time_msec = 0,
+	                                       .source = WLR_AXIS_SOURCE_WHEEL,
+	                                       .orientation = orientation,
+	                                       .delta = del * 15,
+	                                       .delta_discrete = del};
+	// TODO dispatch_cursor_axis(server->seat->cursor, &event);
+}
+
+void
+add_output_callback(struct wlr_backend *backend, void *data) {
+	long *dims = data;
+	wlr_headless_add_output(backend, dims[0], dims[1]);
+}
+
+void
+create_output(char *line, struct cg_server *server) {
+	char *widthstr = strtok_r(NULL, ";", &line);
+	long dims[2] = {600, 200};
+	if(widthstr != NULL) {
+		dims[0] = strtol(widthstr, NULL, 10);
+		if(line[0] != '\0') {
+			++line;
+		}
+	}
+	char *heightstr = strtok_r(NULL, ";", &line);
+	if(heightstr != NULL) {
+		dims[1] = strtol(heightstr, NULL, 10);
+	}
+	long max_dim = 10000;
+	if(dims[0] > max_dim || dims[0] <= 0) {
+		wlr_log(WLR_ERROR, "height out of range.");
+		return;
+	} else if(dims[1] > max_dim || dims[1] <= 0) {
+		wlr_log(WLR_ERROR, "width out of range.");
+		return;
+	}
+	wlr_multi_for_each_backend(server->backend, add_output_callback, dims);
+}
+
+void
+add_input_device_callback(struct wlr_backend *backend, void *data) {
+	enum wlr_input_device_type *type = data;
+	wlr_headless_add_input_device(backend, *type);
+}
+
+void
+create_input_device(char *line, struct cg_server *server) {
+	enum wlr_input_device_type type;
+	if(*line != '\0') {
+		if(strncmp(line, "kbd", 3) == 0) {
+			type = WLR_INPUT_DEVICE_KEYBOARD;
+			wlr_multi_for_each_backend(server->backend,
+			                           add_input_device_callback, &type);
+		} else if(strncmp(line, "ptr", 3) == 0) {
+			type = WLR_INPUT_DEVICE_POINTER;
+			wlr_multi_for_each_backend(server->backend,
+			                           add_input_device_callback, &type);
+		} else if(strncmp(line, "tch", 3) == 0) {
+			type = WLR_INPUT_DEVICE_TOUCH;
+			wlr_multi_for_each_backend(server->backend,
+			                           add_input_device_callback, &type);
+		}
+	}
+}
+
+void
+destroy_input_device(char *line, struct cg_server *server) {
+	long devn = 0;
+	if(line[0] != '\0') {
+		devn = strtol(line + 1, NULL, 10);
+	}
+	if(line != NULL) {
+		if(strncmp(line, "k", 1) == 0) {
+			if(wl_list_empty(&server->seat->keyboard_groups)) {
+				return;
+			}
+			devn = devn % wl_list_length(&server->seat->keyboard_groups);
+			struct cg_keyboard_group *group, *group_tmp;
+			wl_list_for_each_safe(group, group_tmp,
+			                      &server->seat->keyboard_groups, link) {
+				if(devn == 0) {
+					wl_list_remove(&group->link);
+					wlr_keyboard_group_destroy(group->wlr_group);
+					wl_event_source_remove(group->key_repeat_timer);
+					free(group);
+					break;
+				}
+				--devn;
+			}
+		} else if(strncmp(line, "p", 1) == 0) {
+			if(wl_list_empty(&server->seat->pointers)) {
+				return;
+			}
+			devn = devn % wl_list_length(&server->seat->pointers);
+			struct cg_pointer *pointer, *pointer_tmp;
+			wl_list_for_each_safe(pointer, pointer_tmp, &server->seat->pointers,
+			                      link) {
+				if(devn == 0) {
+					pointer->destroy.notify(&pointer->destroy, NULL);
+					break;
+				}
+				--devn;
+			}
+		} else if(strncmp(line, "t", 1) == 0) {
+			if(wl_list_empty(&server->seat->touch)) {
+				return;
+			}
+			devn = devn % wl_list_length(&server->seat->touch);
+			struct cg_touch *touch, *touch_tmp;
+			wl_list_for_each_safe(touch, touch_tmp, &server->seat->touch,
+			                      link) {
+				if(devn == 0) {
+					touch->destroy.notify(&touch->destroy, NULL);
+					break;
+				}
+				--devn;
+			}
+		}
+	}
+}
+
+void
+destroy_output(char *line, struct cg_server *server) {
+	if(wl_list_length(&server->outputs) < 2) {
+		return;
+	}
+	char *outpnstr = strtok_r(NULL, ";", &line);
+	long outpn = 0;
+	if(outpnstr != NULL) {
+		outpn = strtol(outpnstr, NULL, 10);
+	}
+	outpn = outpn % wl_list_length(&server->outputs);
+	struct cg_output *it;
+	wl_list_for_each(it, &server->outputs, link) {
+		if(outpn == 0) {
+			break;
+		} else {
+			--outpn;
+		}
+	}
+	it->damage_destroy.notify(&it->damage_destroy, NULL);
+}
