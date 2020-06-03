@@ -306,7 +306,7 @@ Please encrypt your email with the appropriate [GPG key](keys/cagebreak@project-
 
 Note that the key is signed by cagebreak signing keys.
 
-If you want us to answer by GPG-encrypted mail, please include your own
+If you want us to respond via GPG-encrypted mail, please include your own
 public key or provide the fingerprint and directions to obtain the key.
 
 ## Changelog
