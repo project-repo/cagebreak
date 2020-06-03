@@ -105,17 +105,17 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
   * [ ] `git checkout development`
   * [ ] `git pull origin development`
   * [ ] `git push origin development`
-  * [ ] Check cage for possible code merges
-  * [ ] ninja -C build clang-format
-  * [ ] Determine new version number according to [semantic versioning](https://semver.org) guidelines
-  * [ ] Relevant Documentation
-    * [ ] New features documented
+  * [ ] Cage has no reasonable code merges
+  * [ ] `ninja -C build clang-format` makes no changes
+  * [ ] New version number determined according to [semantic versioning](https://semver.org) guidelines
+  * [ ] Relevant Documentation completed
+    * [ ] New features
       * [ ] man pages
         * [ ] man/cagebreak
         * [ ] man/cagebreak-config
       * [ ] wiki
-      * [ ] README.md Changelog
-    * [ ] Document fixed bugs in Bugs.md
+      * [ ] README.md Changelog for major and minor releases but not patches
+    * [ ] Fixed bugs documented in Bugs.md
   * [ ] Testing
     * [ ] Manual testing
     * [ ] Libfuzzer testing
@@ -126,12 +126,13 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
   * [ ] `git add` relevant files
   * [ ] `git commit`
   * [ ] `git push origin development`
-  * [ ] Check reproducibility on multiple machines
-  * [ ] Document Reproducible Builds Artefacts
-    * [ ] Add hashes of the binary
-    * [ ] Rename cagebreak.sig to previous_signature.sig
-    * [ ] Add signature of the binary as cagebreak.sig
-  * [ ] Determine commit and tag message (Start with "Release version_number\n\n")
+  * [ ] meson.build reproducible build versions are current archlinux libraries and gcc
+  * [ ] Cagebreak is reproducible on multiple machines
+  * [ ] Documented reproducible build artefacts
+    * [ ] Hashes of the binary
+    * [ ] Renamed cagebreak.sig to previous_release_tag.sig
+    * [ ] Signature of the binary as cagebreak.sig with appropriate signing key
+  * [ ] Determined commit and tag message (Start with "Release version_number\n\n")
   * [ ] `git checkout master`
   * [ ] `git merge --squash development`
   * [ ] `git commit` and insert message
@@ -142,7 +143,7 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
   * [ ] `git merge master`
   * [ ] `git push --tags origin development`
   * [ ] `git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .`
-  * [ ] Check archive
+  * [ ] Checked archive
     * [ ] tar -xvf release_version.tar.gz
     * [ ] cd cagebreak
     * [ ] meson build --buildtype=release
