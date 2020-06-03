@@ -1,4 +1,4 @@
-% CAGEBREAK(1) Version 1.3.0 | Cagebreak Manual
+% CAGEBREAK(1) Version 1.3.1 | Cagebreak Manual
 
 # NAME
 
