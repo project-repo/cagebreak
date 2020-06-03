@@ -20,6 +20,10 @@ other distributions given the proper library versions.
 
 ## Installation
 
+If you are using archlinux, just clone the [PKGBUILD](https://aur.archlinux.org/cagebreak.git) from the aur.
+
+See [cagebreak-pkgbuild](https://github.com/project-repo/cagebreak-pkgbuild) for details.
+
 ### Obtaining Source Code
 
 There are different ways to obtain cagebreak source:
@@ -48,12 +52,12 @@ $ meson build
 $ ninja -C build
 ```
 
-### Release Build
+#### Release Build
 
 By default, this builds a debug build. To build a release build, use `meson
 build --buildtype=release`.
 
-### Xwayland Support
+#### Xwayland Support
 
 Cagebreak comes with compile-time support for XWayland. To enable this,
 first make sure that your version of wlroots is compiled with this
@@ -101,17 +105,17 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
   * [ ] `git checkout development`
   * [ ] `git pull origin development`
   * [ ] `git push origin development`
-  * [ ] Check cage for possible code merges
-  * [ ] ninja -C build clang-format
-  * [ ] Determine new version number according to [semantic versioning](https://semver.org) guidelines
-  * [ ] Relevant Documentation
-    * [ ] New features documented
+  * [ ] Cage has no reasonable code merges
+  * [ ] `ninja -C build clang-format` makes no changes
+  * [ ] New version number determined according to [semantic versioning](https://semver.org) guidelines
+  * [ ] Relevant Documentation completed
+    * [ ] New features
       * [ ] man pages
         * [ ] man/cagebreak
         * [ ] man/cagebreak-config
       * [ ] wiki
-      * [ ] README.md Changelog
-    * [ ] Document fixed bugs in Bugs.md
+      * [ ] README.md Changelog for major and minor releases but not patches
+    * [ ] Fixed bugs documented in Bugs.md
   * [ ] Testing
     * [ ] Manual testing
     * [ ] Libfuzzer testing
@@ -122,12 +126,13 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
   * [ ] `git add` relevant files
   * [ ] `git commit`
   * [ ] `git push origin development`
-  * [ ] Check reproducibility on multiple machines
-  * [ ] Document Reproducible Builds Artefacts
-    * [ ] Add hashes of the binary
-    * [ ] Rename cagebreak.sig to previous_signature.sig
-    * [ ] Add signature of the binary as cagebreak.sig
-  * [ ] Determine commit and tag message (Start with "Release version_number\n\n")
+  * [ ] meson.build reproducible build versions are current archlinux libraries and gcc
+  * [ ] Cagebreak is reproducible on multiple machines
+  * [ ] Documented reproducible build artefacts
+    * [ ] Hashes of the binary
+    * [ ] Renamed cagebreak.sig to previous_release_tag.sig
+    * [ ] Signature of the binary as cagebreak.sig with appropriate signing key
+  * [ ] Determined commit and tag message (Start with "Release version_number\n\n")
   * [ ] `git checkout master`
   * [ ] `git merge --squash development`
   * [ ] `git commit` and insert message
@@ -138,7 +143,7 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
   * [ ] `git merge master`
   * [ ] `git push --tags origin development`
   * [ ] `git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .`
-  * [ ] Check archive
+  * [ ] Checked archive
     * [ ] tar -xvf release_version.tar.gz
     * [ ] cd cagebreak
     * [ ] meson build --buildtype=release
@@ -205,19 +210,23 @@ For every release after 1.0.5, a GPG signature will be provided in `signatures`.
 The current signature is called `cagebreak.sig`, whereas all older signatures
 will be named after their release version.
 
-#### Signing Key
+#### Signing Keys
 
 All releases are signed by at least one of the following collection of
 keys.
 
   * E79F6D9E113529F4B1FFE4D5C4F974D70CEC2C5B
   * 4739D329C9187A1C2795C20A02ABFDEC3A40545F
+  * 7535AB89220A5C15A728B75F74104CC7DCA5D7A8
+  * 827BC2320D535AEAD0540E6E2E66F65D99761A6F
 
 Should we at any point retire a key, we will only replace it with keys signed
 by at least one of the above collection.
 
-Should we at any point have official mail addresses, their keys will be signed by
-a valid key noted above.
+We registered project-repo.co and added mail addresses after release `1.3.0`.
+
+We now have a mail address and its key is signed by signing keys. See Security
+Bugs for details.
 
 The full public keys can be found in `keys/` along with any revocation certificates.
 
@@ -282,6 +291,23 @@ issue](https://github.com/project-repo/cagebreak/issues/new) on
 
 Fixed bugs are to be assigned a number and summarized inside Bugs.md for future reference
 independent of github, in case this service is unavailable.
+
+### Security Bugs
+
+Should you want to get in touch with the developers of cagebreak to report a
+security vulnerability or a different issue confidentially, contact
+`cagebreak @ project-repo . co`.
+
+We will try to respond to everything that is not obvious spam.
+
+Please encrypt your email with the appropriate [GPG key](keys/cagebreak@project-repo.co.pub).
+
+  * B15B92642760E11FE002DE168708D42451A94AB5
+
+Note that the key is signed by cagebreak signing keys.
+
+If you want us to respond via GPG-encrypted mail, please include your own
+public key or provide the fingerprint and directions to obtain the key.
 
 ## Changelog
 
