@@ -51,6 +51,7 @@ scissor_output(struct wlr_output *output, pixman_box32_t *rect) {
 
 struct render_data {
 	pixman_region32_t *damage;
+	int tile_width, tile_height;
 };
 
 static void
@@ -101,6 +102,12 @@ render_surface_iterator(struct cg_output *output, struct wlr_surface *surface,
 	wlr_matrix_project_box(matrix, box, transform, 0.0F,
 	                       wlr_output->transform_matrix);
 
+	if(data->tile_width != 0) {
+		box->width = box->width > data->tile_width ? data->tile_width:box->width;
+	}
+	if(data->tile_height != 0) {
+		box->height = box->height > data->tile_height ? data->tile_height:box->height;
+	}
 	render_texture(wlr_output, output_damage, texture, box, matrix);
 }
 
@@ -109,6 +116,8 @@ render_drag_icons(struct cg_output *output, pixman_region32_t *damage,
                   struct wl_list *drag_icons) {
 	struct render_data data = {
 	    .damage = damage,
+		.tile_width = 0,
+		.tile_height = 0,
 	};
 	output_drag_icons_for_each_surface(output, drag_icons,
 	                                   render_surface_iterator, &data);
@@ -122,7 +131,18 @@ render_view_toplevels(struct cg_view *view, struct cg_output *output,
                       pixman_region32_t *damage) {
 	struct render_data data = {
 	    .damage = damage,
+		.tile_width = 0,
+		.tile_height = 0,
 	};
+	//TODO: improve run time behaviour of view_get_tile
+	struct cg_tile *view_tile=view_get_tile(view);
+	if(view_tile != NULL) {
+		if(view_tile->tile.width != view->wlr_surface->current.width || view_tile->tile.height != view->wlr_surface->current.height) {
+			view_damage_whole(view);
+		}
+		data.tile_width=view_tile->tile.width;
+		data.tile_height=view_tile->tile.height;
+	}
 
 	double ox, oy;
 	ox = view->ox;
@@ -147,6 +167,8 @@ render_view_popups(struct cg_view *view, struct cg_output *output,
                    pixman_region32_t *damage) {
 	struct render_data data = {
 	    .damage = damage,
+		.tile_width = 0,
+		.tile_height = 0,
 	};
 	output_view_for_each_popup(output, view, render_popup_iterator, &data);
 }
