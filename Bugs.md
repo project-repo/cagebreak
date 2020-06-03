@@ -97,3 +97,25 @@ difficult to reproduce.
 Our fuzzing framework up to and including release 1.2.0 does not limit line
 lengths. This can crash the fuzzing framework with a segfault due to running
 out of memory.
+
+### Issue 7
+
+  * github issue number: N/A
+  * Fixed: 1.3.1
+
+Cagebreak up to and including release 1.3.0 does not ensure that windows
+are resized correctly. The download save dialog in firefox
+demonstrates this issue, as it may be rendered larger than the current
+monitor. As of release 1.3.1 the size of every window is checked on
+rendering and adjusted if necessary.
+
+### Issue 8
+
+  * github issue number: N/A
+  * Fixed: 1.3.1
+
+Cagebreak up to and including release 1.3.0 does not force windows
+to resize to the appropriate size. Calling `vsplit` on inkscape
+demonstrates this issue, since it causes adjacent tiles to overlap
+(contrary to the idea of a tiling compositor).
+
