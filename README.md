@@ -292,7 +292,7 @@ find bugs in other areas of the code.
 
 For any bug, please [create an
 issue](https://github.com/project-repo/cagebreak/issues/new) on
-[GitHub](https://github.com/project-rep/cagebreak).
+[GitHub](https://github.com/project-repo/cagebreak).
 
 Fixed bugs are to be assigned a number and summarized inside Bugs.md for future reference
 independent of github, in case this service is unavailable.
