@@ -1,4 +1,4 @@
-project('cagebreak', 'c',
+project('Cagebreak', 'c',
   version: '1.3.1',
   license: 'MIT',
   default_options: [
@@ -229,7 +229,7 @@ elif cc.version() != reproducible_build_compiler_version
 endif
 
 executable(
-  meson.project_name(),
+  meson.project_name().to_lower(),
   cagebreak_main_file + cagebreak_sources + cagebreak_headers,
   dependencies: cagebreak_dependencies,
   install: true,
@@ -257,13 +257,39 @@ cagebreak_man = custom_target('cagebreak_config_man',
   install_dir: mandir5
   )
 
+if get_option('documentation')
+  doxygen = find_program('doxygen', required: false)
+  if not doxygen.found()
+    error('Program "doxygen" not found. Try building with -Ddocumentation=false')
+  endif
+
+  doc_config = configuration_data()
+  doc_config.set('PROJECT_ROOT_DIR', meson.source_root())
+  doc_config.set('PROJECT_VERSION', version)
+  doc_config.set('PROJECT_BRIEF', '"Tiling wayland compositor"')
+  doc_config.set('PROJECT_NAME', meson.project_name())
+
+  doxyfile = configure_file(input: 'doxygen_config.in',
+    output: 'doxygen_config',
+    configuration: doc_config,
+    install: false)
+
+  cagebreak_doc = custom_target('cagebreak_doc',
+    input : [cagebreak_main_file + cagebreak_source_strings + cagebreak_header_strings, doxyfile],
+    command : [doxygen, doxyfile],
+    install : false,
+    output : [ 'doc' ],
+    build_by_default : true,
+    )
+endif
+
 if get_option('fuzz')
   subdir('fuzz')
 endif
 
 summary = [
 	'',
-	'Cagebreak @0@'.format(version),
+	'@0@ @1@'.format(meson.project_name(),version),
 	'',
 	'    xwayland: @0@'.format(have_xwayland),
 	''
