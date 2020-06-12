@@ -46,25 +46,27 @@ view_get_prev_view(struct cg_view *view) {
 }
 
 void
-view_damage_child(struct cg_view_child *child, int x, int y, bool whole);
+view_damage_child(struct cg_view_child *child, int x, int y, bool whole) {
+	output_damage_surface(child->view->workspace->output, child->wlr_surface, x, y, whole);
+}
 
 static void
 view_child_handle_commit(struct wl_listener *listener, void *_data) {
 	struct cg_view_child *child = wl_container_of(listener, child, commit);
 	int x, y;
 	child->get_coords(child, &x, &y);
-	view_damage_child(child, child->view->ox + x, child->view->oy + y, false);
+	view_damage_child(child, x, y, false);
 }
 
 static void
-subsurface_create(struct cg_view *view, struct wlr_subsurface *wlr_subsurface);
+subsurface_create(struct cg_view_child *parent, struct cg_view *view, struct wlr_subsurface *wlr_subsurface);
 
 static void
 view_child_handle_new_subsurface(struct wl_listener *listener, void *data) {
 	struct cg_view_child *child =
 	    wl_container_of(listener, child, new_subsurface);
 	struct wlr_subsurface *wlr_subsurface = data;
-	subsurface_create(child->view, wlr_subsurface);
+	subsurface_create(child, child->view, wlr_subsurface);
 }
 
 void
@@ -73,19 +75,16 @@ view_child_finish(struct cg_view_child *child) {
 		return;
 	}
 
-	int x, y;
-	child->get_coords(child, &x, &y);
-	view_damage_child(child, child->view->ox + x, child->view->oy + y, true);
-
 	wl_list_remove(&child->link);
 	wl_list_remove(&child->commit.link);
 	wl_list_remove(&child->new_subsurface.link);
 }
 
 void
-view_child_init(struct cg_view_child *child, struct cg_view *view,
+view_child_init(struct cg_view_child *child, struct cg_view_child *parent, struct cg_view *view,
                 struct wlr_surface *wlr_surface) {
 	child->view = view;
+	child->parent = parent;
 	child->wlr_surface = wlr_surface;
 
 	child->commit.notify = view_child_handle_commit;
@@ -118,16 +117,21 @@ subsurface_handle_destroy(struct wl_listener *listener, void *_data) {
 
 static void
 subsurface_get_coords(struct cg_view_child *child, int *x, int *y) {
-
 	struct wlr_surface *surface = child->wlr_surface;
-	*x = 0;
-	*y = 0;
+	*x = -child->view->ox;
+	*y = -child->view->oy;
 
-	if(!(child->view && child->view->impl)) {
-		while(surface && wlr_surface_is_subsurface(surface)) {
+	if (child->parent &&
+			child->parent->get_coords) {
+		int sx, sy;
+		child->parent->get_coords(child->parent, &sx, &sy);
+		*x += sx;
+		*y += sy;
+	} else {
+		while (surface && wlr_surface_is_subsurface(surface)) {
 			struct wlr_subsurface *subsurface =
-			    wlr_subsurface_from_wlr_surface(surface);
-			if(subsurface == NULL) {
+				wlr_subsurface_from_wlr_surface(surface);
+			if (subsurface == NULL) {
 				break;
 			}
 			*x += subsurface->current.x;
@@ -138,13 +142,13 @@ subsurface_get_coords(struct cg_view_child *child, int *x, int *y) {
 }
 
 static void
-subsurface_create(struct cg_view *view, struct wlr_subsurface *wlr_subsurface) {
+subsurface_create(struct cg_view_child *parent, struct cg_view *view, struct wlr_subsurface *wlr_subsurface) {
 	struct cg_subsurface *subsurface = calloc(1, sizeof(struct cg_subsurface));
 	if(!subsurface) {
 		return;
 	}
 
-	view_child_init(&subsurface->view_child, view, wlr_subsurface->surface);
+	view_child_init(&subsurface->view_child, parent, view, wlr_subsurface->surface);
 	subsurface->view_child.destroy = subsurface_destroy;
 	subsurface->view_child.get_coords = subsurface_get_coords;
 	subsurface->wlr_subsurface = wlr_subsurface;
@@ -157,7 +161,7 @@ static void
 handle_new_subsurface(struct wl_listener *listener, void *data) {
 	struct cg_view *view = wl_container_of(listener, view, new_subsurface);
 	struct wlr_subsurface *wlr_subsurface = data;
-	subsurface_create(view, wlr_subsurface);
+	subsurface_create(NULL, view, wlr_subsurface);
 }
 
 char *
@@ -208,12 +212,6 @@ view_damage(struct cg_view *view, bool whole) {
 	}
 	output_damage_surface(view->workspace->output, view->wlr_surface, view->ox,
 	                      view->oy, whole);
-}
-
-void
-view_damage_child(struct cg_view_child *child, int x, int y, bool whole) {
-	output_damage_surface(child->view->workspace->output, child->wlr_surface, x,
-	                      y, whole);
 }
 
 void
@@ -325,7 +323,7 @@ view_map(struct cg_view *view, struct wlr_surface *surface) {
 
 	struct wlr_subsurface *subsurface;
 	wl_list_for_each(subsurface, &view->wlr_surface->subsurfaces, parent_link) {
-		subsurface_create(view, subsurface);
+		subsurface_create(NULL, view, subsurface);
 	}
 
 	view->new_subsurface.notify = handle_new_subsurface;

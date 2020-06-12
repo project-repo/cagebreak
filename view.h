@@ -52,6 +52,7 @@ struct cg_view_impl {
 
 struct cg_view_child {
 	struct cg_view *view;
+	struct cg_view_child *parent;
 	struct wlr_surface *wlr_surface;
 	struct wl_list link;
 
@@ -110,7 +111,7 @@ view_wlr_surface_at(const struct cg_view *view, double sx, double sy,
 void
 view_child_finish(struct cg_view_child *child);
 void
-view_child_init(struct cg_view_child *child, struct cg_view *view,
+view_child_init(struct cg_view_child *child, struct cg_view_child *parent, struct cg_view *view,
                 struct wlr_surface *wlr_surface);
 
 #endif
