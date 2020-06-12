@@ -47,7 +47,8 @@ view_get_prev_view(struct cg_view *view) {
 
 void
 view_damage_child(struct cg_view_child *child, int x, int y, bool whole) {
-	output_damage_surface(child->view->workspace->output, child->wlr_surface, x, y, whole);
+	output_damage_surface(child->view->workspace->output, child->wlr_surface, x,
+	                      y, whole);
 }
 
 static void
@@ -59,7 +60,8 @@ view_child_handle_commit(struct wl_listener *listener, void *_data) {
 }
 
 static void
-subsurface_create(struct cg_view_child *parent, struct cg_view *view, struct wlr_subsurface *wlr_subsurface);
+subsurface_create(struct cg_view_child *parent, struct cg_view *view,
+                  struct wlr_subsurface *wlr_subsurface);
 
 static void
 view_child_handle_new_subsurface(struct wl_listener *listener, void *data) {
@@ -81,8 +83,8 @@ view_child_finish(struct cg_view_child *child) {
 }
 
 void
-view_child_init(struct cg_view_child *child, struct cg_view_child *parent, struct cg_view *view,
-                struct wlr_surface *wlr_surface) {
+view_child_init(struct cg_view_child *child, struct cg_view_child *parent,
+                struct cg_view *view, struct wlr_surface *wlr_surface) {
 	child->view = view;
 	child->parent = parent;
 	child->wlr_surface = wlr_surface;
@@ -121,17 +123,16 @@ subsurface_get_coords(struct cg_view_child *child, int *x, int *y) {
 	*x = -child->view->ox;
 	*y = -child->view->oy;
 
-	if (child->parent &&
-			child->parent->get_coords) {
+	if(child->parent && child->parent->get_coords) {
 		int sx, sy;
 		child->parent->get_coords(child->parent, &sx, &sy);
 		*x += sx;
 		*y += sy;
 	} else {
-		while (surface && wlr_surface_is_subsurface(surface)) {
+		while(surface && wlr_surface_is_subsurface(surface)) {
 			struct wlr_subsurface *subsurface =
-				wlr_subsurface_from_wlr_surface(surface);
-			if (subsurface == NULL) {
+			    wlr_subsurface_from_wlr_surface(surface);
+			if(subsurface == NULL) {
 				break;
 			}
 			*x += subsurface->current.x;
@@ -142,13 +143,15 @@ subsurface_get_coords(struct cg_view_child *child, int *x, int *y) {
 }
 
 static void
-subsurface_create(struct cg_view_child *parent, struct cg_view *view, struct wlr_subsurface *wlr_subsurface) {
+subsurface_create(struct cg_view_child *parent, struct cg_view *view,
+                  struct wlr_subsurface *wlr_subsurface) {
 	struct cg_subsurface *subsurface = calloc(1, sizeof(struct cg_subsurface));
 	if(!subsurface) {
 		return;
 	}
 
-	view_child_init(&subsurface->view_child, parent, view, wlr_subsurface->surface);
+	view_child_init(&subsurface->view_child, parent, view,
+	                wlr_subsurface->surface);
 	subsurface->view_child.destroy = subsurface_destroy;
 	subsurface->view_child.get_coords = subsurface_get_coords;
 	subsurface->wlr_subsurface = wlr_subsurface;

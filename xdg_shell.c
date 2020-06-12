@@ -128,8 +128,8 @@ xdg_popup_get_coords(struct cg_view_child *child, int *x, int *y) {
 	struct cg_xdg_popup *popup = (struct cg_xdg_popup *)child;
 	struct wlr_xdg_surface *surface = popup->wlr_popup->base;
 
-	int x_offset = -surface->geometry.x-child->view->ox;
-	int y_offset = -surface->geometry.y-child->view->oy;
+	int x_offset = -surface->geometry.x - child->view->ox;
+	int y_offset = -surface->geometry.y - child->view->oy;
 
 	wlr_xdg_popup_get_toplevel_coords(
 	    surface->popup, x_offset + surface->popup->geometry.x,
