@@ -119,3 +119,18 @@ to resize to the appropriate size. Calling `vsplit` on inkscape
 demonstrates this issue, since it causes adjacent tiles to overlap
 (contrary to the idea of a tiling compositor).
 
+### Issue 9
+
+  * github issue number: N/A
+  * Fixed: 1.3.2
+
+Cagebreak up to and including release 1.3.1 sometimes does not render
+dropdown menus correctly. 
+
+Steps to reproduce:
+
+  * Start firefox with wayland environment variables
+  * Press `alt` to show dropdown menus
+  * Move cursor over different menu items
+  * Rendering will not work correctly
+
