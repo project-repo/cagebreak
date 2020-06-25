@@ -125,7 +125,7 @@ demonstrates this issue, since it causes adjacent tiles to overlap
   * Fixed: 1.3.2
 
 Cagebreak up to and including release 1.3.1 sometimes does not render
-dropdown menus correctly. 
+dropdown menus correctly.
 
 Steps to reproduce:
 
