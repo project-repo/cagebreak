@@ -128,8 +128,8 @@ xdg_popup_get_coords(struct cg_view_child *child, int *x, int *y) {
 	struct cg_xdg_popup *popup = (struct cg_xdg_popup *)child;
 	struct wlr_xdg_surface *surface = popup->wlr_popup->base;
 
-	int x_offset = -surface->geometry.x;
-	int y_offset = -surface->geometry.y;
+	int x_offset = -surface->geometry.x - child->view->ox;
+	int y_offset = -surface->geometry.y - child->view->oy;
 
 	wlr_xdg_popup_get_toplevel_coords(
 	    surface->popup, x_offset + surface->popup->geometry.x,
@@ -145,7 +145,7 @@ xdg_popup_create(struct cg_view *view, struct wlr_xdg_popup *wlr_popup) {
 
 	popup->wlr_popup = wlr_popup;
 	popup->view_child.get_coords = xdg_popup_get_coords;
-	view_child_init(&popup->view_child, view, wlr_popup->base->surface);
+	view_child_init(&popup->view_child, NULL, view, wlr_popup->base->surface);
 	popup->view_child.destroy = xdg_popup_destroy;
 	popup->destroy.notify = handle_xdg_popup_destroy;
 	wl_signal_add(&wlr_popup->base->events.destroy, &popup->destroy);
