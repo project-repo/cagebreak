@@ -134,3 +134,18 @@ Steps to reproduce:
   * Move cursor over different menu items
   * Rendering will not work correctly
 
+### Issue 10
+
+  * github issue number: N/A
+  * Fixed: 1.3.2
+
+Cagebreak up to and including release 1.3.2 does not render dragged links
+correctly.
+
+Steps to reproduce:
+
+  * Start firefox with wayland environment variables
+  * Click on a link and drag it over the screen
+  * Let go of the link
+  * Rendering will not work correctly
+
