@@ -825,6 +825,19 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 	}
 }
 
+void
+keybinding_configure_output(struct cg_server *server, struct cg_output_config *cfg) {
+	struct cg_output_config *it,*tmp;
+	wl_list_for_each_safe(it, tmp, &server->output_config,
+	                      link) {
+		if(strcmp(cfg->output_name,it->output_name) == 0) {
+			wl_list_remove(&it->link);
+			free(it->output_name);
+		}
+	}
+	wl_list_insert(&server->output_config, &cfg->link);
+}
+
 /* Hint: see keybinding.h for details on "data" */
 int
 run_action(enum keybinding_action action, struct cg_server *server,
@@ -946,6 +959,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_WORKSPACES:
 		keybinding_set_nws(server, data.i);
+		break;
+	case KEYBINDING_CONFIGURE_OUTPUT:
+		keybinding_configure_output(server, data.o_cfg);
 		break;
 	default: {
 		wlr_log(WLR_ERROR,
