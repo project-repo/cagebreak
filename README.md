@@ -5,8 +5,7 @@ provide a successor to ratpoison for Wayland users. However, this is
 no reimplementation of ratpoison. Should you like to know if a feature
 will be implemented, open an issue or get in touch with the development team.
 
-This README is only relevant for development resources and instructions. For
-documentation of Cagebreak, please see
+For documentation of Cagebreak, please see
 the man pages for [cagebreak](man/cagebreak.1.md) and cagebreak
 [configuration](man/cagebreak-config.5.md) and the
 [Wiki](https://github.com/project-repo/cagebreak/wiki/).
