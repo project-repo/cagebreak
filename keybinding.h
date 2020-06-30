@@ -21,6 +21,7 @@ enum keybinding_action {
 	KEYBINDING_CYCLE_VIEWS,  // data.b is 0 if forward, 1 if reverse
 	KEYBINDING_CYCLE_TILES,  // data.b is 0 if forward, 1 if reverse
 	KEYBINDING_CYCLE_OUTPUT, // data.b is 0 if forward, 1 if reverse
+	KEYBINDING_CONFIGURE_OUTPUT, // data.o_cfg is the desired output configuration
 	KEYBINDING_QUIT,
 	KEYBINDING_NOOP,
 	KEYBINDING_SWITCH_WORKSPACE,       // data.u is the desired workspace
@@ -57,6 +58,7 @@ union keybinding_params {
 	bool b;
 	float color[3];
 	struct keybinding *kb;
+	struct cg_output_config *o_cfg;
 };
 
 struct keybinding {
