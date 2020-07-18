@@ -148,3 +148,26 @@ Steps to reproduce:
   * Click on a link and drag it over the screen
   * Let go of the link
   * Rendering will not work correctly
+
+### Issue 11
+
+  * github issue number: N/A
+  * Fixed: 1.3.3
+
+Cagebreak up to and including release 1.3.2 does not parse configuration
+"on-keypress" but "on-parse". This does not conform to the documentation.
+
+### Issue 12
+
+  * github issue number: N/A
+  * Fixed: 1.3.3
+
+Cagebreak up to and including release 1.3.2 does not render firefox correctly,
+given certain splits.
+
+Steps to reproduce:
+
+  * Open firefox
+  * Split screen with firefox on the right side of the screen
+  * Observe firefox freezing and flickering, especially while scrolling
+
