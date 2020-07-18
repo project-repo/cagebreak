@@ -56,7 +56,7 @@ view_child_handle_commit(struct wl_listener *listener, void *_data) {
 	struct cg_view_child *child = wl_container_of(listener, child, commit);
 	int x, y;
 	child->get_coords(child, &x, &y);
-	view_damage_child(child, x, y, false);
+	view_damage_child(child, x+child->view->ox, y+child->view->oy, false);
 }
 
 static void
@@ -120,8 +120,7 @@ subsurface_handle_destroy(struct wl_listener *listener, void *_data) {
 static void
 subsurface_get_coords(struct cg_view_child *child, int *x, int *y) {
 	struct wlr_surface *surface = child->wlr_surface;
-	*x = -child->view->ox;
-	*y = -child->view->oy;
+	*x=*y=0;
 
 	if(child->parent && child->parent->get_coords) {
 		int sx, sy;
