@@ -537,7 +537,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 	} else if(strcmp(action, "output") == 0) {
 		keybinding->action = KEYBINDING_CONFIGURE_OUTPUT;
-		keybinding->data.o_cfg=parse_output_config(&saveptr,errstr);
+		keybinding->data.o_cfg = parse_output_config(&saveptr, errstr);
 		if(keybinding->data.o_cfg == NULL) {
 			return -1;
 		}
