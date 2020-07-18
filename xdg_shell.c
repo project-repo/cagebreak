@@ -61,8 +61,8 @@ xdg_popup_destroy(struct cg_view_child *child) {
 
 	int x, y;
 	child->get_coords(child, &x, &y);
-	view_damage_child(child, x+child->view->ox, y+child->view->oy, true);
-struct cg_xdg_popup *popup = (struct cg_xdg_popup *)child;
+	view_damage_child(child, x + child->view->ox, y + child->view->oy, true);
+	struct cg_xdg_popup *popup = (struct cg_xdg_popup *)child;
 	wl_list_remove(&popup->destroy.link);
 	wl_list_remove(&popup->map.link);
 	wl_list_remove(&popup->unmap.link);

@@ -826,11 +826,11 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 }
 
 void
-keybinding_configure_output(struct cg_server *server, struct cg_output_config *cfg) {
-	struct cg_output_config *it,*tmp;
-	wl_list_for_each_safe(it, tmp, &server->output_config,
-	                      link) {
-		if(strcmp(cfg->output_name,it->output_name) == 0) {
+keybinding_configure_output(struct cg_server *server,
+                            struct cg_output_config *cfg) {
+	struct cg_output_config *it, *tmp;
+	wl_list_for_each_safe(it, tmp, &server->output_config, link) {
+		if(strcmp(cfg->output_name, it->output_name) == 0) {
 			wl_list_remove(&it->link);
 			free(it->output_name);
 		}
