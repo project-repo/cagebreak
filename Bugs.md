@@ -139,7 +139,7 @@ Steps to reproduce:
   * github issue number: N/A
   * Fixed: 1.3.2
 
-Cagebreak up to and including release 1.3.2 does not render drag icons
+Cagebreak up to and including release 1.3.1 does not render drag icons
 correctly.
 
 Steps to reproduce:
