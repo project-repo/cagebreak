@@ -7,6 +7,7 @@
  * See the LICENSE file accompanying this file.
  */
 
+#include <X11/Xutil.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <wayland-server-core.h>
