@@ -195,7 +195,7 @@ reproducible_build_versions = {
   'wayland_server': '1.18.0',
   'wayland_client': '1.18.0',
   'wayland_cursor': '1.18.0',
-  'wlroots': '0.10.1',
+  'wlroots': '0.11.0',
   'xkbcommon': '0.10.0',
   'fontconfig': '2.13.91',
   'pixman': '0.40.0',
