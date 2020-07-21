@@ -180,6 +180,11 @@ ninja -C build
 
 For every release after 1.0.5, hashes will be provided.
 
+1.3.3
+
+  * sha 256: 801851ceb52afac333a1decdd236ddef55555f8b36f865e8b3a831975a496f0d
+  * sha 512: ce64dd56ab99bba0a83414fecc82d85322e1ca5ca3a2ca77bdc7055b2dd10fd5e20e3ff62809a696d1b04ff0046fed88e2d7538aa447099d7c2d7df8e627b2e0
+
 1.3.2
 
   * sha 256: 2cefab73b8d5902b30adb0dda1bd292af2ee808d232abcc4b2a2802d522d5232
