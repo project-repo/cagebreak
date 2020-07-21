@@ -21,7 +21,7 @@ other distributions given the proper library versions.
 
 If you are using archlinux, just use the PKGBUILDs from the aur:
 
-  * Using the `cagebreak` package, Cagebreak is compiled on the target system(since release 1.3.0)
+  * Using the `cagebreak` package, Cagebreak is compiled on the target system (since release 1.3.0)
   * Using `cagebreak-bin` package, the pre-built binaries are extracted to the appropriate paths on the target system (since release 1.3.2)
 
 See [cagebreak-pkgbuild](https://github.com/project-repo/cagebreak-pkgbuild) for details.
