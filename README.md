@@ -19,10 +19,10 @@ other distributions given the proper library versions.
 
 ## Installation
 
-If you are using archlinux, just use the PKGBUILDs from the aur.
+If you are using archlinux, just use the PKGBUILDs from the aur:
 
-  * `cagebreak` is for those who want to build cagebreak themselves (since release 1.3.0)
-  * `cagebreak-bin` simply extracts files to the appropriate path (since release 1.3.2)
+  * Using the `cagebreak` package, Cagebreak is compiled on the target system(since release 1.3.0)
+  * Using `cagebreak-bin` package, the pre-built binaries are extracted to the appropriate paths on the target system (since release 1.3.2)
 
 See [cagebreak-pkgbuild](https://github.com/project-repo/cagebreak-pkgbuild) for details.
 
