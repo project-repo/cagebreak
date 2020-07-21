@@ -261,9 +261,8 @@ parse_float(char **saveptr, const char *delim) {
 	}
 }
 
-int
-parse_output_config(struct wl_list *config_list, char **saveptr,
-                    char **errstr) {
+struct cg_output_config *
+parse_output_config(char **saveptr, char **errstr) {
 	struct cg_output_config *cfg = malloc(sizeof(struct cg_output_config));
 	if(cfg == NULL) {
 		*errstr =
@@ -340,23 +339,14 @@ parse_output_config(struct wl_list *config_list, char **saveptr,
 		goto error;
 	}
 
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
-#endif
 	cfg->output_name = strdup(name);
-	wl_list_insert(config_list, &cfg->link);
-	return 0;
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic pop
-#endif
-
+	return cfg;
 error:
 	free(cfg);
 	wlr_log(WLR_ERROR,
 	        "Output configuration must be of the form \"output <name> pos <x> "
 	        "<y> res <width>x<height> rate <refresh_rate>");
-	return -1;
+	return NULL;
 }
 
 int
@@ -546,7 +536,9 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			return -1;
 		}
 	} else if(strcmp(action, "output") == 0) {
-		if(parse_output_config(&server->output_config, &saveptr, errstr) != 0) {
+		keybinding->action = KEYBINDING_CONFIGURE_OUTPUT;
+		keybinding->data.o_cfg = parse_output_config(&saveptr, errstr);
+		if(keybinding->data.o_cfg == NULL) {
 			return -1;
 		}
 	} else {

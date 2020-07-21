@@ -5,8 +5,7 @@ provide a successor to ratpoison for Wayland users. However, this is
 no reimplementation of ratpoison. Should you like to know if a feature
 will be implemented, open an issue or get in touch with the development team.
 
-This README is only relevant for development resources and instructions. For
-documentation of Cagebreak, please see
+For documentation of Cagebreak, please see
 the man pages for [cagebreak](man/cagebreak.1.md) and cagebreak
 [configuration](man/cagebreak-config.5.md) and the
 [Wiki](https://github.com/project-repo/cagebreak/wiki/).
@@ -20,7 +19,10 @@ other distributions given the proper library versions.
 
 ## Installation
 
-If you are using archlinux, just clone the [PKGBUILD](https://aur.archlinux.org/cagebreak.git) from the aur.
+If you are using archlinux, just use the PKGBUILDs from the aur:
+
+  * Using the `cagebreak` package, Cagebreak is compiled on the target system (since release 1.3.0)
+  * Using `cagebreak-bin` package, the pre-built binaries are extracted to the appropriate paths on the target system (since release 1.3.2)
 
 See [cagebreak-pkgbuild](https://github.com/project-repo/cagebreak-pkgbuild) for details.
 
@@ -177,6 +179,11 @@ ninja -C build
 #### Hashes for Builds
 
 For every release after 1.0.5, hashes will be provided.
+
+1.3.3
+
+  * sha 256: 801851ceb52afac333a1decdd236ddef55555f8b36f865e8b3a831975a496f0d
+  * sha 512: ce64dd56ab99bba0a83414fecc82d85322e1ca5ca3a2ca77bdc7055b2dd10fd5e20e3ff62809a696d1b04ff0046fed88e2d7538aa447099d7c2d7df8e627b2e0
 
 1.3.2
 

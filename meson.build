@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.3.2',
+  version: '1.3.3',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -195,7 +195,7 @@ reproducible_build_versions = {
   'wayland_server': '1.18.0',
   'wayland_client': '1.18.0',
   'wayland_cursor': '1.18.0',
-  'wlroots': '0.10.1',
+  'wlroots': '0.11.0',
   'xkbcommon': '0.10.0',
   'fontconfig': '2.13.91',
   'pixman': '0.40.0',
