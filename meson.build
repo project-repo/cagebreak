@@ -199,9 +199,9 @@ reproducible_build_versions = {
   'xkbcommon': '0.10.0',
   'fontconfig': '2.13.91',
   'pixman': '0.40.0',
-  'pango': '1.44.7',
+  'pango': '1.46.0',
   'cairo': '1.17.3',
-  'pangocairo': '1.44.7',
+  'pangocairo': '1.46.0',
   'math': '-1'
 }
 
