@@ -279,9 +279,11 @@ view_unmap(struct cg_view *view) {
 			if(view == view->workspace->server->seat->focused_view) {
 				seat_set_focus(view->workspace->server->seat, prev);
 			} else if(view->workspace->server->seat->seat->keyboard_state
-			            .focused_surface == view->wlr_surface) {
-				wlr_seat_keyboard_clear_focus(view->workspace->server->seat->seat);
-				seat_set_focus(view->workspace->server->seat, view->workspace->server->seat->focused_view);
+			              .focused_surface == view->wlr_surface) {
+				wlr_seat_keyboard_clear_focus(
+				    view->workspace->server->seat->seat);
+				seat_set_focus(view->workspace->server->seat,
+				               view->workspace->server->seat->focused_view);
 			} else {
 				view_tile->view = prev;
 				if(prev != NULL) {
