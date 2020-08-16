@@ -833,6 +833,7 @@ keybinding_configure_output(struct cg_server *server,
 		if(strcmp(cfg->output_name, it->output_name) == 0) {
 			wl_list_remove(&it->link);
 			free(it->output_name);
+			free(it);
 		}
 	}
 	wl_list_insert(&server->output_config, &cfg->link);
