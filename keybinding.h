@@ -14,6 +14,7 @@ struct cg_server;
  * in keybinding.c */
 enum keybinding_action {
 	KEYBINDING_RUN_COMMAND, // data.c is the string to execute
+	KEYBINDING_CLOSE_VIEW,
 	KEYBINDING_SPLIT_VERTICAL,
 	KEYBINDING_SPLIT_HORIZONTAL,
 	KEYBINDING_CHANGE_TTY, // data.u is the desired tty

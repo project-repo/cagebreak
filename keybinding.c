@@ -550,6 +550,11 @@ keybinding_split_output(struct cg_output *output, bool vertical) {
 }
 
 static void
+keybinding_close_view(struct cg_view *view) {
+	view->impl->close(view);
+}
+
+static void
 keybinding_split_vertical(struct cg_server *server) {
 	keybinding_split_output(server->curr_output, true);
 }
@@ -963,6 +968,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_CONFIGURE_OUTPUT:
 		keybinding_configure_output(server, data.o_cfg);
+		break;
+	case KEYBINDING_CLOSE_VIEW:
+		keybinding_close_view(server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile->view);
 		break;
 	default: {
 		wlr_log(WLR_ERROR,

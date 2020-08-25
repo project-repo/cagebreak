@@ -39,6 +39,7 @@ struct cg_view_impl {
 	                     int *height_out);
 	bool (*is_primary)(const struct cg_view *view);
 	void (*activate)(struct cg_view *view, bool activate);
+	void (*close)(struct cg_view *view);
 	void (*maximize)(struct cg_view *view, int width, int height);
 	void (*destroy)(struct cg_view *view);
 	void (*for_each_surface)(struct cg_view *view,

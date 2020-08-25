@@ -74,6 +74,12 @@ activate(struct cg_view *view, bool activate) {
 }
 
 static void
+close(struct cg_view *view) {
+	struct cg_xwayland_view *xwayland_view = xwayland_view_from_view(view);
+	wlr_xwayland_surface_close(xwayland_view->xwayland_surface);
+}
+
+static void
 maximize(struct cg_view *view, int width, int height) {
 	struct cg_xwayland_view *xwayland_view = xwayland_view_from_view(view);
 	struct cg_output *output = view->workspace->output;
@@ -198,6 +204,7 @@ static const struct cg_view_impl xwayland_view_impl = {
     .get_geometry = get_geometry,
     .is_primary = is_primary,
     .activate = activate,
+    .close = close,
     .maximize = maximize,
     .destroy = destroy,
     .for_each_surface = for_each_surface,
