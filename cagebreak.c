@@ -10,17 +10,14 @@
 
 #include "config.h"
 
-#include <fcntl.h>
 #include <fontconfig/fontconfig.h>
-#include <getopt.h>
+#include <unistd.h>
 #include <pango.h>
 #include <pango/pangocairo.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/wait.h>
-#include <unistd.h>
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
 #include <wlr/render/wlr_renderer.h>
@@ -31,7 +28,6 @@
 #include <wlr/types/wlr_gamma_control_v1.h>
 #include <wlr/types/wlr_idle.h>
 #include <wlr/types/wlr_idle_inhibit_v1.h>
-#include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_screencopy_v1.h>
 #include <wlr/types/wlr_server_decoration.h>
@@ -54,7 +50,6 @@
 #include "parse.h"
 #include "seat.h"
 #include "server.h"
-#include "view.h"
 #include "xdg_shell.h"
 #if CG_HAS_XWAYLAND
 #include "xwayland.h"

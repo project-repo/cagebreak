@@ -3,8 +3,8 @@
 
 #include "config.h"
 
-#include <inttypes.h>
-#include <sys/types.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <wayland-server-core.h>
 
 struct cg_server;

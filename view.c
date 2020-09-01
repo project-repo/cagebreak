@@ -10,14 +10,12 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdbool.h>
-#include <stdlib.h>
 #include <string.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_box.h>
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_damage.h>
-#include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_surface.h>
 
 #include "output.h"
@@ -25,7 +23,6 @@
 #include "server.h"
 #include "view.h"
 #include "workspace.h"
-#include "xdg_shell.h"
 #if CG_HAS_XWAYLAND
 #include "xwayland.h"
 #endif

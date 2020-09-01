@@ -1,7 +1,6 @@
 #ifndef _SWAY_PANGO_H
 #define _SWAY_PANGO_H
 #include <cairo/cairo.h>
-#include <stdbool.h>
 
 void
 get_text_size(cairo_t *cairo, const char *font, int *width, int *height,

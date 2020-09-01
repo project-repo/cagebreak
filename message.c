@@ -1,7 +1,5 @@
-#include "pango.h"
 #include <cairo/cairo.h>
 #include <pango/pangocairo.h>
-#include <stdlib.h>
 #include <unistd.h>
 #include <wlr/backend.h>
 #include <wlr/render/wlr_renderer.h>
@@ -9,7 +7,7 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/log.h>
 
-#include "cairo.h"
+#include "pango.h"
 #include "message.h"
 #include "output.h"
 #include "server.h"

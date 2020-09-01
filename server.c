@@ -9,23 +9,11 @@
 
 #define _POSIX_C_SOURCE 200809L
 
-#include <stdbool.h>
-#include <stdlib.h>
 #include <string.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_box.h>
-#include <wlr/types/wlr_output.h>
-#include <wlr/types/wlr_surface.h>
 
-#include "output.h"
-#include "seat.h"
 #include "server.h"
-#include "view.h"
-#include "workspace.h"
-#include "xdg_shell.h"
-#if CG_HAS_XWAYLAND
-#include "xwayland.h"
-#endif
 
 void
 display_terminate(struct cg_server *server) {

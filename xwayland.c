@@ -9,14 +9,12 @@
 
 #include <X11/Xutil.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_box.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/log.h>
 #include <wlr/xwayland.h>
-#include <xcb/xproto.h>
 
 #include "output.h"
 #include "server.h"

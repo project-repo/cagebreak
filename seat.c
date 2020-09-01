@@ -12,10 +12,8 @@
 #include "config.h"
 
 #include <linux/input-event-codes.h>
-#include <stdlib.h>
-#include <wayland-client-core.h>
-#include <wayland-client-protocol.h>
-#include <wayland-cursor.h>
+#include <stdint.h>
+#include <string.h>
 #include <wayland-server-core.h>
 #include <wayland-server-protocol.h>
 #include <wlr/backend.h>
@@ -28,7 +26,6 @@
 #include <wlr/types/wlr_surface.h>
 #include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/util/log.h>
-#include <xdg_shell.h>
 #if CG_HAS_XWAYLAND
 #include <wlr/xwayland.h>
 #endif

@@ -13,25 +13,23 @@
 #include "config.h"
 #include <wlr/config.h>
 
-#include <stdlib.h>
 #include <unistd.h>
+#include <string.h>
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
 #include <wlr/backend/wayland.h>
 #if WLR_HAS_X11_BACKEND
 #include <wlr/backend/x11.h>
 #endif
-#include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_data_device.h>
-#include <wlr/types/wlr_matrix.h>
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_surface.h>
 #include <wlr/types/wlr_xcursor_manager.h>
-#include <wlr/types/wlr_xdg_shell.h>
 #include <wlr/util/log.h>
 #include <wlr/util/region.h>
+#include <wlr/xwayland.h>
 
 #include "keybinding.h"
 #include "message.h"
@@ -40,7 +38,6 @@
 #include "seat.h"
 #include "server.h"
 #include "util.h"
-#include "view.h"
 #include "workspace.h"
 #if CG_HAS_XWAYLAND
 #include "xwayland.h"

@@ -1,13 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/sysmacros.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <unistd.h>
+#include <string.h>
 #include <wayland-server-core.h>
 #include <wlr/backend/multi.h>
 #include <wlr/backend/session.h>
@@ -22,7 +16,6 @@
 #include "server.h"
 #include "view.h"
 #include "workspace.h"
-#include "xdg_shell.h"
 
 int
 keybinding_resize(struct keybinding_list *list) {

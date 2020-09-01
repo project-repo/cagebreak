@@ -1,15 +1,13 @@
 #define _POSIX_C_SOURCE 200812L
 
-#include <limits.h>
-#include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 #include <wlr/util/log.h>
 
 #include "keybinding.h"
 #include "output.h"
 #include "parse.h"
 #include "server.h"
-#include "workspace.h"
 
 char *
 malloc_vsprintf(const char *fmt, va_list ap) {

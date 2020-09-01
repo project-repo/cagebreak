@@ -4,8 +4,8 @@
 
 #include "config.h"
 
-#include <sys/types.h>
-#include <wlr/types/wlr_keyboard.h>
+#include <stdint.h>
+#include <xkbcommon/xkbcommon.h>
 
 struct cg_server;
 
