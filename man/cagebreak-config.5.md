@@ -36,6 +36,11 @@ by prepending a line with the # symbol.
 > supplied action. `bind <key> <command>` is equivalent to
 >> `definekey root <key> <command>`
 
+**close - Close current window**
+
+> This command closes the current window. It may be useful for windows of applications which
+> do not offer any method of closing them.
+
 **definekey - Bind key to action in arbitrary mode**
 
 > This command behaves similarly to the **bind** command with the
