@@ -171,3 +171,17 @@ Steps to reproduce:
   * Split screen with firefox on the right side of the screen
   * Observe firefox freezing and flickering, especially while scrolling
 
+### Issue 13
+
+  * github issue number: N/A
+  * Fixed: 1.4.0
+
+Cagebreak up to and including release 1.3.4 does not render xwayland views correctly.
+
+Steps to reproduce:
+
+  * Open anki
+  * Add card
+  * Edit tags
+  * Observe suggestions not directly above the tags field
+
