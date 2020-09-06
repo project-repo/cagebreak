@@ -11,13 +11,13 @@
 #include "config.h"
 
 #include <fontconfig/fontconfig.h>
-#include <unistd.h>
 #include <pango.h>
 #include <pango/pangocairo.h>
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
 #include <wlr/render/wlr_renderer.h>

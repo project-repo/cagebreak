@@ -1,7 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 #include <wayland-server-core.h>
 #include <wlr/backend/multi.h>
 #include <wlr/backend/session.h>
@@ -963,7 +963,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_configure_output(server, data.o_cfg);
 		break;
 	case KEYBINDING_CLOSE_VIEW:
-		keybinding_close_view(server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile->view);
+		keybinding_close_view(
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile->view);
 		break;
 	default: {
 		wlr_log(WLR_ERROR,

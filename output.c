@@ -13,8 +13,8 @@
 #include "config.h"
 #include <wlr/config.h>
 
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
 #include <wlr/backend/wayland.h>

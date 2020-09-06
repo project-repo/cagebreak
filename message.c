@@ -7,9 +7,9 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/log.h>
 
-#include "pango.h"
 #include "message.h"
 #include "output.h"
+#include "pango.h"
 #include "server.h"
 
 cairo_subpixel_order_t

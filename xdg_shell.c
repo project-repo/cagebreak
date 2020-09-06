@@ -216,7 +216,7 @@ activate(struct cg_view *view, bool activate) {
 static void
 close(struct cg_view *view) {
 	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
-	struct wlr_xdg_surface *surface=xdg_shell_view->xdg_surface;
+	struct wlr_xdg_surface *surface = xdg_shell_view->xdg_surface;
 	if(surface->role == WLR_XDG_SURFACE_ROLE_TOPLEVEL) {
 		wlr_xdg_toplevel_send_close(surface);
 	}
@@ -325,7 +325,7 @@ static const struct cg_view_impl xdg_shell_view_impl = {
     .get_geometry = get_geometry,
     .is_primary = is_primary,
     .activate = activate,
-	.close = close,
+    .close = close,
     .maximize = maximize,
     .destroy = destroy,
     .for_each_surface = for_each_surface,

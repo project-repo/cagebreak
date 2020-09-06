@@ -4,8 +4,8 @@
 #include "config.h"
 
 #include <stdbool.h>
-#include <wlr/types/wlr_surface.h>
 #include <wayland-server-core.h>
+#include <wlr/types/wlr_surface.h>
 
 struct cg_server;
 struct wlr_box;

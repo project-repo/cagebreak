@@ -1,7 +1,7 @@
 #define _POSIX_C_SOURCE 200812L
 
-#include <string.h>
 #include <limits.h>
+#include <string.h>
 #include <wlr/util/log.h>
 
 #include "keybinding.h"

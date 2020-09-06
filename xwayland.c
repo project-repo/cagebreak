@@ -149,11 +149,14 @@ handle_xwayland_surface_commit(struct wl_listener *listener, void *_data) {
 	    wl_container_of(listener, xwayland_view, commit);
 	struct cg_view *view = &xwayland_view->view;
 	/* xwayland surface has moved */
-	if(xwayland_view->xwayland_surface->x != view->ox || xwayland_view->xwayland_surface->y != view->oy) {
-		output_damage_surface(view->workspace->output, view->wlr_surface,view->ox,view->oy,true);
-		view->ox=xwayland_view->xwayland_surface->x;
-		view->oy=xwayland_view->xwayland_surface->y;
-		output_damage_surface(view->workspace->output, view->wlr_surface,view->ox,view->oy,true);
+	if(xwayland_view->xwayland_surface->x != view->ox ||
+	   xwayland_view->xwayland_surface->y != view->oy) {
+		output_damage_surface(view->workspace->output, view->wlr_surface,
+		                      view->ox, view->oy, true);
+		view->ox = xwayland_view->xwayland_surface->x;
+		view->oy = xwayland_view->xwayland_surface->y;
+		output_damage_surface(view->workspace->output, view->wlr_surface,
+		                      view->ox, view->oy, true);
 	} else {
 		view_damage_part(view);
 	}
