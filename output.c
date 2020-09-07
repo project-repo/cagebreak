@@ -32,6 +32,7 @@
 #include <wlr/xwayland.h>
 
 #include "keybinding.h"
+#include "view.h"
 #include "message.h"
 #include "output.h"
 #include "render.h"
