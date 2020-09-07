@@ -349,6 +349,10 @@ Adds output configuration as described in the man pages.
 
 Adds IPC as described in the man pages.
 
+### Release 1.4.0
+
+Adds close command for windows as described in the man pages.
+
 ## License
 
 Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE)
