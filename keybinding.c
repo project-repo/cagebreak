@@ -544,6 +544,9 @@ keybinding_split_output(struct cg_output *output, bool vertical) {
 
 static void
 keybinding_close_view(struct cg_view *view) {
+	if(view == NULL) {
+		return;
+	}
 	view->impl->close(view);
 }
 
