@@ -17,7 +17,6 @@
 #include "message.h"
 #include "output.h"
 #include "server.h"
-#include "view.h"
 #include "workspace.h"
 
 #if CG_HAS_FANALYZE

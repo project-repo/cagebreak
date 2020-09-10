@@ -9,14 +9,12 @@
 
 #include <X11/Xutil.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_box.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/log.h>
 #include <wlr/xwayland.h>
-#include <xcb/xproto.h>
 
 #include "output.h"
 #include "server.h"
@@ -71,6 +69,12 @@ static void
 activate(struct cg_view *view, bool activate) {
 	struct cg_xwayland_view *xwayland_view = xwayland_view_from_view(view);
 	wlr_xwayland_surface_activate(xwayland_view->xwayland_surface, activate);
+}
+
+static void
+close(struct cg_view *view) {
+	struct cg_xwayland_view *xwayland_view = xwayland_view_from_view(view);
+	wlr_xwayland_surface_close(xwayland_view->xwayland_surface);
 }
 
 static void
@@ -144,7 +148,18 @@ handle_xwayland_surface_commit(struct wl_listener *listener, void *_data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, commit);
 	struct cg_view *view = &xwayland_view->view;
-	view_damage_part(view);
+	/* xwayland surface has moved */
+	if(xwayland_view->xwayland_surface->x != view->ox ||
+	   xwayland_view->xwayland_surface->y != view->oy) {
+		output_damage_surface(view->workspace->output, view->wlr_surface,
+		                      view->ox, view->oy, true);
+		view->ox = xwayland_view->xwayland_surface->x;
+		view->oy = xwayland_view->xwayland_surface->y;
+		output_damage_surface(view->workspace->output, view->wlr_surface,
+		                      view->ox, view->oy, true);
+	} else {
+		view_damage_part(view);
+	}
 }
 
 static void
@@ -198,6 +213,7 @@ static const struct cg_view_impl xwayland_view_impl = {
     .get_geometry = get_geometry,
     .is_primary = is_primary,
     .activate = activate,
+    .close = close,
     .maximize = maximize,
     .destroy = destroy,
     .for_each_surface = for_each_surface,

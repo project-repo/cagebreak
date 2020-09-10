@@ -180,6 +180,11 @@ ninja -C build
 
 For every release after 1.0.5, hashes will be provided.
 
+1.4.0
+
+  * sha 256: 14aa93d890c62cc763b3b546a51ad8560479d5e91fa9f949858ae6bc785e80be
+  * sha 512: 88f93b49792684c38553b65d2296a0e502a059814a0cfff30d05c89958870d6f66d67aac2074cfd307bad82b0d72d5c4944822a61a68f665dc161407db365fbc
+
 1.3.4
 
   * sha 256: ea9f634b8f6e2b9f191745a25abff4969eb7ea19cb3186b79a6138904aedeb1c
@@ -305,6 +310,12 @@ We have found code path discovery to increase rapidly when the fuzzer is supplie
 with an initial config file. We are working on improving our fuzzing coverage to
 find bugs in other areas of the code.
 
+#### Caveat
+
+Currently, there are memory leaks which do not seem to stem from our code but rather
+the code of wl-roots or some other library we depend on. We are working on the problem.
+In the meantime, add `-Ddetect-leaks=0` to the meson command to exclude memory leaks.
+
 ## Bugs
 
 For any bug, please [create an
@@ -348,6 +359,10 @@ Adds output configuration as described in the man pages.
 ### Release 1.3.0
 
 Adds IPC as described in the man pages.
+
+### Release 1.4.0
+
+Adds close command for windows as described in the man pages.
 
 ## License
 

@@ -32,6 +32,7 @@ bind j focusdown
 bind k focusup
 bind l focusright
 bind t exec xterm
+bind C-k close
 definekey resize h resizeleft
 definekey resize l resizeright
 definekey resize j resizedown

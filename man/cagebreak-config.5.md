@@ -1,4 +1,4 @@
-% CAGEBREAK-CONFIG(1) Version 1.3.4 | Cagebreak Manual
+% CAGEBREAK-CONFIG(1) Version 1.4.0 | Cagebreak Manual
 
 # NAME
 
@@ -35,6 +35,11 @@ by prepending a line with the # symbol.
 > Subsequently, pressing this key while in command mode executes the
 > supplied action. `bind <key> <command>` is equivalent to
 >> `definekey root <key> <command>`
+
+**close - Close current window**
+
+> This command closes the current window. It may be useful for windows of applications which
+> do not offer any method of closing them.
 
 **definekey - Bind key to action in arbitrary mode**
 

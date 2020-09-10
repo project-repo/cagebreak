@@ -7,7 +7,6 @@
  * See the LICENSE file accompanying this file.
  */
 
-#include <stdlib.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_idle.h>
 #include <wlr/types/wlr_idle_inhibit_v1.h>

@@ -1,12 +1,6 @@
 #define _POSIX_C_SOURCE 200809L
 
-#include <signal.h>
-#include <stdlib.h>
-#include <sys/ioctl.h>
-#include <sys/stat.h>
-#include <sys/sysmacros.h>
-#include <sys/types.h>
-#include <sys/wait.h>
+#include <string.h>
 #include <unistd.h>
 #include <wayland-server-core.h>
 #include <wlr/backend/multi.h>
@@ -22,7 +16,6 @@
 #include "server.h"
 #include "view.h"
 #include "workspace.h"
-#include "xdg_shell.h"
 
 int
 keybinding_resize(struct keybinding_list *list) {
@@ -550,6 +543,14 @@ keybinding_split_output(struct cg_output *output, bool vertical) {
 }
 
 static void
+keybinding_close_view(struct cg_view *view) {
+	if(view == NULL) {
+		return;
+	}
+	view->impl->close(view);
+}
+
+static void
 keybinding_split_vertical(struct cg_server *server) {
 	keybinding_split_output(server->curr_output, true);
 }
@@ -963,6 +964,11 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_CONFIGURE_OUTPUT:
 		keybinding_configure_output(server, data.o_cfg);
+		break;
+	case KEYBINDING_CLOSE_VIEW:
+		keybinding_close_view(
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile->view);
 		break;
 	default: {
 		wlr_log(WLR_ERROR,

@@ -2,8 +2,6 @@
 #define CG_XWAYLAND_H
 
 #include "view.h"
-#include <wayland-server-core.h>
-#include <wlr/xwayland.h>
 
 struct cg_xwayland_view {
 	struct cg_view view;

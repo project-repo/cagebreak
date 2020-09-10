@@ -10,7 +10,6 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <stdbool.h>
-#include <stdlib.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_box.h>
 #include <wlr/types/wlr_output_layout.h>
@@ -215,6 +214,15 @@ activate(struct cg_view *view, bool activate) {
 }
 
 static void
+close(struct cg_view *view) {
+	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
+	struct wlr_xdg_surface *surface = xdg_shell_view->xdg_surface;
+	if(surface->role == WLR_XDG_SURFACE_ROLE_TOPLEVEL) {
+		wlr_xdg_toplevel_send_close(surface);
+	}
+}
+
+static void
 maximize(struct cg_view *view, int width, int height) {
 	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
 	wlr_xdg_toplevel_set_size(xdg_shell_view->xdg_surface, width, height);
@@ -317,6 +325,7 @@ static const struct cg_view_impl xdg_shell_view_impl = {
     .get_geometry = get_geometry,
     .is_primary = is_primary,
     .activate = activate,
+    .close = close,
     .maximize = maximize,
     .destroy = destroy,
     .for_each_surface = for_each_surface,

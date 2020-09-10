@@ -1,7 +1,6 @@
 #define _POSIX_C_SOURCE 200812L
 
 #include <limits.h>
-#include <stdlib.h>
 #include <string.h>
 #include <wlr/util/log.h>
 
@@ -9,7 +8,6 @@
 #include "output.h"
 #include "parse.h"
 #include "server.h"
-#include "workspace.h"
 
 char *
 malloc_vsprintf(const char *fmt, va_list ap) {
@@ -364,6 +362,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_SPLIT_HORIZONTAL;
 	} else if(strcmp(action, "quit") == 0) {
 		keybinding->action = KEYBINDING_QUIT;
+	} else if(strcmp(action, "close") == 0) {
+		keybinding->action = KEYBINDING_CLOSE_VIEW;
 	} else if(strcmp(action, "focus") == 0) {
 		keybinding->action = KEYBINDING_CYCLE_TILES;
 		keybinding->data.b = false;
