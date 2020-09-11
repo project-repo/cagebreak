@@ -188,7 +188,7 @@ handle_xwayland_surface_map(struct wl_listener *listener, void *_data) {
 	wl_signal_add(&xwayland_view->xwayland_surface->surface->events.commit,
 	              &xwayland_view->commit);
 
-	view_map(view, xwayland_view->xwayland_surface->surface);
+	view_map(view, xwayland_view->xwayland_surface->surface,view->workspace->server->curr_output->workspaces[view->workspace->server->curr_output->curr_workspace]);
 
 	view_damage_whole(view);
 }
