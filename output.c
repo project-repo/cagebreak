@@ -594,7 +594,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	output->curr_workspace = 0;
 	wl_list_init(&output->messages);
 
-	if(wlr_xcursor_manager_load(server->seat->xcursor_manager,
+	if(!wlr_xcursor_manager_load(server->seat->xcursor_manager,
 	                            wlr_output->scale)) {
 		wlr_log(WLR_ERROR,
 		        "Cannot load XCursor theme for output '%s' with scale %f",

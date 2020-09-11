@@ -482,7 +482,7 @@ main(int argc, char *argv[]) {
 		        xwayland->display_name);
 	}
 
-	if(wlr_xcursor_manager_load(xcursor_manager, 1)) {
+	if(!wlr_xcursor_manager_load(xcursor_manager, 1)) {
 		wlr_log(WLR_ERROR, "Cannot load XWayland XCursor theme");
 	}
 	struct wlr_xcursor *xcursor =
