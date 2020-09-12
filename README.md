@@ -314,7 +314,7 @@ find bugs in other areas of the code.
 
 Currently, there are memory leaks which do not seem to stem from our code but rather
 the code of wl-roots or some other library we depend on. We are working on the problem.
-In the meantime, add `-Ddetect-leaks=0` to the meson command to exclude memory leaks.
+In the meantime, add `-Db_detect-leaks=0` to the meson command to exclude memory leaks.
 
 ## Bugs
 
