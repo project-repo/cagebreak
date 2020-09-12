@@ -318,7 +318,8 @@ view_unmap(struct cg_view *view) {
 }
 
 void
-view_map(struct cg_view *view, struct wlr_surface *surface, struct cg_workspace *ws) {
+view_map(struct cg_view *view, struct wlr_surface *surface,
+         struct cg_workspace *ws) {
 	struct cg_output *output = ws->output;
 	view->wlr_surface = surface;
 
@@ -331,21 +332,18 @@ view_map(struct cg_view *view, struct wlr_surface *surface, struct cg_workspace 
 	wl_signal_add(&view->wlr_surface->events.new_subsurface,
 	              &view->new_subsurface);
 
-	view->workspace=ws;
+	view->workspace = ws;
 
 #if CG_HAS_XWAYLAND
 	/* We shouldn't position override-redirect windows. They set
 	   their own (x,y) coordinates in handle_wayland_surface_map. */
 	if(view->type == CG_XWAYLAND_VIEW && !xwayland_view_should_manage(view)) {
-		wl_list_insert(
-		    &ws->unmanaged_views,
-		    &view->link);
+		wl_list_insert(&ws->unmanaged_views, &view->link);
 	} else
 #endif
 	{
 		view_position(view);
-		wl_list_insert(&ws->views,
-		               &view->link);
+		wl_list_insert(&ws->views, &view->link);
 	}
 	seat_set_focus(output->server->seat, view);
 }

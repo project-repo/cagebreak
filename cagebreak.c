@@ -23,6 +23,7 @@
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
+#include <wlr/types/wlr_data_control_v1.h>
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_export_dmabuf_v1.h>
 #include <wlr/types/wlr_gamma_control_v1.h>
@@ -31,7 +32,6 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_screencopy_v1.h>
 #include <wlr/types/wlr_server_decoration.h>
-#include <wlr/types/wlr_data_control_v1.h>
 #if CG_HAS_XWAYLAND
 #include <wlr/types/wlr_xcursor_manager.h>
 #endif
@@ -357,7 +357,8 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 
-	data_control_manager=wlr_data_control_manager_v1_create(server.wl_display);
+	data_control_manager =
+	    wlr_data_control_manager_v1_create(server.wl_display);
 	if(!data_control_manager) {
 		wlr_log(WLR_ERROR, "Unable to create the data control manager");
 		ret = 1;
