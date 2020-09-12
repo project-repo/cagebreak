@@ -185,3 +185,34 @@ Steps to reproduce:
   * Edit tags
   * Observe suggestions not directly above the tags field
 
+### Issue 14
+
+  * github issue number: N/A
+  * Fixed: 1.4.1
+
+Cagebreak up to and including release 1.4.0 makes the screen flicker, when
+invoking wl-copy or wl-paste.
+
+Steps to reproduce:
+
+  * Open terminal
+  * Invoke wl-copy
+  * Observe screen flickering
+
+### Issue 15
+
+  * github issue number: N/A
+  * Fixed: 1.4.1
+
+Cagebreak up to and including release 1.4.0 renders certain dropdown
+menus incorrectly.
+
+Steps to reproduce:
+
+  * Open firefox
+  * Download any file
+  * Select "save file" such that the file location dialog box appears
+  * Delete default file name and enter "." into the location bar, such that a long dropdown menu appears
+  * Click on dialog box (not on the dropdown menu) to make the menu disappear
+  * Observe flickering of the area, where the dropdown menu used to be
+

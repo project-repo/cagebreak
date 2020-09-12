@@ -180,6 +180,11 @@ ninja -C build
 
 For every release after 1.0.5, hashes will be provided.
 
+1.4.1
+
+  * sha 256: c3e0ccceaf1078b91071c40b0ccb7c4f8e53ae38b05ee6637f9f39f7f6ece2cb
+  * sha 512: fd77f39fc7a7e5376d8505a61d643ed4d8f4cfbbf38d70cf9ef6989645e8cc6cb9d4b1024d241dc689b6fd927a405c97b9c918b6994b8f9ab7406646f37b952d
+
 1.4.0
 
   * sha 256: 14aa93d890c62cc763b3b546a51ad8560479d5e91fa9f949858ae6bc785e80be
@@ -314,7 +319,7 @@ find bugs in other areas of the code.
 
 Currently, there are memory leaks which do not seem to stem from our code but rather
 the code of wl-roots or some other library we depend on. We are working on the problem.
-In the meantime, add `-Ddetect-leaks=0` to the meson command to exclude memory leaks.
+In the meantime, add `-Db_detect-leaks=0` to the meson command to exclude memory leaks.
 
 ## Bugs
 

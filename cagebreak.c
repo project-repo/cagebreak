@@ -23,6 +23,7 @@
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
+#include <wlr/types/wlr_data_control_v1.h>
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_export_dmabuf_v1.h>
 #include <wlr/types/wlr_gamma_control_v1.h>
@@ -243,6 +244,7 @@ main(int argc, char *argv[]) {
 	struct wlr_xdg_decoration_manager_v1 *xdg_decoration_manager = NULL;
 	struct wlr_export_dmabuf_manager_v1 *export_dmabuf_manager = NULL;
 	struct wlr_screencopy_manager_v1 *screencopy_manager = NULL;
+	struct wlr_data_control_manager_v1 *data_control_manager = NULL;
 	struct wlr_xdg_output_manager_v1 *output_manager = NULL;
 	struct wlr_gamma_control_manager_v1 *gamma_control_manager = NULL;
 	struct wlr_xdg_shell *xdg_shell = NULL;
@@ -351,6 +353,14 @@ main(int argc, char *argv[]) {
 	data_device_manager = wlr_data_device_manager_create(server.wl_display);
 	if(!data_device_manager) {
 		wlr_log(WLR_ERROR, "Unable to create the data device manager");
+		ret = 1;
+		goto end;
+	}
+
+	data_control_manager =
+	    wlr_data_control_manager_v1_create(server.wl_display);
+	if(!data_control_manager) {
+		wlr_log(WLR_ERROR, "Unable to create the data control manager");
 		ret = 1;
 		goto end;
 	}
@@ -473,7 +483,7 @@ main(int argc, char *argv[]) {
 		        xwayland->display_name);
 	}
 
-	if(wlr_xcursor_manager_load(xcursor_manager, 1)) {
+	if(!wlr_xcursor_manager_load(xcursor_manager, 1)) {
 		wlr_log(WLR_ERROR, "Cannot load XWayland XCursor theme");
 	}
 	struct wlr_xcursor *xcursor =

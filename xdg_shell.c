@@ -300,7 +300,10 @@ handle_xdg_shell_surface_map(struct wl_listener *listener, void *_data) {
 	wl_signal_add(&xdg_shell_view->xdg_surface->surface->events.commit,
 	              &xdg_shell_view->commit);
 
-	view_map(view, xdg_shell_view->xdg_surface->surface);
+	view_map(
+	    view, xdg_shell_view->xdg_surface->surface,
+	    view->workspace->server->curr_output
+	        ->workspaces[view->workspace->server->curr_output->curr_workspace]);
 	view_damage_whole(view);
 }
 

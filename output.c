@@ -32,13 +32,13 @@
 #include <wlr/xwayland.h>
 
 #include "keybinding.h"
-#include "view.h"
 #include "message.h"
 #include "output.h"
 #include "render.h"
 #include "seat.h"
 #include "server.h"
 #include "util.h"
+#include "view.h"
 #include "workspace.h"
 #if CG_HAS_XWAYLAND
 #include "xwayland.h"
@@ -594,8 +594,8 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	output->curr_workspace = 0;
 	wl_list_init(&output->messages);
 
-	if(wlr_xcursor_manager_load(server->seat->xcursor_manager,
-	                            wlr_output->scale)) {
+	if(!wlr_xcursor_manager_load(server->seat->xcursor_manager,
+	                             wlr_output->scale)) {
 		wlr_log(WLR_ERROR,
 		        "Cannot load XCursor theme for output '%s' with scale %f",
 		        wlr_output->name, wlr_output->scale);
