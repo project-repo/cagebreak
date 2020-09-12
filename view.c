@@ -74,6 +74,10 @@ view_child_finish(struct cg_view_child *child) {
 		return;
 	}
 
+	if(child->view != NULL && child->view->wlr_surface != NULL) {
+		view_damage_whole(child->view);
+	}
+
 	wl_list_remove(&child->link);
 	wl_list_remove(&child->commit.link);
 	wl_list_remove(&child->new_subsurface.link);
@@ -305,13 +309,12 @@ view_unmap(struct cg_view *view) {
 	wl_list_remove(&view->link);
 
 	wl_list_remove(&view->new_subsurface.link);
+	view->wlr_surface = NULL;
 
 	struct cg_view_child *child, *tmp;
 	wl_list_for_each_safe(child, tmp, &view->children, link) {
 		child->destroy(child);
 	}
-
-	view->wlr_surface = NULL;
 }
 
 void
