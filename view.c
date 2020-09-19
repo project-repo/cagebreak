@@ -46,8 +46,8 @@ void
 view_damage_child(struct cg_view_child *child, bool whole) {
 	int x, y;
 	child->get_coords(child, &x, &y);
-	output_damage_surface(child->view->workspace->output, child->wlr_surface, x+child->view->ox,
-	                      y+child->view->oy, whole);
+	output_damage_surface(child->view->workspace->output, child->wlr_surface,
+	                      x + child->view->ox, y + child->view->oy, whole);
 }
 
 static void
@@ -79,8 +79,8 @@ view_child_finish(struct cg_view_child *child) {
 	}
 
 	struct cg_view_child *subchild, *tmpchild;
-	wl_list_for_each_safe(subchild,tmpchild, &child->children,parent_link) {
-		subchild->parent=NULL;
+	wl_list_for_each_safe(subchild, tmpchild, &child->children, parent_link) {
+		subchild->parent = NULL;
 		wl_list_remove(&subchild->parent_link);
 	}
 
@@ -98,7 +98,7 @@ view_child_init(struct cg_view_child *child, struct cg_view_child *parent,
 	child->view = view;
 	child->parent = parent;
 	if(parent != NULL) {
-		wl_list_insert(&parent->children,&child->parent_link);
+		wl_list_insert(&parent->children, &child->parent_link);
 	}
 	child->wlr_surface = wlr_surface;
 	wl_list_init(&child->children);
