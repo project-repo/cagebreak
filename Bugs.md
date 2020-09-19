@@ -216,3 +216,11 @@ Steps to reproduce:
   * Click on dialog box (not on the dropdown menu) to make the menu disappear
   * Observe flickering of the area, where the dropdown menu used to be
 
+### Issue 16
+
+  * github issue number: N/A
+  * Fixed: 1.4.2
+
+Cagebreak up to and including release 1.4.1 has a difficult-to-reproduce
+use-after-free bug, which can sometimes trigger crashes when popups are closed.
+
