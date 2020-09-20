@@ -43,17 +43,17 @@ view_get_prev_view(struct cg_view *view) {
 }
 
 void
-view_damage_child(struct cg_view_child *child, int x, int y, bool whole) {
-	output_damage_surface(child->view->workspace->output, child->wlr_surface, x,
-	                      y, whole);
+view_damage_child(struct cg_view_child *child, bool whole) {
+	int x, y;
+	child->get_coords(child, &x, &y);
+	output_damage_surface(child->view->workspace->output, child->wlr_surface,
+	                      x + child->view->ox, y + child->view->oy, whole);
 }
 
 static void
 view_child_handle_commit(struct wl_listener *listener, void *_data) {
 	struct cg_view_child *child = wl_container_of(listener, child, commit);
-	int x, y;
-	child->get_coords(child, &x, &y);
-	view_damage_child(child, x + child->view->ox, y + child->view->oy, false);
+	view_damage_child(child, false);
 }
 
 static void
@@ -74,11 +74,20 @@ view_child_finish(struct cg_view_child *child) {
 		return;
 	}
 
-	if(child->view != NULL && child->view->wlr_surface != NULL) {
-		view_damage_whole(child->view);
+	if(child->view != NULL) {
+		view_damage_child(child, true);
+	}
+
+	struct cg_view_child *subchild, *tmpchild;
+	wl_list_for_each_safe(subchild, tmpchild, &child->children, parent_link) {
+		subchild->parent = NULL;
+		wl_list_remove(&subchild->parent_link);
 	}
 
 	wl_list_remove(&child->link);
+	if(child->parent != NULL) {
+		wl_list_remove(&child->parent_link);
+	}
 	wl_list_remove(&child->commit.link);
 	wl_list_remove(&child->new_subsurface.link);
 }
@@ -88,7 +97,11 @@ view_child_init(struct cg_view_child *child, struct cg_view_child *parent,
                 struct cg_view *view, struct wlr_surface *wlr_surface) {
 	child->view = view;
 	child->parent = parent;
+	if(parent != NULL) {
+		wl_list_insert(&parent->children, &child->parent_link);
+	}
 	child->wlr_surface = wlr_surface;
+	wl_list_init(&child->children);
 
 	child->commit.notify = view_child_handle_commit;
 	wl_signal_add(&wlr_surface->events.commit, &child->commit);

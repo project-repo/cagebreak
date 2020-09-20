@@ -53,8 +53,10 @@ struct cg_view_impl {
 struct cg_view_child {
 	struct cg_view *view;
 	struct cg_view_child *parent;
+	struct wl_list children;
 	struct wlr_surface *wlr_surface;
 	struct wl_list link;
+	struct wl_list parent_link;
 
 	struct wl_listener commit;
 	struct wl_listener new_subsurface;
@@ -83,7 +85,7 @@ view_damage_part(struct cg_view *view);
 void
 view_damage_whole(struct cg_view *view);
 void
-view_damage_child(struct cg_view_child *view, int x, int y, bool whole);
+view_damage_child(struct cg_view_child *view, bool whole);
 void
 view_activate(struct cg_view *view, bool activate);
 void
