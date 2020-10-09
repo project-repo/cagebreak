@@ -226,7 +226,7 @@ scan_out_primary_view(struct cg_output *output) {
 		}
 	}
 
-	struct cg_view *view = seat_get_focus(server->seat);
+	struct cg_view *view = output->workspaces[output->curr_workspace]->focused_tile->view;
 	if(view == NULL || view->wlr_surface == NULL) {
 		return false;
 	}
@@ -312,20 +312,22 @@ handle_output_damage_frame(struct wl_listener *listener, void *data) {
 		return;
 	}
 
-	/* Check if we can scan-out the primary view. */
-	static bool last_scanned_out = false;
 	bool scanned_out = scan_out_primary_view(output);
 
-	if(scanned_out && !last_scanned_out) {
+	if(scanned_out && !output->last_scanned_out_view) {
 		wlr_log(WLR_DEBUG, "Scanning out primary view");
 	}
-	if(last_scanned_out && !scanned_out) {
+	if(output->last_scanned_out_view && !scanned_out) {
 		wlr_log(WLR_DEBUG, "Stopping primary view scan out");
-		if(seat_get_focus(output->server->seat) != NULL) {
-			view_damage_whole(seat_get_focus(output->server->seat));
-		}
+		wlr_output_damage_add_whole(output->damage);
+		output->last_scanned_out_view=NULL;
 	}
-	last_scanned_out = scanned_out;
+	if(output->last_scanned_out_view && output->last_scanned_out_view != seat_get_focus(output->server->seat)) {
+		wlr_output_damage_add_whole(output->damage);
+	}
+	if(scanned_out) {
+		output->last_scanned_out_view = output->workspaces[output->curr_workspace]->focused_tile->view;
+	}
 
 	if(scanned_out) {
 		goto frame_done;
@@ -563,6 +565,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	output->wlr_output = wlr_output;
 	output->server = server;
 	output->damage = wlr_output_damage_create(wlr_output);
+	output->last_scanned_out_view = NULL;
 	wl_list_insert(&server->outputs, &output->link);
 
 	output->mode.notify = handle_output_mode;
