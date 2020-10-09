@@ -53,7 +53,7 @@ static bool
 view_at(const struct cg_view *view, double lx, double ly,
         struct wlr_surface **surface, double *sx, double *sy) {
 	struct wlr_box *output_layout_box = wlr_output_layout_get_box(
-	    view->workspace->output->server->output_layout,
+	    view->server->output_layout,
 	    view->workspace->output->wlr_output);
 
 	double view_sx = lx - view->ox - output_layout_box->x;

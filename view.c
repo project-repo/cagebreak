@@ -281,6 +281,10 @@ view_for_each_popup(struct cg_view *view, wlr_surface_iterator_func_t iterator,
 
 void
 view_unmap(struct cg_view *view) {
+	/* If the view is not mapped, do nothing */
+	if(view->wlr_surface == NULL) {
+		return;
+	}
 #if CG_HAS_XWAYLAND
 	if((view->type != CG_XWAYLAND_VIEW || xwayland_view_should_manage(view)))
 #endif
@@ -290,14 +294,14 @@ view_unmap(struct cg_view *view) {
 			struct cg_view *prev = view_get_prev_view(view);
 			wlr_output_damage_add_box(view_tile->workspace->output->damage,
 			                          &view_tile->tile);
-			if(view == view->workspace->server->seat->focused_view) {
-				seat_set_focus(view->workspace->server->seat, prev);
-			} else if(view->workspace->server->seat->seat->keyboard_state
+			if(view == view->server->seat->focused_view) {
+				seat_set_focus(view->server->seat, prev);
+			} else if(view->server->seat->seat->keyboard_state
 			              .focused_surface == view->wlr_surface) {
 				wlr_seat_keyboard_clear_focus(
-				    view->workspace->server->seat->seat);
-				seat_set_focus(view->workspace->server->seat,
-				               view->workspace->server->seat->focused_view);
+				    view->server->seat->seat);
+				seat_set_focus(view->server->seat,
+				               view->server->seat->focused_view);
 			} else {
 				view_tile->view = prev;
 				if(prev != NULL) {
@@ -309,12 +313,12 @@ view_unmap(struct cg_view *view) {
 #if CG_HAS_XWAYLAND
 	else {
 		view_damage_whole(view);
-		if(view->workspace->server->seat->seat->keyboard_state
+		if(view->server->seat->seat->keyboard_state
 		           .focused_surface == NULL ||
-		   view->workspace->server->seat->seat->keyboard_state
+		   view->server->seat->seat->keyboard_state
 		           .focused_surface == view->wlr_surface) {
-			seat_set_focus(view->workspace->server->seat,
-			               view->workspace->server->seat->focused_view);
+			seat_set_focus(view->server->seat,
+			               view->server->seat->focused_view);
 		}
 	}
 #endif
@@ -363,7 +367,7 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 
 void
 view_destroy(struct cg_view *view) {
-	struct cg_output *curr_output = view->workspace->server->curr_output;
+	struct cg_output *curr_output = view->server->curr_output;
 	if(view->wlr_surface != NULL) {
 		view_unmap(view);
 	}
@@ -375,9 +379,10 @@ view_destroy(struct cg_view *view) {
 }
 
 void
-view_init(struct cg_view *view, struct cg_workspace *ws, enum cg_view_type type,
-          const struct cg_view_impl *impl) {
-	view->workspace = ws;
+view_init(struct cg_view *view, enum cg_view_type type,
+          const struct cg_view_impl *impl,struct cg_server *server) {
+	view->workspace = NULL;
+	view->server=server;
 	view->type = type;
 	view->impl = impl;
 
