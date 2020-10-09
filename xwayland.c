@@ -109,7 +109,7 @@ maximize(struct cg_view *view, int width, int height) {
 	}
 
 	wlr_xwayland_surface_configure(xwayland_view->xwayland_surface,
-	                               view->ox + box->x, view->oy + box->y, width,
+	                               view->ox, view->oy, width,
 	                               height);
 	wlr_xwayland_surface_set_maximized(xwayland_view->xwayland_surface, true);
 }
