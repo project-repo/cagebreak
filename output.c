@@ -436,7 +436,7 @@ output_destroy(struct cg_output *output) {
 					wl_list_insert(
 					    &server->curr_output
 					         ->workspaces[server->curr_output->curr_workspace]
-					         ->views,
+					         ->unmanaged_views,
 					    &view->link);
 					view->workspace =
 					    server->curr_output
