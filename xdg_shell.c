@@ -102,8 +102,7 @@ popup_unconstrain(struct cg_xdg_popup *popup) {
 	struct cg_view *view = popup->view_child.view;
 	struct wlr_box *popup_box = &popup->wlr_popup->geometry;
 
-	struct wlr_output_layout *output_layout =
-	    view->workspace->output->server->output_layout;
+	struct wlr_output_layout *output_layout = view->server->output_layout;
 	struct wlr_box *view_output_box = wlr_output_layout_get_box(
 	    output_layout, view->workspace->output->wlr_output);
 	struct wlr_output *wlr_output = wlr_output_layout_output_at(
@@ -297,11 +296,13 @@ handle_xdg_shell_surface_map(struct wl_listener *listener, void *_data) {
 	xdg_shell_view->commit.notify = handle_xdg_shell_surface_commit;
 	wl_signal_add(&xdg_shell_view->xdg_surface->surface->events.commit,
 	              &xdg_shell_view->commit);
+	xdg_shell_view->new_popup.notify = handle_new_xdg_popup;
+	wl_signal_add(&xdg_shell_view->xdg_surface->events.new_popup,
+	              &xdg_shell_view->new_popup);
 
-	view_map(
-	    view, xdg_shell_view->xdg_surface->surface,
-	    view->workspace->server->curr_output
-	        ->workspaces[view->workspace->server->curr_output->curr_workspace]);
+	view_map(view, xdg_shell_view->xdg_surface->surface,
+	         view->server->curr_output
+	             ->workspaces[view->server->curr_output->curr_workspace]);
 	view_damage_whole(view);
 }
 
@@ -350,10 +351,8 @@ handle_xdg_shell_surface_new(struct wl_listener *listener, void *data) {
 		wlr_log(WLR_ERROR, "Failed to allocate XDG Shell view");
 		return;
 	}
-	view_init(
-	    &xdg_shell_view->view,
-	    server->curr_output->workspaces[server->curr_output->curr_workspace],
-	    CG_XDG_SHELL_VIEW, &xdg_shell_view_impl);
+	view_init(&xdg_shell_view->view, CG_XDG_SHELL_VIEW, &xdg_shell_view_impl,
+	          server);
 
 	xdg_shell_view->xdg_surface = xdg_surface;
 
@@ -367,8 +366,6 @@ handle_xdg_shell_surface_new(struct wl_listener *listener, void *data) {
 	    handle_xdg_shell_surface_request_fullscreen;
 	wl_signal_add(&xdg_surface->toplevel->events.request_fullscreen,
 	              &xdg_shell_view->request_fullscreen);
-	xdg_shell_view->new_popup.notify = handle_new_xdg_popup;
-	wl_signal_add(&xdg_surface->events.new_popup, &xdg_shell_view->new_popup);
 }
 
 void

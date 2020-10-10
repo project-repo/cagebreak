@@ -19,6 +19,7 @@ enum cg_view_type {
 
 struct cg_view {
 	struct cg_workspace *workspace;
+	struct cg_server *server;
 	struct wl_list link;     // server::views
 	struct wl_list children; // cg_view_child::link
 	struct wlr_surface *wlr_surface;
@@ -106,8 +107,8 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 void
 view_destroy(struct cg_view *view);
 void
-view_init(struct cg_view *view, struct cg_workspace *ws, enum cg_view_type type,
-          const struct cg_view_impl *impl);
+view_init(struct cg_view *view, enum cg_view_type type,
+          const struct cg_view_impl *impl, struct cg_server *server);
 
 struct wlr_surface *
 view_wlr_surface_at(const struct cg_view *view, double sx, double sy,

@@ -23,6 +23,7 @@ struct cg_output {
 	struct cg_workspace **workspaces;
 	struct wl_list messages;
 	int curr_workspace;
+	struct cg_view *last_scanned_out_view;
 
 	struct wl_list link; // cg_server::outputs
 };
