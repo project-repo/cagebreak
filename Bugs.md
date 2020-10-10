@@ -224,3 +224,37 @@ Steps to reproduce:
 Cagebreak up to and including release 1.4.1 has a difficult-to-reproduce
 use-after-free bug, which can sometimes trigger crashes when popups are closed.
 
+### Issue 17
+
+  * github issue number: N/A
+  * Fixed: 1.4.3
+
+Cagebreak up to and including version 1.4.2 might have a use-after-free
+on destroying unmapped views. view->workspace was set on view creation.
+If the output containing this view was subsequently destroyed, the workspace
+was freed, leading to a use-after-free when the view was destroyed.
+
+### Issue 18
+
+  * github issue number: N/A
+  * Fixed: 1.4.3
+
+Cagebreak up to and including release 1.4.2 does not handle the position of
+xwayland views adequately.
+
+### Issue 19
+
+  * github issue number: N/A
+  * Fixed: 1.4.3
+
+Cagebreak up to and including release 1.4.2 does not handle unmanaged views
+adequately.
+
+### Issue 20
+
+  * github issue number: N/A
+  * Fixed: 1.4.3
+
+Cagebreak up to and including release 1.4.2 does not handle damaging adequately,
+when scanning out views.
+
