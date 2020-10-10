@@ -226,7 +226,8 @@ scan_out_primary_view(struct cg_output *output) {
 		}
 	}
 
-	struct cg_view *view = output->workspaces[output->curr_workspace]->focused_tile->view;
+	struct cg_view *view =
+	    output->workspaces[output->curr_workspace]->focused_tile->view;
 	if(view == NULL || view->wlr_surface == NULL) {
 		return false;
 	}
@@ -320,13 +321,15 @@ handle_output_damage_frame(struct wl_listener *listener, void *data) {
 	if(output->last_scanned_out_view && !scanned_out) {
 		wlr_log(WLR_DEBUG, "Stopping primary view scan out");
 		wlr_output_damage_add_whole(output->damage);
-		output->last_scanned_out_view=NULL;
+		output->last_scanned_out_view = NULL;
 	}
-	if(output->last_scanned_out_view && output->last_scanned_out_view != seat_get_focus(output->server->seat)) {
+	if(output->last_scanned_out_view &&
+	   output->last_scanned_out_view != seat_get_focus(output->server->seat)) {
 		wlr_output_damage_add_whole(output->damage);
 	}
 	if(scanned_out) {
-		output->last_scanned_out_view = output->workspaces[output->curr_workspace]->focused_tile->view;
+		output->last_scanned_out_view =
+		    output->workspaces[output->curr_workspace]->focused_tile->view;
 	}
 
 	if(scanned_out) {

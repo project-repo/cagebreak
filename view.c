@@ -298,8 +298,7 @@ view_unmap(struct cg_view *view) {
 				seat_set_focus(view->server->seat, prev);
 			} else if(view->server->seat->seat->keyboard_state
 			              .focused_surface == view->wlr_surface) {
-				wlr_seat_keyboard_clear_focus(
-				    view->server->seat->seat);
+				wlr_seat_keyboard_clear_focus(view->server->seat->seat);
 				seat_set_focus(view->server->seat,
 				               view->server->seat->focused_view);
 			} else {
@@ -313,10 +312,9 @@ view_unmap(struct cg_view *view) {
 #if CG_HAS_XWAYLAND
 	else {
 		view_damage_whole(view);
-		if(view->server->seat->seat->keyboard_state
-		           .focused_surface == NULL ||
-		   view->server->seat->seat->keyboard_state
-		           .focused_surface == view->wlr_surface) {
+		if(view->server->seat->seat->keyboard_state.focused_surface == NULL ||
+		   view->server->seat->seat->keyboard_state.focused_surface ==
+		       view->wlr_surface) {
 			seat_set_focus(view->server->seat,
 			               view->server->seat->focused_view);
 		}
@@ -380,9 +378,9 @@ view_destroy(struct cg_view *view) {
 
 void
 view_init(struct cg_view *view, enum cg_view_type type,
-          const struct cg_view_impl *impl,struct cg_server *server) {
+          const struct cg_view_impl *impl, struct cg_server *server) {
 	view->workspace = NULL;
-	view->server=server;
+	view->server = server;
 	view->type = type;
 	view->impl = impl;
 
