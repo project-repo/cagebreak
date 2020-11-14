@@ -53,7 +53,7 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots', version: '>= 0.11.0')
+wlroots        = dependency('wlroots', version: '>= 0.12.0')
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')
@@ -195,13 +195,13 @@ reproducible_build_versions = {
   'wayland_server': '1.18.0',
   'wayland_client': '1.18.0',
   'wayland_cursor': '1.18.0',
-  'wlroots': '0.11.0',
+  'wlroots': '0.12.0',
   'xkbcommon': '1.0.1',
   'fontconfig': '2.13.91',
   'pixman': '0.40.0',
-  'pango': '1.46.2',
+  'pango': '1.48.0',
   'cairo': '1.17.3',
-  'pangocairo': '1.46.2',
+  'pangocairo': '1.48.0',
   'math': '-1'
 }
 
