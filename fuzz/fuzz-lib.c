@@ -59,6 +59,14 @@
 
 #include "fuzz-lib.h"
 
+struct cg_server server;
+struct wlr_xdg_shell *xdg_shell;
+
+struct wlr_xwayland *xwayland;
+#if CG_HAS_XWAYLAND
+struct wlr_xcursor_manager *xcursor_manager;
+#endif
+
 static bool
 drop_permissions(void) {
 	if(getuid() != geteuid() || getgid() != getegid()) {

@@ -17,12 +17,12 @@
 #define WAIT_ANY -1
 #endif
 
-struct cg_server server;
-struct wlr_xdg_shell *xdg_shell;
+extern struct cg_server server;
+extern struct wlr_xdg_shell *xdg_shell;
 
-struct wlr_xwayland *xwayland;
+extern struct wlr_xwayland *xwayland;
 #if CG_HAS_XWAYLAND
-struct wlr_xcursor_manager *xcursor_manager;
+extern struct wlr_xcursor_manager *xcursor_manager;
 #endif
 
 void

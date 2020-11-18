@@ -258,3 +258,10 @@ adequately.
 Cagebreak up to and including release 1.4.2 does not handle damaging adequately,
 when scanning out views.
 
+### Issue 21
+
+  * github issue number: N/A
+  * Fixed: 1.4.4
+
+Cagebreak up to and including release 1.4.3 sometimes had null pointer
+dereferences on view destroy.
