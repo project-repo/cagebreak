@@ -966,10 +966,6 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 		}
 	}
 
-	if(seat->seat->keyboard_state.focused_surface == view->wlr_surface) {
-		return;
-	}
-
 #if CG_HAS_XWAYLAND
 	if(view->type == CG_XWAYLAND_VIEW && !xwayland_view_should_manage(view)) {
 		const struct cg_xwayland_view *xwayland_view =
