@@ -291,21 +291,25 @@ view_unmap(struct cg_view *view) {
 	{
 		struct cg_tile *view_tile = view_get_tile(view);
 		if(view_tile != NULL) {
-			struct cg_view *prev = view_get_prev_view(view);
 			wlr_output_damage_add_box(view_tile->workspace->output->damage,
 			                          &view_tile->tile);
-			if(view == view->server->seat->focused_view) {
-				seat_set_focus(view->server->seat, prev);
-			} else if(view->server->seat->seat->keyboard_state
-			              .focused_surface == view->wlr_surface) {
-				wlr_seat_keyboard_clear_focus(view->server->seat->seat);
-				seat_set_focus(view->server->seat,
-				               view->server->seat->focused_view);
-			} else {
-				view_tile->view = prev;
-				if(prev != NULL) {
-					view_maximize(prev, &view_tile->tile);
-				}
+		}
+		struct cg_view *prev = view_get_prev_view(view);
+		if(view == view->server->seat->focused_view) {
+			seat_set_focus(view->server->seat, prev);
+		} else if(view->server->seat->seat->keyboard_state
+		              .focused_surface == view->wlr_surface) {
+			wlr_seat_keyboard_clear_focus(view->server->seat->seat);
+			seat_set_focus(view->server->seat,
+			               view->server->seat->focused_view);
+		}
+		view_tile = view_get_tile(view);
+		if(view_tile != NULL) {
+			wlr_output_damage_add_box(view_tile->workspace->output->damage,
+			                          &view_tile->tile);
+			view_tile->view = prev;
+			if(prev != NULL) {
+				view_maximize(prev, &view_tile->tile);
 			}
 		}
 	}
