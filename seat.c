@@ -54,6 +54,11 @@ view_at(const struct cg_view *view, double lx, double ly,
         struct wlr_surface **surface, double *sx, double *sy) {
 	struct wlr_box *output_layout_box = wlr_output_layout_get_box(
 	    view->server->output_layout, view->workspace->output->wlr_output);
+	if(output_layout_box == NULL) {
+		fprintf(stderr, "OUTPUT:%d\n",view->workspace->output->wlr_output->enabled);
+		return output_layout_box->x;
+		return false;
+	}
 
 	double view_sx = lx - view->ox - output_layout_box->x;
 	double view_sy = ly - view->oy - output_layout_box->y;

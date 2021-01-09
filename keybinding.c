@@ -838,6 +838,20 @@ keybinding_configure_output(struct cg_server *server,
 		}
 	}
 	wl_list_insert(&server->output_config, &cfg->link);
+
+	struct cg_output *output, *tmp_output;
+	wl_list_for_each_safe(output, tmp_output, &server->outputs, link) {
+		if(strcmp(cfg->output_name, output->wlr_output->name) == 0) {
+			output_configure(server, output);
+			return;
+		}
+	}
+	wl_list_for_each_safe(output, tmp_output, &server->disabled_outputs, link) {
+		if(strcmp(cfg->output_name, output->wlr_output->name) == 0) {
+			output_configure(server, output);
+			return;
+		}
+	}
 }
 
 /* Hint: see keybinding.h for details on "data" */
