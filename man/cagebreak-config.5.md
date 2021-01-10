@@ -142,7 +142,8 @@ by prepending a line with the # symbol.
 > in pixels. The top-left monitor should have the coordinates 0 0. <width> and
 > <height> specify the resolution in pixels and <rate> sets the refresh rate of
 > the monitor (often this is 50 or 60). The options enable and disable
-> enable or disable the output <name>.
+> enable or disable the output <name>. Note that if <output> is the only enabled
+> output, `output <output> disable` has no effect.
 
 **prev**
 
