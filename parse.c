@@ -260,16 +260,16 @@ parse_float(char **saveptr, const char *delim) {
 }
 
 int
-parse_output_config_keyword(char *key_str,enum output_status *status) {
+parse_output_config_keyword(char *key_str, enum output_status *status) {
 	if(key_str == NULL) {
 		return -1;
 	}
-	if(strcmp(key_str,"pos") == 0) {
-		*status=OUTPUT_DEFAULT;
+	if(strcmp(key_str, "pos") == 0) {
+		*status = OUTPUT_DEFAULT;
 	} else if(strcmp(key_str, "enable") == 0) {
-		*status=OUTPUT_ENABLE;
+		*status = OUTPUT_ENABLE;
 	} else if(strcmp(key_str, "disable") == 0) {
-		*status=OUTPUT_DISABLE;
+		*status = OUTPUT_DISABLE;
 	} else {
 		return -1;
 	}
@@ -291,10 +291,10 @@ parse_output_config(char **saveptr, char **errstr) {
 		goto error;
 	}
 	char *key_str = strtok_r(NULL, " ", saveptr);
-	if(parse_output_config_keyword(key_str,&(cfg->status))!=0) {
-		*errstr = log_error(
-		    "Expected keyword \"pos\", \"enable\" or \"disable\" in output configuration for output %s",
-		    name);
+	if(parse_output_config_keyword(key_str, &(cfg->status)) != 0) {
+		*errstr = log_error("Expected keyword \"pos\", \"enable\" or "
+		                    "\"disable\" in output configuration for output %s",
+		                    name);
 		goto error;
 	}
 	if(cfg->status == OUTPUT_ENABLE || cfg->status == OUTPUT_DISABLE) {

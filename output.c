@@ -364,7 +364,7 @@ static void
 handle_output_transform(struct wl_listener *listener, void *data) {
 	struct cg_output *output = wl_container_of(listener, output, transform);
 
-	if(!output->wlr_output->enabled || output->workspaces==NULL) {
+	if(!output->wlr_output->enabled || output->workspaces == NULL) {
 		return;
 	}
 
@@ -379,7 +379,7 @@ static void
 handle_output_mode(struct wl_listener *listener, void *data) {
 	struct cg_output *output = wl_container_of(listener, output, mode);
 
-	if(!output->wlr_output->enabled || output->workspaces==NULL) {
+	if(!output->wlr_output->enabled || output->workspaces == NULL) {
 		return;
 	}
 
@@ -390,8 +390,9 @@ handle_output_mode(struct wl_listener *listener, void *data) {
 	}
 }
 
-void output_clear(struct cg_output* output) {
-	struct cg_server *server=output->server;
+void
+output_clear(struct cg_output *output) {
+	struct cg_server *server = output->server;
 	wlr_output_layout_remove(server->output_layout, output->wlr_output);
 
 	if(server->running && server->curr_output == output &&
@@ -409,9 +410,10 @@ void output_clear(struct cg_output* output) {
 
 			bool first = true;
 			for(struct cg_tile *tile = output->workspaces[i]->focused_tile;
-			    first || output->workspaces[i]->focused_tile != tile; tile = tile->next) {
+			    first || output->workspaces[i]->focused_tile != tile;
+			    tile = tile->next) {
 				first = false;
-				tile->view=NULL;
+				tile->view = NULL;
 			}
 			wl_list_for_each_safe(view, view_tmp, &output->workspaces[i]->views,
 			                      link) {
@@ -450,7 +452,6 @@ void output_clear(struct cg_output* output) {
 			}
 		}
 	}
-
 }
 
 static void
@@ -545,7 +546,8 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 	struct wlr_output *wlr_output = output->wlr_output;
 	struct cg_output_config *config = output_find_config(server, wlr_output);
 	/* Refuse to disable the only output */
-	if(config!=NULL&&config->status == OUTPUT_DISABLE && wl_list_length(&server->outputs)==1) {
+	if(config != NULL && config->status == OUTPUT_DISABLE &&
+	   wl_list_length(&server->outputs) == 1) {
 		return;
 	}
 	if(output->wlr_output->enabled) {
@@ -561,17 +563,17 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 			wlr_output_set_mode(wlr_output, preferred_mode);
 		}
 		wl_list_remove(&output->link);
-		wl_list_insert(&server->outputs,&output->link);
+		wl_list_insert(&server->outputs, &output->link);
 		wlr_output_enable(wlr_output, true);
 		wlr_output_commit(wlr_output);
 	} else if(config->status == OUTPUT_DISABLE) {
 		output_clear(output);
-		wl_list_insert(&server->disabled_outputs,&output->link);
+		wl_list_insert(&server->disabled_outputs, &output->link);
 		wlr_output_enable(wlr_output, false);
 		wlr_output_commit(wlr_output);
 	} else {
 		wl_list_remove(&output->link);
-		wl_list_insert(&server->outputs,&output->link);
+		wl_list_insert(&server->outputs, &output->link);
 		output_set_mode(wlr_output, config->pos.width, config->pos.height,
 		                config->refresh_rate);
 		wlr_output_layout_add(server->output_layout, wlr_output, config->pos.x,
@@ -613,7 +615,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	wl_signal_add(&output->damage->events.destroy, &output->damage_destroy);
 
 	wlr_output_set_transform(wlr_output, server->output_transform);
-	output->workspaces=NULL;
+	output->workspaces = NULL;
 
 	output->curr_workspace = 0;
 	wl_list_init(&output->messages);
