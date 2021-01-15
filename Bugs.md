@@ -265,3 +265,35 @@ when scanning out views.
 
 Cagebreak up to and including release 1.4.3 sometimes had null pointer
 dereferences on view destroy.
+
+### Issue 22
+
+  * github issue number: #2
+  * Fixed: 1.5.0
+
+Cagebreak up to and including release 1.4.4 did not offer any means to disable
+outputs. This option is now added to output. See cagebreak-config man page for
+details.
+
+Github issue text:
+
+```
+Hello, I have two outputs (or heads) eDP-1 and HDMA-A-1, and always want to disable eDP-1, how to do it?
+
+Thank you!
+```
+
+### Issue 23
+
+  * github issue number: N/A
+  * Fixed: 1.5.0
+
+Cagebreak up to and including release 1.4.4 had a potential use-after-free bug.
+
+### Issue 24
+
+  * github issue number: N/A
+  * Fixed: 1.5.0
+
+Cagebreak up to and including release 1.4.4 could have focussed views without tiles.
+

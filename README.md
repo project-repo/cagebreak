@@ -180,6 +180,11 @@ ninja -C build
 
 For every release after 1.0.5, hashes will be provided.
 
+1.5.0
+
+  * sha 256: 22010e2916493b0d7cfb08c2196f12589509ce11010a7107aed13ddbfd9709cc
+  * sha 512: 707d6cc01326ba32402f9fb402ff8aceaeaba63ca6ba2eb157e5a4c83123515a3a74da960813479db303eddc2e7f79f39b241dff05b89d47d72d5f1d20ca6d37
+
 1.4.4
 
   * sha 256: c6e08e19feb17f768e136cf02f5692ef121ff289763dc60ef8678103803d3307
@@ -266,6 +271,8 @@ keys.
   * 4739D329C9187A1C2795C20A02ABFDEC3A40545F
   * 7535AB89220A5C15A728B75F74104CC7DCA5D7A8
   * 827BC2320D535AEAD0540E6E2E66F65D99761A6F
+  * A88D7431E5BAAD0B6EAE550AC8D61D8BD4FA3C46
+  * 8F872885968EB8C589A32E9539ACC012896D450F
 
 Should we at any point retire a key, we will only replace it with keys signed
 by at least one of the above collection.
@@ -383,6 +390,10 @@ Adds IPC as described in the man pages.
 ### Release 1.4.0
 
 Adds close command for windows as described in the man pages.
+
+### Release 1.5.0
+
+Adds options to disable or enable outputs. See Issue 22 in Bugs.md and Issue #2 on github.
 
 ## License
 
