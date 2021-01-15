@@ -219,6 +219,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	server.bg_color[2] = 0;
 	server.bg_color[3] = 1;
 	wl_list_init(&server.outputs);
+	wl_list_init(&server.disabled_outputs);
 
 	server.output_layout = wlr_output_layout_create();
 	if(!server.output_layout) {
