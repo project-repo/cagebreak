@@ -60,6 +60,9 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 			keybinding_free(keybinding->data.kb, true);
 		}
 		break;
+	case KEYBINDING_CONFIGURE_OUTPUT:
+		free(keybinding->data.o_cfg->output_name);
+		free(keybinding->data.o_cfg);
 	default:
 		break;
 	}
