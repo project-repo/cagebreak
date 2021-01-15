@@ -1,4 +1,4 @@
-% CAGEBREAK(1) Version 1.4.4 | Cagebreak Manual
+% CAGEBREAK(1) Version 1.5.0 | Cagebreak Manual
 
 # NAME
 
@@ -81,7 +81,7 @@ See GitHub Issues: <https://github.com/project-repo/cagebreak/issues>
 
 # LICENSE
 
-Copyright (c) 2020 The Cagebreak authors
+Copyright (c) 2020-2021 The Cagebreak authors
 Copyright (c) 2018-2020 Jente Hidskes
 Copyright (c) 2019 The Sway authors
 

@@ -1,4 +1,4 @@
-% CAGEBREAK-CONFIG(1) Version 1.4.4 | Cagebreak Manual
+% CAGEBREAK-CONFIG(1) Version 1.5.0 | Cagebreak Manual
 
 # NAME
 
@@ -136,12 +136,14 @@ by prepending a line with the # symbol.
 
 > Remove all splits and make the current window fill the entire screen
 
-**output <name> pos <xpos> <ypos> res <width>x<height> rate <rate>**
+**output <name> [[pos <xpos> <ypos> res <width>x<height> rate <rate>] | enable | disable]**
 
 > Configure the output "<name>". <xpos> and <ypos> are the position of the monitor
 > in pixels. The top-left monitor should have the coordinates 0 0. <width> and
 > <height> specify the resolution in pixels and <rate> sets the refresh rate of
-> the monitor (often this is 50 or 60).
+> the monitor (often this is 50 or 60). The options enable and disable
+> enable or disable the output <name>. Note that if <output> is the only enabled
+> output, `output <output> disable` has no effect.
 
 **prev**
 
@@ -253,7 +255,7 @@ See GitHub Issues: <https://github.com/project-repo/cagebreak/issues>
 
 # LICENSE
 
-Copyright (c) 2020 The Cagebreak authors
+Copyright (c) 2020-2021 The Cagebreak authors
 Copyright (c) 2018-2020 Jente Hidskes
 Copyright (c) 2019 The Sway authors
 

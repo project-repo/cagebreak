@@ -364,7 +364,7 @@ static void
 handle_output_transform(struct wl_listener *listener, void *data) {
 	struct cg_output *output = wl_container_of(listener, output, transform);
 
-	if(!output->wlr_output->enabled) {
+	if(!output->wlr_output->enabled || output->workspaces == NULL) {
 		return;
 	}
 
@@ -379,7 +379,7 @@ static void
 handle_output_mode(struct wl_listener *listener, void *data) {
 	struct cg_output *output = wl_container_of(listener, output, mode);
 
-	if(!output->wlr_output->enabled) {
+	if(!output->wlr_output->enabled || output->workspaces == NULL) {
 		return;
 	}
 
@@ -390,22 +390,16 @@ handle_output_mode(struct wl_listener *listener, void *data) {
 	}
 }
 
-static void
-output_destroy(struct cg_output *output) {
+void
+output_clear(struct cg_output *output) {
 	struct cg_server *server = output->server;
-
-	wl_list_remove(&output->destroy.link);
-	wl_list_remove(&output->mode.link);
-	wl_list_remove(&output->transform.link);
-	wl_list_remove(&output->damage_frame.link);
-	wl_list_remove(&output->damage_destroy.link);
-
 	wlr_output_layout_remove(server->output_layout, output->wlr_output);
 
 	if(server->running && server->curr_output == output &&
 	   wl_list_length(&server->outputs) > 1) {
 		keybinding_cycle_outputs(server, false);
 	}
+
 	wl_list_remove(&output->link);
 
 	message_clear(output);
@@ -413,6 +407,14 @@ output_destroy(struct cg_output *output) {
 	struct cg_view *view, *view_tmp;
 	if(server->running) {
 		for(unsigned int i = 0; i < server->nws; ++i) {
+
+			bool first = true;
+			for(struct cg_tile *tile = output->workspaces[i]->focused_tile;
+			    first || output->workspaces[i]->focused_tile != tile;
+			    tile = tile->next) {
+				first = false;
+				tile->view = NULL;
+			}
 			wl_list_for_each_safe(view, view_tmp, &output->workspaces[i]->views,
 			                      link) {
 				wl_list_remove(&view->link);
@@ -450,6 +452,19 @@ output_destroy(struct cg_output *output) {
 			}
 		}
 	}
+}
+
+static void
+output_destroy(struct cg_output *output) {
+	struct cg_server *server = output->server;
+
+	wl_list_remove(&output->destroy.link);
+	wl_list_remove(&output->mode.link);
+	wl_list_remove(&output->transform.link);
+	wl_list_remove(&output->damage_frame.link);
+	wl_list_remove(&output->damage_destroy.link);
+
+	output_clear(output);
 
 	/*Important: due to unfortunate events, "workspace" and "output->workspace"
 	 * have nothing in common. The former is the workspace of a single output,
@@ -530,11 +545,16 @@ void
 output_configure(struct cg_server *server, struct cg_output *output) {
 	struct wlr_output *wlr_output = output->wlr_output;
 	struct cg_output_config *config = output_find_config(server, wlr_output);
+	/* Refuse to disable the only output */
+	if(config != NULL && config->status == OUTPUT_DISABLE &&
+	   wl_list_length(&server->outputs) == 1) {
+		return;
+	}
 	if(output->wlr_output->enabled) {
 		wlr_output_layout_remove(server->output_layout, wlr_output);
 	}
 
-	if(config == NULL) {
+	if(config == NULL || config->status == OUTPUT_ENABLE) {
 		wlr_output_layout_add_auto(server->output_layout, wlr_output);
 
 		struct wlr_output_mode *preferred_mode =
@@ -542,11 +562,24 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 		if(preferred_mode) {
 			wlr_output_set_mode(wlr_output, preferred_mode);
 		}
+		wl_list_remove(&output->link);
+		wl_list_insert(&server->outputs, &output->link);
+		wlr_output_enable(wlr_output, true);
+		wlr_output_commit(wlr_output);
+	} else if(config->status == OUTPUT_DISABLE) {
+		output_clear(output);
+		wl_list_insert(&server->disabled_outputs, &output->link);
+		wlr_output_enable(wlr_output, false);
+		wlr_output_commit(wlr_output);
 	} else {
+		wl_list_remove(&output->link);
+		wl_list_insert(&server->outputs, &output->link);
 		output_set_mode(wlr_output, config->pos.width, config->pos.height,
 		                config->refresh_rate);
 		wlr_output_layout_add(server->output_layout, wlr_output, config->pos.x,
 		                      config->pos.y);
+		wlr_output_enable(wlr_output, true);
+		wlr_output_commit(wlr_output);
 	}
 }
 
@@ -569,7 +602,6 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	output->server = server;
 	output->damage = wlr_output_damage_create(wlr_output);
 	output->last_scanned_out_view = NULL;
-	wl_list_insert(&server->outputs, &output->link);
 
 	output->mode.notify = handle_output_mode;
 	wl_signal_add(&wlr_output->events.mode, &output->mode);
@@ -583,19 +615,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	wl_signal_add(&output->damage->events.destroy, &output->damage_destroy);
 
 	wlr_output_set_transform(wlr_output, server->output_transform);
-
-	output_configure(server, output);
-
-	output->workspaces = malloc(server->nws * sizeof(struct cg_workspace *));
-	for(unsigned int i = 0; i < server->nws; ++i) {
-		output->workspaces[i] = full_screen_workspace(output);
-		if(!output->workspaces[i]) {
-			wlr_log(WLR_ERROR, "Failed to allocate workspaces for output");
-			return;
-		}
-		wl_list_init(&output->workspaces[i]->views);
-		wl_list_init(&output->workspaces[i]->unmanaged_views);
-	}
+	output->workspaces = NULL;
 
 	output->curr_workspace = 0;
 	wl_list_init(&output->messages);
@@ -607,14 +627,12 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		        wlr_output->name, wlr_output->scale);
 	}
 
+	wl_list_insert(&server->outputs, &output->link);
+	output_configure(server, output);
 	wlr_output_damage_add_whole(output->damage);
 
-	wlr_output_enable(wlr_output, true);
-	wlr_output_commit(wlr_output);
-
-	/* TODO:If you see a way to circumvent having to loop twice, please do so */
+	output->workspaces = malloc(server->nws * sizeof(struct cg_workspace *));
 	for(unsigned int i = 0; i < server->nws; ++i) {
-		workspace_free(output->workspaces[i]);
 		output->workspaces[i] = full_screen_workspace(output);
 		if(!output->workspaces[i]) {
 			wlr_log(WLR_ERROR, "Failed to allocate workspaces for output");

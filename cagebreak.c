@@ -335,6 +335,7 @@ main(int argc, char *argv[]) {
 
 	server.bg_color = (float[4]){0, 0, 0, 1};
 	wl_list_init(&server.outputs);
+	wl_list_init(&server.disabled_outputs);
 
 	server.output_layout = wlr_output_layout_create();
 	if(!server.output_layout) {
@@ -544,8 +545,9 @@ main(int argc, char *argv[]) {
 	}
 
 	{
-		struct cg_output *output;
-		wl_list_for_each(output, &server.outputs, link) {
+
+		struct cg_output *output, *output_tmp;
+		wl_list_for_each_safe(output, output_tmp, &server.outputs, link) {
 			output_configure(&server, output);
 		}
 	}

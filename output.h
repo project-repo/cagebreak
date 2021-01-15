@@ -28,7 +28,10 @@ struct cg_output {
 	struct wl_list link; // cg_server::outputs
 };
 
+enum output_status { OUTPUT_ENABLE, OUTPUT_DISABLE, OUTPUT_DEFAULT };
+
 struct cg_output_config {
+	enum output_status status;
 	struct wlr_box pos;
 	char *output_name;
 	float refresh_rate;
