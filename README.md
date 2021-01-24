@@ -107,7 +107,6 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
   * [ ] `git checkout development`
   * [ ] `git pull origin development`
   * [ ] `git push origin development`
-  * [ ] Cage has no reasonable code merges
   * [ ] `ninja -C build clang-format` makes no changes
   * [ ] New version number determined according to [semantic versioning](https://semver.org) guidelines
   * [ ] Relevant Documentation completed
