@@ -107,7 +107,6 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
   * [ ] `git checkout development`
   * [ ] `git pull origin development`
   * [ ] `git push origin development`
-  * [ ] Cage has no reasonable code merges
   * [ ] `ninja -C build clang-format` makes no changes
   * [ ] New version number determined according to [semantic versioning](https://semver.org) guidelines
   * [ ] Relevant Documentation completed
@@ -179,6 +178,11 @@ ninja -C build
 #### Hashes for Builds
 
 For every release after 1.0.5, hashes will be provided.
+
+1.5.1
+
+  * sha 256: 9c6df4b94c180f5657cb424383aa2bf3aca063c8e7b40af0497be1ef7bdb858a
+  * sha 512: 219f753347ae64a4dd593568797438742e9ddae380c729598d8eda863080a6ed4e5086d735fc348c48328bb795a5a5b57b0421be5dd45755744d895b24312627
 
 1.5.0
 
