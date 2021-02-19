@@ -76,7 +76,7 @@ workspace 2. Therefore, this change would simplify the code base, while at
 the same time increasing the feature set.
 
 PS: As a side effect, this would allow quirky statements such as
-`bind dbind r hsplit` which would bind the d key to binding the r key to
+`bind d bind r hsplit` which would bind the d key to binding the r key to
 split the output...
 ```
 
