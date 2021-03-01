@@ -237,25 +237,27 @@ executable(
   c_args: fuzz_compile_args,
 )
 
-pandoc = find_program('pandoc')
-mandir1 = join_paths(get_option('mandir'), 'man1')
-mandir5 = join_paths(get_option('mandir'), 'man5')
+if get_option('man-pages')
+  pandoc = find_program('pandoc')
+  mandir1 = join_paths(get_option('mandir'), 'man1')
+  mandir5 = join_paths(get_option('mandir'), 'man5')
 
-cagebreak_man = custom_target('cagebreak_man',
-  output : 'cagebreak.1',
-  input : 'man/cagebreak.1.md',
-  command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
-  install: true,
-  install_dir: mandir1
-  )
+  cagebreak_man = custom_target('cagebreak_man',
+    output : 'cagebreak.1',
+    input : 'man/cagebreak.1.md',
+    command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
+    install: true,
+    install_dir: mandir1
+    )
 
-cagebreak_man = custom_target('cagebreak_config_man',
-  output : 'cagebreak-config.5',
-  input : 'man/cagebreak-config.5.md',
-  command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
-  install: true,
-  install_dir: mandir5
-  )
+  cagebreak_man = custom_target('cagebreak_config_man',
+    output : 'cagebreak-config.5',
+    input : 'man/cagebreak-config.5.md',
+    command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
+    install: true,
+    install_dir: mandir5
+    )
+endif
 
 if get_option('fuzz')
   subdir('fuzz')
