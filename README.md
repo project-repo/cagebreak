@@ -404,6 +404,10 @@ Adds close command for windows as described in the man pages.
 
 Adds options to disable or enable outputs. See Issue 22 in Bugs.md and Issue #2 on github.
 
+### Release 1.6.0
+
+Adds support for non-build dependencies and an option for builds without pandoc.
+
 ## License
 
 Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE)
