@@ -408,6 +408,12 @@ Adds options to disable or enable outputs. See Issue 22 in Bugs.md and Issue #2 
 
 Adds support for non-build dependencies and an option for builds without pandoc.
 
+## Contribotors
+
+  * Aisha Tammy
+    * [make man pages optional](https://github.com/project-repo/cagebreak/pull/4), released
+      in 1.6.0 with slight modifications
+
 ## License
 
 Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE)
