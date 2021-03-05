@@ -832,25 +832,36 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 void
 keybinding_configure_output(struct cg_server *server,
                             struct cg_output_config *cfg) {
+	struct cg_output_config *config;
+	config = malloc(sizeof(struct cg_output_config));
+	if(config == NULL) {
+		wlr_log(WLR_ERROR,
+		        "Could not allocate memory for server configuration.");
+		return;
+	}
+
+	*config = *cfg;
+	config->output_name = strdup(cfg->output_name);
+
 	struct cg_output_config *it, *tmp;
 	wl_list_for_each_safe(it, tmp, &server->output_config, link) {
-		if(strcmp(cfg->output_name, it->output_name) == 0) {
+		if(strcmp(config->output_name, it->output_name) == 0) {
 			wl_list_remove(&it->link);
 			free(it->output_name);
 			free(it);
 		}
 	}
-	wl_list_insert(&server->output_config, &cfg->link);
+	wl_list_insert(&server->output_config, &config->link);
 
 	struct cg_output *output, *tmp_output;
 	wl_list_for_each_safe(output, tmp_output, &server->outputs, link) {
-		if(strcmp(cfg->output_name, output->wlr_output->name) == 0) {
+		if(strcmp(config->output_name, output->wlr_output->name) == 0) {
 			output_configure(server, output);
 			return;
 		}
 	}
 	wl_list_for_each_safe(output, tmp_output, &server->disabled_outputs, link) {
-		if(strcmp(cfg->output_name, output->wlr_output->name) == 0) {
+		if(strcmp(config->output_name, output->wlr_output->name) == 0) {
 			output_configure(server, output);
 			return;
 		}

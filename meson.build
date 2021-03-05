@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.5.1',
+  version: '1.6.0',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -175,47 +175,57 @@ endforeach
 foreach header : cagebreak_header_strings
   cagebreak_headers += files(header)
 endforeach
+# Dependencies marked with "true" are required to have
+# the version specified below in order for the build
+# to be reproducible.
 cagebreak_dependencies_dict = {
-  'server_protos': server_protos,
-  'wayland_server': wayland_server,
-  'wayland_client': wayland_client,
-  'wayland_cursor': wayland_cursor,
-  'wlroots': wlroots,
-  'xkbcommon': xkbcommon,
-  'fontconfig': fontconfig,
-  'pixman': pixman,
-  'pango': pango,
-  'cairo': cairo,
-  'pangocairo': pangocairo,
-  'math': math
+  'server_protos': [server_protos,true],
+  'wayland_server': [wayland_server,false],
+  'wayland_client': [wayland_client,true],
+  'wayland_cursor': [wayland_cursor,true],
+  'wlroots': [wlroots,true],
+  'xkbcommon': [xkbcommon,true],
+  'fontconfig': [fontconfig,true],
+  'pixman': [pixman,true],
+  'pango': [pango,true],
+  'cairo': [cairo,true],
+  'pangocairo': [pangocairo,true],
+  'math': [math,true],
 }
 
 reproducible_build_versions = { 
   'server_protos': '-1',
-  'wayland_server': '1.18.0',
-  'wayland_client': '1.18.0',
-  'wayland_cursor': '1.18.0',
+  'wayland_server': '1.19.0',
+  'wayland_client': '1.19.0',
+  'wayland_cursor': '1.19.0',
   'wlroots': '0.12.0',
-  'xkbcommon': '1.0.3',
+  'xkbcommon': '1.1.0',
   'fontconfig': '2.13.91',
   'pixman': '0.40.0',
-  'pango': '1.48.1',
+  'pango': '1.48.2',
   'cairo': '1.17.4',
-  'pangocairo': '1.48.1',
+  'pangocairo': '1.48.2',
   'math': '-1'
 }
 
 cagebreak_dependencies = []
 
 foreach name, dep : cagebreak_dependencies_dict
-  cagebreak_dependencies += dep
+  cagebreak_dependencies += dep[0]
 endforeach
 
 foreach name, dep : cagebreak_dependencies_dict
-  if reproducible_build_versions[name] != '-1' and reproducible_build_versions[name] != dep.version()
-    warning('The installed version of "' + name + '" on your machine (' + dep.version() + ') differs from the one used to generate the binary specified in the README section "Reproducible Builds" (' + reproducible_build_versions[name] + '). Cagebreak does not guarantee a reproducible build for this configuration.'
-    )
-	break
+  if reproducible_build_versions[name] != '-1'
+    if dep[1] == false
+      if dep[0].version() < reproducible_build_versions[name]
+        warning('The installed version of "' + name + '" on your machine (' + dep[0].version() + ') is older than the one used to generate the binary specified in the README section "Reproducible Builds" (' + reproducible_build_versions[name] + '). It is recommended to use an up-to-date version for compiling cagebreak.'
+        )
+      endif
+    elif reproducible_build_versions[name] != dep[0].version()
+      warning('The installed version of "' + name + '" on your machine (' + dep[0].version() + ') differs from the one used to generate the binary specified in the README section "Reproducible Builds" (' + reproducible_build_versions[name] + '). Cagebreak does not guarantee a reproducible build for this configuration.'
+      )
+      break
+    endif
   endif
 endforeach
 
@@ -237,25 +247,27 @@ executable(
   c_args: fuzz_compile_args,
 )
 
-pandoc = find_program('pandoc')
-mandir1 = join_paths(get_option('mandir'), 'man1')
-mandir5 = join_paths(get_option('mandir'), 'man5')
+if get_option('man-pages')
+  pandoc = find_program('pandoc')
+  mandir1 = join_paths(get_option('mandir'), 'man1')
+  mandir5 = join_paths(get_option('mandir'), 'man5')
 
-cagebreak_man = custom_target('cagebreak_man',
-  output : 'cagebreak.1',
-  input : 'man/cagebreak.1.md',
-  command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
-  install: true,
-  install_dir: mandir1
-  )
+  cagebreak_man = custom_target('cagebreak_man',
+    output : 'cagebreak.1',
+    input : 'man/cagebreak.1.md',
+    command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
+    install: true,
+    install_dir: mandir1
+    )
 
-cagebreak_man = custom_target('cagebreak_config_man',
-  output : 'cagebreak-config.5',
-  input : 'man/cagebreak-config.5.md',
-  command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
-  install: true,
-  install_dir: mandir5
-  )
+  cagebreak_man = custom_target('cagebreak_config_man',
+    output : 'cagebreak-config.5',
+    input : 'man/cagebreak-config.5.md',
+    command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
+    install: true,
+    install_dir: mandir5
+    )
+endif
 
 if get_option('fuzz')
   subdir('fuzz')

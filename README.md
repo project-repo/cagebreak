@@ -67,6 +67,11 @@ option. Then, add `-Dxwayland=true` to the `meson` command above. Note
 that you'll need to have the XWayland binary installed on your system
 for this to work.
 
+#### Man Pages
+
+Cagebreak has man pages. To use them, make sure that you have `pandoc`
+installed. Then, add `-Dman-pages=true to the `meson` command.
+
 ### Running Cagebreak
 
 You can start Cagebreak by running `./build/cagebreak`. If you run it from
@@ -171,13 +176,18 @@ There are reproducibility issues up to and including release `1.2.0`. See
 All hashes and signatures are provided for the following build instructions.
 
 ```
-meson build -Dxwayland=true --buildtype=release
+meson build -Dxwayland=true -Dman-pages=true --buildtype=release
 ninja -C build
 ```
 
 #### Hashes for Builds
 
 For every release after 1.0.5, hashes will be provided.
+
+1.6.0
+
+  * sha 256: aef473eae73454429afb158d66a7bd9aec75ef915845b7508de5448820357aa8
+  * sha 512: 17889bc1af9f343598a5ee599b25e702987dd0bd905a9566874e8a0094c57168e413938624949fa214e6e382cbcf89d7342292b44012cd8e692947f6c01a960a
 
 1.5.1
 
@@ -398,6 +408,16 @@ Adds close command for windows as described in the man pages.
 ### Release 1.5.0
 
 Adds options to disable or enable outputs. See Issue 22 in Bugs.md and Issue #2 on github.
+
+### Release 1.6.0
+
+Adds support for non-build dependencies and an option for builds without pandoc.
+
+## Contributors
+
+  * Aisha Tammy
+    * [make man pages optional](https://github.com/project-repo/cagebreak/pull/4), released
+      in 1.6.0 with slight modifications
 
 ## License
 

@@ -76,7 +76,7 @@ workspace 2. Therefore, this change would simplify the code base, while at
 the same time increasing the feature set.
 
 PS: As a side effect, this would allow quirky statements such as
-`bind dbind r hsplit` which would bind the d key to binding the r key to
+`bind d bind r hsplit` which would bind the d key to binding the r key to
 split the output...
 ```
 
@@ -296,4 +296,28 @@ Cagebreak up to and including release 1.4.4 had a potential use-after-free bug.
   * Fixed: 1.5.0
 
 Cagebreak up to and including release 1.4.4 could have focussed views without tiles.
+
+### Issue 24
+
+  * github issue number: N/A
+  * Fixed: 1.6.0
+
+Cagebreak up to and including release 1.5.1 had an error, where the code
+incremented a variable and not a pointer. This resulted in a bug in a
+surface counting iterator.
+
+### Issue 25
+
+  * github issue number: N/A
+  * Fixed: 1.6.0
+
+Cagebreak, beginning with release 1.5.0, when a keybinding containing an output
+configuration is removed from the list of active keybindings, the output
+configuration contained in this keybinding is destroyed in order to
+prevent memory leaks. However, after an output configuration was applied,
+it was inserted into the list of active output configurations and if it
+was later destroyed, this led to a use-after-free memory corruption.
+Starting from release 1.6.0, output configurations are copied before
+being inserted into the list of active output configurations and
+therefore remain valid even if the original is freed.
 
