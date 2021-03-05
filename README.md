@@ -67,6 +67,11 @@ option. Then, add `-Dxwayland=true` to the `meson` command above. Note
 that you'll need to have the XWayland binary installed on your system
 for this to work.
 
+#### Man Pages
+
+Cagebreak has man pages. To use them, make sure that you have `pandoc`
+installed. Then, add `-Dman-pages=true to the `meson` command.
+
 ### Running Cagebreak
 
 You can start Cagebreak by running `./build/cagebreak`. If you run it from
@@ -171,7 +176,7 @@ There are reproducibility issues up to and including release `1.2.0`. See
 All hashes and signatures are provided for the following build instructions.
 
 ```
-meson build -Dxwayland=true --buildtype=release
+meson build -Dxwayland=true -Dman-pages=true --buildtype=release
 ninja -C build
 ```
 
