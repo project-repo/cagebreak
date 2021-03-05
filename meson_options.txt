@@ -1,4 +1,4 @@
 option('xwayland', type: 'boolean', value: 'false', description: 'Enable support for X11 applications')
-option('man-pages', type: 'boolean', value: 'false', description: 'Build man pages using pandoc')
+option('man-pages', type: 'boolean', value: 'false', description: 'Build man pages (requires pandoc)')
 option('fuzz', type: 'boolean', value: 'false', description: 'Enable building fuzzer targets')
 option('version_override', type: 'string', description: 'Set the project version to the string specified. Used for creating hashes for reproducible builds.')
