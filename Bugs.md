@@ -297,3 +297,12 @@ Cagebreak up to and including release 1.4.4 had a potential use-after-free bug.
 
 Cagebreak up to and including release 1.4.4 could have focussed views without tiles.
 
+### Issue 24
+
+  * github issue number: N/A
+  * Fixed: 1.6.0
+
+Cagebreak up to and including release 1.5.1 had an error, where the code
+incremented a variable and not a pointer. This resulted in a bug in a
+surface counting iterator.
+
