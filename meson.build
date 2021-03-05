@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.5.1',
+  version: '1.6.0',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -195,9 +195,9 @@ cagebreak_dependencies_dict = {
 
 reproducible_build_versions = { 
   'server_protos': '-1',
-  'wayland_server': '1.18.0',
-  'wayland_client': '1.18.0',
-  'wayland_cursor': '1.18.0',
+  'wayland_server': '1.19.0',
+  'wayland_client': '1.19.0',
+  'wayland_cursor': '1.19.0',
   'wlroots': '0.12.0',
   'xkbcommon': '1.0.3',
   'fontconfig': '2.13.91',
