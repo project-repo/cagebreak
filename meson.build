@@ -199,7 +199,7 @@ reproducible_build_versions = {
   'wayland_client': '1.19.0',
   'wayland_cursor': '1.19.0',
   'wlroots': '0.12.0',
-  'xkbcommon': '1.0.3',
+  'xkbcommon': '1.1.0',
   'fontconfig': '2.13.91',
   'pixman': '0.40.0',
   'pango': '1.48.2',
