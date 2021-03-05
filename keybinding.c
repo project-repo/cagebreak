@@ -833,14 +833,15 @@ void
 keybinding_configure_output(struct cg_server *server,
                             struct cg_output_config *cfg) {
 	struct cg_output_config *config;
-	config=malloc(sizeof(struct cg_output_config));
+	config = malloc(sizeof(struct cg_output_config));
 	if(config == NULL) {
-		wlr_log(WLR_ERROR, "Could not allocate memory for server configuration.");
+		wlr_log(WLR_ERROR,
+		        "Could not allocate memory for server configuration.");
 		return;
 	}
 
-	*config=*cfg;
-	config->output_name=strdup(cfg->output_name);
+	*config = *cfg;
+	config->output_name = strdup(cfg->output_name);
 
 	struct cg_output_config *it, *tmp;
 	wl_list_for_each_safe(it, tmp, &server->output_config, link) {
