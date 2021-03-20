@@ -609,38 +609,39 @@ keybinding_cycle_views(struct cg_server *server, bool reverse) {
 	struct cg_view *current_view = curr_workspace->focused_tile->view;
 
 	if(current_view == NULL) {
-		current_view=wl_container_of(&curr_workspace->views,current_view,link);
+		current_view =
+		    wl_container_of(&curr_workspace->views, current_view, link);
 	}
 	struct cg_view *it_view, *next_view = NULL;
 	if(reverse) {
 		struct wl_list *it;
-		it=current_view->link.prev;
+		it = current_view->link.prev;
 		while(it != &current_view->link) {
 			if(it == &curr_workspace->views) {
-				it=it->prev;
+				it = it->prev;
 				continue;
 			}
-			it_view=wl_container_of(it,it_view,link);
+			it_view = wl_container_of(it, it_view, link);
 			if(!view_is_visible(it_view)) {
 				next_view = it_view;
 				break;
 			}
-			it=it->prev;
+			it = it->prev;
 		}
 	} else {
 		struct wl_list *it;
-		it=current_view->link.next;
+		it = current_view->link.next;
 		while(it != &current_view->link) {
 			if(it == &curr_workspace->views) {
-				it=it->next;
+				it = it->next;
 				continue;
 			}
-			it_view=wl_container_of(it,it_view,link);
+			it_view = wl_container_of(it, it_view, link);
 			if(!view_is_visible(it_view)) {
 				next_view = it_view;
 				break;
 			}
-			it=it->next;
+			it = it->next;
 		}
 	}
 
@@ -651,7 +652,8 @@ keybinding_cycle_views(struct cg_server *server, bool reverse) {
 	wlr_output_damage_add_box(curr_workspace->output->damage,
 	                          &curr_workspace->focused_tile->tile);
 	/* Prevent seat_set_focus from reordering the views */
-	curr_workspace->focused_tile->view=wl_container_of(next_view->link.prev,curr_workspace->focused_tile->view,link);
+	curr_workspace->focused_tile->view = wl_container_of(
+	    next_view->link.prev, curr_workspace->focused_tile->view, link);
 	seat_set_focus(server->seat, next_view);
 }
 
