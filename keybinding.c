@@ -608,26 +608,39 @@ keybinding_cycle_views(struct cg_server *server, bool reverse) {
 	    server->curr_output->workspaces[server->curr_output->curr_workspace];
 	struct cg_view *current_view = curr_workspace->focused_tile->view;
 
-	struct cg_view *tmp_view, *next_view = NULL;
+	if(current_view == NULL) {
+		current_view=wl_container_of(&curr_workspace->views,current_view,link);
+	}
+	struct cg_view *it_view, *next_view = NULL;
 	if(reverse) {
-		wl_list_for_each_reverse(tmp_view, &curr_workspace->views, link) {
-			if(tmp_view == current_view) {
+		struct wl_list *it;
+		it=current_view->link.prev;
+		while(it != &current_view->link) {
+			if(it == &curr_workspace->views) {
+				it=it->prev;
 				continue;
 			}
-			if(!view_is_visible(tmp_view)) {
-				next_view = tmp_view;
+			it_view=wl_container_of(it,it_view,link);
+			if(!view_is_visible(it_view)) {
+				next_view = it_view;
 				break;
 			}
+			it=it->prev;
 		}
 	} else {
-		wl_list_for_each(tmp_view, &curr_workspace->views, link) {
-			if(tmp_view == current_view) {
+		struct wl_list *it;
+		it=current_view->link.next;
+		while(it != &current_view->link) {
+			if(it == &curr_workspace->views) {
+				it=it->next;
 				continue;
 			}
-			if(!view_is_visible(tmp_view)) {
-				next_view = tmp_view;
+			it_view=wl_container_of(it,it_view,link);
+			if(!view_is_visible(it_view)) {
+				next_view = it_view;
 				break;
 			}
+			it=it->next;
 		}
 	}
 
@@ -637,13 +650,9 @@ keybinding_cycle_views(struct cg_server *server, bool reverse) {
 
 	wlr_output_damage_add_box(curr_workspace->output->damage,
 	                          &curr_workspace->focused_tile->tile);
+	/* Prevent seat_set_focus from reordering the views */
+	curr_workspace->focused_tile->view=wl_container_of(next_view->link.prev,curr_workspace->focused_tile->view,link);
 	seat_set_focus(server->seat, next_view);
-	/* Move the previous view to the end of the list unless we are focused on
-	 * the desktop*/
-	if(!reverse && current_view != NULL) {
-		wl_list_remove(&current_view->link);
-		wl_list_insert(curr_workspace->views.prev, &current_view->link);
-	}
 }
 
 void

@@ -961,11 +961,11 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 #endif
 	{
 		/* Always resize the view, even if prev_view == view */
+		struct cg_workspace *curr_workspace =
+		    server->curr_output
+		        ->workspaces[server->curr_output->curr_workspace];
+		view_maximize(view, curr_workspace->focused_tile);
 		if(!view_is_visible(view)) {
-			struct cg_workspace *curr_workspace =
-			    server->curr_output
-			        ->workspaces[server->curr_output->curr_workspace];
-			view_maximize(view, curr_workspace->focused_tile);
 			wl_list_remove(&view->link);
 			if(curr_workspace->focused_tile->view != NULL) {
 				wl_list_insert(&curr_workspace->focused_tile->view->link,
