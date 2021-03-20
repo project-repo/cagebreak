@@ -457,8 +457,10 @@ keybinding_workspace_fullscreen(struct cg_server *server) {
 	}
 
 	struct cg_view *it_view;
-	wl_list_for_each(it_view, &output->workspaces[output->curr_workspace]->views, link) {
-		it_view->tile=output->workspaces[output->curr_workspace]->focused_tile;
+	wl_list_for_each(it_view,
+	                 &output->workspaces[output->curr_workspace]->views, link) {
+		it_view->tile =
+		    output->workspaces[output->curr_workspace]->focused_tile;
 	}
 
 	seat_set_focus(server->seat, current_view);
@@ -606,14 +608,14 @@ keybinding_cycle_views(struct cg_server *server, bool reverse) {
 	    server->curr_output->workspaces[server->curr_output->curr_workspace];
 	struct cg_view *current_view = curr_workspace->focused_tile->view;
 
-	struct cg_view *tmp_view, *next_view=NULL;
+	struct cg_view *tmp_view, *next_view = NULL;
 	if(reverse) {
 		wl_list_for_each_reverse(tmp_view, &curr_workspace->views, link) {
 			if(tmp_view == current_view) {
 				continue;
 			}
 			if(!view_is_visible(tmp_view)) {
-				next_view=tmp_view;
+				next_view = tmp_view;
 				break;
 			}
 		}
@@ -623,7 +625,7 @@ keybinding_cycle_views(struct cg_server *server, bool reverse) {
 				continue;
 			}
 			if(!view_is_visible(tmp_view)) {
-				next_view=tmp_view;
+				next_view = tmp_view;
 				break;
 			}
 		}

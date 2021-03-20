@@ -431,7 +431,8 @@ output_clear(struct cg_output *output) {
 					        ->workspaces[server->curr_output->curr_workspace];
 					view->tile =
 					    server->curr_output
-					        ->workspaces[server->curr_output->curr_workspace]->focused_tile;
+					        ->workspaces[server->curr_output->curr_workspace]
+					        ->focused_tile;
 					if(server->seat->focused_view == NULL) {
 						seat_set_focus(server->seat, view);
 					}
@@ -453,7 +454,8 @@ output_clear(struct cg_output *output) {
 					        ->workspaces[server->curr_output->curr_workspace];
 					view->tile =
 					    server->curr_output
-					        ->workspaces[server->curr_output->curr_workspace]->focused_tile;
+					        ->workspaces[server->curr_output->curr_workspace]
+					        ->focused_tile;
 				}
 			}
 		}

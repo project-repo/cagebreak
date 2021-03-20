@@ -248,12 +248,15 @@ view_maximize(struct cg_view *view, struct cg_tile *tile) {
 	view->ox = tile->tile.x;
 	view->oy = tile->tile.y;
 	view->impl->maximize(view, tile->tile.width, tile->tile.height);
-	view->tile=tile;
+	view->tile = tile;
 }
 
 void
 view_position(struct cg_view *view) {
-	view_maximize(view, view->workspace->output->workspaces[view->workspace->output->curr_workspace]->focused_tile);
+	view_maximize(view,
+	              view->workspace->output
+	                  ->workspaces[view->workspace->output->curr_workspace]
+	                  ->focused_tile);
 }
 
 void
