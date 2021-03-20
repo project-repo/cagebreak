@@ -197,15 +197,11 @@ view_is_primary(const struct cg_view *view) {
 struct cg_tile *
 view_get_tile(const struct cg_view *view) {
 
-	bool first = true;
-	for(struct cg_tile *tile = view->workspace->focused_tile;
-	    first || view->workspace->focused_tile != tile; tile = tile->next) {
-		first = false;
-		if(tile->view == view) {
-			return tile;
-		}
+	if(view->tile != NULL && view->tile->view == view) {
+		return view->tile;
+	} else {
+		return NULL;
 	}
-	return NULL;
 }
 
 bool
@@ -224,7 +220,7 @@ view_damage(struct cg_view *view, bool whole) {
 	if(view_tile != NULL &&
 	   (view->wlr_surface->current.width != view_tile->tile.width ||
 	    view->wlr_surface->current.height != view_tile->tile.height)) {
-		view_maximize(view, &view_tile->tile);
+		view_maximize(view, view_tile);
 	}
 	output_damage_surface(view->workspace->output, view->wlr_surface, view->ox,
 	                      view->oy, whole);
@@ -248,20 +244,16 @@ view_activate(struct cg_view *view, bool activate) {
 }
 
 void
-view_maximize(struct cg_view *view, const struct wlr_box *tile_box) {
-	view->ox = tile_box->x;
-	view->oy = tile_box->y;
-	view->impl->maximize(view, tile_box->width, tile_box->height);
+view_maximize(struct cg_view *view, struct cg_tile *tile) {
+	view->ox = tile->tile.x;
+	view->oy = tile->tile.y;
+	view->impl->maximize(view, tile->tile.width, tile->tile.height);
+	view->tile=tile;
 }
 
 void
 view_position(struct cg_view *view) {
-	struct wlr_box *tile_workspace_box =
-	    &view->workspace->output
-	         ->workspaces[view->workspace->output->curr_workspace]
-	         ->focused_tile->tile;
-
-	view_maximize(view, tile_workspace_box);
+	view_maximize(view, view->workspace->output->workspaces[view->workspace->output->curr_workspace]->focused_tile);
 }
 
 void
@@ -309,7 +301,7 @@ view_unmap(struct cg_view *view) {
 			                          &view_tile->tile);
 			view_tile->view = prev;
 			if(prev != NULL) {
-				view_maximize(prev, &view_tile->tile);
+				view_maximize(prev, view_tile);
 			}
 		}
 	}
@@ -384,6 +376,7 @@ void
 view_init(struct cg_view *view, enum cg_view_type type,
           const struct cg_view_impl *impl, struct cg_server *server) {
 	view->workspace = NULL;
+	view->tile = NULL;
 	view->server = server;
 	view->type = type;
 	view->impl = impl;

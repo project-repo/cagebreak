@@ -23,6 +23,7 @@ struct cg_view {
 	struct wl_list link;     // server::views
 	struct wl_list children; // cg_view_child::link
 	struct wlr_surface *wlr_surface;
+	struct cg_tile *tile;
 
 	/* The view has a position in output coordinates. */
 	int ox, oy;
@@ -100,7 +101,7 @@ view_for_each_popup(struct cg_view *view, wlr_surface_iterator_func_t iterator,
 void
 view_unmap(struct cg_view *view);
 void
-view_maximize(struct cg_view *view, const struct wlr_box *tile_box);
+view_maximize(struct cg_view *view, struct cg_tile *tile);
 void
 view_map(struct cg_view *view, struct wlr_surface *surface,
          struct cg_workspace *ws);

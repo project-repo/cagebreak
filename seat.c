@@ -965,9 +965,13 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 			struct cg_workspace *curr_workspace =
 			    server->curr_output
 			        ->workspaces[server->curr_output->curr_workspace];
-			view_maximize(view, &curr_workspace->focused_tile->tile);
+			view_maximize(view, curr_workspace->focused_tile);
 			wl_list_remove(&view->link);
-			wl_list_insert(&curr_workspace->views, &view->link);
+			if(curr_workspace->focused_tile->view != NULL) {
+				wl_list_insert(&curr_workspace->focused_tile->view->link,&view->link);
+			} else {
+				wl_list_insert(curr_workspace->views.prev,&view->link);
+			}
 			curr_workspace->focused_tile->view = view;
 		}
 	}
