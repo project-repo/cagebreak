@@ -36,8 +36,6 @@ struct cg_view {
 
 struct cg_view_impl {
 	char *(*get_title)(const struct cg_view *view);
-	void (*get_geometry)(const struct cg_view *view, int *width_out,
-	                     int *height_out);
 	bool (*is_primary)(const struct cg_view *view);
 	void (*activate)(struct cg_view *view, bool activate);
 	void (*close)(struct cg_view *view);
