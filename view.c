@@ -32,13 +32,20 @@ view_get_prev_view(struct cg_view *view) {
 	struct cg_view *prev = NULL;
 
 	struct cg_view *it_view;
-	wl_list_for_each(it_view, &view->workspace->views, link) {
-		if(!view_is_visible(it_view) && view != it_view) {
+	struct wl_list *it;
+	it = view->link.prev;
+	while(it != &view->link) {
+		if(it == &view->workspace->views) {
+			it = it->prev;
+			continue;
+		}
+		it_view = wl_container_of(it, it_view, link);
+		if(!view_is_visible(it_view)) {
 			prev = it_view;
 			break;
 		}
+		it = it->prev;
 	}
-
 	return prev;
 }
 

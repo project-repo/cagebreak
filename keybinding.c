@@ -614,20 +614,7 @@ keybinding_cycle_views(struct cg_server *server, bool reverse) {
 	}
 	struct cg_view *it_view, *next_view = NULL;
 	if(reverse) {
-		struct wl_list *it;
-		it = current_view->link.prev;
-		while(it != &current_view->link) {
-			if(it == &curr_workspace->views) {
-				it = it->prev;
-				continue;
-			}
-			it_view = wl_container_of(it, it_view, link);
-			if(!view_is_visible(it_view)) {
-				next_view = it_view;
-				break;
-			}
-			it = it->prev;
-		}
+		next_view=view_get_prev_view(current_view);
 	} else {
 		struct wl_list *it;
 		it = current_view->link.next;

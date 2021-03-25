@@ -118,5 +118,7 @@ view_child_finish(struct cg_view_child *child);
 void
 view_child_init(struct cg_view_child *child, struct cg_view_child *parent,
                 struct cg_view *view, struct wlr_surface *wlr_surface);
+struct cg_view *
+view_get_prev_view(struct cg_view *view);
 
 #endif
