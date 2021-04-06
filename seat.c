@@ -1002,6 +1002,7 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 	free(title);
 
 	struct wlr_keyboard *keyboard = wlr_seat_get_keyboard(wlr_seat);
+	wlr_seat_keyboard_end_grab(wlr_seat);
 	if(keyboard) {
 		wlr_seat_keyboard_notify_enter(
 		    wlr_seat, view->wlr_surface, keyboard->keycodes,
