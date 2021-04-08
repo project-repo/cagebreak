@@ -1,4 +1,5 @@
 #include <cairo/cairo.h>
+#include <drm_fourcc.h>
 #include <pango/pangocairo.h>
 #include <unistd.h>
 #include <wlr/backend.h>
@@ -85,7 +86,7 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	int stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, width);
 	struct wlr_renderer *renderer =
 	    wlr_backend_get_renderer(output->wlr_output->backend);
-	texture = wlr_texture_from_pixels(renderer, WL_SHM_FORMAT_ARGB8888, stride,
+	texture = wlr_texture_from_pixels(renderer, DRM_FORMAT_ARGB8888, stride,
 	                                  width, height, data);
 	cairo_surface_destroy(surface);
 	g_object_unref(pango);
