@@ -226,8 +226,12 @@ scan_out_primary_view(struct cg_output *output) {
 		}
 	}
 
-	struct cg_view *view =
-	    output->workspaces[output->curr_workspace]->focused_tile->view;
+	struct cg_workspace *ws = output->workspaces[output->curr_workspace];
+	if(ws->focused_tile->next != ws->focused_tile) {
+		return false;
+	}
+
+	struct cg_view *view = ws->focused_tile->view;
 	if(view == NULL || view->wlr_surface == NULL) {
 		return false;
 	}
@@ -261,6 +265,9 @@ scan_out_primary_view(struct cg_output *output) {
 	}
 
 	wlr_output_attach_buffer(wlr_output, &surface->buffer->base);
+	if(!wlr_output_test(wlr_output)) {
+			return false;
+	}
 	return wlr_output_commit(wlr_output);
 }
 
@@ -363,15 +370,20 @@ frame_done:
 static void
 handle_output_commit(struct wl_listener *listener, void *data) {
 	struct cg_output *output = wl_container_of(listener, output, commit);
+	struct wlr_output_event_commit *event = data;
 
 	if(!output->wlr_output->enabled || output->workspaces == NULL) {
 		return;
 	}
 
-	struct cg_view *view;
-	wl_list_for_each(view, &output->workspaces[output->curr_workspace]->views,
-	                 link) {
-		view_position(view);
+	if(event->committed & (WLR_OUTPUT_STATE_TRANSFORM | WLR_OUTPUT_STATE_SCALE)) {
+		struct cg_view *view;
+		wl_list_for_each(view, &output->workspaces[output->curr_workspace]->views,
+		                 link) {
+			if(view_is_visible(view)) {
+				view_maximize(view,view->tile);
+			}
+		}
 	}
 }
 
@@ -386,7 +398,9 @@ handle_output_mode(struct wl_listener *listener, void *data) {
 	struct cg_view *view;
 	wl_list_for_each(view, &output->workspaces[output->curr_workspace]->views,
 	                 link) {
-		view_position(view);
+			if(view_is_visible(view)) {
+				view_maximize(view,view->tile);
+			}
 	}
 }
 

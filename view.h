@@ -89,8 +89,6 @@ view_damage_child(struct cg_view_child *view, bool whole);
 void
 view_activate(struct cg_view *view, bool activate);
 void
-view_position(struct cg_view *view);
-void
 view_for_each_surface(struct cg_view *view,
                       wlr_surface_iterator_func_t iterator, void *data);
 void

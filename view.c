@@ -259,14 +259,6 @@ view_maximize(struct cg_view *view, struct cg_tile *tile) {
 }
 
 void
-view_position(struct cg_view *view) {
-	view_maximize(view,
-	              view->workspace->output
-	                  ->workspaces[view->workspace->output->curr_workspace]
-	                  ->focused_tile);
-}
-
-void
 view_for_each_surface(struct cg_view *view,
                       wlr_surface_iterator_func_t iterator, void *data) {
 	view->impl->for_each_surface(view, iterator, data);
@@ -363,7 +355,8 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	} else
 #endif
 	{
-		view_position(view);
+		view->tile=view->workspace->focused_tile;
+		view_maximize(view,view->tile);
 		wl_list_insert(&ws->views, &view->link);
 	}
 	seat_set_focus(output->server->seat, view);
