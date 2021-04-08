@@ -308,7 +308,7 @@ main(int argc, char *argv[]) {
 
 	set_sig_handler(SIGCHLD, sig_chld_handler);
 
-	backend = wlr_backend_autocreate(server.wl_display, NULL);
+	backend = wlr_backend_autocreate(server.wl_display);
 	if(!backend) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots backend");
 		ret = 1;

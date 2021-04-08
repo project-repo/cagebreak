@@ -361,8 +361,8 @@ frame_done:
 }
 
 static void
-handle_output_transform(struct wl_listener *listener, void *data) {
-	struct cg_output *output = wl_container_of(listener, output, transform);
+handle_output_commit(struct wl_listener *listener, void *data) {
+	struct cg_output *output = wl_container_of(listener, output, commit);
 
 	if(!output->wlr_output->enabled || output->workspaces == NULL) {
 		return;
@@ -468,7 +468,7 @@ output_destroy(struct cg_output *output) {
 
 	wl_list_remove(&output->destroy.link);
 	wl_list_remove(&output->mode.link);
-	wl_list_remove(&output->transform.link);
+	wl_list_remove(&output->commit.link);
 	wl_list_remove(&output->damage_frame.link);
 	wl_list_remove(&output->damage_destroy.link);
 
@@ -613,8 +613,8 @@ handle_new_output(struct wl_listener *listener, void *data) {
 
 	output->mode.notify = handle_output_mode;
 	wl_signal_add(&wlr_output->events.mode, &output->mode);
-	output->transform.notify = handle_output_transform;
-	wl_signal_add(&wlr_output->events.transform, &output->transform);
+	output->commit.notify = handle_output_commit;
+	wl_signal_add(&wlr_output->events.commit, &output->commit);
 	output->destroy.notify = handle_output_destroy;
 	wl_signal_add(&wlr_output->events.destroy, &output->destroy);
 	output->damage_frame.notify = handle_output_damage_frame;

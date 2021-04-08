@@ -235,7 +235,8 @@ static void
 for_each_popup(struct cg_view *view, wlr_surface_iterator_func_t iterator,
                void *data) {
 	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
-	wlr_xdg_surface_for_each_popup(xdg_shell_view->xdg_surface, iterator, data);
+	wlr_xdg_surface_for_each_popup_surface(xdg_shell_view->xdg_surface,
+	                                       iterator, data);
 }
 
 static struct wlr_surface *

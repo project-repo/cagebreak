@@ -24,6 +24,7 @@
 #include <wlr/types/wlr_primary_selection.h>
 #include <wlr/types/wlr_seat.h>
 #include <wlr/types/wlr_surface.h>
+#include <wlr/types/wlr_touch.h>
 #include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/util/log.h>
 #if CG_HAS_XWAYLAND
@@ -333,7 +334,8 @@ handle_key_event(struct cg_keyboard_group *group, struct cg_seat *seat,
 	bool handled = false;
 
 	for(int i = 0; i < nsyms; ++i) {
-		if(event->state == WLR_KEY_PRESSED && !key_is_modifier(syms[i])) {
+		if(event->state == WL_KEYBOARD_KEY_STATE_PRESSED &&
+		   !key_is_modifier(syms[i])) {
 			uint32_t modifiers = wlr_keyboard_get_modifiers(device->keyboard);
 			/* Get the consumed_modifiers and remove them from the modifier list
 			 */

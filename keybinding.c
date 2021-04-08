@@ -614,7 +614,7 @@ keybinding_cycle_views(struct cg_server *server, bool reverse) {
 	}
 	struct cg_view *it_view, *next_view = NULL;
 	if(reverse) {
-		next_view=view_get_prev_view(current_view);
+		next_view = view_get_prev_view(current_view);
 	} else {
 		struct wl_list *it;
 		it = current_view->link.next;
