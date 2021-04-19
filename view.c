@@ -355,8 +355,8 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	} else
 #endif
 	{
-		view->tile=view->workspace->focused_tile;
-		view_maximize(view,view->tile);
+		view->tile = view->workspace->focused_tile;
+		view_maximize(view, view->tile);
 		wl_list_insert(&ws->views, &view->link);
 	}
 	seat_set_focus(output->server->seat, view);

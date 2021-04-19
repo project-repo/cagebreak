@@ -718,8 +718,8 @@ keybinding_move_view_to_next_output(struct cg_server *server) {
 		    ->focused_tile->view = view;
 		view->workspace = server->curr_output
 		                      ->workspaces[server->curr_output->curr_workspace];
-		view->tile=view->workspace->focused_tile;
-		view_maximize(view,view->tile);
+		view->tile = view->workspace->focused_tile;
+		view_maximize(view, view->tile);
 		seat_set_focus(server->seat, view);
 	}
 }

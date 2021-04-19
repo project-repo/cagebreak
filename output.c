@@ -266,7 +266,7 @@ scan_out_primary_view(struct cg_output *output) {
 
 	wlr_output_attach_buffer(wlr_output, &surface->buffer->base);
 	if(!wlr_output_test(wlr_output)) {
-			return false;
+		return false;
 	}
 	return wlr_output_commit(wlr_output);
 }
@@ -376,12 +376,13 @@ handle_output_commit(struct wl_listener *listener, void *data) {
 		return;
 	}
 
-	if(event->committed & (WLR_OUTPUT_STATE_TRANSFORM | WLR_OUTPUT_STATE_SCALE)) {
+	if(event->committed &
+	   (WLR_OUTPUT_STATE_TRANSFORM | WLR_OUTPUT_STATE_SCALE)) {
 		struct cg_view *view;
-		wl_list_for_each(view, &output->workspaces[output->curr_workspace]->views,
-		                 link) {
+		wl_list_for_each(
+		    view, &output->workspaces[output->curr_workspace]->views, link) {
 			if(view_is_visible(view)) {
-				view_maximize(view,view->tile);
+				view_maximize(view, view->tile);
 			}
 		}
 	}
@@ -398,9 +399,9 @@ handle_output_mode(struct wl_listener *listener, void *data) {
 	struct cg_view *view;
 	wl_list_for_each(view, &output->workspaces[output->curr_workspace]->views,
 	                 link) {
-			if(view_is_visible(view)) {
-				view_maximize(view,view->tile);
-			}
+		if(view_is_visible(view)) {
+			view_maximize(view, view->tile);
+		}
 	}
 }
 
