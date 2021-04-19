@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.6.1',
+  version: '1.7.0',
   license: 'MIT',
   default_options: [
     'c_std=c11',
