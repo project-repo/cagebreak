@@ -181,7 +181,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	server.backend = backend;
 
 	struct wlr_backend *headless_backend =
-	    wlr_headless_backend_create(server.wl_display, NULL);
+	    wlr_headless_backend_create(server.wl_display);
 	if(!headless_backend) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots headless backend");
 		ret = 1;
