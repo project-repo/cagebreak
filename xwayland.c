@@ -48,14 +48,6 @@ get_title(const struct cg_view *view) {
 	return xwayland_view->xwayland_surface->title;
 }
 
-static void
-get_geometry(const struct cg_view *view, int *width_out, int *height_out) {
-	const struct cg_xwayland_view *xwayland_view =
-	    xwayland_view_from_const_view(view);
-	*width_out = xwayland_view->xwayland_surface->width;
-	*height_out = xwayland_view->xwayland_surface->height;
-}
-
 static bool
 is_primary(const struct cg_view *view) {
 	const struct cg_xwayland_view *xwayland_view =
@@ -210,7 +202,6 @@ handle_xwayland_surface_destroy(struct wl_listener *listener, void *_data) {
 
 static const struct cg_view_impl xwayland_view_impl = {
     .get_title = get_title,
-    .get_geometry = get_geometry,
     .is_primary = is_primary,
     .activate = activate,
     .close = close,

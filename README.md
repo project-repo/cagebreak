@@ -184,6 +184,11 @@ ninja -C build
 
 For every release after 1.0.5, hashes will be provided.
 
+1.7.0
+
+  * sha 256: 5af11b84e61a82a1a276e8f91f6ebc6baafd2c98d22be3da1d01734cc9d55faa
+  * sha 512: 45474115fb4c28fe1ee91ad54706bfe521b6e70bd8ea619b94a3f50bae426891bf6a0387aa9b2f7f6d18349280c4e84973e4e433d50c090e5a764c64fa67795d
+
 1.6.0
 
   * sha 256: aef473eae73454429afb158d66a7bd9aec75ef915845b7508de5448820357aa8
@@ -412,6 +417,10 @@ Adds options to disable or enable outputs. See Issue 22 in Bugs.md and Issue #2 
 ### Release 1.6.0
 
 Adds support for non-build dependencies and an option for builds without pandoc.
+
+### Release 1.7.0
+
+Improve window ordering.
 
 ## Contributors
 

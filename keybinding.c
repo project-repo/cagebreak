@@ -174,7 +174,7 @@ swap_tile(struct cg_tile *tile,
 	tile->view = swap_tile->view;
 	swap_tile->view = tmp_view;
 	if(tile->view != NULL) {
-		view_maximize(tile->view, &tile->tile);
+		view_maximize(tile->view, tile);
 		view_damage_whole(tile->view);
 	} else {
 		wlr_output_damage_add_box(tile->workspace->output->damage, &tile->tile);
@@ -183,7 +183,7 @@ swap_tile(struct cg_tile *tile,
 	    server->curr_output->workspaces[server->curr_output->curr_workspace],
 	    swap_tile);
 	if(swap_tile->view != NULL) {
-		view_maximize(swap_tile->view, &swap_tile->tile);
+		view_maximize(swap_tile->view, swap_tile);
 		view_damage_whole(swap_tile->view);
 	} else {
 		wlr_output_damage_add_box(tile->workspace->output->damage, &tile->tile);
@@ -342,7 +342,7 @@ resize(struct cg_tile *tile, const struct cg_tile *parent, int coord_offset,
 	    .height = tile->tile.y == 0 ? tile->tile.height : coord_offset};
 	wlr_output_damage_add_box(tile->workspace->output->damage, &damage_box);
 	if(tile->view != NULL) {
-		view_maximize(tile->view, &tile->tile);
+		view_maximize(tile->view, tile);
 	}
 }
 
@@ -456,6 +456,13 @@ keybinding_workspace_fullscreen(struct cg_server *server) {
 		return;
 	}
 
+	struct cg_view *it_view;
+	wl_list_for_each(it_view,
+	                 &output->workspaces[output->curr_workspace]->views, link) {
+		it_view->tile =
+		    output->workspaces[output->curr_workspace]->focused_tile;
+	}
+
 	seat_set_focus(server->seat, current_view);
 }
 
@@ -537,11 +544,11 @@ keybinding_split_output(struct cg_output *output, bool vertical) {
 	workspace_focus_tile(curr_workspace, curr_workspace->focused_tile);
 
 	if(next_view != NULL) {
-		view_maximize(next_view, &new_tile->tile);
+		view_maximize(next_view, new_tile);
 	}
 
 	if(original_view != NULL) {
-		view_maximize(original_view, &curr_workspace->focused_tile->tile);
+		view_maximize(original_view, curr_workspace->focused_tile);
 	}
 }
 
@@ -601,46 +608,40 @@ keybinding_cycle_views(struct cg_server *server, bool reverse) {
 	    server->curr_output->workspaces[server->curr_output->curr_workspace];
 	struct cg_view *current_view = curr_workspace->focused_tile->view;
 
-	struct cg_view *new_view;
-	// We are focused on the desktop
 	if(current_view == NULL) {
-		current_view = wl_container_of(&curr_workspace->views, new_view, link);
-		if(reverse) {
-			new_view =
-			    wl_container_of(curr_workspace->views.prev, new_view, link);
-		} else {
-			new_view =
-			    wl_container_of(curr_workspace->views.next, new_view, link);
-		}
+		current_view =
+		    wl_container_of(&curr_workspace->views, current_view, link);
+	}
+	struct cg_view *it_view, *next_view = NULL;
+	if(reverse) {
+		next_view = view_get_prev_view(current_view);
 	} else {
-		if(reverse) {
-			new_view = wl_container_of(current_view->link.prev, new_view, link);
-		} else {
-			new_view = wl_container_of(current_view->link.next, new_view, link);
+		struct wl_list *it;
+		it = current_view->link.next;
+		while(it != &current_view->link) {
+			if(it == &curr_workspace->views) {
+				it = it->next;
+				continue;
+			}
+			it_view = wl_container_of(it, it_view, link);
+			if(!view_is_visible(it_view)) {
+				next_view = it_view;
+				break;
+			}
+			it = it->next;
 		}
 	}
-	while(&new_view->link != &current_view->link &&
-	      (&new_view->link == &curr_workspace->views ||
-	       view_is_visible(new_view))) {
-		if(reverse) {
-			new_view = wl_container_of(new_view->link.prev, new_view, link);
-		} else {
-			new_view = wl_container_of(new_view->link.next, new_view, link);
-		}
-	}
-	if(&new_view->link == &curr_workspace->views) {
+
+	if(next_view == NULL) {
 		return;
 	}
 
 	wlr_output_damage_add_box(curr_workspace->output->damage,
 	                          &curr_workspace->focused_tile->tile);
-	seat_set_focus(server->seat, new_view);
-	/* Move the previous view to the end of the list unless we are focused on
-	 * the desktop*/
-	if(!reverse && &current_view->link != &curr_workspace->views) {
-		wl_list_remove(&current_view->link);
-		wl_list_insert(curr_workspace->views.prev, &current_view->link);
-	}
+	/* Prevent seat_set_focus from reordering the views */
+	curr_workspace->focused_tile->view = wl_container_of(
+	    next_view->link.prev, curr_workspace->focused_tile->view, link);
+	seat_set_focus(server->seat, next_view);
 }
 
 void
@@ -717,7 +718,8 @@ keybinding_move_view_to_next_output(struct cg_server *server) {
 		    ->focused_tile->view = view;
 		view->workspace = server->curr_output
 		                      ->workspaces[server->curr_output->curr_workspace];
-		view_position(view);
+		view->tile = view->workspace->focused_tile;
+		view_maximize(view, view->tile);
 		seat_set_focus(server->seat, view);
 	}
 }
@@ -824,7 +826,7 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 		view->workspace = ws;
 		wl_list_insert(&ws->views, &view->link);
 		ws->focused_tile->view = view;
-		view_maximize(view, &ws->focused_tile->tile);
+		view_maximize(view, ws->focused_tile);
 		seat_set_focus(server->seat, view);
 	}
 }

@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.6.0',
+  version: '1.7.0',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -53,7 +53,7 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots', version: '>= 0.12.0')
+wlroots        = dependency('wlroots', version: '>= 0.13.0')
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')
@@ -198,13 +198,13 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.19.0',
   'wayland_cursor': '1.19.0',
-  'wlroots': '0.12.0',
-  'xkbcommon': '1.1.0',
-  'fontconfig': '2.13.91',
+  'wlroots': '0.13.0',
+  'xkbcommon': '1.2.1',
+  'fontconfig': '2.13.93',
   'pixman': '0.40.0',
-  'pango': '1.48.2',
+  'pango': '1.48.4',
   'cairo': '1.17.4',
-  'pangocairo': '1.48.2',
+  'pangocairo': '1.48.4',
   'math': '-1'
 }
 

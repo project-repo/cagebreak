@@ -183,17 +183,6 @@ get_title(const struct cg_view *view) {
 	return xdg_shell_view->xdg_surface->toplevel->title;
 }
 
-static void
-get_geometry(const struct cg_view *view, int *width_out, int *height_out) {
-	const struct cg_xdg_shell_view *xdg_shell_view =
-	    xdg_shell_view_from_const_view(view);
-	struct wlr_box geom;
-
-	wlr_xdg_surface_get_geometry(xdg_shell_view->xdg_surface, &geom);
-	*width_out = geom.width;
-	*height_out = geom.height;
-}
-
 static bool
 is_primary(const struct cg_view *view) {
 	const struct cg_xdg_shell_view *xdg_shell_view =
@@ -246,7 +235,8 @@ static void
 for_each_popup(struct cg_view *view, wlr_surface_iterator_func_t iterator,
                void *data) {
 	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
-	wlr_xdg_surface_for_each_popup(xdg_shell_view->xdg_surface, iterator, data);
+	wlr_xdg_surface_for_each_popup_surface(xdg_shell_view->xdg_surface,
+	                                       iterator, data);
 }
 
 static struct wlr_surface *
@@ -324,7 +314,6 @@ handle_xdg_shell_surface_destroy(struct wl_listener *listener, void *_data) {
 
 static const struct cg_view_impl xdg_shell_view_impl = {
     .get_title = get_title,
-    .get_geometry = get_geometry,
     .is_primary = is_primary,
     .activate = activate,
     .close = close,

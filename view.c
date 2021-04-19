@@ -32,13 +32,20 @@ view_get_prev_view(struct cg_view *view) {
 	struct cg_view *prev = NULL;
 
 	struct cg_view *it_view;
-	wl_list_for_each(it_view, &view->workspace->views, link) {
-		if(!view_is_visible(it_view) && view != it_view) {
+	struct wl_list *it;
+	it = view->link.prev;
+	while(it != &view->link) {
+		if(it == &view->workspace->views) {
+			it = it->prev;
+			continue;
+		}
+		it_view = wl_container_of(it, it_view, link);
+		if(!view_is_visible(it_view)) {
 			prev = it_view;
 			break;
 		}
+		it = it->prev;
 	}
-
 	return prev;
 }
 
@@ -197,15 +204,11 @@ view_is_primary(const struct cg_view *view) {
 struct cg_tile *
 view_get_tile(const struct cg_view *view) {
 
-	bool first = true;
-	for(struct cg_tile *tile = view->workspace->focused_tile;
-	    first || view->workspace->focused_tile != tile; tile = tile->next) {
-		first = false;
-		if(tile->view == view) {
-			return tile;
-		}
+	if(view->tile != NULL && view->tile->view == view) {
+		return view->tile;
+	} else {
+		return NULL;
 	}
-	return NULL;
 }
 
 bool
@@ -224,7 +227,7 @@ view_damage(struct cg_view *view, bool whole) {
 	if(view_tile != NULL &&
 	   (view->wlr_surface->current.width != view_tile->tile.width ||
 	    view->wlr_surface->current.height != view_tile->tile.height)) {
-		view_maximize(view, &view_tile->tile);
+		view_maximize(view, view_tile);
 	}
 	output_damage_surface(view->workspace->output, view->wlr_surface, view->ox,
 	                      view->oy, whole);
@@ -248,20 +251,11 @@ view_activate(struct cg_view *view, bool activate) {
 }
 
 void
-view_maximize(struct cg_view *view, const struct wlr_box *tile_box) {
-	view->ox = tile_box->x;
-	view->oy = tile_box->y;
-	view->impl->maximize(view, tile_box->width, tile_box->height);
-}
-
-void
-view_position(struct cg_view *view) {
-	struct wlr_box *tile_workspace_box =
-	    &view->workspace->output
-	         ->workspaces[view->workspace->output->curr_workspace]
-	         ->focused_tile->tile;
-
-	view_maximize(view, tile_workspace_box);
+view_maximize(struct cg_view *view, struct cg_tile *tile) {
+	view->ox = tile->tile.x;
+	view->oy = tile->tile.y;
+	view->impl->maximize(view, tile->tile.width, tile->tile.height);
+	view->tile = tile;
 }
 
 void
@@ -309,7 +303,7 @@ view_unmap(struct cg_view *view) {
 			                          &view_tile->tile);
 			view_tile->view = prev;
 			if(prev != NULL) {
-				view_maximize(prev, &view_tile->tile);
+				view_maximize(prev, view_tile);
 			}
 		}
 	}
@@ -361,7 +355,8 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	} else
 #endif
 	{
-		view_position(view);
+		view->tile = view->workspace->focused_tile;
+		view_maximize(view, view->tile);
 		wl_list_insert(&ws->views, &view->link);
 	}
 	seat_set_focus(output->server->seat, view);
@@ -384,6 +379,7 @@ void
 view_init(struct cg_view *view, enum cg_view_type type,
           const struct cg_view_impl *impl, struct cg_server *server) {
 	view->workspace = NULL;
+	view->tile = NULL;
 	view->server = server;
 	view->type = type;
 	view->impl = impl;

@@ -135,7 +135,6 @@ render_view_toplevels(struct cg_view *view, struct cg_output *output,
 	    .tile_width = 0,
 	    .tile_height = 0,
 	};
-	// TODO: improve run time behaviour of view_get_tile
 	struct cg_tile *view_tile = view_get_tile(view);
 	if(view_tile != NULL) {
 		if(view_tile->tile.width != view->wlr_surface->current.width ||

@@ -23,6 +23,7 @@ struct cg_view {
 	struct wl_list link;     // server::views
 	struct wl_list children; // cg_view_child::link
 	struct wlr_surface *wlr_surface;
+	struct cg_tile *tile;
 
 	/* The view has a position in output coordinates. */
 	int ox, oy;
@@ -35,8 +36,6 @@ struct cg_view {
 
 struct cg_view_impl {
 	char *(*get_title)(const struct cg_view *view);
-	void (*get_geometry)(const struct cg_view *view, int *width_out,
-	                     int *height_out);
 	bool (*is_primary)(const struct cg_view *view);
 	void (*activate)(struct cg_view *view, bool activate);
 	void (*close)(struct cg_view *view);
@@ -90,8 +89,6 @@ view_damage_child(struct cg_view_child *view, bool whole);
 void
 view_activate(struct cg_view *view, bool activate);
 void
-view_position(struct cg_view *view);
-void
 view_for_each_surface(struct cg_view *view,
                       wlr_surface_iterator_func_t iterator, void *data);
 void
@@ -100,7 +97,7 @@ view_for_each_popup(struct cg_view *view, wlr_surface_iterator_func_t iterator,
 void
 view_unmap(struct cg_view *view);
 void
-view_maximize(struct cg_view *view, const struct wlr_box *tile_box);
+view_maximize(struct cg_view *view, struct cg_tile *tile);
 void
 view_map(struct cg_view *view, struct wlr_surface *surface,
          struct cg_workspace *ws);
@@ -119,5 +116,7 @@ view_child_finish(struct cg_view_child *child);
 void
 view_child_init(struct cg_view_child *child, struct cg_view_child *parent,
                 struct cg_view *view, struct wlr_surface *wlr_surface);
+struct cg_view *
+view_get_prev_view(struct cg_view *view);
 
 #endif

@@ -24,6 +24,7 @@
 #include <wlr/types/wlr_primary_selection.h>
 #include <wlr/types/wlr_seat.h>
 #include <wlr/types/wlr_surface.h>
+#include <wlr/types/wlr_touch.h>
 #include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/util/log.h>
 #if CG_HAS_XWAYLAND
@@ -55,9 +56,6 @@ view_at(const struct cg_view *view, double lx, double ly,
 	struct wlr_box *output_layout_box = wlr_output_layout_get_box(
 	    view->server->output_layout, view->workspace->output->wlr_output);
 	if(output_layout_box == NULL) {
-		fprintf(stderr, "OUTPUT:%d\n",
-		        view->workspace->output->wlr_output->enabled);
-		return output_layout_box->x;
 		return false;
 	}
 
@@ -333,7 +331,8 @@ handle_key_event(struct cg_keyboard_group *group, struct cg_seat *seat,
 	bool handled = false;
 
 	for(int i = 0; i < nsyms; ++i) {
-		if(event->state == WLR_KEY_PRESSED && !key_is_modifier(syms[i])) {
+		if(event->state == WL_KEYBOARD_KEY_STATE_PRESSED &&
+		   !key_is_modifier(syms[i])) {
 			uint32_t modifiers = wlr_keyboard_get_modifiers(device->keyboard);
 			/* Get the consumed_modifiers and remove them from the modifier list
 			 */
@@ -961,13 +960,18 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 #endif
 	{
 		/* Always resize the view, even if prev_view == view */
+		struct cg_workspace *curr_workspace =
+		    server->curr_output
+		        ->workspaces[server->curr_output->curr_workspace];
+		view_maximize(view, curr_workspace->focused_tile);
 		if(!view_is_visible(view)) {
-			struct cg_workspace *curr_workspace =
-			    server->curr_output
-			        ->workspaces[server->curr_output->curr_workspace];
-			view_maximize(view, &curr_workspace->focused_tile->tile);
 			wl_list_remove(&view->link);
-			wl_list_insert(&curr_workspace->views, &view->link);
+			if(curr_workspace->focused_tile->view != NULL) {
+				wl_list_insert(&curr_workspace->focused_tile->view->link,
+				               &view->link);
+			} else {
+				wl_list_insert(curr_workspace->views.prev, &view->link);
+			}
 			curr_workspace->focused_tile->view = view;
 		}
 	}
@@ -997,6 +1001,7 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 	free(title);
 
 	struct wlr_keyboard *keyboard = wlr_seat_get_keyboard(wlr_seat);
+	wlr_seat_keyboard_end_grab(wlr_seat);
 	if(keyboard) {
 		wlr_seat_keyboard_notify_enter(
 		    wlr_seat, view->wlr_surface, keyboard->keycodes,
