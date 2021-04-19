@@ -413,6 +413,10 @@ Adds options to disable or enable outputs. See Issue 22 in Bugs.md and Issue #2 
 
 Adds support for non-build dependencies and an option for builds without pandoc.
 
+### Release 1.7.0
+
+Improve window ordering.
+
 ## Contributors
 
   * Aisha Tammy
