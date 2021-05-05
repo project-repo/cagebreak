@@ -1,4 +1,4 @@
-cagebreak(1)
+cagebreak(1) "Version 1.7.1" "Cagebreak Manual"
 
 # NAME
 
@@ -69,10 +69,6 @@ are displayed in a message box at the top right of the screen.
 # BUGS
 
 See GitHub Issues: <https://github.com/project-repo/cagebreak/issues>
-
-# VERSION
-
-1.7.1
 
 # LICENSE
 

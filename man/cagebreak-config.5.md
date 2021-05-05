@@ -1,4 +1,4 @@
-cagebreak-config(1)
+cagebreak-config(1) "Version 1.7.1" "Cagebreak Manual"
 
 # NAME
 
@@ -210,10 +210,6 @@ is used.
 # BUGS
 
 See GitHub Issues: <https://github.com/project-repo/cagebreak/issues>
-
-# VERSION
-
-1.7.1
 
 # LICENSE
 
