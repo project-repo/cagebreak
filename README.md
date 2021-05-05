@@ -326,6 +326,8 @@ keys.
   * 827BC2320D535AEAD0540E6E2E66F65D99761A6F
   * A88D7431E5BAAD0B6EAE550AC8D61D8BD4FA3C46
   * 8F872885968EB8C589A32E9539ACC012896D450F
+  * 896B92AF738C974E0065BF42F2576BD366156BB9
+  * AA927AFD50AF7C6810E69FE8274F2C605359E31B
 
 Should we at any point retire a key, we will only replace it with keys signed
 by at least one of the above collection.
@@ -413,11 +415,12 @@ security vulnerability or a different issue confidentially, contact
 
 We will try to respond to everything that is not obvious spam.
 
-Please encrypt your email with the appropriate [GPG key](keys/cagebreak@project-repo.co.pub).
+Please encrypt your email with the appropriate GPG key found in `keys/`.
 
   * B15B92642760E11FE002DE168708D42451A94AB5
+  * F8DD9F8DD12B85A28F5827C4678E34D2E753AA3C
 
-Note that the key is signed by cagebreak signing keys.
+Note that the keys are signed by cagebreak signing keys.
 
 If you want us to respond via GPG-encrypted mail, please include your own
 public key or provide the fingerprint and directions to obtain the key.
