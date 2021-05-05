@@ -1,79 +1,70 @@
-% CAGEBREAK(1) Version 1.7.1 | Cagebreak Manual
+cagebreak(1)
 
 # NAME
 
-**cagebreak** — A Wayland tiling compositor to the likes of ratpoison
+cagebreak - A Wayland tiling compositor to the likes of ratpoison
 
 # SYNOPSIS
 
-| **cagebreak** [OPTIONS]
+*cagebreak* [OPTIONS]
 
 # DESCRIPTION
 
-`cagebreak` is a slim, keyboard-controlled, tiling compositor for
-wayland conceptually based on the X11 window manager `ratpoison`.
+cagebreak is a slim, keyboard-controlled, tiling compositor for
+wayland conceptually based on the X11 window manager ratpoison.
 
 It allows for the screen to be split into non-overlapping tiles and,
-in contrast to the original `ratpoison`, has native support for
+in contrast to the original ratpoison, has native support for
 multi-workspace operation.
 
-All interactions between the user and `cagebreak` are done via
+All interactions between the user and cagebreak are done via
 the keyboard.
 
 Configuration of this behaviour is specified in the
-**\$XDG_CONFIG_PATH/cagebreak/config** file (See **cagebreak-config(5)**).
+*\$XDG_CONFIG_PATH/cagebreak/config* file (See *cagebreak-config(5)*).
 
 Scripting support is provided through the IPC
-socket specified in the environment variable **\$CAGEBREAK_SOCKET**.
+socket specified in the environment variable *\$CAGEBREAK_SOCKET*.
 The syntax accepted through this socket is identical to
-that of the configuration file (see **cagebreak-config(5)**).
+that of the configuration file (see *cagebreak-config(5)*).
 Errors which occur during interaction over IPC channel
 are displayed in a message box at the top right of the screen.
 
 # OPTIONS
 
--h
+*-h*
+	Display help message and exit
 
-: Display help message and exit
+*-r*
+	Rotate the output 90 degrees clockwise, can be specified up to three times
 
--r
-
-: Rotate the output 90 degrees clockwise, can be specified up to three times
-
--v
-
-: Show version number and exit
+*-v*
+	Show version number and exit
 
 # ENVIRONMENT
 
-`CAGEBREAK_SOCKET`
+*CAGEBREAK_SOCKET*
+	The IPC unix domain socket address accepting
+	commands as specified in *cagebreak-config(5)*
 
-: The IPC unix domain socket address accepting
-commands as specified in **cagebreak-config(5)**
+*XKB_DEFAULT_LAYOUT*
+	The keyboard layout to be used (See *xkeyboard-config(7)*)
 
-`XKB_DEFAULT_LAYOUT`
+*XKB_DEFAULT_MODEL*
+	The keyboard model to be used (See *xkeyboard-config(7)*)
 
-: The keyboard layout to be used (See **xkeyboard-config(7)**)
+*XKB_DEFAULT_VARIANT*
+	The keyboard variant to be used (See *xkeyboard-config(7)*)
 
-`XKB_DEFAULT_MODEL`
+*XKB_DEFAULT_RULES*
+	The xkb rules to be used
 
-: The keyboard model to be used (See **xkeyboard-config(7)**)
-
-`XKB_DEFAULT_VARIANT`
-
-: The keyboard variant to be used (See **xkeyboard-config(7)**)
-
-`XKB_DEFAULT_RULES`
-
-: The xkb rules to be used
-
-`XKB_DEFAULT_OPTIONS`
-
-: The xkb options to be used
+*XKB_DEFAULT_OPTIONS*
+	The xkb options to be used
 
 # SEE ALSO
 
-**cagebreak-config(5)**
+*cagebreak-config(5)*
 
 # BUGS
 

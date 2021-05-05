@@ -248,14 +248,16 @@ executable(
 )
 
 if get_option('man-pages')
-  pandoc = find_program('pandoc')
+  scdoc = find_program('scdoc')
+  sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
   mandir5 = join_paths(get_option('mandir'), 'man5')
 
   cagebreak_man = custom_target('cagebreak_man',
     output : 'cagebreak.1',
     input : 'man/cagebreak.1.md',
-    command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
+	capture : true,
+    command : [sh, '-c', '@0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir1
     )
@@ -263,7 +265,8 @@ if get_option('man-pages')
   cagebreak_man = custom_target('cagebreak_config_man',
     output : 'cagebreak-config.5',
     input : 'man/cagebreak-config.5.md',
-    command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
+	capture : true,
+    command : [sh, '-c', '@0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir5
     )
