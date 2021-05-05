@@ -211,6 +211,10 @@ is used.
 
 See GitHub Issues: <https://github.com/project-repo/cagebreak/issues>
 
+# VERSION
+
+1.7.1
+
 # LICENSE
 
 Copyright (c) 2020-2021 The Cagebreak authors
