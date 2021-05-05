@@ -321,3 +321,23 @@ Starting from release 1.6.0, output configurations are copied before
 being inserted into the list of active output configurations and
 therefore remain valid even if the original is freed.
 
+### Issue 26
+
+  * github issue number: #5
+  * Fixed: 1.7.1
+
+```
+Hello!
+
+I am, huh, a mere package maintainer. This is a simple suggestion: use scdoc to generate manpages, instead of pandoc.
+
+The advantages are:
+
+    scdoc is tailored to generate manpages from markdown-like sources;
+    scdoc is smaller
+    scdoc has less dependencies
+```
+
+Cagebreak has always used pandoc to compile man pages. Cagebreak now uses scdoc
+instead.
+
