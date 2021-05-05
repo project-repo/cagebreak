@@ -122,6 +122,7 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
       * [ ] wiki
       * [ ] README.md Changelog for major and minor releases but not patches
     * [ ] Fixed bugs documented in Bugs.md
+      * [ ] Include issue description from github
   * [ ] Testing
     * [ ] Manual testing
     * [ ] Libfuzzer testing
@@ -129,26 +130,40 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
     * [ ] meson.build
     * [ ] git tag
     * [ ] man pages
-  * [ ] `git add` relevant files
-  * [ ] `git commit`
-  * [ ] `git push origin development`
   * [ ] meson.build reproducible build versions are current archlinux libraries and gcc
   * [ ] Cagebreak is reproducible on multiple machines
   * [ ] Documented reproducible build artefacts
-    * [ ] Hashes of the binary
-    * [ ] Renamed cagebreak.sig to previous_release_tag.sig
-    * [ ] Signature of the binary as cagebreak.sig with appropriate signing key
+    * [ ] Hashes of the artefacts in README.md
+    * [ ] Renamed previous signatures
+    * [ ] Created gpg signature of the artefacts
+      * [ ] `gpg --detach-sign -u keyid cagebreak`
+      * [ ] `gpg --detach-sign -u keyid cagebreak.1`
+      * [ ] `gpg --detach-sign -u keyid cagebreak-config.5`
+  * [ ] `git add` relevant files
+  * [ ] `git commit`
+  * [ ] `git push origin development`
   * [ ] Determined commit and tag message (Start with "Release version_number\n\n")
+    * [ ] Mentioned fixed Bugs.md issues ("Fixed Issue n")
+    * [ ] Mentioned other important changes
   * [ ] `git checkout master`
   * [ ] `git merge --squash development`
   * [ ] `git commit` and insert message
   * [ ] `git tag -u keyid version HEAD` and insert message
-  * [ ] `git tag -v version` and check signing key
+  * [ ] `git tag -v version` and check output
   * [ ] `git push --tags origin master`
   * [ ] `git checkout development`
   * [ ] `git merge master`
   * [ ] `git push --tags origin development`
   * [ ] `git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .`
+  * [ ] Create release_artefacts_version.tar.gz
+    * [ ] `mkdir release_artefacts_version`
+    * [ ] `cp build/cagebreak release_artefacts_version/`
+    * [ ] `cp build/cagebreak.sig release_artefacts_version/`
+    * [ ] `cp build/cagebreak.1 release_artefacts_version/`
+    * [ ] `cp build/cagebreak.1.sig release_artefacts_version/`
+    * [ ] `cp build/cagebreak-config.5 release_artefacts_version/`
+    * [ ] `cp build/cagebreak-config.5.sig release_artefacts_version/`
+    * [ ] `export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf release_artefacts_version.tar.gz release_artefacts_version`
   * [ ] Checked archive
     * [ ] tar -xvf release_version.tar.gz
     * [ ] cd cagebreak
@@ -158,7 +173,8 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
     * [ ] cd ..
     * [ ] rm -rf cagebreak
   * [ ] `gpg --detach-sign -u keyid release_version.tar.gz`
-  * [ ] Upload archive and signature as release assets
+  * [ ] `gpg --detach-sign -u keyid release-artefacts_version.tar.gz`
+  * [ ] Upload archives and signatures as release assets
 
 ### Reproducible Builds
 
