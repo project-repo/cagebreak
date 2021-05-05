@@ -163,6 +163,7 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
     * [ ] `cp build/cagebreak.1.sig release_artefacts_version/`
     * [ ] `cp build/cagebreak-config.5 release_artefacts_version/`
     * [ ] `cp build/cagebreak-config.5.sig release_artefacts_version/`
+    * [ ] `cp LICENSE release_artefacts_version/`
     * [ ] `export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf release_artefacts_version.tar.gz release_artefacts_version`
   * [ ] Checked archive
     * [ ] tar -xvf release_version.tar.gz
