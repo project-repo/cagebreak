@@ -184,6 +184,23 @@ ninja -C build
 
 For every release after 1.0.5, hashes will be provided.
 
+For every release after 1.7.0, hashes will be provided for man pages too.
+
+1.7.1 cagebreak
+
+  * sha 256: 5a40797e016a2fa32b5bb70a056b35c482bef09f1795bbaf0188dbadaf8197c3
+  * sha 512: 2ef327b63ac4651f23517be8d5cb8fbec99bd889f52f8abfd62a09ca6e6c0060347ab8d60e4917d39edd36db34597a673239967533f14457733acb97f6c29a7f
+
+1.7.1 cagebreak.1
+
+  * sha 256: 7a86cb8fc164f954b4cb77d9e3ab56eea1e7db54e8250f585cc88f6d64722ef2
+  * sha 512: 3568ebdcea0b26130a36f18899c5fee79c93d506a591f91a096b2ddb60abf98b5e0b1a4e98fa7bec62b36c7a1782a0c5de4a36d8dc0f1707a41efff719e0249e
+
+1.7.1 cagebreak-config.1
+
+  * sha 256: fce9e53842d60a178361ed7b152ac7e64c75db8b916d8e52aadffecfa28a6e0c
+  * sha 512: b23591ad1e7f47056b7e05450197ba61435d1115652f560529eb62d93b0d132ae38df8df005010cb3abdf7aa182ba1173024d38d46f7bf170a32d65231f3781e
+
 1.7.0
 
   * sha 256: 5af11b84e61a82a1a276e8f91f6ebc6baafd2c98d22be3da1d01734cc9d55faa
