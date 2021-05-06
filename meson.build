@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.7.0',
+  version: '1.7.1',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -53,7 +53,7 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots', version: '>= 0.13.0')
+wlroots        = dependency('wlroots', version: ['>=0.13.0', '< 0.14.0'])
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')
@@ -199,7 +199,7 @@ reproducible_build_versions = {
   'wayland_client': '1.19.0',
   'wayland_cursor': '1.19.0',
   'wlroots': '0.13.0',
-  'xkbcommon': '1.2.1',
+  'xkbcommon': '1.3.0',
   'fontconfig': '2.13.93',
   'pixman': '0.40.0',
   'pango': '1.48.4',
@@ -248,14 +248,16 @@ executable(
 )
 
 if get_option('man-pages')
-  pandoc = find_program('pandoc')
+  scdoc = find_program('scdoc')
+  sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
   mandir5 = join_paths(get_option('mandir'), 'man5')
 
   cagebreak_man = custom_target('cagebreak_man',
     output : 'cagebreak.1',
     input : 'man/cagebreak.1.md',
-    command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
+	capture : true,
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1620290471 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir1
     )
@@ -263,7 +265,8 @@ if get_option('man-pages')
   cagebreak_man = custom_target('cagebreak_config_man',
     output : 'cagebreak-config.5',
     input : 'man/cagebreak-config.5.md',
-    command : [pandoc, '-i', '@INPUT@', '-o', '@OUTPUT@', '-f', 'markdown-smart', '-t', 'man', '-s'],
+	capture : true,
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1620290471 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir5
     )

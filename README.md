@@ -119,9 +119,11 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
       * [ ] man pages
         * [ ] man/cagebreak
         * [ ] man/cagebreak-config
+        * [ ] Set EPOCH to release day in man generation in meson.build
       * [ ] wiki
       * [ ] README.md Changelog for major and minor releases but not patches
     * [ ] Fixed bugs documented in Bugs.md
+      * [ ] Include issue description from github
   * [ ] Testing
     * [ ] Manual testing
     * [ ] Libfuzzer testing
@@ -129,26 +131,41 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
     * [ ] meson.build
     * [ ] git tag
     * [ ] man pages
-  * [ ] `git add` relevant files
-  * [ ] `git commit`
-  * [ ] `git push origin development`
   * [ ] meson.build reproducible build versions are current archlinux libraries and gcc
   * [ ] Cagebreak is reproducible on multiple machines
   * [ ] Documented reproducible build artefacts
-    * [ ] Hashes of the binary
-    * [ ] Renamed cagebreak.sig to previous_release_tag.sig
-    * [ ] Signature of the binary as cagebreak.sig with appropriate signing key
+    * [ ] Hashes of the artefacts in README.md
+    * [ ] Renamed previous signatures
+    * [ ] Created gpg signature of the artefacts
+      * [ ] `gpg --detach-sign -u keyid cagebreak`
+      * [ ] `gpg --detach-sign -u keyid cagebreak.1`
+      * [ ] `gpg --detach-sign -u keyid cagebreak-config.5`
+  * [ ] `git add` relevant files
+  * [ ] `git commit`
+  * [ ] `git push origin development`
   * [ ] Determined commit and tag message (Start with "Release version_number\n\n")
+    * [ ] Mentioned fixed Bugs.md issues ("Fixed Issue n")
+    * [ ] Mentioned other important changes
   * [ ] `git checkout master`
   * [ ] `git merge --squash development`
   * [ ] `git commit` and insert message
   * [ ] `git tag -u keyid version HEAD` and insert message
-  * [ ] `git tag -v version` and check signing key
+  * [ ] `git tag -v version` and check output
   * [ ] `git push --tags origin master`
   * [ ] `git checkout development`
   * [ ] `git merge master`
   * [ ] `git push --tags origin development`
   * [ ] `git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .`
+  * [ ] Create release_artefacts_version.tar.gz
+    * [ ] `mkdir release_artefacts_version`
+    * [ ] `cp build/cagebreak release_artefacts_version/`
+    * [ ] `cp build/cagebreak.sig release_artefacts_version/`
+    * [ ] `cp build/cagebreak.1 release_artefacts_version/`
+    * [ ] `cp build/cagebreak.1.sig release_artefacts_version/`
+    * [ ] `cp build/cagebreak-config.5 release_artefacts_version/`
+    * [ ] `cp build/cagebreak-config.5.sig release_artefacts_version/`
+    * [ ] `cp LICENSE release_artefacts_version/`
+    * [ ] `export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf release_artefacts_version.tar.gz release_artefacts_version`
   * [ ] Checked archive
     * [ ] tar -xvf release_version.tar.gz
     * [ ] cd cagebreak
@@ -158,7 +175,8 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
     * [ ] cd ..
     * [ ] rm -rf cagebreak
   * [ ] `gpg --detach-sign -u keyid release_version.tar.gz`
-  * [ ] Upload archive and signature as release assets
+  * [ ] `gpg --detach-sign -u keyid release-artefacts_version.tar.gz`
+  * [ ] Upload archives and signatures as release assets
 
 ### Reproducible Builds
 
@@ -183,6 +201,23 @@ ninja -C build
 #### Hashes for Builds
 
 For every release after 1.0.5, hashes will be provided.
+
+For every release after 1.7.0, hashes will be provided for man pages too.
+
+1.7.1 cagebreak
+
+  * sha 256: 5a40797e016a2fa32b5bb70a056b35c482bef09f1795bbaf0188dbadaf8197c3
+  * sha 512: 2ef327b63ac4651f23517be8d5cb8fbec99bd889f52f8abfd62a09ca6e6c0060347ab8d60e4917d39edd36db34597a673239967533f14457733acb97f6c29a7f
+
+1.7.1 cagebreak.1
+
+  * sha 256: 0301f04254ae6e7ada7e22bbe7aee022ec0793fbce434a396868258e6f1ea4cf
+  * sha 512: f0c0c5de30be907e9ba5c9cfa0bca8cef3e94c0b5f52de9e2c3681c85aa957f75e92b5e26bb894c3a5e251295cfe7a1470653cc7dc05564d7d91c6eb43b7409a
+
+1.7.1 cagebreak-config.1
+
+  * sha 256: 6882330a77f3ff98ea642f47b4090b38d542abf0b7be3f226486c5614899efc6
+  * sha 512: a572f97836e4ccc6d67aa21c7f4aaebe06adb066c70038b670ec1ef267e3750764cb53e96b8d7bc24c7f993f24c0cfabee183307b45006d049f7416559bcaca4
 
 1.7.0
 
@@ -292,6 +327,8 @@ keys.
   * 827BC2320D535AEAD0540E6E2E66F65D99761A6F
   * A88D7431E5BAAD0B6EAE550AC8D61D8BD4FA3C46
   * 8F872885968EB8C589A32E9539ACC012896D450F
+  * 896B92AF738C974E0065BF42F2576BD366156BB9
+  * AA927AFD50AF7C6810E69FE8274F2C605359E31B
 
 Should we at any point retire a key, we will only replace it with keys signed
 by at least one of the above collection.
@@ -379,11 +416,12 @@ security vulnerability or a different issue confidentially, contact
 
 We will try to respond to everything that is not obvious spam.
 
-Please encrypt your email with the appropriate [GPG key](keys/cagebreak@project-repo.co.pub).
+Please encrypt your email with the appropriate GPG key found in `keys/`.
 
   * B15B92642760E11FE002DE168708D42451A94AB5
+  * F8DD9F8DD12B85A28F5827C4678E34D2E753AA3C
 
-Note that the key is signed by cagebreak signing keys.
+Note that the keys are signed by cagebreak signing keys.
 
 If you want us to respond via GPG-encrypted mail, please include your own
 public key or provide the fingerprint and directions to obtain the key.
