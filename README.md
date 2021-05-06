@@ -119,6 +119,7 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
       * [ ] man pages
         * [ ] man/cagebreak
         * [ ] man/cagebreak-config
+        * [ ] Set EPOCH to release day in man generation in meson.build
       * [ ] wiki
       * [ ] README.md Changelog for major and minor releases but not patches
     * [ ] Fixed bugs documented in Bugs.md
