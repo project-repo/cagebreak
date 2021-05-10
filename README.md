@@ -156,16 +156,16 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
   * [ ] `git merge master`
   * [ ] `git push --tags origin development`
   * [ ] `git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .`
-  * [ ] Create release_artefacts_version.tar.gz
-    * [ ] `mkdir release_artefacts_version`
-    * [ ] `cp build/cagebreak release_artefacts_version/`
-    * [ ] `cp build/cagebreak.sig release_artefacts_version/`
-    * [ ] `cp build/cagebreak.1 release_artefacts_version/`
-    * [ ] `cp build/cagebreak.1.sig release_artefacts_version/`
-    * [ ] `cp build/cagebreak-config.5 release_artefacts_version/`
-    * [ ] `cp build/cagebreak-config.5.sig release_artefacts_version/`
-    * [ ] `cp LICENSE release_artefacts_version/`
-    * [ ] `export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf release_artefacts_version.tar.gz release_artefacts_version`
+  * [ ] Create release-artefacts_version.tar.gz
+    * [ ] `mkdir release-artefacts_version`
+    * [ ] `cp build/cagebreak release-artefacts_version/`
+    * [ ] `cp build/cagebreak.sig release-artefacts_version/`
+    * [ ] `cp build/cagebreak.1 release-artefacts_version/`
+    * [ ] `cp build/cagebreak.1.sig release-artefacts_version/`
+    * [ ] `cp build/cagebreak-config.5 release-artefacts_version/`
+    * [ ] `cp build/cagebreak-config.5.sig release-artefacts_version/`
+    * [ ] `cp LICENSE release-artefacts_version/`
+    * [ ] `export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf release-artefacts_version.tar.gz release-artefacts_version`
   * [ ] Checked archive
     * [ ] tar -xvf release_version.tar.gz
     * [ ] cd cagebreak
