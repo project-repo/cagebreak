@@ -156,16 +156,16 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
   * [ ] `git merge master`
   * [ ] `git push --tags origin development`
   * [ ] `git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .`
-  * [ ] Create release_artefacts_version.tar.gz
-    * [ ] `mkdir release_artefacts_version`
-    * [ ] `cp build/cagebreak release_artefacts_version/`
-    * [ ] `cp build/cagebreak.sig release_artefacts_version/`
-    * [ ] `cp build/cagebreak.1 release_artefacts_version/`
-    * [ ] `cp build/cagebreak.1.sig release_artefacts_version/`
-    * [ ] `cp build/cagebreak-config.5 release_artefacts_version/`
-    * [ ] `cp build/cagebreak-config.5.sig release_artefacts_version/`
-    * [ ] `cp LICENSE release_artefacts_version/`
-    * [ ] `export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf release_artefacts_version.tar.gz release_artefacts_version`
+  * [ ] Create release-artefacts_version.tar.gz
+    * [ ] `mkdir release-artefacts_version`
+    * [ ] `cp build/cagebreak release-artefacts_version/`
+    * [ ] `cp build/cagebreak.sig release-artefacts_version/`
+    * [ ] `cp build/cagebreak.1 release-artefacts_version/`
+    * [ ] `cp build/cagebreak.1.sig release-artefacts_version/`
+    * [ ] `cp build/cagebreak-config.5 release-artefacts_version/`
+    * [ ] `cp build/cagebreak-config.5.sig release-artefacts_version/`
+    * [ ] `cp LICENSE release-artefacts_version/`
+    * [ ] `export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf release-artefacts_version.tar.gz release-artefacts_version`
   * [ ] Checked archive
     * [ ] tar -xvf release_version.tar.gz
     * [ ] cd cagebreak
@@ -204,6 +204,21 @@ For every release after 1.0.5, hashes will be provided.
 
 For every release after 1.7.0, hashes will be provided for man pages too.
 
+1.7.2 cagebreak
+
+  * sha 256: 40f4642e8e8caee338055079b046f6e0b790c87226ee307b27a64fcb2a6c6472
+  * sha 512: 22c5f1986ca4262a7c08a6c03cffe36eaedd8c3c5e27e12baf12a90f94aea088ac93ee107770f162fc70148be687f6394b8fd64ad3fe14414bdf63b55b33798e
+
+1.7.2 cagebreak.1
+
+  * sha 256: 3253e592c40c78fd3733c761163acc2efaaf5865627cf51fd33cc0bc5d9cc6e7
+  * sha 512: 901305e166c10aa7e4a26b721a69e0ba4779f4f8ee690551438ceadae65929f13949457872b9397dd46c5b7bad6a6f2638d6fd6df9bc5567c914c798cbf3e9a4
+
+1.7.2 cagebreak-config.5
+
+  * sha 256: 148ec4d80dc9a86485fe77f8daf1f7fa4cb3d1b6aaa709bb012005583779e1f7
+  * sha 512: d5732572e47dd07078ac2f6d589522e6007188fc05ac79520c93442212d5c0341459f135191b88c608a75b2f56c2de4065566bd869fbc24e475936d32a54a7f8
+
 1.7.1 cagebreak
 
   * sha 256: 5a40797e016a2fa32b5bb70a056b35c482bef09f1795bbaf0188dbadaf8197c3
@@ -214,7 +229,7 @@ For every release after 1.7.0, hashes will be provided for man pages too.
   * sha 256: 0301f04254ae6e7ada7e22bbe7aee022ec0793fbce434a396868258e6f1ea4cf
   * sha 512: f0c0c5de30be907e9ba5c9cfa0bca8cef3e94c0b5f52de9e2c3681c85aa957f75e92b5e26bb894c3a5e251295cfe7a1470653cc7dc05564d7d91c6eb43b7409a
 
-1.7.1 cagebreak-config.1
+1.7.1 cagebreak-config.5
 
   * sha 256: 6882330a77f3ff98ea642f47b4090b38d542abf0b7be3f226486c5614899efc6
   * sha 512: a572f97836e4ccc6d67aa21c7f4aaebe06adb066c70038b670ec1ef267e3750764cb53e96b8d7bc24c7f993f24c0cfabee183307b45006d049f7416559bcaca4
