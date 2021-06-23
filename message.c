@@ -108,11 +108,17 @@ message_set_output(struct cg_output *output, const char *string,
 		return;
 	}
 	message->message = create_message_texture(string, output);
+	if(!message->message) {
+		wlr_log(WLR_ERROR, "Could not create message texture");
+		free(box);
+		free(message);
+		return;
+	}
 	message->position = box;
 	wl_list_insert(&output->messages, &message->link);
 
-	int width, height;
-	wlr_texture_get_size(message->message, &width, &height);
+	int width=message->message->width;
+	int height=message->message->height;
 	message->position->width = width;
 	message->position->height = height;
 	switch(align) {
