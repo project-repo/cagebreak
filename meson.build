@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.7.2',
+  version: '1.7.3',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -202,9 +202,9 @@ reproducible_build_versions = {
   'xkbcommon': '1.3.0',
   'fontconfig': '2.13.93',
   'pixman': '0.40.0',
-  'pango': '1.48.4',
+  'pango': '1.48.5',
   'cairo': '1.17.4',
-  'pangocairo': '1.48.4',
+  'pangocairo': '1.48.5',
   'math': '-1'
 }
 

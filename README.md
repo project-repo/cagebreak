@@ -331,6 +331,13 @@ For every release after 1.0.5, a GPG signature will be provided in `signatures`.
 The current signature is called `cagebreak.sig`, whereas all older signatures
 will be named after their release version.
 
+Due to errors in the release process, the releases 1.7.1 and 1.7.2 did not include the release
+signatures in the appropriate folder of the git repository. However, signatures were provided
+as release-artefacts at the time of release. The signatures were introduced into the
+repository with 1.7.3. The integrity of cagebreak is still the same because the signatures were
+provided as release-artefacts (which were themselves signed) and the hashes in README.md
+are part of a signed release tag.
+
 #### Signing Keys
 
 All releases are signed by at least one of the following collection of
