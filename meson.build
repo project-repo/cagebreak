@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.7.3',
+  version: '1.7.4',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -200,11 +200,11 @@ reproducible_build_versions = {
   'wayland_cursor': '1.19.0',
   'wlroots': '0.14.0',
   'xkbcommon': '1.3.0',
-  'fontconfig': '2.13.93',
+  'fontconfig': '2.13.94',
   'pixman': '0.40.0',
-  'pango': '1.48.5',
+  'pango': '1.48.6',
   'cairo': '1.17.4',
-  'pangocairo': '1.48.5',
+  'pangocairo': '1.48.6',
   'math': '-1'
 }
 
@@ -257,7 +257,7 @@ if get_option('man-pages')
     output : 'cagebreak.1',
     input : 'man/cagebreak.1.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1624989203 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1625064321 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir1
     )
@@ -266,7 +266,7 @@ if get_option('man-pages')
     output : 'cagebreak-config.5',
     input : 'man/cagebreak-config.5.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1624989203 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1625064321 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir5
     )
