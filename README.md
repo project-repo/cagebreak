@@ -204,6 +204,21 @@ For every release after 1.0.5, hashes will be provided.
 
 For every release after 1.7.0, hashes will be provided for man pages too.
 
+1.7.3 cagebreak
+
+  * sha 256: 8adb4911d9603fec5b8eb4f67a09be95b8f0b37e50d4ab579191da78df18f70b
+  * sha 512: eddaecd7b577b9fe77b1ed4d341074f7f860967568392d0479543ea8860b4289df3eb5645885e18e35260b14843663ae50f98103f8016e857237a397632322a6
+
+1.7.3 cagebreak.1
+
+  * sha 256: bcc623e42c86ab65bc2f8cb7e4377ca0d816ddc281527b7caeded62753e943b8
+  * sha 512: b4290e1040bd6a299d478ad6b695de75cf030d0d274340b43d3ed4382cf6877f824cd4ed9d7020bfb55afe276c62de7fc07c3fbee6f6485c6440a024115afe12
+
+1.7.3 cagebreak-config.5
+
+  * sha 256: b9789b6abd473e9afb33d4e2c7822f7d8f3c10e9eb3fb70c47b713f6331c626a
+  * sha 512: c49e01cfc4a4ed272f054bea8f2845f0e3f1609cf85d1a0ce14c1b67dc207df153b11bc20ceef09c855d467f0e013e54623ce9f70c217c4278607fc54d0e3206
+
 1.7.2 cagebreak
 
   * sha 256: 40f4642e8e8caee338055079b046f6e0b790c87226ee307b27a64fcb2a6c6472
@@ -330,6 +345,13 @@ For every release after 1.0.5, a GPG signature will be provided in `signatures`.
 
 The current signature is called `cagebreak.sig`, whereas all older signatures
 will be named after their release version.
+
+Due to errors in the release process, the releases 1.7.1 and 1.7.2 did not include the release
+signatures in the appropriate folder of the git repository. However, signatures were provided
+as release-artefacts at the time of release. The signatures were introduced into the
+repository with 1.7.3. The integrity of cagebreak is still the same because the signatures were
+provided as release-artefacts (which were themselves signed) and the hashes in README.md
+are part of a signed release tag.
 
 #### Signing Keys
 

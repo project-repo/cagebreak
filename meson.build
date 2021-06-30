@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.7.2',
+  version: '1.7.3',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -53,7 +53,7 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots', version: ['>=0.13.0', '< 0.14.0'])
+wlroots        = dependency('wlroots', version: ['>=0.14.0', '< 0.15.0'])
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')
@@ -198,13 +198,13 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.19.0',
   'wayland_cursor': '1.19.0',
-  'wlroots': '0.13.0',
+  'wlroots': '0.14.0',
   'xkbcommon': '1.3.0',
   'fontconfig': '2.13.93',
   'pixman': '0.40.0',
-  'pango': '1.48.4',
+  'pango': '1.48.5',
   'cairo': '1.17.4',
-  'pangocairo': '1.48.4',
+  'pangocairo': '1.48.5',
   'math': '-1'
 }
 
@@ -257,7 +257,7 @@ if get_option('man-pages')
     output : 'cagebreak.1',
     input : 'man/cagebreak.1.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1621324686 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1624989203 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir1
     )
@@ -266,7 +266,7 @@ if get_option('man-pages')
     output : 'cagebreak-config.5',
     input : 'man/cagebreak-config.5.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1621324686 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1624989203 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir5
     )
