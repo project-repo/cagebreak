@@ -70,7 +70,7 @@ for this to work.
 #### Man Pages
 
 Cagebreak has man pages. To use them, make sure that you have `pandoc`
-installed. Then, add `-Dman-pages=true to the `meson` command.
+installed. Then, add `-Dman-pages=true` to the `meson` command.
 
 ### Running Cagebreak
 
