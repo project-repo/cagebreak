@@ -13,12 +13,14 @@ struct keybinding_list;
 struct wlr_output_layout;
 struct wlr_idle_inhibit_manager_v1;
 struct cg_output_config;
+struct cg_input_manager;
 
 struct cg_server {
 	struct wl_display *wl_display;
 	struct wl_event_loop *event_loop;
 
 	struct cg_seat *seat;
+	struct cg_input_manager *input;
 	struct wlr_backend *backend;
 	struct wlr_idle *idle;
 	struct wlr_idle_inhibit_manager_v1 *idle_inhibit_v1;
@@ -39,6 +41,7 @@ struct cg_server {
 
 	struct keybinding_list *keybindings;
 	struct wl_list output_config;
+	struct wl_list input_config;
 
 	enum wl_output_transform output_transform;
 

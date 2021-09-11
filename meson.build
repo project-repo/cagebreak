@@ -64,6 +64,8 @@ cairo          = dependency('cairo')
 pango          = dependency('pango')
 pangocairo     = dependency('pangocairo')
 fontconfig     = dependency('fontconfig')
+libinput       = dependency('libinput')
+libudev       = dependency('libudev')
 math           = cc.find_library('m')
 
 wl_protocol_dir = wayland_protos.get_pkgconfig_variable('pkgdatadir')
@@ -123,6 +125,7 @@ conf_data.set_quoted('CG_VERSION', version)
 cagebreak_main_file = [ 'cagebreak.c', ]
 cagebreak_source_strings = [
   'idle_inhibit_v1.c',
+  'input_manager.c',
   'ipc_server.c',
   'keybinding.c',
   'workspace.c',
@@ -133,6 +136,7 @@ cagebreak_source_strings = [
   'util.c',
   'view.c',
   'xdg_shell.c',
+  'libinput.c',
   'server.c',
   'message.c',
   'pango.c',
@@ -186,6 +190,8 @@ cagebreak_dependencies_dict = {
   'wlroots': [wlroots,true],
   'xkbcommon': [xkbcommon,true],
   'fontconfig': [fontconfig,true],
+  'libinput': [libinput,true],
+  'libudev': [libudev,true],
   'pixman': [pixman,true],
   'pango': [pango,true],
   'cairo': [cairo,true],
@@ -201,6 +207,8 @@ reproducible_build_versions = {
   'wlroots': '0.14.1',
   'xkbcommon': '1.3.0',
   'fontconfig': '2.13.94',
+  'libinput': '2.13.94',
+  'libudev': '2.13.94',
   'pixman': '0.40.0',
   'pango': '1.48.7',
   'cairo': '1.17.4',

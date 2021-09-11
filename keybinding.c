@@ -12,6 +12,7 @@
 #include "keybinding.h"
 #include "message.h"
 #include "output.h"
+#include "input_manager.h"
 #include "seat.h"
 #include "server.h"
 #include "view.h"
@@ -868,6 +869,11 @@ keybinding_configure_output(struct cg_server *server,
 			return;
 		}
 	}
+}
+
+void
+keybinding_configure_input_dev(struct cg_server *server, struct cg_input_config *cfg) {
+	
 }
 
 /* Hint: see keybinding.h for details on "data" */

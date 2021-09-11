@@ -1,4 +1,4 @@
-/*
+ *
  * Cagebreak: A Wayland tiling compositor.
  *
  * Copyright (C) 2018-2020 Jente Hidskes
@@ -49,6 +49,7 @@
 #include "message.h"
 #include "output.h"
 #include "parse.h"
+#include "input_manager.h"
 #include "seat.h"
 #include "server.h"
 #include "xdg_shell.h"
@@ -264,6 +265,8 @@ main(int argc, char *argv[]) {
 	wlr_log_init(WLR_ERROR, NULL);
 #endif
 
+	wl_list_init(&server.input_config);
+
 	server.modes = malloc(4 * sizeof(char *));
 	if(!server.modes) {
 		wlr_log(WLR_ERROR, "Error allocating mode array");
@@ -357,6 +360,10 @@ main(int argc, char *argv[]) {
 		ret = 1;
 		goto end;
 	}
+
+	server.input = input_manager_create(&server);
+	fprintf(stderr, "input_manager_create:%d\n",wl_list_length(&server.input->devices));
+
 
 	data_control_manager =
 	    wlr_data_control_manager_v1_create(server.wl_display);

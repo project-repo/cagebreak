@@ -7,6 +7,7 @@ struct cg_server;
 struct cg_view;
 struct wlr_cursor;
 struct wlr_input_device;
+struct cg_input_device;
 struct wlr_seat;
 struct wlr_xcursor_manager;
 struct wlr_backend;
@@ -20,9 +21,10 @@ struct cg_seat {
 	struct wl_listener destroy;
 
 	struct wl_list keyboard_groups;
-	struct wl_list pointers;
-	struct wl_list touch;
-	struct wl_listener new_input;
+
+	uint16_t num_keyboards;
+	uint16_t num_pointers;
+	uint16_t num_touch;
 
 	struct wlr_cursor *cursor;
 	struct wlr_xcursor_manager *xcursor_manager;
@@ -70,17 +72,13 @@ struct cg_keyboard_group {
 struct cg_pointer {
 	struct wl_list link; // seat::pointers
 	struct cg_seat *seat;
-	struct wlr_input_device *device;
-
-	struct wl_listener destroy;
+	struct cg_input_device *device;
 };
 
 struct cg_touch {
 	struct wl_list link; // seat::touch
 	struct cg_seat *seat;
-	struct wlr_input_device *device;
-
-	struct wl_listener destroy;
+	struct cg_input_device *device;
 };
 
 struct cg_drag_icon {
@@ -102,5 +100,9 @@ struct cg_view *
 seat_get_focus(const struct cg_seat *seat);
 void
 seat_set_focus(struct cg_seat *seat, struct cg_view *view);
+void
+seat_add_device(struct cg_seat *seat, struct cg_input_device *device);
+void
+seat_remove_device(struct cg_seat *seat, struct cg_input_device *device);
 
 #endif
