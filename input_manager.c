@@ -23,6 +23,7 @@
 #include <wlr/types/wlr_virtual_pointer_v1.h>
 #include <wlr/types/wlr_input_inhibitor.h>
 #include <wayland-server-core.h>
+#include <libevdev/libevdev.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -210,58 +211,50 @@ struct cg_input_manager *input_manager_create(struct cg_server *server) {
 	return input;
 }
 
-static bool device_is_touchpad(struct cg_input_device *device) {
-	if (device->wlr_device->type != WLR_INPUT_DEVICE_POINTER ||
-			!wlr_input_device_is_libinput(device->wlr_device)) {
-		return false;
+uint32_t get_mouse_bindsym(const char *name, char **error) {
+	// Get event code from name
+	int code = libevdev_event_code_from_name(EV_KEY, name);
+	if (code == -1) {
+		size_t len = snprintf(NULL, 0, "Unknown event %s", name) + 1;
+		*error = malloc(len);
+		if (*error) {
+			snprintf(*error, len, "Unknown event %s", name);
+		}
+		return 0;
 	}
-
-	struct libinput_device *libinput_device =
-		wlr_libinput_get_device_handle(device->wlr_device);
-
-	return libinput_device_config_tap_get_finger_count(libinput_device) > 0;
+	return code;
 }
 
-const char *input_device_get_type(struct cg_input_device *device) {
-	switch (device->wlr_device->type) {
-	case WLR_INPUT_DEVICE_POINTER:
-		if (device_is_touchpad(device)) {
-			return "touchpad";
-		} else {
-			return "pointer";
-		}
-	case WLR_INPUT_DEVICE_KEYBOARD:
-		return "keyboard";
-	case WLR_INPUT_DEVICE_TOUCH:
-		return "touch";
-	case WLR_INPUT_DEVICE_TABLET_TOOL:
-		return "tablet_tool";
-	case WLR_INPUT_DEVICE_TABLET_PAD:
-		return "tablet_pad";
-	case WLR_INPUT_DEVICE_SWITCH:
-		return "switch";
+uint32_t get_mouse_bindcode(const char *name, char **error) {
+	// Validate event code
+	errno = 0;
+	char *endptr;
+	int code = strtol(name, &endptr, 10);
+	if (endptr == name && code <= 0) {
+		*error = strdup("Button event code must be a positive integer.");
+		return 0;
+	} else if (errno == ERANGE) {
+		*error = strdup("Button event code out of range.");
+		return 0;
 	}
-	return "unknown";
+	const char *event = libevdev_event_code_get_name(EV_KEY, code);
+	if (!event || strncmp(event, "BTN_", strlen("BTN_")) != 0) {
+		size_t len = snprintf(NULL, 0, "Event code %d (%s) is not a button",
+				code, event ? event : "(null)") + 1;
+		*error = malloc(len);
+		if (*error) {
+			snprintf(*error, len, "Event code %d (%s) is not a button",
+					code, event ? event : "(null)");
+		}
+		return 0;
+	}
+	return code;
 }
 
-struct cg_input_config *input_device_get_config(struct cg_input_device *device) {
-	struct cg_server *server=device->server;
-	struct cg_input_config *wildcard_config = NULL;
-	struct cg_input_config *config = NULL;
-	wl_list_for_each(config, &server->input_config, link) {
-		if (strcmp(config->identifier, device->identifier) == 0) {
-			return config;
-		} else if (strcmp(config->identifier, "*") == 0) {
-			wildcard_config = config;
-		}
+uint32_t input_manager_get_mouse_button(const char *name, char **error) {
+	uint32_t button = get_mouse_bindsym(name, error);
+	if (!button && !*error) {
+		button = get_mouse_bindcode(name, error);
 	}
-
-	const char *device_type = input_device_get_type(device);
-	wl_list_for_each(config, &server->input_config, link) {
-		if (strncmp(config->identifier,"type:",5)&&strcmp(config->identifier + 5, device_type) == 0) {
-			return config;
-		}
-	}
-
-	return wildcard_config;
+	return button;
 }

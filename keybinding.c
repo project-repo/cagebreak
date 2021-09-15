@@ -12,6 +12,7 @@
 #include "keybinding.h"
 #include "message.h"
 #include "output.h"
+#include "input.h"
 #include "input_manager.h"
 #include "seat.h"
 #include "server.h"
@@ -63,6 +64,16 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 		break;
 	case KEYBINDING_CONFIGURE_OUTPUT:
 		free(keybinding->data.o_cfg->output_name);
+		free(keybinding->data.o_cfg);
+		break;
+	case KEYBINDING_CONFIGURE_INPUT:
+		free(keybinding->data.i_cfg->identifier);
+		if(keybinding->data.i_cfg->mapped_from_region) {
+			free(keybinding->data.i_cfg->mapped_from_region);
+		}
+		if(keybinding->data.i_cfg->mapped_to_output) {
+			free(keybinding->data.i_cfg->mapped_to_output);
+		}
 		free(keybinding->data.o_cfg);
 	default:
 		break;
@@ -872,6 +883,12 @@ keybinding_configure_output(struct cg_server *server,
 }
 
 void
+keybinding_configure_input(struct cg_server *server,
+                            struct cg_input_config *cfg) {
+	cg_input_apply_config(cfg,server);
+}
+
+void
 keybinding_configure_input_dev(struct cg_server *server, struct cg_input_config *cfg) {
 	
 }
@@ -1000,6 +1017,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_CONFIGURE_OUTPUT:
 		keybinding_configure_output(server, data.o_cfg);
+		break;
+	case KEYBINDING_CONFIGURE_INPUT:
+		keybinding_configure_input(server, data.i_cfg);
 		break;
 	case KEYBINDING_CLOSE_VIEW:
 		keybinding_close_view(

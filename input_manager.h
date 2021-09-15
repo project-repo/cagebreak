@@ -10,6 +10,7 @@
 struct cg_input_manager *input_manager_create(struct cg_server *server);
 struct cg_input_config *input_device_get_config(struct cg_input_device *device);
 void input_manager_handle_device_destroy(struct wl_listener *listener, void *data);
+uint32_t input_manager_get_mouse_button(const char *name, char **error);
 
 struct cg_input_manager {
 	struct wl_list devices;
@@ -46,7 +47,6 @@ enum cg_input_config_mapped_to {
  */
 struct cg_input_config {
 	char *identifier;
-	const char *input_type;
 
 	int accel_profile;
 	struct calibration_matrix calibration_matrix;
@@ -67,7 +67,7 @@ struct cg_input_config {
 	int tap;
 	int tap_button_map;
 
-	char *xkb_layout;
+/*	char *xkb_layout;
 	char *xkb_model;
 	char *xkb_options;
 	char *xkb_rules;
@@ -77,16 +77,16 @@ struct cg_input_config {
 	bool xkb_file_is_set;
 
 	int xkb_numlock;
-	int xkb_capslock;
+	int xkb_capslock;*/
 
 	struct wl_list link;
 	struct cg_input_config_mapped_from_region *mapped_from_region;
 
 	enum cg_input_config_mapped_to mapped_to;
 	char *mapped_to_output;
-	struct wlr_box *mapped_to_region;
+	/*struct wlr_box *mapped_to_region;*/
 
-	struct wl_list tools;
+	/*struct wl_list tools;*/
 
 	bool capturable;
 	struct wlr_box region;

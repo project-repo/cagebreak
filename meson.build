@@ -65,6 +65,7 @@ pango          = dependency('pango')
 pangocairo     = dependency('pangocairo')
 fontconfig     = dependency('fontconfig')
 libinput       = dependency('libinput')
+libevdev       = dependency('libevdev')
 libudev       = dependency('libudev')
 math           = cc.find_library('m')
 
@@ -191,6 +192,7 @@ cagebreak_dependencies_dict = {
   'xkbcommon': [xkbcommon,true],
   'fontconfig': [fontconfig,true],
   'libinput': [libinput,true],
+  'libevdev': [libevdev,true],
   'libudev': [libudev,true],
   'pixman': [pixman,true],
   'pango': [pango,true],
@@ -208,6 +210,7 @@ reproducible_build_versions = {
   'xkbcommon': '1.3.0',
   'fontconfig': '2.13.94',
   'libinput': '2.13.94',
+  'libevdev': '2.13.94',
   'libudev': '2.13.94',
   'pixman': '0.40.0',
   'pango': '1.48.7',

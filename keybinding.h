@@ -5,6 +5,7 @@
 #include "config.h"
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <xkbcommon/xkbcommon.h>
 
 struct cg_server;
@@ -23,6 +24,8 @@ enum keybinding_action {
 	KEYBINDING_CYCLE_TILES,      // data.b is 0 if forward, 1 if reverse
 	KEYBINDING_CYCLE_OUTPUT,     // data.b is 0 if forward, 1 if reverse
 	KEYBINDING_CONFIGURE_OUTPUT, // data.o_cfg is the desired output
+	                             // configuration
+	KEYBINDING_CONFIGURE_INPUT, // data.i_cfg is the desired input
 	                             // configuration
 	KEYBINDING_QUIT,
 	KEYBINDING_NOOP,
@@ -61,6 +64,7 @@ union keybinding_params {
 	float color[3];
 	struct keybinding *kb;
 	struct cg_output_config *o_cfg;
+	struct cg_input_config *i_cfg;
 };
 
 struct keybinding {

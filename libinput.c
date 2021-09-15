@@ -207,76 +207,137 @@ struct cg_output *output_by_name_or_id(const char *name_or_id, struct cg_server 
 	return NULL;
 }
 
-void cg_input_configure_libinput_device(struct cg_input_device *input_device) {
-	struct cg_input_config *ic = input_device_get_config(input_device);
-	if (!ic || !wlr_input_device_is_libinput(input_device->wlr_device)) {
+static bool device_is_touchpad(struct cg_input_device *device) {
+	if (device->wlr_device->type != WLR_INPUT_DEVICE_POINTER ||
+			!wlr_input_device_is_libinput(device->wlr_device)) {
+		return false;
+	}
+
+	struct libinput_device *libinput_device =
+		wlr_libinput_get_device_handle(device->wlr_device);
+
+	return libinput_device_config_tap_get_finger_count(libinput_device) > 0;
+}
+
+const char *input_device_get_type(struct cg_input_device *device) {
+	switch (device->wlr_device->type) {
+	case WLR_INPUT_DEVICE_POINTER:
+		if (device_is_touchpad(device)) {
+			return "touchpad";
+		} else {
+			return "pointer";
+		}
+	case WLR_INPUT_DEVICE_KEYBOARD:
+		return "keyboard";
+	case WLR_INPUT_DEVICE_TOUCH:
+		return "touch";
+	case WLR_INPUT_DEVICE_TABLET_TOOL:
+		return "tablet_tool";
+	case WLR_INPUT_DEVICE_TABLET_PAD:
+		return "tablet_pad";
+	case WLR_INPUT_DEVICE_SWITCH:
+		return "switch";
+	}
+	return "unknown";
+}
+
+void apply_config_to_device(struct cg_input_config *config, struct cg_input_device *input_device) {
+	if (!wlr_input_device_is_libinput(input_device->wlr_device)) {
 		return;
 	}
 
 	struct libinput_device *device =
 		wlr_libinput_get_device_handle(input_device->wlr_device);
-	wlr_log(WLR_DEBUG, "cg_input_configure_libinput_device('%s' on '%s')",
-			ic->identifier, input_device->identifier);
-
-	bool changed = false;
-	if (ic->mapped_to_output &&
-			!output_by_name_or_id(ic->mapped_to_output,input_device->server)) {
+	if (config->mapped_to_output &&
+			!output_by_name_or_id(config->mapped_to_output,input_device->server)) {
 		wlr_log(WLR_DEBUG,
-				"%s '%s' is mapped to offline output '%s'; disabling input",
-				ic->input_type, ic->identifier, ic->mapped_to_output);
-		changed |= set_send_events(device,
+				"'%s' is mapped to offline output '%s'; disabling input",
+				config->identifier, config->mapped_to_output);
+		set_send_events(device,
 			LIBINPUT_CONFIG_SEND_EVENTS_DISABLED);
-	} else if (ic->send_events != INT_MIN) {
-		changed |= set_send_events(device, ic->send_events);
+	} else if (config->send_events != INT_MIN) {
+		set_send_events(device, config->send_events);
 	} else {
 		// Have to reset to the default mode here, otherwise if ic->send_events
 		// is unset and a mapped output just came online after being disabled,
 		// we'd remain stuck sending no events.
-		changed |= set_send_events(device,
+		set_send_events(device,
 			libinput_device_config_send_events_get_default_mode(device));
 	}
 
-	if (ic->tap != INT_MIN) {
-		changed |= set_tap(device, ic->tap);
+	if (config->tap != INT_MIN) {
+		set_tap(device, config->tap);
 	}
-	if (ic->tap_button_map != INT_MIN) {
-		changed |= set_tap_button_map(device, ic->tap_button_map);
+	if (config->tap_button_map != INT_MIN) {
+		set_tap_button_map(device, config->tap_button_map);
 	}
-	if (ic->drag != INT_MIN) {
-		changed |= set_tap_drag(device, ic->drag);
+	if (config->drag != INT_MIN) {
+		set_tap_drag(device, config->drag);
 	}
-	if (ic->drag_lock != INT_MIN) {
-		changed |= set_tap_drag_lock(device, ic->drag_lock);
+	if (config->drag_lock != INT_MIN) {
+		set_tap_drag_lock(device, config->drag_lock);
 	}
-	if (ic->pointer_accel != FLT_MIN) {
-		changed |= set_accel_speed(device, ic->pointer_accel);
+	if (config->pointer_accel != FLT_MIN) {
+		set_accel_speed(device, config->pointer_accel);
 	}
-	if (ic->accel_profile != INT_MIN) {
-		changed |= set_accel_profile(device, ic->accel_profile);
+	if (config->accel_profile != INT_MIN) {
+		set_accel_profile(device, config->accel_profile);
 	}
-	if (ic->natural_scroll != INT_MIN) {
-		changed |= set_natural_scroll(device, ic->natural_scroll);
+	if (config->natural_scroll != INT_MIN) {
+		set_natural_scroll(device, config->natural_scroll);
 	}
-	if (ic->left_handed != INT_MIN) {
-		changed |= set_left_handed(device, ic->left_handed);
+	if (config->left_handed != INT_MIN) {
+		set_left_handed(device, config->left_handed);
 	}
-	if (ic->click_method != INT_MIN) {
-		changed |= set_click_method(device, ic->click_method);
+	if (config->click_method != INT_MIN) {
+		set_click_method(device, config->click_method);
 	}
-	if (ic->middle_emulation != INT_MIN) {
-		changed |= set_middle_emulation(device, ic->middle_emulation);
+	if (config->middle_emulation != INT_MIN) {
+		set_middle_emulation(device, config->middle_emulation);
 	}
-	if (ic->scroll_method != INT_MIN) {
-		changed |= set_scroll_method(device, ic->scroll_method);
+	if (config->scroll_method != INT_MIN) {
+		set_scroll_method(device, config->scroll_method);
 	}
-	if (ic->scroll_button != INT_MIN) {
-		changed |= set_scroll_button(device, ic->scroll_button);
+	if (config->scroll_button != INT_MIN) {
+		set_scroll_button(device, config->scroll_button);
 	}
-	if (ic->dwt != INT_MIN) {
-		changed |= set_dwt(device, ic->dwt);
+	if (config->dwt != INT_MIN) {
+		set_dwt(device, config->dwt);
 	}
-	if (ic->calibration_matrix.configured) {
-		changed |= set_calibration_matrix(device, ic->calibration_matrix.matrix);
+	if (config->calibration_matrix.configured) {
+		set_calibration_matrix(device, config->calibration_matrix.matrix);
+	}
+}
+
+void cg_input_apply_config(struct cg_input_config *config, struct cg_server *server) {
+	struct cg_input_device *device=NULL;
+	wl_list_for_each(device,&server->input->devices,link) {
+		if (strcmp(config->identifier, device->identifier) != 0&&strcmp(config->identifier, "*") != 0) {
+			continue;
+		}
+
+		const char *device_type = input_device_get_type(device);
+		if (strncmp(config->identifier,"type:",5)==0&&strcmp(config->identifier + 5, device_type) != 0) {
+			continue;
+		}
+		apply_config_to_device(config,device);
+	}
+}
+
+void cg_input_configure_libinput_device(struct cg_input_device *input_device) {
+	struct cg_server *server=input_device->server;
+	struct cg_input_config *config = NULL;
+
+	wl_list_for_each(config, &server->input_config, link) {
+		if (strcmp(config->identifier, input_device->identifier) != 0&&strcmp(config->identifier, "*") != 0) {
+			continue;
+		}
+
+		const char *device_type = input_device_get_type(input_device);
+		if (!(strncmp(config->identifier,"type:",5)&&strcmp(config->identifier + 5, device_type) == 0)) {
+			continue;
+		}
+		apply_config_to_device(config,input_device);
 	}
 }
 

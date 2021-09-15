@@ -1,4 +1,4 @@
- *
+ /*
  * Cagebreak: A Wayland tiling compositor.
  *
  * Copyright (C) 2018-2020 Jente Hidskes
@@ -362,8 +362,6 @@ main(int argc, char *argv[]) {
 	}
 
 	server.input = input_manager_create(&server);
-	fprintf(stderr, "input_manager_create:%d\n",wl_list_length(&server.input->devices));
-
 
 	data_control_manager =
 	    wlr_data_control_manager_v1_create(server.wl_display);
@@ -599,6 +597,7 @@ end:
 	wl_display_destroy(server.wl_display);
 	wlr_output_layout_destroy(server.output_layout);
 
+	free(server.input);
 	pango_cairo_font_map_set_default(NULL);
 	cairo_debug_reset_static_data();
 	FcFini();

@@ -1,11 +1,14 @@
 #define _POSIX_C_SOURCE 200812L
 
 #include <limits.h>
+#include <float.h>
 #include <string.h>
 #include <wlr/util/log.h>
+#include <libinput.h>
 
 #include "keybinding.h"
 #include "output.h"
+#include "input_manager.h"
 #include "parse.h"
 #include "server.h"
 
@@ -104,6 +107,242 @@ parse_keybinding(struct cg_server *server, char **saveptr, char **errstr) {
 		return NULL;
 	}
 	return keybinding;
+}
+
+float
+parse_float(char **saveptr, const char *delim) {
+	char *uint_str = strtok_r(NULL, delim, saveptr);
+	if(uint_str == NULL) {
+		wlr_log(WLR_ERROR, "Expected a float, got nothing");
+		return -1;
+	}
+	float ufloat = strtof(uint_str, NULL);
+	if(ufloat != NAN && ufloat != INFINITY && errno!=ERANGE) {
+		return ufloat;
+	} else {
+		wlr_log(WLR_ERROR, "Error parsing float");
+		return FLT_MIN;
+	}
+}
+
+struct cg_input_config *
+parse_input_config(char **saveptr, char **errstr) {
+	struct cg_input_config *cfg = calloc(1,sizeof(struct cg_input_config));
+	char *value=NULL;
+	char *ident = NULL;
+	if(cfg == NULL) {
+		*errstr =
+		    log_error("Failed to allocate memory for output configuration");
+		goto error;
+	}
+
+	cfg->tap = INT_MIN;
+	cfg->tap_button_map = INT_MIN;
+	cfg->drag = INT_MIN;
+	cfg->drag_lock = INT_MIN;
+	cfg->dwt = INT_MIN;
+	cfg->send_events = INT_MIN;
+	cfg->click_method = INT_MIN;
+	cfg->middle_emulation = INT_MIN;
+	cfg->natural_scroll = INT_MIN;
+	cfg->accel_profile = INT_MIN;
+	cfg->pointer_accel = FLT_MIN;
+	cfg->scroll_factor = FLT_MIN;
+	cfg->scroll_button = INT_MIN;
+	cfg->scroll_method = INT_MIN;
+	cfg->left_handed = INT_MIN;
+	cfg->repeat_delay = INT_MIN;
+	cfg->repeat_rate = INT_MIN;
+	/*cfg->xkb_numlock = INT_MIN;
+	cfg->xkb_capslock = INT_MIN;
+	cfg->xkb_file_is_set = false;
+	wl_list_init(&cfg->tools);*/
+
+	ident = strtok_r(NULL, " ", saveptr);
+
+	if(ident == NULL) {
+		*errstr = log_error("Expected identifier of input device to configure, got none");
+		goto error;
+	}
+	cfg->identifier=strdup(ident);
+
+	char *setting = strtok_r(NULL, " ", saveptr);
+	if(setting == NULL) {
+		*errstr =
+		    log_error("Expected setting to be set on input device, got none");
+		goto error;
+	}
+
+	value = strdup(*saveptr);
+
+	if(value == NULL) {
+		*errstr =
+		    log_error("Failed to obtain value for input device configuration of device \"%s\"",ident);
+		goto error;
+	}
+
+	if(strcmp(setting,"accel_profile") == 0) {
+		if(strcmp(value,"adaptive") == 0) {
+			cfg->accel_profile=LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE;
+		} else if(strcmp(value,"flat") == 0) {
+			cfg->accel_profile=LIBINPUT_CONFIG_ACCEL_PROFILE_FLAT;
+		} else {
+			*errstr = log_error("Invalid profile \"%s\" for accel_profile configuration", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"calibration_matrix") == 0) {
+		cfg->calibration_matrix.configured=true;
+		for(int i=0;i<6;++i) {
+			 cfg->calibration_matrix.matrix[i]=parse_float(saveptr," ");
+			 if(cfg->calibration_matrix.matrix[i]==FLT_MIN) {
+				 *errstr = log_error("Failed to read calibration matrix, expected 6 floating point values separated by spaces");
+				 goto error;
+			 }
+		}
+	} else if(strcmp(setting,"click_method") == 0) {
+		if(strcmp(value,"none")) {
+			cfg->click_method=LIBINPUT_CONFIG_CLICK_METHOD_NONE;
+		} else if(strcmp(value,"button_areas")) {
+			cfg->click_method=LIBINPUT_CONFIG_CLICK_METHOD_BUTTON_AREAS;
+		} else if(strcmp(value,"clickfinger")) {
+			cfg->click_method=LIBINPUT_CONFIG_CLICK_METHOD_CLICKFINGER;
+		} else {
+			*errstr = log_error("Invalid method \"%s\" for click_method configuration", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"drag") == 0) {
+		if(strcmp(value,"enabled") == 0) {
+			cfg->drag=LIBINPUT_CONFIG_DRAG_ENABLED;
+		} else if(strcmp(value,"disabled") == 0) {
+			cfg->drag=LIBINPUT_CONFIG_DRAG_DISABLED;
+		} else {
+			*errstr = log_error("Invalid option \"%s\" to setting \"drag\"", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"drag_lock") == 0) {
+		if(strcmp(value,"enabled") == 0) {
+			cfg->drag_lock=LIBINPUT_CONFIG_DRAG_LOCK_ENABLED;
+		} else if(strcmp(value,"disabled") == 0) {
+			cfg->drag_lock=LIBINPUT_CONFIG_DRAG_LOCK_DISABLED;
+		} else {
+			*errstr = log_error("Invalid option \"%s\" to setting \"drag_lock\"", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"dwt") == 0) {
+		if(strcmp(value,"enabled") == 0) {
+			cfg->dwt=LIBINPUT_CONFIG_DWT_ENABLED;
+		} else if(strcmp(value,"disabled") == 0) {
+			cfg->dwt=LIBINPUT_CONFIG_DWT_DISABLED;
+		} else {
+			*errstr = log_error("Invalid option \"%s\" to setting \"dwt\"", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"events") == 0) {
+		if(strcmp(value,"enabled") == 0) {
+			cfg->send_events=LIBINPUT_CONFIG_SEND_EVENTS_ENABLED;
+		} else if(strcmp(value,"disabled") == 0) {
+			cfg->send_events=LIBINPUT_CONFIG_SEND_EVENTS_DISABLED;
+		} else if(strcmp(value,"disabled_on_external_mouse") == 0) {
+			cfg->send_events=LIBINPUT_CONFIG_SEND_EVENTS_DISABLED_ON_EXTERNAL_MOUSE;
+		} else {
+			*errstr = log_error("Invalid option \"%s\" to setting \"events\"", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"left_handed") == 0) {
+		if(strcmp(value,"enabled") == 0) {
+			cfg->left_handed=true;
+		} else if(strcmp(value,"disabled") == 0) {
+			cfg->left_handed=false;
+		} else {
+			*errstr = log_error("Invalid option \"%s\" to setting \"left_handed\"", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"middle_emulation") == 0) {
+		if(strcmp(value,"enabled") == 0) {
+			cfg->middle_emulation=LIBINPUT_CONFIG_MIDDLE_EMULATION_ENABLED;
+		} else if(strcmp(value,"disabled") == 0) {
+			cfg->middle_emulation=LIBINPUT_CONFIG_MIDDLE_EMULATION_DISABLED;
+		} else {
+			*errstr = log_error("Invalid option \"%s\" to setting \"middle_emulation\"", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"natural_scroll") == 0) {
+		if(strcmp(value,"enabled") == 0) {
+			cfg->natural_scroll=true;
+		} else if(strcmp(value,"disabled") == 0) {
+			cfg->natural_scroll=false;
+		} else {
+			*errstr = log_error("Invalid option \"%s\" to setting \"natural_scroll\"", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"pointer_accel") == 0) {
+		cfg->pointer_accel=parse_float(saveptr, " ");
+		if(cfg->pointer_accel==FLT_MIN) {
+			*errstr = log_error("Invalid option \"%s\" to setting \"pointer_accel\", expected float value", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"scroll_button") == 0) {
+		char *err=NULL;
+		cfg->scroll_button=input_manager_get_mouse_button(value,&err);
+		if(err) {
+			*errstr = log_error("Error parsing button for \"scroll_button\" setting. Returned error \"%s\"", err);
+			goto error;
+		}
+	} else if(strcmp(setting,"scroll_factor") == 0) {
+		cfg->scroll_factor=parse_float(saveptr, " ");
+		if(cfg->scroll_factor==FLT_MIN) {
+			*errstr = log_error("Invalid option \"%s\" to setting \"scroll_factor\", expected float value", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"scroll_method") == 0) {
+		if(strcmp(value,"none") == 0) {
+			cfg->scroll_method=LIBINPUT_CONFIG_SCROLL_NO_SCROLL;
+		} else if(strcmp(value,"two_finger") == 0) {
+			cfg->scroll_method=LIBINPUT_CONFIG_SCROLL_2FG;
+		} else if(strcmp(value,"edge") == 0) {
+			cfg->scroll_method=LIBINPUT_CONFIG_SCROLL_EDGE;
+		} else if(strcmp(value,"on_button_down") == 0) {
+			cfg->scroll_method=LIBINPUT_CONFIG_SCROLL_ON_BUTTON_DOWN;
+		} else {
+			*errstr = log_error("Invalid option \"%s\" to setting \"scroll_method\"", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"tap") == 0) {
+		if(strcmp(value,"enabled") == 0) {
+			cfg->tap=LIBINPUT_CONFIG_TAP_ENABLED;
+		} else if(strcmp(value,"disabled") == 0) {
+			cfg->tap=LIBINPUT_CONFIG_TAP_DISABLED;
+		} else {
+			*errstr = log_error("Invalid option \"%s\" to setting \"tap\"", value);
+			goto error;
+		}
+	} else if(strcmp(setting,"tap_button_map") == 0) {
+		if(strcmp(value,"lrm") == 0) {
+			cfg->tap=LIBINPUT_CONFIG_TAP_MAP_LRM;
+		} else if(strcmp(value,"lmr") == 0) {
+			cfg->tap=LIBINPUT_CONFIG_TAP_MAP_LMR;
+		} else {
+			*errstr = log_error("Invalid option \"%s\" to setting \"tap_button_map\"", value);
+			goto error;
+		}
+	}
+
+	free(value);
+	return cfg;
+
+error:
+	if(cfg) {
+		if(cfg->identifier) {
+			free(cfg->identifier);
+		}
+		free(cfg);
+	}
+	if(value) {
+		free(value);
+	}
+	wlr_log(WLR_ERROR,
+	        "Input configuration must be of the form 'input \"<ident>\" <setting> <value>'");
+	return NULL;
 }
 
 struct keybinding *
@@ -242,23 +481,6 @@ parse_uint(char **saveptr, const char *delim) {
 	}
 }
 
-float
-parse_float(char **saveptr, const char *delim) {
-	char *uint_str = strtok_r(NULL, delim, saveptr);
-	if(uint_str == NULL) {
-		wlr_log(WLR_ERROR, "Expected a non-negative float, got nothing");
-		return -1;
-	}
-	float ufloat = strtof(uint_str, NULL);
-	if(ufloat >= 0) {
-		return ufloat;
-	} else {
-		wlr_log(WLR_ERROR, "Error parsing non-negative float. Must be a number "
-		                   "larger or equal to 0");
-		return -1;
-	}
-}
-
 int
 parse_output_config_keyword(char *key_str, enum output_status *status) {
 	if(key_str == NULL) {
@@ -353,7 +575,7 @@ parse_output_config(char **saveptr, char **errstr) {
 	cfg->refresh_rate = parse_float(saveptr, " ");
 	if(cfg->refresh_rate <= 0.0) {
 		*errstr = log_error(
-		    "Error parsing refresh rate of output configuration for output %s",
+		    "Error parsing refresh rate of output configuration for output %s, expected positive float",
 		    name);
 		goto error;
 	}
@@ -560,6 +782,12 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_CONFIGURE_OUTPUT;
 		keybinding->data.o_cfg = parse_output_config(&saveptr, errstr);
 		if(keybinding->data.o_cfg == NULL) {
+			return -1;
+		}
+	} else if(strcmp(action, "input") == 0) {
+		keybinding->action = KEYBINDING_CONFIGURE_INPUT;
+		keybinding->data.i_cfg = parse_input_config(&saveptr, errstr);
+		if(keybinding->data.i_cfg == NULL) {
 			return -1;
 		}
 	} else {
