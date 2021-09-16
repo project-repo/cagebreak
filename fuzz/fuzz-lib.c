@@ -25,8 +25,8 @@
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
-#include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_data_control_v1.h>
+#include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_export_dmabuf_v1.h>
 #include <wlr/types/wlr_gamma_control_v1.h>
 #include <wlr/types/wlr_idle.h>
@@ -48,8 +48,8 @@
 #endif
 
 #include "../idle_inhibit_v1.h"
-#include "../keybinding.h"
 #include "../input_manager.h"
+#include "../keybinding.h"
 #include "../output.h"
 #include "../parse.h"
 #include "../seat.h"
@@ -529,8 +529,7 @@ destroy_input_device(char *line, struct cg_server *server) {
 			}
 			devn = devn % wl_list_length(&server->input->devices);
 			struct cg_input_device *dev, *dev_tmp;
-			wl_list_for_each_safe(dev, dev_tmp, &server->input->devices,
-			                      link) {
+			wl_list_for_each_safe(dev, dev_tmp, &server->input->devices, link) {
 				if(devn == 0) {
 					dev->device_destroy.notify(&dev->device_destroy, NULL);
 					break;

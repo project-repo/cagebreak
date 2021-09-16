@@ -31,8 +31,8 @@
 #include <wlr/xwayland.h>
 #endif
 
-#include "keybinding.h"
 #include "input_manager.h"
+#include "keybinding.h"
 #include "message.h"
 #include "output.h"
 #include "seat.h"
@@ -113,13 +113,13 @@ static void
 update_capabilities(const struct cg_seat *seat) {
 	uint32_t caps = 0;
 
-	if(seat->num_keyboards>0) {
+	if(seat->num_keyboards > 0) {
 		caps |= WL_SEAT_CAPABILITY_KEYBOARD;
 	}
-	if(seat->num_pointers>0) {
+	if(seat->num_pointers > 0) {
 		caps |= WL_SEAT_CAPABILITY_POINTER;
 	}
-	if(seat->num_touch>0) {
+	if(seat->num_touch > 0) {
 		caps |= WL_SEAT_CAPABILITY_TOUCH;
 	}
 	wlr_seat_set_capabilities(seat->seat, caps);
@@ -148,7 +148,7 @@ remove_touch(struct cg_seat *seat, struct cg_touch *touch) {
 
 static void
 new_touch(struct cg_seat *seat, struct cg_input_device *input_device) {
-	struct wlr_input_device *device=input_device->wlr_device;
+	struct wlr_input_device *device = input_device->wlr_device;
 	struct cg_touch *touch = calloc(1, sizeof(struct cg_touch));
 	if(!touch) {
 		wlr_log(WLR_ERROR, "Cannot allocate touch");
@@ -158,7 +158,7 @@ new_touch(struct cg_seat *seat, struct cg_input_device *input_device) {
 	touch->seat = seat;
 	touch->device = input_device;
 	wlr_cursor_attach_input_device(seat->cursor, device);
-	input_device->touch=touch;
+	input_device->touch = touch;
 	++seat->num_touch;
 
 	if(device->output_name != NULL) {
@@ -187,7 +187,7 @@ remove_pointer(struct cg_seat *seat, struct cg_pointer *pointer) {
 
 static void
 new_pointer(struct cg_seat *seat, struct cg_input_device *input_device) {
-	struct wlr_input_device *device=input_device->wlr_device;
+	struct wlr_input_device *device = input_device->wlr_device;
 	struct cg_pointer *pointer = calloc(1, sizeof(struct cg_pointer));
 	if(!pointer) {
 		wlr_log(WLR_ERROR, "Cannot allocate pointer");
@@ -197,7 +197,7 @@ new_pointer(struct cg_seat *seat, struct cg_input_device *input_device) {
 	pointer->seat = seat;
 	pointer->device = input_device;
 	wlr_cursor_attach_input_device(seat->cursor, device);
-	input_device->pointer=pointer;
+	input_device->pointer = pointer;
 	++seat->num_pointers;
 
 	if(device->output_name != NULL) {
@@ -430,7 +430,7 @@ cleanup:
 
 static void
 new_keyboard(struct cg_seat *seat, struct cg_input_device *input_device) {
-	struct wlr_input_device *device= input_device->wlr_device;
+	struct wlr_input_device *device = input_device->wlr_device;
 	struct xkb_context *context = xkb_context_new(XKB_CONTEXT_NO_FLAGS);
 	if(!context) {
 		wlr_log(WLR_ERROR, "Unable to create XKB context");
@@ -482,16 +482,17 @@ seat_add_device(struct cg_seat *seat, struct cg_input_device *device) {
 	update_capabilities(seat);
 }
 
-void remove_keyboard(struct cg_seat *seat, struct cg_input_device *keyboard) {
-	if (!keyboard) {
+void
+remove_keyboard(struct cg_seat *seat, struct cg_input_device *keyboard) {
+	if(!keyboard) {
 		return;
 	}
 	struct wlr_seat *wlr_seat = seat->seat;
 	struct wlr_keyboard *wlr_keyboard = keyboard->wlr_device->keyboard;
-	if (keyboard->wlr_device->keyboard->group) {
-		wlr_keyboard_group_remove_keyboard(wlr_keyboard->group,wlr_keyboard);
+	if(keyboard->wlr_device->keyboard->group) {
+		wlr_keyboard_group_remove_keyboard(wlr_keyboard->group, wlr_keyboard);
 	}
-	if (wlr_seat_get_keyboard(wlr_seat) == wlr_keyboard) {
+	if(wlr_seat_get_keyboard(wlr_seat) == wlr_keyboard) {
 		wlr_seat_set_keyboard(wlr_seat, NULL);
 	}
 	--seat->num_keyboards;
@@ -505,11 +506,11 @@ seat_remove_device(struct cg_seat *seat, struct cg_input_device *device) {
 		break;
 	case WLR_INPUT_DEVICE_POINTER:
 		remove_pointer(seat, device->pointer);
-		device->pointer=NULL;
+		device->pointer = NULL;
 		break;
 	case WLR_INPUT_DEVICE_TOUCH:
 		remove_touch(seat, device->touch);
-		device->touch=NULL;
+		device->touch = NULL;
 		break;
 	case WLR_INPUT_DEVICE_SWITCH:
 		wlr_log(WLR_DEBUG, "Switch input is not implemented");
@@ -836,7 +837,7 @@ handle_destroy(struct wl_listener *listener, void *_data) {
 
 	struct cg_input_device *it, *it_tmp;
 	wl_list_for_each_safe(it, it_tmp, &seat->server->input->devices, link) {
-		input_manager_handle_device_destroy(&it->device_destroy,NULL);
+		input_manager_handle_device_destroy(&it->device_destroy, NULL);
 	}
 
 	wlr_xcursor_manager_destroy(seat->xcursor_manager);
@@ -926,9 +927,9 @@ seat_create(struct cg_server *server, struct wlr_backend *backend) {
 	              &seat->request_set_primary_selection);
 
 	wl_list_init(&seat->keyboard_groups);
-	seat->num_keyboards=0;
-	seat->num_pointers=0;
-	seat->num_touch=0;
+	seat->num_keyboards = 0;
+	seat->num_pointers = 0;
+	seat->num_touch = 0;
 
 	wl_list_init(&seat->drag_icons);
 	seat->request_start_drag.notify = handle_request_start_drag;

@@ -1,4 +1,4 @@
- /*
+/*
  * Cagebreak: A Wayland tiling compositor.
  *
  * Copyright (C) 2018-2020 Jente Hidskes
@@ -44,12 +44,12 @@
 #endif
 
 #include "idle_inhibit_v1.h"
+#include "input_manager.h"
 #include "ipc_server.h"
 #include "keybinding.h"
 #include "message.h"
 #include "output.h"
 #include "parse.h"
-#include "input_manager.h"
 #include "seat.h"
 #include "server.h"
 #include "xdg_shell.h"

@@ -9,11 +9,11 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/log.h>
 
+#include "input.h"
+#include "input_manager.h"
 #include "keybinding.h"
 #include "message.h"
 #include "output.h"
-#include "input.h"
-#include "input_manager.h"
 #include "seat.h"
 #include "server.h"
 #include "view.h"
@@ -884,14 +884,13 @@ keybinding_configure_output(struct cg_server *server,
 
 void
 keybinding_configure_input(struct cg_server *server,
-                            struct cg_input_config *cfg) {
-	cg_input_apply_config(cfg,server);
+                           struct cg_input_config *cfg) {
+	cg_input_apply_config(cfg, server);
 }
 
 void
-keybinding_configure_input_dev(struct cg_server *server, struct cg_input_config *cfg) {
-	
-}
+keybinding_configure_input_dev(struct cg_server *server,
+                               struct cg_input_config *cfg) {}
 
 /* Hint: see keybinding.h for details on "data" */
 int

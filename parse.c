@@ -1,14 +1,14 @@
 #define _POSIX_C_SOURCE 200812L
 
-#include <limits.h>
 #include <float.h>
+#include <libinput.h>
+#include <limits.h>
 #include <string.h>
 #include <wlr/util/log.h>
-#include <libinput.h>
 
+#include "input_manager.h"
 #include "keybinding.h"
 #include "output.h"
-#include "input_manager.h"
 #include "parse.h"
 #include "server.h"
 
@@ -117,7 +117,7 @@ parse_float(char **saveptr, const char *delim) {
 		return -1;
 	}
 	float ufloat = strtof(uint_str, NULL);
-	if(ufloat != NAN && ufloat != INFINITY && errno!=ERANGE) {
+	if(ufloat != NAN && ufloat != INFINITY && errno != ERANGE) {
 		return ufloat;
 	} else {
 		wlr_log(WLR_ERROR, "Error parsing float");
@@ -127,8 +127,8 @@ parse_float(char **saveptr, const char *delim) {
 
 struct cg_input_config *
 parse_input_config(char **saveptr, char **errstr) {
-	struct cg_input_config *cfg = calloc(1,sizeof(struct cg_input_config));
-	char *value=NULL;
+	struct cg_input_config *cfg = calloc(1, sizeof(struct cg_input_config));
+	char *value = NULL;
 	char *ident = NULL;
 	if(cfg == NULL) {
 		*errstr =
@@ -161,10 +161,11 @@ parse_input_config(char **saveptr, char **errstr) {
 	ident = strtok_r(NULL, " ", saveptr);
 
 	if(ident == NULL) {
-		*errstr = log_error("Expected identifier of input device to configure, got none");
+		*errstr = log_error(
+		    "Expected identifier of input device to configure, got none");
 		goto error;
 	}
-	cfg->identifier=strdup(ident);
+	cfg->identifier = strdup(ident);
 
 	char *setting = strtok_r(NULL, " ", saveptr);
 	if(setting == NULL) {
@@ -176,154 +177,177 @@ parse_input_config(char **saveptr, char **errstr) {
 	value = strdup(*saveptr);
 
 	if(value == NULL) {
-		*errstr =
-		    log_error("Failed to obtain value for input device configuration of device \"%s\"",ident);
+		*errstr = log_error("Failed to obtain value for input device "
+		                    "configuration of device \"%s\"",
+		                    ident);
 		goto error;
 	}
 
-	if(strcmp(setting,"accel_profile") == 0) {
-		if(strcmp(value,"adaptive") == 0) {
-			cfg->accel_profile=LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE;
-		} else if(strcmp(value,"flat") == 0) {
-			cfg->accel_profile=LIBINPUT_CONFIG_ACCEL_PROFILE_FLAT;
+	if(strcmp(setting, "accel_profile") == 0) {
+		if(strcmp(value, "adaptive") == 0) {
+			cfg->accel_profile = LIBINPUT_CONFIG_ACCEL_PROFILE_ADAPTIVE;
+		} else if(strcmp(value, "flat") == 0) {
+			cfg->accel_profile = LIBINPUT_CONFIG_ACCEL_PROFILE_FLAT;
 		} else {
-			*errstr = log_error("Invalid profile \"%s\" for accel_profile configuration", value);
+			*errstr = log_error(
+			    "Invalid profile \"%s\" for accel_profile configuration",
+			    value);
 			goto error;
 		}
-	} else if(strcmp(setting,"calibration_matrix") == 0) {
-		cfg->calibration_matrix.configured=true;
-		for(int i=0;i<6;++i) {
-			 cfg->calibration_matrix.matrix[i]=parse_float(saveptr," ");
-			 if(cfg->calibration_matrix.matrix[i]==FLT_MIN) {
-				 *errstr = log_error("Failed to read calibration matrix, expected 6 floating point values separated by spaces");
-				 goto error;
-			 }
+	} else if(strcmp(setting, "calibration_matrix") == 0) {
+		cfg->calibration_matrix.configured = true;
+		for(int i = 0; i < 6; ++i) {
+			cfg->calibration_matrix.matrix[i] = parse_float(saveptr, " ");
+			if(cfg->calibration_matrix.matrix[i] == FLT_MIN) {
+				*errstr =
+				    log_error("Failed to read calibration matrix, expected 6 "
+				              "floating point values separated by spaces");
+				goto error;
+			}
 		}
-	} else if(strcmp(setting,"click_method") == 0) {
-		if(strcmp(value,"none")) {
-			cfg->click_method=LIBINPUT_CONFIG_CLICK_METHOD_NONE;
-		} else if(strcmp(value,"button_areas")) {
-			cfg->click_method=LIBINPUT_CONFIG_CLICK_METHOD_BUTTON_AREAS;
-		} else if(strcmp(value,"clickfinger")) {
-			cfg->click_method=LIBINPUT_CONFIG_CLICK_METHOD_CLICKFINGER;
+	} else if(strcmp(setting, "click_method") == 0) {
+		if(strcmp(value, "none")) {
+			cfg->click_method = LIBINPUT_CONFIG_CLICK_METHOD_NONE;
+		} else if(strcmp(value, "button_areas")) {
+			cfg->click_method = LIBINPUT_CONFIG_CLICK_METHOD_BUTTON_AREAS;
+		} else if(strcmp(value, "clickfinger")) {
+			cfg->click_method = LIBINPUT_CONFIG_CLICK_METHOD_CLICKFINGER;
 		} else {
-			*errstr = log_error("Invalid method \"%s\" for click_method configuration", value);
+			*errstr = log_error(
+			    "Invalid method \"%s\" for click_method configuration", value);
 			goto error;
 		}
-	} else if(strcmp(setting,"drag") == 0) {
-		if(strcmp(value,"enabled") == 0) {
-			cfg->drag=LIBINPUT_CONFIG_DRAG_ENABLED;
-		} else if(strcmp(value,"disabled") == 0) {
-			cfg->drag=LIBINPUT_CONFIG_DRAG_DISABLED;
+	} else if(strcmp(setting, "drag") == 0) {
+		if(strcmp(value, "enabled") == 0) {
+			cfg->drag = LIBINPUT_CONFIG_DRAG_ENABLED;
+		} else if(strcmp(value, "disabled") == 0) {
+			cfg->drag = LIBINPUT_CONFIG_DRAG_DISABLED;
 		} else {
-			*errstr = log_error("Invalid option \"%s\" to setting \"drag\"", value);
+			*errstr =
+			    log_error("Invalid option \"%s\" to setting \"drag\"", value);
 			goto error;
 		}
-	} else if(strcmp(setting,"drag_lock") == 0) {
-		if(strcmp(value,"enabled") == 0) {
-			cfg->drag_lock=LIBINPUT_CONFIG_DRAG_LOCK_ENABLED;
-		} else if(strcmp(value,"disabled") == 0) {
-			cfg->drag_lock=LIBINPUT_CONFIG_DRAG_LOCK_DISABLED;
+	} else if(strcmp(setting, "drag_lock") == 0) {
+		if(strcmp(value, "enabled") == 0) {
+			cfg->drag_lock = LIBINPUT_CONFIG_DRAG_LOCK_ENABLED;
+		} else if(strcmp(value, "disabled") == 0) {
+			cfg->drag_lock = LIBINPUT_CONFIG_DRAG_LOCK_DISABLED;
 		} else {
-			*errstr = log_error("Invalid option \"%s\" to setting \"drag_lock\"", value);
+			*errstr = log_error(
+			    "Invalid option \"%s\" to setting \"drag_lock\"", value);
 			goto error;
 		}
-	} else if(strcmp(setting,"dwt") == 0) {
-		if(strcmp(value,"enabled") == 0) {
-			cfg->dwt=LIBINPUT_CONFIG_DWT_ENABLED;
-		} else if(strcmp(value,"disabled") == 0) {
-			cfg->dwt=LIBINPUT_CONFIG_DWT_DISABLED;
+	} else if(strcmp(setting, "dwt") == 0) {
+		if(strcmp(value, "enabled") == 0) {
+			cfg->dwt = LIBINPUT_CONFIG_DWT_ENABLED;
+		} else if(strcmp(value, "disabled") == 0) {
+			cfg->dwt = LIBINPUT_CONFIG_DWT_DISABLED;
 		} else {
-			*errstr = log_error("Invalid option \"%s\" to setting \"dwt\"", value);
+			*errstr =
+			    log_error("Invalid option \"%s\" to setting \"dwt\"", value);
 			goto error;
 		}
-	} else if(strcmp(setting,"events") == 0) {
-		if(strcmp(value,"enabled") == 0) {
-			cfg->send_events=LIBINPUT_CONFIG_SEND_EVENTS_ENABLED;
-		} else if(strcmp(value,"disabled") == 0) {
-			cfg->send_events=LIBINPUT_CONFIG_SEND_EVENTS_DISABLED;
-		} else if(strcmp(value,"disabled_on_external_mouse") == 0) {
-			cfg->send_events=LIBINPUT_CONFIG_SEND_EVENTS_DISABLED_ON_EXTERNAL_MOUSE;
+	} else if(strcmp(setting, "events") == 0) {
+		if(strcmp(value, "enabled") == 0) {
+			cfg->send_events = LIBINPUT_CONFIG_SEND_EVENTS_ENABLED;
+		} else if(strcmp(value, "disabled") == 0) {
+			cfg->send_events = LIBINPUT_CONFIG_SEND_EVENTS_DISABLED;
+		} else if(strcmp(value, "disabled_on_external_mouse") == 0) {
+			cfg->send_events =
+			    LIBINPUT_CONFIG_SEND_EVENTS_DISABLED_ON_EXTERNAL_MOUSE;
 		} else {
-			*errstr = log_error("Invalid option \"%s\" to setting \"events\"", value);
+			*errstr =
+			    log_error("Invalid option \"%s\" to setting \"events\"", value);
 			goto error;
 		}
-	} else if(strcmp(setting,"left_handed") == 0) {
-		if(strcmp(value,"enabled") == 0) {
-			cfg->left_handed=true;
-		} else if(strcmp(value,"disabled") == 0) {
-			cfg->left_handed=false;
+	} else if(strcmp(setting, "left_handed") == 0) {
+		if(strcmp(value, "enabled") == 0) {
+			cfg->left_handed = true;
+		} else if(strcmp(value, "disabled") == 0) {
+			cfg->left_handed = false;
 		} else {
-			*errstr = log_error("Invalid option \"%s\" to setting \"left_handed\"", value);
+			*errstr = log_error(
+			    "Invalid option \"%s\" to setting \"left_handed\"", value);
 			goto error;
 		}
-	} else if(strcmp(setting,"middle_emulation") == 0) {
-		if(strcmp(value,"enabled") == 0) {
-			cfg->middle_emulation=LIBINPUT_CONFIG_MIDDLE_EMULATION_ENABLED;
-		} else if(strcmp(value,"disabled") == 0) {
-			cfg->middle_emulation=LIBINPUT_CONFIG_MIDDLE_EMULATION_DISABLED;
+	} else if(strcmp(setting, "middle_emulation") == 0) {
+		if(strcmp(value, "enabled") == 0) {
+			cfg->middle_emulation = LIBINPUT_CONFIG_MIDDLE_EMULATION_ENABLED;
+		} else if(strcmp(value, "disabled") == 0) {
+			cfg->middle_emulation = LIBINPUT_CONFIG_MIDDLE_EMULATION_DISABLED;
 		} else {
-			*errstr = log_error("Invalid option \"%s\" to setting \"middle_emulation\"", value);
+			*errstr = log_error(
+			    "Invalid option \"%s\" to setting \"middle_emulation\"", value);
 			goto error;
 		}
-	} else if(strcmp(setting,"natural_scroll") == 0) {
-		if(strcmp(value,"enabled") == 0) {
-			cfg->natural_scroll=true;
-		} else if(strcmp(value,"disabled") == 0) {
-			cfg->natural_scroll=false;
+	} else if(strcmp(setting, "natural_scroll") == 0) {
+		if(strcmp(value, "enabled") == 0) {
+			cfg->natural_scroll = true;
+		} else if(strcmp(value, "disabled") == 0) {
+			cfg->natural_scroll = false;
 		} else {
-			*errstr = log_error("Invalid option \"%s\" to setting \"natural_scroll\"", value);
+			*errstr = log_error(
+			    "Invalid option \"%s\" to setting \"natural_scroll\"", value);
 			goto error;
 		}
-	} else if(strcmp(setting,"pointer_accel") == 0) {
-		cfg->pointer_accel=parse_float(saveptr, " ");
-		if(cfg->pointer_accel==FLT_MIN) {
-			*errstr = log_error("Invalid option \"%s\" to setting \"pointer_accel\", expected float value", value);
+	} else if(strcmp(setting, "pointer_accel") == 0) {
+		cfg->pointer_accel = parse_float(saveptr, " ");
+		if(cfg->pointer_accel == FLT_MIN) {
+			*errstr = log_error("Invalid option \"%s\" to setting "
+			                    "\"pointer_accel\", expected float value",
+			                    value);
 			goto error;
 		}
-	} else if(strcmp(setting,"scroll_button") == 0) {
-		char *err=NULL;
-		cfg->scroll_button=input_manager_get_mouse_button(value,&err);
+	} else if(strcmp(setting, "scroll_button") == 0) {
+		char *err = NULL;
+		cfg->scroll_button = input_manager_get_mouse_button(value, &err);
 		if(err) {
-			*errstr = log_error("Error parsing button for \"scroll_button\" setting. Returned error \"%s\"", err);
+			*errstr = log_error("Error parsing button for \"scroll_button\" "
+			                    "setting. Returned error \"%s\"",
+			                    err);
 			free(err);
 			goto error;
 		}
-	} else if(strcmp(setting,"scroll_factor") == 0) {
-		cfg->scroll_factor=parse_float(saveptr, " ");
-		if(cfg->scroll_factor==FLT_MIN) {
-			*errstr = log_error("Invalid option \"%s\" to setting \"scroll_factor\", expected float value", value);
+	} else if(strcmp(setting, "scroll_factor") == 0) {
+		cfg->scroll_factor = parse_float(saveptr, " ");
+		if(cfg->scroll_factor == FLT_MIN) {
+			*errstr = log_error("Invalid option \"%s\" to setting "
+			                    "\"scroll_factor\", expected float value",
+			                    value);
 			goto error;
 		}
-	} else if(strcmp(setting,"scroll_method") == 0) {
-		if(strcmp(value,"none") == 0) {
-			cfg->scroll_method=LIBINPUT_CONFIG_SCROLL_NO_SCROLL;
-		} else if(strcmp(value,"two_finger") == 0) {
-			cfg->scroll_method=LIBINPUT_CONFIG_SCROLL_2FG;
-		} else if(strcmp(value,"edge") == 0) {
-			cfg->scroll_method=LIBINPUT_CONFIG_SCROLL_EDGE;
-		} else if(strcmp(value,"on_button_down") == 0) {
-			cfg->scroll_method=LIBINPUT_CONFIG_SCROLL_ON_BUTTON_DOWN;
+	} else if(strcmp(setting, "scroll_method") == 0) {
+		if(strcmp(value, "none") == 0) {
+			cfg->scroll_method = LIBINPUT_CONFIG_SCROLL_NO_SCROLL;
+		} else if(strcmp(value, "two_finger") == 0) {
+			cfg->scroll_method = LIBINPUT_CONFIG_SCROLL_2FG;
+		} else if(strcmp(value, "edge") == 0) {
+			cfg->scroll_method = LIBINPUT_CONFIG_SCROLL_EDGE;
+		} else if(strcmp(value, "on_button_down") == 0) {
+			cfg->scroll_method = LIBINPUT_CONFIG_SCROLL_ON_BUTTON_DOWN;
 		} else {
-			*errstr = log_error("Invalid option \"%s\" to setting \"scroll_method\"", value);
+			*errstr = log_error(
+			    "Invalid option \"%s\" to setting \"scroll_method\"", value);
 			goto error;
 		}
-	} else if(strcmp(setting,"tap") == 0) {
-		if(strcmp(value,"enabled") == 0) {
-			cfg->tap=LIBINPUT_CONFIG_TAP_ENABLED;
-		} else if(strcmp(value,"disabled") == 0) {
-			cfg->tap=LIBINPUT_CONFIG_TAP_DISABLED;
+	} else if(strcmp(setting, "tap") == 0) {
+		if(strcmp(value, "enabled") == 0) {
+			cfg->tap = LIBINPUT_CONFIG_TAP_ENABLED;
+		} else if(strcmp(value, "disabled") == 0) {
+			cfg->tap = LIBINPUT_CONFIG_TAP_DISABLED;
 		} else {
-			*errstr = log_error("Invalid option \"%s\" to setting \"tap\"", value);
+			*errstr =
+			    log_error("Invalid option \"%s\" to setting \"tap\"", value);
 			goto error;
 		}
-	} else if(strcmp(setting,"tap_button_map") == 0) {
-		if(strcmp(value,"lrm") == 0) {
-			cfg->tap=LIBINPUT_CONFIG_TAP_MAP_LRM;
-		} else if(strcmp(value,"lmr") == 0) {
-			cfg->tap=LIBINPUT_CONFIG_TAP_MAP_LMR;
+	} else if(strcmp(setting, "tap_button_map") == 0) {
+		if(strcmp(value, "lrm") == 0) {
+			cfg->tap = LIBINPUT_CONFIG_TAP_MAP_LRM;
+		} else if(strcmp(value, "lmr") == 0) {
+			cfg->tap = LIBINPUT_CONFIG_TAP_MAP_LMR;
 		} else {
-			*errstr = log_error("Invalid option \"%s\" to setting \"tap_button_map\"", value);
+			*errstr = log_error(
+			    "Invalid option \"%s\" to setting \"tap_button_map\"", value);
 			goto error;
 		}
 	}
@@ -341,8 +365,8 @@ error:
 	if(value) {
 		free(value);
 	}
-	wlr_log(WLR_ERROR,
-	        "Input configuration must be of the form 'input \"<ident>\" <setting> <value>'");
+	wlr_log(WLR_ERROR, "Input configuration must be of the form 'input "
+	                   "\"<ident>\" <setting> <value>'");
 	return NULL;
 }
 
@@ -575,9 +599,10 @@ parse_output_config(char **saveptr, char **errstr) {
 
 	cfg->refresh_rate = parse_float(saveptr, " ");
 	if(cfg->refresh_rate <= 0.0) {
-		*errstr = log_error(
-		    "Error parsing refresh rate of output configuration for output %s, expected positive float",
-		    name);
+		*errstr =
+		    log_error("Error parsing refresh rate of output configuration for "
+		              "output %s, expected positive float",
+		              name);
 		goto error;
 	}
 

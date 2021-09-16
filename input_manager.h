@@ -6,11 +6,14 @@
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_box.h>
 
-
-struct cg_input_manager *input_manager_create(struct cg_server *server);
-struct cg_input_config *input_device_get_config(struct cg_input_device *device);
-void input_manager_handle_device_destroy(struct wl_listener *listener, void *data);
-uint32_t input_manager_get_mouse_button(const char *name, char **error);
+struct cg_input_manager *
+input_manager_create(struct cg_server *server);
+struct cg_input_config *
+input_device_get_config(struct cg_input_device *device);
+void
+input_manager_handle_device_destroy(struct wl_listener *listener, void *data);
+uint32_t
+input_manager_get_mouse_button(const char *name, char **error);
 
 struct cg_input_manager {
 	struct wl_list devices;
@@ -23,7 +26,6 @@ struct cg_input_manager {
 	struct wl_listener virtual_keyboard_new;
 	struct wl_listener virtual_pointer_new;
 };
-
 
 struct cg_input_config_mapped_from_region {
 	double x1, y1;
@@ -67,7 +69,7 @@ struct cg_input_config {
 	int tap;
 	int tap_button_map;
 
-/*	char *xkb_layout;
+	/*char *xkb_layout;
 	char *xkb_model;
 	char *xkb_options;
 	char *xkb_rules;
@@ -100,7 +102,8 @@ struct cg_input_device {
 	struct wl_listener device_destroy;
 	bool is_virtual;
 
-	/* Only one of the following is non-NULL depending on the type of the input device */
+	/* Only one of the following is non-NULL depending on the type of the input
+	 * device */
 	struct cg_pointer *pointer;
 	struct cg_touch *touch;
 };
