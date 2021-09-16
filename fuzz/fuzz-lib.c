@@ -26,6 +26,7 @@
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_data_device.h>
+#include <wlr/types/wlr_data_control_v1.h>
 #include <wlr/types/wlr_export_dmabuf_v1.h>
 #include <wlr/types/wlr_gamma_control_v1.h>
 #include <wlr/types/wlr_idle.h>
@@ -48,6 +49,7 @@
 
 #include "../idle_inhibit_v1.h"
 #include "../keybinding.h"
+#include "../input_manager.h"
 #include "../output.h"
 #include "../parse.h"
 #include "../seat.h"
@@ -132,6 +134,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	struct wlr_xdg_decoration_manager_v1 *xdg_decoration_manager = NULL;
 	struct wlr_export_dmabuf_manager_v1 *export_dmabuf_manager = NULL;
 	struct wlr_screencopy_manager_v1 *screencopy_manager = NULL;
+	struct wlr_data_control_manager_v1 *data_control_manager = NULL;
 	struct wlr_xdg_output_manager_v1 *output_manager = NULL;
 	struct wlr_gamma_control_manager_v1 *gamma_control_manager = NULL;
 	int ret = 0;
@@ -145,6 +148,8 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 #else
 	wlr_log_init(WLR_ERROR, NULL);
 #endif
+
+	wl_list_init(&server.input_config);
 
 	/* Wayland requires XDG_RUNTIME_DIR to be set. */
 	if(!getenv("XDG_RUNTIME_DIR")) {
@@ -231,6 +236,16 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	data_device_manager = wlr_data_device_manager_create(server.wl_display);
 	if(!data_device_manager) {
 		wlr_log(WLR_ERROR, "Unable to create the data device manager");
+		ret = 1;
+		goto end;
+	}
+
+	server.input = input_manager_create(&server);
+
+	data_control_manager =
+	    wlr_data_control_manager_v1_create(server.wl_display);
+	if(!data_control_manager) {
+		wlr_log(WLR_ERROR, "Unable to create the data control manager");
 		ret = 1;
 		goto end;
 	}
@@ -509,29 +524,15 @@ destroy_input_device(char *line, struct cg_server *server) {
 				--devn;
 			}
 		} else if(strncmp(line, "p", 1) == 0) {
-			if(wl_list_empty(&server->seat->pointers)) {
+			if(wl_list_empty(&server->input->devices)) {
 				return;
 			}
-			devn = devn % wl_list_length(&server->seat->pointers);
-			struct cg_pointer *pointer, *pointer_tmp;
-			wl_list_for_each_safe(pointer, pointer_tmp, &server->seat->pointers,
+			devn = devn % wl_list_length(&server->input->devices);
+			struct cg_input_device *dev, *dev_tmp;
+			wl_list_for_each_safe(dev, dev_tmp, &server->input->devices,
 			                      link) {
 				if(devn == 0) {
-					pointer->destroy.notify(&pointer->destroy, NULL);
-					break;
-				}
-				--devn;
-			}
-		} else if(strncmp(line, "t", 1) == 0) {
-			if(wl_list_empty(&server->seat->touch)) {
-				return;
-			}
-			devn = devn % wl_list_length(&server->seat->touch);
-			struct cg_touch *touch, *touch_tmp;
-			wl_list_for_each_safe(touch, touch_tmp, &server->seat->touch,
-			                      link) {
-				if(devn == 0) {
-					touch->destroy.notify(&touch->destroy, NULL);
+					dev->device_destroy.notify(&dev->device_destroy, NULL);
 					break;
 				}
 				--devn;
