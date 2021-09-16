@@ -151,9 +151,9 @@ parse_input_config(char **saveptr, char **errstr) {
 	cfg->scroll_button = INT_MIN;
 	cfg->scroll_method = INT_MIN;
 	cfg->left_handed = INT_MIN;
-	cfg->repeat_delay = INT_MIN;
+	/*cfg->repeat_delay = INT_MIN;
 	cfg->repeat_rate = INT_MIN;
-	/*cfg->xkb_numlock = INT_MIN;
+	cfg->xkb_numlock = INT_MIN;
 	cfg->xkb_capslock = INT_MIN;
 	cfg->xkb_file_is_set = false;
 	wl_list_init(&cfg->tools);*/

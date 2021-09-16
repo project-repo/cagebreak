@@ -59,8 +59,8 @@ struct cg_input_config {
 	int natural_scroll;
 	float pointer_accel;
 	float scroll_factor;
-	int repeat_delay;
-	int repeat_rate;
+	/*int repeat_delay;
+	int repeat_rate;*/
 	int scroll_button;
 	int scroll_method;
 	int send_events;
