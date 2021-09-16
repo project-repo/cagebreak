@@ -286,6 +286,7 @@ parse_input_config(char **saveptr, char **errstr) {
 		cfg->scroll_button=input_manager_get_mouse_button(value,&err);
 		if(err) {
 			*errstr = log_error("Error parsing button for \"scroll_button\" setting. Returned error \"%s\"", err);
+			free(err);
 			goto error;
 		}
 	} else if(strcmp(setting,"scroll_factor") == 0) {
