@@ -61,7 +61,7 @@
 #define WAIT_ANY -1
 #endif
 
-bool show_info=false;
+bool show_info = false;
 
 void
 set_sig_handler(int sig, void (*action)(int)) {
@@ -137,7 +137,7 @@ usage(FILE *file, const char *const cage) {
 #endif
 	        " -h\t Display this help message\n"
 	        " -v\t Show the version number and exit\n"
-			" -s\t Show information about the current setup and exit\n",
+	        " -s\t Show information about the current setup and exit\n",
 	        cage);
 }
 
@@ -168,7 +168,7 @@ parse_args(struct cg_server *server, int argc, char *argv[]) {
 			fprintf(stdout, "Cagebreak version " CG_VERSION "\n");
 			exit(0);
 		case 's':
-			show_info=true;
+			show_info = true;
 			break;
 		default:
 			usage(stderr, argv[0]);
@@ -535,12 +535,12 @@ main(int argc, char *argv[]) {
 #endif
 
 	if(show_info) {
-		char *msg=server_show_info(&server);
+		char *msg = server_show_info(&server);
 		if(msg != NULL) {
-			fprintf(stderr,"%s",msg);
+			fprintf(stderr, "%s", msg);
 			free(msg);
 		} else {
-			wlr_log(WLR_ERROR,"Failed to get info on cagebreak setup\n");
+			wlr_log(WLR_ERROR, "Failed to get info on cagebreak setup\n");
 		}
 		exit(0);
 	}

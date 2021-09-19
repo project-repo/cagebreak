@@ -49,9 +49,7 @@ malloc_vsprintf_va_list(const char *fmt, va_list ap) {
 char *
 malloc_vsprintf(const char *fmt, ...) {
 	va_list args;
-	va_start(args,fmt);
-	char *ret=malloc_vsprintf_va_list(fmt,args);
+	va_start(args, fmt);
+	char *ret = malloc_vsprintf_va_list(fmt, args);
 	return ret;
 }
-
-

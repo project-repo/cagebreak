@@ -8,11 +8,11 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/log.h>
 
-#include "util.h"
 #include "message.h"
 #include "output.h"
 #include "pango.h"
 #include "server.h"
+#include "util.h"
 
 cairo_subpixel_order_t
 to_cairo_subpixel_order(const enum wl_output_subpixel subpixel) {
@@ -153,7 +153,7 @@ void
 message_printf(struct cg_output *output, const char *fmt, ...) {
 	va_list ap;
 	va_start(ap, fmt);
-	char *buffer = malloc_vsprintf_va_list(fmt,ap);
+	char *buffer = malloc_vsprintf_va_list(fmt, ap);
 	va_end(ap);
 	if(buffer == NULL) {
 		wlr_log(WLR_ERROR, "Failed to allocate buffer in message_printf");

@@ -703,7 +703,7 @@ keybinding_show_time(struct cg_server *server) {
 
 void
 keybinding_show_info(struct cg_server *server) {
-	char *msg=server_show_info(server);
+	char *msg = server_show_info(server);
 
 	if(!msg) {
 		return;
