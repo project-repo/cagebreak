@@ -93,6 +93,75 @@ by prepending a line with the # symbol.
 *hsplit*
 	Split current tile horizontally
 
+*input <identifier> <setting> <value>*
+	Set the setting "<setting>" to "<value>" for device "<identifier>". The identifier can either be "\*" (wildcard), of the form "type:<device_type>" or the identifier of the device as printed for example by *cagebreak --show-info*. The supported input types are
+	- touchpad
+	- pointer
+	- keyboard
+	- touch
+	- tablet_tool
+	- tablet_pad
+	- switch
+
+	Configurations are applied sequentially. Currently only libinput devices may be configured. The available settings and their corresponding values are as follows:
+
+	*accel_profile adaptive|flat*
+		Sets the pointer acceleration profile for the specified input device.
+
+	*calibration_matrix <6 space-separated floating point values>*
+		Sets the calibration matrix.
+
+	*click_method none|button_areas|clickfinger*
+		Changes the click method for the specified device.
+
+	*drag enabled|disabled*
+		Enables or disables tap-and-drag for specified input device.
+
+	*drag_lock enabled|disabled*
+		Enables or disables drag lock for specified input device.
+
+	*dwt enabled|disabled*
+		Enables or disables disable-while-typing for the specified input device.
+
+	*enabled|disabled|disabled_on_external_mouse*
+		Enables or disables send_events for specified input device. Disabling
+		send_events disables the input device.
+
+	*left_handed enabled|disabled*
+		Enables or disables left handed mode for specified input device.
+
+	*middle_emulation enabled|disabled*
+		Enables or disables middle click emulation.
+
+	*natural_scroll enabled|disabled*
+		Enables or disables natural (inverted) scrolling for the specified input
+		device.
+
+	*pointer_accel [<-1|1>]*
+		Changes the pointer acceleration for the specified input device.
+
+	*scroll_button disable|<event-code-or-name>*
+		Sets the button used for scroll_method on_button_down. The button can
+		be given as an event name or code, which can be obtained from *libinput
+		debug-events*. If set to
+		_disable_, it disables the scroll_method on_button_down.
+
+	*scroll_factor <floating point value>*
+		Changes the scroll factor for the specified input device. Scroll speed will
+		be scaled by the given value, which must be non-negative.
+
+	*scroll_method none|two_finger|edge|on_button_down*
+		Changes the scroll method for the specified input device.
+
+	*tap enabled|disabled*
+		Enables or disables tap for specified input device.
+
+	*tap_button_map lrm|lmr*
+		Specifies which button mapping to use for tapping. _lrm_ treats 1 finger as
+		left click, 2 fingers as right click, and 3 fingers as middle click. _lmr_
+		treats 1 finger as left click, 2 fingers as middle click, and 3 fingers as
+		right click.
+
 *mode <mode>*
 	Enter mode "<mode>". After a keybinding is processed, return to default mode
 
