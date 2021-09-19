@@ -11,23 +11,13 @@
 #include "output.h"
 #include "parse.h"
 #include "server.h"
-
-char *
-malloc_vsprintf(const char *fmt, va_list ap) {
-	va_list ap2;
-	va_copy(ap2, ap);
-	int len = vsnprintf(NULL, 0, fmt, ap);
-	char *ret = malloc(sizeof(char) * (len + 1));
-	vsnprintf(ret, len + 1, fmt, ap2);
-	va_end(ap2);
-	return ret;
-}
+#include "util.h"
 
 char *
 log_error(const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
-	char *ret = malloc_vsprintf(fmt, args);
+	char *ret = malloc_vsprintf_va_list(fmt, args);
 	if(ret != NULL) {
 		wlr_log(WLR_ERROR, "%s", ret);
 	}
@@ -631,6 +621,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_SPLIT_HORIZONTAL;
 	} else if(strcmp(action, "quit") == 0) {
 		keybinding->action = KEYBINDING_QUIT;
+	} else if(strcmp(action, "show_info") == 0) {
+		keybinding->action = KEYBINDING_SHOW_INFO;
 	} else if(strcmp(action, "close") == 0) {
 		keybinding->action = KEYBINDING_CLOSE_VIEW;
 	} else if(strcmp(action, "focus") == 0) {

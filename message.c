@@ -8,6 +8,7 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/log.h>
 
+#include "util.h"
 #include "message.h"
 #include "output.h"
 #include "pango.h"
@@ -32,14 +33,14 @@ to_cairo_subpixel_order(const enum wl_output_subpixel subpixel) {
 
 struct wlr_texture *
 create_message_texture(const char *string, const struct cg_output *output) {
-	const int PADDING = 2;
-	const int MESSAGE_HEIGHT = 17 + 2 * PADDING;
+	const int WIDTH_PADDING = 8;
+	const int HEIGHT_PADDING = 2;
 	const char *font = "pango:Monospace 10";
 
 	struct wlr_texture *texture;
 	double scale = output->wlr_output->scale;
 	int width = 0;
-	int height = MESSAGE_HEIGHT * scale;
+	int height = 0;
 
 	// We must use a non-nil cairo_t for cairo_set_font_options to work.
 	// Therefore, we cannot use cairo_create(NULL).
@@ -59,8 +60,9 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	cairo_font_options_set_subpixel_order(
 	    fo, to_cairo_subpixel_order(output->wlr_output->subpixel));
 	cairo_set_font_options(c, fo);
-	get_text_size(c, font, &width, NULL, NULL, scale, "%s", string);
-	width += 2 * PADDING;
+	get_text_size(c, font, &width, &height, NULL, scale, "%s", string);
+	width += 2 * WIDTH_PADDING;
+	height += 2 * HEIGHT_PADDING;
 	cairo_surface_destroy(dummy_surface);
 	cairo_destroy(c);
 
@@ -77,7 +79,7 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	cairo_set_line_width(cairo, 2);
 	cairo_rectangle(cairo, 0, 0, width, height);
 	cairo_stroke(cairo);
-	cairo_move_to(cairo, PADDING, PADDING);
+	cairo_move_to(cairo, WIDTH_PADDING, HEIGHT_PADDING);
 
 	pango_printf(cairo, font, scale, "%s", string);
 
@@ -149,17 +151,14 @@ message_set_output(struct cg_output *output, const char *string,
 
 void
 message_printf(struct cg_output *output, const char *fmt, ...) {
-	uint16_t buf_len = 256;
-	char *buffer = (char *)malloc(buf_len * sizeof(char));
+	va_list ap;
+	va_start(ap, fmt);
+	char *buffer = malloc_vsprintf_va_list(fmt,ap);
+	va_end(ap);
 	if(buffer == NULL) {
 		wlr_log(WLR_ERROR, "Failed to allocate buffer in message_printf");
 		return;
 	}
-	va_list ap;
-
-	va_start(ap, fmt);
-	vsnprintf(buffer, buf_len, fmt, ap);
-	va_end(ap);
 
 	struct wlr_box *box = malloc(sizeof(struct wlr_box));
 	if(box == NULL) {

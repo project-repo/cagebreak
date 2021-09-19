@@ -25,7 +25,7 @@ get_pango_layout(cairo_t *cairo, const char *font, const char *text,
 	pango_attr_list_insert(attrs, pango_attr_scale_new(scale));
 	PangoFontDescription *desc = pango_font_description_from_string(font);
 	pango_layout_set_font_description(layout, desc);
-	pango_layout_set_single_paragraph_mode(layout, 1);
+	pango_layout_set_single_paragraph_mode(layout, false);
 	pango_layout_set_attributes(layout, attrs);
 	pango_attr_list_unref(attrs);
 	pango_font_description_free(desc);

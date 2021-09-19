@@ -61,5 +61,7 @@ void
 display_terminate(struct cg_server *server);
 int
 get_mode_index_from_name(char *const *modes, const char *mode_name);
+char *
+server_show_info(struct cg_server *server);
 
 #endif

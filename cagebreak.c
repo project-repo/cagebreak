@@ -61,6 +61,8 @@
 #define WAIT_ANY -1
 #endif
 
+bool show_info=false;
+
 void
 set_sig_handler(int sig, void (*action)(int)) {
 	struct sigaction act;
@@ -134,7 +136,8 @@ usage(FILE *file, const char *const cage) {
 	        " -D\t Turn on damage tracking debugging\n"
 #endif
 	        " -h\t Display this help message\n"
-	        " -v\t Show the version number and exit\n",
+	        " -v\t Show the version number and exit\n"
+			" -s\t Show information about the current setup and exit\n",
 	        cage);
 }
 
@@ -142,9 +145,9 @@ static bool
 parse_args(struct cg_server *server, int argc, char *argv[]) {
 	int c;
 #ifdef DEBUG
-	while((c = getopt(argc, argv, "rDhv")) != -1) {
+	while((c = getopt(argc, argv, "rDhvs")) != -1) {
 #else
-	while((c = getopt(argc, argv, "rhv")) != -1) {
+	while((c = getopt(argc, argv, "rhvs")) != -1) {
 #endif
 		switch(c) {
 		case 'r':
@@ -164,6 +167,9 @@ parse_args(struct cg_server *server, int argc, char *argv[]) {
 		case 'v':
 			fprintf(stdout, "Cagebreak version " CG_VERSION "\n");
 			exit(0);
+		case 's':
+			show_info=true;
+			break;
 		default:
 			usage(stderr, argv[0]);
 			return false;
@@ -527,6 +533,17 @@ main(int argc, char *argv[]) {
 #if CG_HAS_XWAYLAND
 	wlr_xwayland_set_seat(xwayland, server.seat->seat);
 #endif
+
+	if(show_info) {
+		char *msg=server_show_info(&server);
+		if(msg != NULL) {
+			fprintf(stderr,"%s",msg);
+			free(msg);
+		} else {
+			wlr_log(WLR_ERROR,"Failed to get info on cagebreak setup\n");
+		}
+		exit(0);
+	}
 
 	if(ipc_init(&server) != 0) {
 		wlr_log(WLR_ERROR, "Failed to initialize IPC");

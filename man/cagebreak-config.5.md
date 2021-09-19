@@ -94,7 +94,7 @@ by prepending a line with the # symbol.
 	Split current tile horizontally
 
 *input <identifier> <setting> <value>*
-	Set the setting "<setting>" to "<value>" for device "<identifier>". The identifier can either be "\*" (wildcard), of the form "type:<device_type>" or the identifier of the device as printed for example by *cagebreak --show-info*. The supported input types are
+	Set the setting "<setting>" to "<value>" for device "<identifier>". The identifier can either be "\*" (wildcard), of the form "type:<device_type>" or the identifier of the device as printed for example by *cagebreak -s*. The supported input types are
 	- touchpad
 	- pointer
 	- keyboard
@@ -208,6 +208,10 @@ by prepending a line with the # symbol.
 
 *resizeup*
 	Resize the current tile towards the top
+
+*show_info*
+	Display info about the current setup. In particular, print the identifiers
+	of the available inputs and outputs.
 
 *setmode <mode>*
 	Set the default mode to <mode>

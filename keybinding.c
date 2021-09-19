@@ -702,6 +702,18 @@ keybinding_show_time(struct cg_server *server) {
 }
 
 void
+keybinding_show_info(struct cg_server *server) {
+	char *msg=server_show_info(server);
+
+	if(!msg) {
+		return;
+	}
+
+	message_printf(server->curr_output, "%s", msg);
+	free(msg);
+}
+
+void
 keybinding_move_view_to_next_output(struct cg_server *server) {
 	if(wl_list_length(&server->outputs) <= 1) {
 		return;
@@ -939,6 +951,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_SHOW_TIME:
 		keybinding_show_time(server);
+		break;
+	case KEYBINDING_SHOW_INFO:
+		keybinding_show_info(server);
 		break;
 	case KEYBINDING_RESIZE_TILE_HORIZONTAL:
 		resize_tile(server, data.i, 0);
