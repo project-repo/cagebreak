@@ -63,7 +63,7 @@ server_show_info(struct cg_server *server) {
 		input_str_tmp = input_str;
 		if(strcmp(input->identifier, "") != 0) {
 			input_str =
-			    malloc_vsprintf("%s\t * H:%s\n", input_str, input->identifier);
+			    malloc_vsprintf("%s\t * %s\n", input_str, input->identifier);
 		}
 		free(input_str_tmp);
 	}
