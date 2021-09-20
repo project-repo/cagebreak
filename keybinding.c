@@ -115,6 +115,9 @@ keybinding_list_init() {
 
 void
 keybinding_list_free(struct keybinding_list *list) {
+	if(!list) {
+		return;
+	}
 	for(unsigned int i = 0; i < list->length; ++i) {
 		keybinding_free(list->keybindings[i], true);
 	}

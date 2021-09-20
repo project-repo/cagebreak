@@ -272,6 +272,7 @@ main(int argc, char *argv[]) {
 #endif
 
 	wl_list_init(&server.input_config);
+	wl_list_init(&server.output_config);
 
 	server.modes = malloc(4 * sizeof(char *));
 	if(!server.modes) {
@@ -336,8 +337,6 @@ main(int argc, char *argv[]) {
 		ret = 1;
 		goto end;
 	}
-
-	wl_list_init(&server.output_config);
 
 	renderer = wlr_backend_get_renderer(backend);
 	wlr_renderer_init_wl_display(renderer, server.wl_display);
