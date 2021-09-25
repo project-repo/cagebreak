@@ -1,4 +1,4 @@
-cagebreak(1) "Version 1.7.5" "Cagebreak Manual"
+cagebreak(1) "Version 1.8.0" "Cagebreak Manual"
 
 # NAME
 
@@ -37,6 +37,9 @@ are displayed in a message box at the top right of the screen.
 
 *-r*
 	Rotate the output 90 degrees clockwise, can be specified up to three times
+
+*-s*
+	Show all available inputs and outputs
 
 *-v*
 	Show version number and exit

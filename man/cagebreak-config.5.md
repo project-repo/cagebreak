@@ -1,4 +1,4 @@
-cagebreak-config(1) "Version 1.7.5" "Cagebreak Manual"
+cagebreak-config(1) "Version 1.8.0" "Cagebreak Manual"
 
 # NAME
 
@@ -103,7 +103,7 @@ by prepending a line with the # symbol.
 	- tablet_pad
 	- switch
 
-	Configurations are applied sequentially. Currently only libinput devices may be configured. The available settings and their corresponding values are as follows:
+	Configurations are applied sequentially. Currently, only libinput devices may be configured. The available settings and their corresponding values are as follows:
 
 	*accel_profile adaptive|flat*
 		Sets the pointer acceleration profile for the specified input device.
