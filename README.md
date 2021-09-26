@@ -512,6 +512,10 @@ Adds support for non-build dependencies and an option for builds without pandoc.
 
 Improve window ordering.
 
+### Release 1.8.0
+
+Adds libinput configuration and virtual keyboard and pointer support.
+
 ## Contributors
 
   * Aisha Tammy
