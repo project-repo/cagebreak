@@ -70,7 +70,7 @@ for this to work.
 #### Man Pages
 
 Cagebreak has man pages. To use them, make sure that you have `pandoc`
-installed. Then, add `-Dman-pages=true to the `meson` command.
+installed. Then, add `-Dman-pages=true` to the `meson` command.
 
 ### Running Cagebreak
 
@@ -203,6 +203,21 @@ ninja -C build
 For every release after 1.0.5, hashes will be provided.
 
 For every release after 1.7.0, hashes will be provided for man pages too.
+
+1.8.0 cagebreak
+
+  * sha 256: ac84aa4a08c311da79ca29d92eef4254cb625674b255dbb75621ee6b171a1d79
+  * sha 512: c047bb1986fd1d444547e4d64aa7ef9138b3d30327ac3ad9b4c6976e8df6638bae07c39293b5bc9c20e959c0a22b0e40eb2b23b4766d9a5531377ff954b16229
+
+1.8.0 cagebreak.1
+
+  * sha 256: 4de43de7bde67d6d806d206dffc34389f0b5c3ba648bfef673b7bc0adeb29202
+  * sha 512: 72aac9a2e9a47f2f85949222d5944dc293332a616e3b961c625fe876172f66638038057c30aa18904d6d969451f468b4fe45e918c0b204cf6952d58ea4c69c33
+
+1.8.0 cagebreak-config.5
+
+  * sha 256: 678aadde06b5ff6bfbd9bc9460423210f9599bcaa0e50c2eae076dc6d6852781
+  * sha 512: 72056018fc1c559f26bd7e007b3f1db7d478cec7ec9337620e03a1e3d06910e244a52e8f655ea4f5d73669ffe064bbd23506005d9a6c06764b0f820d7a1df43f
 
 1.7.4 cagebreak
 
@@ -511,6 +526,10 @@ Adds support for non-build dependencies and an option for builds without pandoc.
 ### Release 1.7.0
 
 Improve window ordering.
+
+### Release 1.8.0
+
+Adds libinput configuration and virtual keyboard and pointer support.
 
 ## Contributors
 

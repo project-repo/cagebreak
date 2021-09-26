@@ -10,6 +10,7 @@
 #include <wlr/types/wlr_box.h>
 
 #include "util.h"
+#include <stdlib.h>
 
 int
 scale_length(int length, int offset, double scale) {
@@ -32,4 +33,23 @@ scale_box(struct wlr_box *box, double scale) {
 	box->height = scale_length(box->height, box->y, scale);
 	box->x = (int)round(box->x * scale);
 	box->y = (int)round(box->y * scale);
+}
+
+char *
+malloc_vsprintf_va_list(const char *fmt, va_list ap) {
+	va_list ap2;
+	va_copy(ap2, ap);
+	int len = vsnprintf(NULL, 0, fmt, ap);
+	char *ret = malloc(sizeof(char) * (len + 1));
+	vsnprintf(ret, len + 1, fmt, ap2);
+	va_end(ap2);
+	return ret;
+}
+
+char *
+malloc_vsprintf(const char *fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	char *ret = malloc_vsprintf_va_list(fmt, args);
+	return ret;
 }

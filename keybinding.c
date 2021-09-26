@@ -9,6 +9,8 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/log.h>
 
+#include "input.h"
+#include "input_manager.h"
 #include "keybinding.h"
 #include "message.h"
 #include "output.h"
@@ -63,6 +65,16 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 	case KEYBINDING_CONFIGURE_OUTPUT:
 		free(keybinding->data.o_cfg->output_name);
 		free(keybinding->data.o_cfg);
+		break;
+	case KEYBINDING_CONFIGURE_INPUT:
+		free(keybinding->data.i_cfg->identifier);
+		if(keybinding->data.i_cfg->mapped_from_region) {
+			free(keybinding->data.i_cfg->mapped_from_region);
+		}
+		if(keybinding->data.i_cfg->mapped_to_output) {
+			free(keybinding->data.i_cfg->mapped_to_output);
+		}
+		free(keybinding->data.o_cfg);
 	default:
 		break;
 	}
@@ -103,6 +115,9 @@ keybinding_list_init() {
 
 void
 keybinding_list_free(struct keybinding_list *list) {
+	if(!list) {
+		return;
+	}
 	for(unsigned int i = 0; i < list->length; ++i) {
 		keybinding_free(list->keybindings[i], true);
 	}
@@ -690,6 +705,18 @@ keybinding_show_time(struct cg_server *server) {
 }
 
 void
+keybinding_show_info(struct cg_server *server) {
+	char *msg = server_show_info(server);
+
+	if(!msg) {
+		return;
+	}
+
+	message_printf(server->curr_output, "%s", msg);
+	free(msg);
+}
+
+void
 keybinding_move_view_to_next_output(struct cg_server *server) {
 	if(wl_list_length(&server->outputs) <= 1) {
 		return;
@@ -870,6 +897,16 @@ keybinding_configure_output(struct cg_server *server,
 	}
 }
 
+void
+keybinding_configure_input(struct cg_server *server,
+                           struct cg_input_config *cfg) {
+	cg_input_apply_config(cfg, server);
+}
+
+void
+keybinding_configure_input_dev(struct cg_server *server,
+                               struct cg_input_config *cfg) {}
+
 /* Hint: see keybinding.h for details on "data" */
 int
 run_action(enum keybinding_action action, struct cg_server *server,
@@ -917,6 +954,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_SHOW_TIME:
 		keybinding_show_time(server);
+		break;
+	case KEYBINDING_SHOW_INFO:
+		keybinding_show_info(server);
 		break;
 	case KEYBINDING_RESIZE_TILE_HORIZONTAL:
 		resize_tile(server, data.i, 0);
@@ -994,6 +1034,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_CONFIGURE_OUTPUT:
 		keybinding_configure_output(server, data.o_cfg);
+		break;
+	case KEYBINDING_CONFIGURE_INPUT:
+		keybinding_configure_input(server, data.i_cfg);
 		break;
 	case KEYBINDING_CLOSE_VIEW:
 		keybinding_close_view(

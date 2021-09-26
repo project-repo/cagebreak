@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.7.4',
+  version: '1.8.0',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -53,7 +53,7 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots', version: ['>=0.14.0', '< 0.15.0'])
+wlroots        = dependency('wlroots', version: ['>=0.14.1', '< 0.15.0'])
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')
@@ -64,6 +64,9 @@ cairo          = dependency('cairo')
 pango          = dependency('pango')
 pangocairo     = dependency('pangocairo')
 fontconfig     = dependency('fontconfig')
+libinput       = dependency('libinput')
+libevdev       = dependency('libevdev')
+libudev       = dependency('libudev')
 math           = cc.find_library('m')
 
 wl_protocol_dir = wayland_protos.get_pkgconfig_variable('pkgdatadir')
@@ -123,6 +126,7 @@ conf_data.set_quoted('CG_VERSION', version)
 cagebreak_main_file = [ 'cagebreak.c', ]
 cagebreak_source_strings = [
   'idle_inhibit_v1.c',
+  'input_manager.c',
   'ipc_server.c',
   'keybinding.c',
   'workspace.c',
@@ -133,6 +137,7 @@ cagebreak_source_strings = [
   'util.c',
   'view.c',
   'xdg_shell.c',
+  'libinput.c',
   'server.c',
   'message.c',
   'pango.c',
@@ -186,6 +191,9 @@ cagebreak_dependencies_dict = {
   'wlroots': [wlroots,true],
   'xkbcommon': [xkbcommon,true],
   'fontconfig': [fontconfig,true],
+  'libinput': [libinput,true],
+  'libevdev': [libevdev,true],
+  'libudev': [libudev,true],
   'pixman': [pixman,true],
   'pango': [pango,true],
   'cairo': [cairo,true],
@@ -198,13 +206,16 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.19.0',
   'wayland_cursor': '1.19.0',
-  'wlroots': '0.14.0',
-  'xkbcommon': '1.3.0',
+  'wlroots': '0.14.1',
+  'xkbcommon': '1.3.1',
   'fontconfig': '2.13.94',
+  'libinput': '1.19.0',
+  'libevdev': '1.11.0',
+  'libudev': '249',
   'pixman': '0.40.0',
-  'pango': '1.48.6',
+  'pango': '1.48.10',
   'cairo': '1.17.4',
-  'pangocairo': '1.48.6',
+  'pangocairo': '1.48.10',
   'math': '-1'
 }
 
@@ -257,7 +268,7 @@ if get_option('man-pages')
     output : 'cagebreak.1',
     input : 'man/cagebreak.1.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1625064321 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1632645085 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir1
     )
@@ -266,7 +277,7 @@ if get_option('man-pages')
     output : 'cagebreak-config.5',
     input : 'man/cagebreak-config.5.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1625064321 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1632645085 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir5
     )

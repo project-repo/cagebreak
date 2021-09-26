@@ -44,6 +44,7 @@
 #endif
 
 #include "idle_inhibit_v1.h"
+#include "input_manager.h"
 #include "ipc_server.h"
 #include "keybinding.h"
 #include "message.h"
@@ -59,6 +60,8 @@
 #ifndef WAIT_ANY
 #define WAIT_ANY -1
 #endif
+
+bool show_info = false;
 
 void
 set_sig_handler(int sig, void (*action)(int)) {
@@ -133,7 +136,8 @@ usage(FILE *file, const char *const cage) {
 	        " -D\t Turn on damage tracking debugging\n"
 #endif
 	        " -h\t Display this help message\n"
-	        " -v\t Show the version number and exit\n",
+	        " -v\t Show the version number and exit\n"
+	        " -s\t Show information about the current setup and exit\n",
 	        cage);
 }
 
@@ -141,9 +145,9 @@ static bool
 parse_args(struct cg_server *server, int argc, char *argv[]) {
 	int c;
 #ifdef DEBUG
-	while((c = getopt(argc, argv, "rDhv")) != -1) {
+	while((c = getopt(argc, argv, "rDhvs")) != -1) {
 #else
-	while((c = getopt(argc, argv, "rhv")) != -1) {
+	while((c = getopt(argc, argv, "rhvs")) != -1) {
 #endif
 		switch(c) {
 		case 'r':
@@ -163,6 +167,9 @@ parse_args(struct cg_server *server, int argc, char *argv[]) {
 		case 'v':
 			fprintf(stdout, "Cagebreak version " CG_VERSION "\n");
 			exit(0);
+		case 's':
+			show_info = true;
+			break;
 		default:
 			usage(stderr, argv[0]);
 			return false;
@@ -264,6 +271,9 @@ main(int argc, char *argv[]) {
 	wlr_log_init(WLR_ERROR, NULL);
 #endif
 
+	wl_list_init(&server.input_config);
+	wl_list_init(&server.output_config);
+
 	server.modes = malloc(4 * sizeof(char *));
 	if(!server.modes) {
 		wlr_log(WLR_ERROR, "Error allocating mode array");
@@ -328,8 +338,6 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 
-	wl_list_init(&server.output_config);
-
 	renderer = wlr_backend_get_renderer(backend);
 	wlr_renderer_init_wl_display(renderer, server.wl_display);
 
@@ -357,6 +365,8 @@ main(int argc, char *argv[]) {
 		ret = 1;
 		goto end;
 	}
+
+	server.input = input_manager_create(&server);
 
 	data_control_manager =
 	    wlr_data_control_manager_v1_create(server.wl_display);
@@ -523,6 +533,17 @@ main(int argc, char *argv[]) {
 	wlr_xwayland_set_seat(xwayland, server.seat->seat);
 #endif
 
+	if(show_info) {
+		char *msg = server_show_info(&server);
+		if(msg != NULL) {
+			fprintf(stderr, "%s", msg);
+			free(msg);
+		} else {
+			wlr_log(WLR_ERROR, "Failed to get info on cagebreak setup\n");
+		}
+		exit(0);
+	}
+
 	if(ipc_init(&server) != 0) {
 		wlr_log(WLR_ERROR, "Failed to initialize IPC");
 		ret = 1;
@@ -592,6 +613,7 @@ end:
 	wl_display_destroy(server.wl_display);
 	wlr_output_layout_destroy(server.output_layout);
 
+	free(server.input);
 	pango_cairo_font_map_set_default(NULL);
 	cairo_debug_reset_static_data();
 	FcFini();

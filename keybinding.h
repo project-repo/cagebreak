@@ -4,6 +4,7 @@
 
 #include "config.h"
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <xkbcommon/xkbcommon.h>
 
@@ -24,6 +25,8 @@ enum keybinding_action {
 	KEYBINDING_CYCLE_OUTPUT,     // data.b is 0 if forward, 1 if reverse
 	KEYBINDING_CONFIGURE_OUTPUT, // data.o_cfg is the desired output
 	                             // configuration
+	KEYBINDING_CONFIGURE_INPUT,  // data.i_cfg is the desired input
+	                             // configuration
 	KEYBINDING_QUIT,
 	KEYBINDING_NOOP,
 	KEYBINDING_SWITCH_WORKSPACE,       // data.u is the desired workspace
@@ -36,6 +39,7 @@ enum keybinding_action {
 	KEYBINDING_MOVE_VIEW_TO_WORKSPACE, // data.u is the desired workspace
 	KEYBINDING_MOVE_VIEW_TO_NEXT_OUTPUT,
 	KEYBINDING_SHOW_TIME,
+	KEYBINDING_SHOW_INFO,
 
 	KEYBINDING_SWAP_LEFT,
 	KEYBINDING_SWAP_RIGHT,
@@ -61,6 +65,7 @@ union keybinding_params {
 	float color[3];
 	struct keybinding *kb;
 	struct cg_output_config *o_cfg;
+	struct cg_input_config *i_cfg;
 };
 
 struct keybinding {
