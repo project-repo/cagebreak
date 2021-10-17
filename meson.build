@@ -258,6 +258,8 @@ executable(
   c_args: fuzz_compile_args,
 )
 
+install_data('examples/config',install_dir: '/etc/xdg/cagebreak')
+
 if get_option('man-pages')
   scdoc = find_program('scdoc')
   sh = find_program('sh')
