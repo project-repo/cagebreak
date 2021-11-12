@@ -201,7 +201,8 @@ swap_tile(struct cg_tile *tile,
 		view_maximize(swap_tile->view, swap_tile);
 		view_damage_whole(swap_tile->view);
 	} else {
-		wlr_output_damage_add_box(tile->workspace->output->damage, &tile->tile);
+		wlr_output_damage_add_box(tile->workspace->output->damage,
+		                          &swap_tile->tile);
 	}
 
 	seat_set_focus(server->seat, swap_tile->view);

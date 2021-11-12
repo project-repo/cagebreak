@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.8.0',
+  version: '1.8.1',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -209,8 +209,8 @@ reproducible_build_versions = {
   'wlroots': '0.14.1',
   'xkbcommon': '1.3.1',
   'fontconfig': '2.13.94',
-  'libinput': '1.19.0',
-  'libevdev': '1.11.0',
+  'libinput': '1.19.2',
+  'libevdev': '1.12.0',
   'libudev': '249',
   'pixman': '0.40.0',
   'pango': '1.48.10',
@@ -258,6 +258,8 @@ executable(
   c_args: fuzz_compile_args,
 )
 
+install_data('examples/config', install_dir : '/etc/xdg/cagebreak')
+
 if get_option('man-pages')
   scdoc = find_program('scdoc')
   sh = find_program('sh')
@@ -268,7 +270,7 @@ if get_option('man-pages')
     output : 'cagebreak.1',
     input : 'man/cagebreak.1.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1632645085 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1636733005 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir1
     )
@@ -277,7 +279,7 @@ if get_option('man-pages')
     output : 'cagebreak-config.5',
     input : 'man/cagebreak-config.5.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1632645085 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1636733005 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir5
     )

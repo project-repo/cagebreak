@@ -341,3 +341,14 @@ The advantages are:
 Cagebreak has always used pandoc to compile man pages. Cagebreak now uses scdoc
 instead.
 
+### Issue 27
+
+  * github issue number: #8
+  * Fixed: 1.8.1
+
+```
+Apologies for opening two tickets instead of one, but I thought that these two suggestions are different enought they merit their own "issue".
+
+Would replicating the behaviour in ratpoison (if no config file is found, load predefined defaults) something you would be interested in? I personally found confusing when I first tried cagebreak that it wouldn't start without a config file, coming from ratpoison. Of course, other people's experience might be different.
+```
+

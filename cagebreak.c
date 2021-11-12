@@ -192,7 +192,7 @@ set_configuration(struct cg_server *server,
 	if(config_file == NULL) {
 		wlr_log(WLR_ERROR, "Could not open config file \"%s\"",
 		        config_file_path);
-		return -1;
+		return 1;
 	}
 	char line[MAX_LINE_SIZE * sizeof(char)];
 	for(unsigned int line_num = 1;
@@ -557,7 +557,17 @@ main(int argc, char *argv[]) {
 			ret = 1;
 			goto end;
 		}
-		if(set_configuration(&server, config_file) != 0) {
+		int conf_ret = set_configuration(&server, config_file);
+
+		// Configurtion file not found
+		if(conf_ret == 1) {
+			char *default_conf = "/etc/xdg/cagebreak/config";
+			wlr_log(WLR_ERROR, "Loading default configuration file: \"%s\"",
+			        default_conf);
+			conf_ret = set_configuration(&server, default_conf);
+		}
+
+		if(conf_ret != 0) {
 			free(config_file);
 			ret = 1;
 			goto end;
