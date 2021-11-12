@@ -270,7 +270,7 @@ if get_option('man-pages')
     output : 'cagebreak.1',
     input : 'man/cagebreak.1.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1632645085 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1636733005 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir1
     )
@@ -279,7 +279,7 @@ if get_option('man-pages')
     output : 'cagebreak-config.5',
     input : 'man/cagebreak-config.5.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1632645085 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1636733005 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir5
     )
