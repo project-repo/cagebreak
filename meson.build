@@ -210,7 +210,7 @@ reproducible_build_versions = {
   'xkbcommon': '1.3.1',
   'fontconfig': '2.13.94',
   'libinput': '1.19.2',
-  'libevdev': '1.11.0',
+  'libevdev': '1.12.0',
   'libudev': '249',
   'pixman': '0.40.0',
   'pango': '1.48.10',
@@ -258,7 +258,7 @@ executable(
   c_args: fuzz_compile_args,
 )
 
-install_data('examples/config',install_dir: '/etc/xdg/cagebreak')
+install_data('examples/config', install_dir : '/etc/xdg/cagebreak')
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
