@@ -62,7 +62,6 @@ struct cg_view_child {
 	struct wl_listener new_subsurface;
 
 	void (*destroy)(struct cg_view_child *child);
-	void (*get_coords)(struct cg_view_child *child, int *x, int *y);
 };
 
 struct cg_subsurface {
