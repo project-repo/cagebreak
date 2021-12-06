@@ -213,9 +213,9 @@ reproducible_build_versions = {
   'libevdev': '1.12.0',
   'libudev': '249',
   'pixman': '0.40.0',
-  'pango': '1.48.10',
+  'pango': '1.50.0',
   'cairo': '1.17.4',
-  'pangocairo': '1.48.10',
+  'pangocairo': '1.50.0',
   'math': '-1'
 }
 
