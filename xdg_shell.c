@@ -1,7 +1,7 @@
 /*
  * Cagebreak: A Wayland tiling compositor.
  *
- * Copyright (C) 2020 The Cagebreak Authors
+ * Copyright (C) 2020-2022 The Cagebreak Authors
  * Copyright (C) 2018-2019 Jente Hidskes
  *
  * See the LICENSE file accompanying this file.
