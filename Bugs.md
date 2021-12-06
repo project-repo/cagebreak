@@ -352,3 +352,15 @@ Apologies for opening two tickets instead of one, but I thought that these two s
 Would replicating the behaviour in ratpoison (if no config file is found, load predefined defaults) something you would be interested in? I personally found confusing when I first tried cagebreak that it wouldn't start without a config file, coming from ratpoison. Of course, other people's experience might be different.
 ```
 
+### Issue 28
+
+  * github issue number: #10
+  * Fixed: 1.8.2
+
+```
+I'm using v. 1.8.1 and am experiencing a screen refresh lag, particularly on Firefox:
+
+When I type in anything, the text is refreshed and becomes visible only following mouse movement. I don't experience this with the same setup when I use Sway as the compositor.
+```
+
+Cagebreak had an error with damage tracking.

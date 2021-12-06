@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.8.1',
+  version: '1.8.2',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -213,9 +213,9 @@ reproducible_build_versions = {
   'libevdev': '1.12.0',
   'libudev': '249',
   'pixman': '0.40.0',
-  'pango': '1.48.10',
+  'pango': '1.50.0',
   'cairo': '1.17.4',
-  'pangocairo': '1.48.10',
+  'pangocairo': '1.50.0',
   'math': '-1'
 }
 
@@ -270,7 +270,7 @@ if get_option('man-pages')
     output : 'cagebreak.1',
     input : 'man/cagebreak.1.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1636733005 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1638785664 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir1
     )
@@ -279,7 +279,7 @@ if get_option('man-pages')
     output : 'cagebreak-config.5',
     input : 'man/cagebreak-config.5.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1636733005 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1638785664 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir5
     )

@@ -1,4 +1,4 @@
-cagebreak(1) "Version 1.8.1" "Cagebreak Manual"
+cagebreak(1) "Version 1.8.2" "Cagebreak Manual"
 
 # NAME
 
@@ -75,7 +75,7 @@ See GitHub Issues: <https://github.com/project-repo/cagebreak/issues>
 
 # LICENSE
 
-Copyright (c) 2020-2021 The Cagebreak authors
+Copyright (c) 2020-2022 The Cagebreak authors
 Copyright (c) 2018-2020 Jente Hidskes
 Copyright (c) 2019 The Sway authors
 

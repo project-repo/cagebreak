@@ -1,7 +1,7 @@
 /*
  * Cagebreak: A Wayland tiling compositor.
  *
- * Copyright (C) 2020 The Cagebreak Authors
+ * Copyright (C) 2020-2022 The Cagebreak Authors
  * Copyright (C) 2018-2020 Jente Hidskes
  *
  * See the LICENSE file accompanying this file.
@@ -51,10 +51,9 @@ view_get_prev_view(struct cg_view *view) {
 
 void
 view_damage_child(struct cg_view_child *child, bool whole) {
-	int x, y;
-	child->get_coords(child, &x, &y);
-	output_damage_surface(child->view->workspace->output, child->wlr_surface,
-	                      x + child->view->ox, y + child->view->oy, whole);
+	if(child->view != NULL) {
+		view_damage_part(child->view);
+	}
 }
 
 static void
@@ -139,30 +138,6 @@ subsurface_handle_destroy(struct wl_listener *listener, void *_data) {
 }
 
 static void
-subsurface_get_coords(struct cg_view_child *child, int *x, int *y) {
-	struct wlr_surface *surface = child->wlr_surface;
-	*x = *y = 0;
-
-	if(child->parent && child->parent->get_coords) {
-		int sx, sy;
-		child->parent->get_coords(child->parent, &sx, &sy);
-		*x += sx;
-		*y += sy;
-	} else {
-		while(surface && wlr_surface_is_subsurface(surface)) {
-			struct wlr_subsurface *subsurface =
-			    wlr_subsurface_from_wlr_surface(surface);
-			if(subsurface == NULL) {
-				break;
-			}
-			*x += subsurface->current.x;
-			*y += subsurface->current.y;
-			surface = subsurface->parent;
-		}
-	}
-}
-
-static void
 subsurface_create(struct cg_view_child *parent, struct cg_view *view,
                   struct wlr_subsurface *wlr_subsurface) {
 	struct cg_subsurface *subsurface = calloc(1, sizeof(struct cg_subsurface));
@@ -173,7 +148,6 @@ subsurface_create(struct cg_view_child *parent, struct cg_view *view,
 	view_child_init(&subsurface->view_child, parent, view,
 	                wlr_subsurface->surface);
 	subsurface->view_child.destroy = subsurface_destroy;
-	subsurface->view_child.get_coords = subsurface_get_coords;
 	subsurface->wlr_subsurface = wlr_subsurface;
 
 	subsurface->destroy.notify = subsurface_handle_destroy;
@@ -279,6 +253,11 @@ view_unmap(struct cg_view *view) {
 	if(view->wlr_surface == NULL) {
 		return;
 	}
+
+	struct cg_view_child *child, *tmp;
+	wl_list_for_each_safe(child, tmp, &view->children, link) {
+		child->destroy(child);
+	}
 #if CG_HAS_XWAYLAND
 	if((view->type != CG_XWAYLAND_VIEW || xwayland_view_should_manage(view)))
 #endif
@@ -323,11 +302,6 @@ view_unmap(struct cg_view *view) {
 
 	wl_list_remove(&view->new_subsurface.link);
 	view->wlr_surface = NULL;
-
-	struct cg_view_child *child, *tmp;
-	wl_list_for_each_safe(child, tmp, &view->children, link) {
-		child->destroy(child);
-	}
 }
 
 void
