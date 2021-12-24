@@ -37,9 +37,10 @@ enum keybinding_action {
 	                                   // to the current width
 	KEYBINDING_RESIZE_TILE_VERTICAL, // data.i is the number of pixels to add to
 	                                 // the current height
-	KEYBINDING_MOVE_VIEW_TO_WORKSPACE, // data.u is the desired workspace
-	KEYBINDING_MOVE_VIEW_TO_OUTPUT, // data.u is the desired output
-	KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT, //data.b is 0 if forward, 1 if reverse
+	KEYBINDING_MOVE_VIEW_TO_WORKSPACE,    // data.u is the desired workspace
+	KEYBINDING_MOVE_VIEW_TO_OUTPUT,       // data.u is the desired output
+	KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT, // data.b is 0 if forward, 1 if
+	                                      // reverse
 	KEYBINDING_SHOW_TIME,
 	KEYBINDING_SHOW_INFO,
 

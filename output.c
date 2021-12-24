@@ -566,24 +566,24 @@ output_set_mode(struct wlr_output *output, int width, int height,
 
 void
 output_insert(struct cg_server *server, struct cg_output *output) {
-	struct cg_output *it, *prev_it=NULL;
-	bool first=true;
-	wl_list_for_each(it,&server->outputs,link) {
-		if(it->priority<output->priority) {
+	struct cg_output *it, *prev_it = NULL;
+	bool first = true;
+	wl_list_for_each(it, &server->outputs, link) {
+		if(it->priority < output->priority) {
 			if(first == true) {
-				wl_list_insert(&server->outputs,&output->link);
+				wl_list_insert(&server->outputs, &output->link);
 			} else {
-				wl_list_insert(it->link.prev,&output->link);
+				wl_list_insert(it->link.prev, &output->link);
 			}
 			return;
 		}
-		first=false;
-		prev_it=it;
+		first = false;
+		prev_it = it;
 	}
-	if(prev_it==NULL) {
-		wl_list_insert(&server->outputs,&output->link);
+	if(prev_it == NULL) {
+		wl_list_insert(&server->outputs, &output->link);
 	} else {
-		wl_list_insert(&prev_it->link,&output->link);
+		wl_list_insert(&prev_it->link, &output->link);
 	}
 }
 
@@ -609,27 +609,27 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 			wlr_output_set_mode(wlr_output, preferred_mode);
 		}
 		wl_list_remove(&output->link);
-		output_insert(server,output);
+		output_insert(server, output);
 		wlr_output_enable(wlr_output, true);
 		wlr_output_commit(wlr_output);
 	} else {
 		if(config->status == OUTPUT_DISABLE) {
-				output_clear(output);
-				wl_list_insert(&server->disabled_outputs, &output->link);
-				wlr_output_enable(wlr_output, false);
-				wlr_output_commit(wlr_output);
+			output_clear(output);
+			wl_list_insert(&server->disabled_outputs, &output->link);
+			wlr_output_enable(wlr_output, false);
+			wlr_output_commit(wlr_output);
 		} else {
 			wl_list_remove(&output->link);
 			if(config->priority != -1) {
-				output->priority=config->priority;
+				output->priority = config->priority;
 			}
 			if(config->pos.x != -1) {
-				output_set_mode(wlr_output, config->pos.width, config->pos.height,
-				                config->refresh_rate);
-				wlr_output_layout_add(server->output_layout, wlr_output, config->pos.x,
-				                      config->pos.y);
+				output_set_mode(wlr_output, config->pos.width,
+				                config->pos.height, config->refresh_rate);
+				wlr_output_layout_add(server->output_layout, wlr_output,
+				                      config->pos.x, config->pos.y);
 			}
-			output_insert(server,output);
+			output_insert(server, output);
 			wlr_output_enable(wlr_output, true);
 			wlr_output_commit(wlr_output);
 		}
@@ -657,13 +657,13 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	output->last_scanned_out_view = NULL;
 
 	struct cg_output_priorities *it;
-	int prio=-1;
+	int prio = -1;
 	wl_list_for_each(it, &server->output_priorities, link) {
-		if(strcmp(output->wlr_output->name,it->ident)==0) {
-			prio=it->priority;
+		if(strcmp(output->wlr_output->name, it->ident) == 0) {
+			prio = it->priority;
 		}
 	}
-	output->priority=prio;
+	output->priority = prio;
 	wlr_output_set_transform(wlr_output, server->output_transform);
 	output->workspaces = NULL;
 
@@ -677,7 +677,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		        wlr_output->name, wlr_output->scale);
 	}
 
-	output_insert(server,output);
+	output_insert(server, output);
 	output_configure(server, output);
 	wlr_output_damage_add_whole(output->damage);
 

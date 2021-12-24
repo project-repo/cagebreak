@@ -604,24 +604,22 @@ set_output(struct cg_server *server, struct cg_output *output) {
 
 void
 keybinding_cycle_outputs(struct cg_server *server, bool reverse) {
-	struct cg_output *output=NULL;
+	struct cg_output *output = NULL;
 	if(reverse) {
 		output = wl_container_of(server->curr_output->link.prev,
-		                                      server->curr_output, link);
+		                         server->curr_output, link);
 	} else {
 		output = wl_container_of(server->curr_output->link.next,
-		                                      server->curr_output, link);
+		                         server->curr_output, link);
 	}
 	if(&output->link == &server->outputs) {
 		if(reverse) {
-			output = wl_container_of(
-			    output->link.prev, output, link);
+			output = wl_container_of(output->link.prev, output, link);
 		} else {
-			output = wl_container_of(
-			    output->link.next, output, link);
+			output = wl_container_of(output->link.next, output, link);
 		}
 	}
-	set_output(server,output);
+	set_output(server, output);
 }
 
 /* Cycle through views, whereby the workspace does not change */
@@ -841,15 +839,15 @@ keybinding_set_background(struct cg_server *server, float *bg) {
 void
 keybinding_switch_output(struct cg_server *server, int output) {
 	struct cg_output *it;
-	int count=1;
-	wl_list_for_each(it,&server->outputs,link) {
-		if(count==output) {
-			set_output(server,it);
+	int count = 1;
+	wl_list_for_each(it, &server->outputs, link) {
+		if(count == output) {
+			set_output(server, it);
 			return;
 		}
 		++count;
 	}
-	message_printf(server->curr_output,"Output %d does not exist",output);
+	message_printf(server->curr_output, "Output %d does not exist", output);
 	return;
 }
 
@@ -910,18 +908,19 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 }
 
 void
-merge_config(struct cg_output_config *config_new, struct cg_output_config *config_old) {
-	if(config_new->status==OUTPUT_DEFAULT) {
-		config_new->status=config_old->status;
+merge_config(struct cg_output_config *config_new,
+             struct cg_output_config *config_old) {
+	if(config_new->status == OUTPUT_DEFAULT) {
+		config_new->status = config_old->status;
 	}
 	if(config_new->pos.x == -1) {
-		config_new->pos=config_old->pos;
+		config_new->pos = config_old->pos;
 	}
-	if(config_new->refresh_rate==0) {
-		config_new->refresh_rate=config_old->refresh_rate;
+	if(config_new->refresh_rate == 0) {
+		config_new->refresh_rate = config_old->refresh_rate;
 	}
-	if(config_new->priority==-1) {
-		config_new->priority=config_old->priority;
+	if(config_new->priority == -1) {
+		config_new->priority = config_old->priority;
 	}
 }
 
@@ -1092,7 +1091,7 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	}
 	case KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT: {
-		keybinding_move_view_to_cycle_output(server,data.b);
+		keybinding_move_view_to_cycle_output(server, data.b);
 		break;
 	}
 	case KEYBINDING_DEFINEKEY:

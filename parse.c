@@ -523,11 +523,11 @@ parse_output_config(char **saveptr, char **errstr) {
 		    log_error("Failed to allocate memory for output configuration");
 		goto error;
 	}
-	cfg->status=OUTPUT_DEFAULT;
-	cfg->pos.x=-1;
-	cfg->output_name=NULL;
-	cfg->refresh_rate=0;
-	cfg->priority=-1;
+	cfg->status = OUTPUT_DEFAULT;
+	cfg->pos.x = -1;
+	cfg->output_name = NULL;
+	cfg->refresh_rate = 0;
+	cfg->priority = -1;
 	char *name = strtok_r(NULL, " ", saveptr);
 	if(name == NULL) {
 		*errstr =
@@ -547,9 +547,11 @@ parse_output_config(char **saveptr, char **errstr) {
 	}
 
 	if(strcmp(key_str, "prio") == 0) {
-		cfg->priority=parse_uint(saveptr, " ");
-		if(cfg->priority<0) {
-			*errstr = log_error( "Error parsing priority of output configuration for output %s", name);
+		cfg->priority = parse_uint(saveptr, " ");
+		if(cfg->priority < 0) {
+			*errstr = log_error(
+			    "Error parsing priority of output configuration for output %s",
+			    name);
 			goto error;
 		}
 		cfg->output_name = strdup(name);
@@ -690,8 +692,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_SWITCH_OUTPUT;
 		char *noutp_str = strtok_r(NULL, " ", &saveptr);
 		if(noutp_str == NULL) {
-			*errstr = log_error(
-			    "Expected argument for \"output\" action, got none.");
+			*errstr =
+			    log_error("Expected argument for \"output\" action, got none.");
 			return -1;
 		}
 
@@ -772,10 +774,10 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_FOCUS_BOTTOM;
 	} else if(strcmp(action, "movetonextscreen") == 0) {
 		keybinding->action = KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT;
-		keybinding->data.b=false;
+		keybinding->data.b = false;
 	} else if(strcmp(action, "movetoprevscreen") == 0) {
 		keybinding->action = KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT;
-		keybinding->data.b=true;
+		keybinding->data.b = true;
 	} else if(strcmp(action, "switchvt") == 0) {
 		keybinding->action = KEYBINDING_CHANGE_TTY;
 		char *ntty = strtok_r(NULL, " ", &saveptr);
