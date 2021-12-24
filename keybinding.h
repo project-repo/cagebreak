@@ -20,14 +20,14 @@ enum keybinding_action {
 	KEYBINDING_SPLIT_HORIZONTAL,
 	KEYBINDING_CHANGE_TTY, // data.u is the desired tty
 	KEYBINDING_LAYOUT_FULLSCREEN,
-	KEYBINDING_CYCLE_VIEWS,      // data.b is 0 if forward, 1 if reverse
-	KEYBINDING_CYCLE_TILES,      // data.b is 0 if forward, 1 if reverse
-	KEYBINDING_CYCLE_OUTPUT,     // data.b is 0 if forward, 1 if reverse
-	KEYBINDING_CONFIGURE_OUTPUT, // data.o_cfg is the desired output
-	                             // configuration
+	KEYBINDING_CYCLE_VIEWS,       // data.b is 0 if forward, 1 if reverse
+	KEYBINDING_CYCLE_TILES,       // data.b is 0 if forward, 1 if reverse
+	KEYBINDING_CYCLE_OUTPUT,      // data.b is 0 if forward, 1 if reverse
+	KEYBINDING_CONFIGURE_OUTPUT,  // data.o_cfg is the desired output
+	                              // configuration
 	KEYBINDING_CONFIGURE_MESSAGE, // data.m_cfg is the desired config
-	KEYBINDING_CONFIGURE_INPUT,  // data.i_cfg is the desired input
-	                             // configuration
+	KEYBINDING_CONFIGURE_INPUT,   // data.i_cfg is the desired input
+	                              // configuration
 	KEYBINDING_QUIT,
 	KEYBINDING_NOOP,
 	KEYBINDING_SWITCH_OUTPUT,          // data.u is the desired output

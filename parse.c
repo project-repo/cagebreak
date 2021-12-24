@@ -628,7 +628,8 @@ error:
 	return NULL;
 }
 
-struct cg_message_config *parse_message_config(char **saveptr, char **errstr) {
+struct cg_message_config *
+parse_message_config(char **saveptr, char **errstr) {
 	struct cg_message_config *cfg = calloc(1, sizeof(struct cg_message_config));
 	if(cfg == NULL) {
 		*errstr =
@@ -636,45 +637,50 @@ struct cg_message_config *parse_message_config(char **saveptr, char **errstr) {
 		goto error;
 	}
 
-	cfg->bg_color[0]=-1;
-	cfg->fg_color[0]=-1;
-	cfg->display_time=-1;
-	cfg->font=NULL;
+	cfg->bg_color[0] = -1;
+	cfg->fg_color[0] = -1;
+	cfg->display_time = -1;
+	cfg->font = NULL;
 
 	char *setting = strtok_r(NULL, " ", saveptr);
 	if(setting == NULL) {
-		*errstr =
-		    log_error("Expected setting to be set for message configuration, got none");
+		*errstr = log_error(
+		    "Expected setting to be set for message configuration, got none");
 		goto error;
 	}
 
 	if(strcmp(setting, "font") == 0) {
-		cfg->font=strdup(*saveptr);
+		cfg->font = strdup(*saveptr);
 		if(cfg->font == NULL) {
-			*errstr = log_error( "Unable to allocate memory for font descrition in command \"message\"");
+			*errstr = log_error("Unable to allocate memory for font descrition "
+			                    "in command \"message\"");
 			goto error;
 		}
 	} else if(strcmp(setting, "display_time") == 0) {
-		cfg->display_time=parse_uint(saveptr, " ");
-		if(cfg->display_time<0) {
-			*errstr = log_error("Error parsing command \"configure_message display_time\", expected a non-negative integer");
+		cfg->display_time = parse_uint(saveptr, " ");
+		if(cfg->display_time < 0) {
+			*errstr =
+			    log_error("Error parsing command \"configure_message "
+			              "display_time\", expected a non-negative integer");
 			goto error;
 		}
 	} else if(strcmp(setting, "bg_color") == 0) {
 		for(int i = 0; i < 4; ++i) {
-			cfg->bg_color[i]=parse_float(saveptr, " ");
+			cfg->bg_color[i] = parse_float(saveptr, " ");
 			if(cfg->bg_color[i] == FLT_MIN) {
-				*errstr =
-				    log_error("Error parsing command \"configure_message bg_color\", expected 4 float values separated by spaces");
+				*errstr = log_error(
+				    "Error parsing command \"configure_message bg_color\", "
+				    "expected 4 float values separated by spaces");
 				goto error;
 			}
 		}
 	} else if(strcmp(setting, "fg_color") == 0) {
 		for(int i = 0; i < 4; ++i) {
-			cfg->fg_color[i]=parse_float(saveptr, " ");
+			cfg->fg_color[i] = parse_float(saveptr, " ");
 			if(cfg->fg_color[i] == FLT_MIN) {
-				*errstr =
-				    log_error("Error parsing command \"configure_message bg_color\", expected 4 float values separated by spaces");
+				*errstr = log_error(
+				    "Error parsing command \"configure_message bg_color\", "
+				    "expected 4 float values separated by spaces");
 				goto error;
 			}
 		}
@@ -685,9 +691,9 @@ struct cg_message_config *parse_message_config(char **saveptr, char **errstr) {
 	return cfg;
 
 error:
-	wlr_log(WLR_ERROR, "Message configuration must be of the form 'configure_message <setting> <value>'");
+	wlr_log(WLR_ERROR, "Message configuration must be of the form "
+	                   "'configure_message <setting> <value>'");
 	return NULL;
-
 }
 
 int

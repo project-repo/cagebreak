@@ -307,18 +307,18 @@ main(int argc, char *argv[]) {
 	}
 
 	server.nws = 1;
-	server.message_config.fg_color[0]=0.0;
-	server.message_config.fg_color[1]=0.0;
-	server.message_config.fg_color[2]=0.0;
-	server.message_config.fg_color[3]=1.0;
+	server.message_config.fg_color[0] = 0.0;
+	server.message_config.fg_color[1] = 0.0;
+	server.message_config.fg_color[2] = 0.0;
+	server.message_config.fg_color[3] = 1.0;
 
-	server.message_config.bg_color[0]=0.9;
-	server.message_config.bg_color[1]=0.85;
-	server.message_config.bg_color[2]=0.85;
-	server.message_config.bg_color[3]=1.0;
+	server.message_config.bg_color[0] = 0.9;
+	server.message_config.bg_color[1] = 0.85;
+	server.message_config.bg_color[2] = 0.85;
+	server.message_config.bg_color[3] = 1.0;
 
 	server.message_config.display_time = 2;
-	server.message_config.font=strdup("pango:Monospace 10");
+	server.message_config.font = strdup("pango:Monospace 10");
 
 	event_loop = wl_display_get_event_loop(server.wl_display);
 	sigint_source =

@@ -77,7 +77,7 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 		free(keybinding->data.o_cfg);
 		break;
 	case KEYBINDING_CONFIGURE_MESSAGE:
-		if(keybinding->data.m_cfg->font!=NULL) {
+		if(keybinding->data.m_cfg->font != NULL) {
 			free(keybinding->data.m_cfg->font);
 		}
 		break;
@@ -977,25 +977,26 @@ keybinding_configure_input(struct cg_server *server,
 }
 
 void
-keybinding_configure_message(struct cg_server *server, struct cg_message_config *config) {
-	if(config->font!=NULL) {
+keybinding_configure_message(struct cg_server *server,
+                             struct cg_message_config *config) {
+	if(config->font != NULL) {
 		free(server->message_config.font);
-		server->message_config.font=strdup(config->font);
+		server->message_config.font = strdup(config->font);
 	}
-	if(config->display_time!=-1) {
-		server->message_config.display_time=config->display_time;
+	if(config->display_time != -1) {
+		server->message_config.display_time = config->display_time;
 	}
-	if(config->bg_color[0]!=-1) {
-		server->message_config.bg_color[0]=config->bg_color[0];
-		server->message_config.bg_color[1]=config->bg_color[1];
-		server->message_config.bg_color[2]=config->bg_color[2];
-		server->message_config.bg_color[3]=config->bg_color[3];
+	if(config->bg_color[0] != -1) {
+		server->message_config.bg_color[0] = config->bg_color[0];
+		server->message_config.bg_color[1] = config->bg_color[1];
+		server->message_config.bg_color[2] = config->bg_color[2];
+		server->message_config.bg_color[3] = config->bg_color[3];
 	}
-	if(config->fg_color[0]!=-1) {
-		server->message_config.fg_color[0]=config->fg_color[0];
-		server->message_config.fg_color[1]=config->fg_color[1];
-		server->message_config.fg_color[2]=config->fg_color[2];
-		server->message_config.fg_color[3]=config->fg_color[3];
+	if(config->fg_color[0] != -1) {
+		server->message_config.fg_color[0] = config->fg_color[0];
+		server->message_config.fg_color[1] = config->fg_color[1];
+		server->message_config.fg_color[2] = config->fg_color[2];
+		server->message_config.fg_color[3] = config->fg_color[3];
 	}
 }
 
