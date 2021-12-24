@@ -122,7 +122,7 @@ parse_input_config(char **saveptr, char **errstr) {
 	char *ident = NULL;
 	if(cfg == NULL) {
 		*errstr =
-		    log_error("Failed to allocate memory for output configuration");
+		    log_error("Failed to allocate memory for input configuration");
 		goto error;
 	}
 
@@ -340,6 +340,9 @@ parse_input_config(char **saveptr, char **errstr) {
 			    "Invalid option \"%s\" to setting \"tap_button_map\"", value);
 			goto error;
 		}
+	} else {
+		*errstr = log_error("Invalid option to command \"input\"");
+		goto error;
 	}
 
 	free(value);
@@ -625,6 +628,68 @@ error:
 	return NULL;
 }
 
+struct cg_message_config *parse_message_config(char **saveptr, char **errstr) {
+	struct cg_message_config *cfg = calloc(1, sizeof(struct cg_message_config));
+	if(cfg == NULL) {
+		*errstr =
+		    log_error("Failed to allocate memory for message configuration");
+		goto error;
+	}
+
+	cfg->bg_color[0]=-1;
+	cfg->fg_color[0]=-1;
+	cfg->display_time=-1;
+	cfg->font=NULL;
+
+	char *setting = strtok_r(NULL, " ", saveptr);
+	if(setting == NULL) {
+		*errstr =
+		    log_error("Expected setting to be set for message configuration, got none");
+		goto error;
+	}
+
+	if(strcmp(setting, "font") == 0) {
+		cfg->font=strdup(*saveptr);
+		if(cfg->font == NULL) {
+			*errstr = log_error( "Unable to allocate memory for font descrition in command \"message\"");
+			goto error;
+		}
+	} else if(strcmp(setting, "display_time") == 0) {
+		cfg->display_time=parse_uint(saveptr, " ");
+		if(cfg->display_time<0) {
+			*errstr = log_error("Error parsing command \"configure_message display_time\", expected a non-negative integer");
+			goto error;
+		}
+	} else if(strcmp(setting, "bg_color") == 0) {
+		for(int i = 0; i < 4; ++i) {
+			cfg->bg_color[i]=parse_float(saveptr, " ");
+			if(cfg->bg_color[i] == FLT_MIN) {
+				*errstr =
+				    log_error("Error parsing command \"configure_message bg_color\", expected 4 float values separated by spaces");
+				goto error;
+			}
+		}
+	} else if(strcmp(setting, "fg_color") == 0) {
+		for(int i = 0; i < 4; ++i) {
+			cfg->fg_color[i]=parse_float(saveptr, " ");
+			if(cfg->fg_color[i] == FLT_MIN) {
+				*errstr =
+				    log_error("Error parsing command \"configure_message bg_color\", expected 4 float values separated by spaces");
+				goto error;
+			}
+		}
+	} else {
+		*errstr = log_error("Invalid option to command \"configure_message\"");
+		goto error;
+	}
+	return cfg;
+
+error:
+	wlr_log(WLR_ERROR, "Message configuration must be of the form 'configure_message <setting> <value>'");
+	return NULL;
+
+}
+
 int
 parse_command(struct cg_server *server, struct keybinding *keybinding,
               char *saveptr, char **errstr) {
@@ -863,6 +928,12 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_CONFIGURE_INPUT;
 		keybinding->data.i_cfg = parse_input_config(&saveptr, errstr);
 		if(keybinding->data.i_cfg == NULL) {
+			return -1;
+		}
+	} else if(strcmp(action, "configure_message") == 0) {
+		keybinding->action = KEYBINDING_CONFIGURE_MESSAGE;
+		keybinding->data.m_cfg = parse_message_config(&saveptr, errstr);
+		if(keybinding->data.m_cfg == NULL) {
 			return -1;
 		}
 	} else {

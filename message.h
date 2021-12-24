@@ -16,6 +16,13 @@ enum cg_message_align {
 	CG_MESSAGE_CENTER,
 };
 
+struct cg_message_config {
+	char *font;
+	int display_time;
+	float bg_color[4];
+	float fg_color[4];
+};
+
 struct cg_message {
 	struct wlr_box *position;
 	struct wlr_texture *message;

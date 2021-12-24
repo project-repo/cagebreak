@@ -25,6 +25,7 @@ enum keybinding_action {
 	KEYBINDING_CYCLE_OUTPUT,     // data.b is 0 if forward, 1 if reverse
 	KEYBINDING_CONFIGURE_OUTPUT, // data.o_cfg is the desired output
 	                             // configuration
+	KEYBINDING_CONFIGURE_MESSAGE, // data.m_cfg is the desired config
 	KEYBINDING_CONFIGURE_INPUT,  // data.i_cfg is the desired input
 	                             // configuration
 	KEYBINDING_QUIT,
@@ -69,6 +70,7 @@ union keybinding_params {
 	struct keybinding *kb;
 	struct cg_output_config *o_cfg;
 	struct cg_input_config *i_cfg;
+	struct cg_message_config *m_cfg;
 };
 
 struct keybinding {
