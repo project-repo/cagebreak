@@ -53,6 +53,7 @@
 #include "seat.h"
 #include "server.h"
 #include "xdg_shell.h"
+#include "workspace.h"
 #if CG_HAS_XWAYLAND
 #include "xwayland.h"
 #endif
@@ -273,6 +274,7 @@ main(int argc, char *argv[]) {
 
 	wl_list_init(&server.input_config);
 	wl_list_init(&server.output_config);
+	wl_list_init(&server.output_priorities);
 
 	server.modes = malloc(4 * sizeof(char *));
 	if(!server.modes) {
@@ -576,11 +578,15 @@ main(int argc, char *argv[]) {
 	}
 
 	{
-
+		struct wl_list tmp_list;
+		wl_list_init(&tmp_list);
+		wl_list_insert_list(&tmp_list,&server.outputs);
+		wl_list_init(&server.outputs);
 		struct cg_output *output, *output_tmp;
-		wl_list_for_each_safe(output, output_tmp, &server.outputs, link) {
+		wl_list_for_each_safe(output, output_tmp, &tmp_list, link) {
 			output_configure(&server, output);
 		}
+		server.curr_output=wl_container_of(server.outputs.next,server.curr_output,link);
 	}
 
 	/* Place the cursor to the top left of the output layout. */

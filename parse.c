@@ -503,6 +503,8 @@ parse_output_config_keyword(char *key_str, enum output_status *status) {
 	}
 	if(strcmp(key_str, "pos") == 0) {
 		*status = OUTPUT_DEFAULT;
+	} else if(strcmp(key_str, "prio") == 0) {
+		*status = OUTPUT_DEFAULT;
 	} else if(strcmp(key_str, "enable") == 0) {
 		*status = OUTPUT_ENABLE;
 	} else if(strcmp(key_str, "disable") == 0) {
@@ -521,6 +523,11 @@ parse_output_config(char **saveptr, char **errstr) {
 		    log_error("Failed to allocate memory for output configuration");
 		goto error;
 	}
+	cfg->status=OUTPUT_DEFAULT;
+	cfg->pos.x=-1;
+	cfg->output_name=NULL;
+	cfg->refresh_rate=0;
+	cfg->priority=-1;
 	char *name = strtok_r(NULL, " ", saveptr);
 	if(name == NULL) {
 		*errstr =
@@ -529,12 +536,22 @@ parse_output_config(char **saveptr, char **errstr) {
 	}
 	char *key_str = strtok_r(NULL, " ", saveptr);
 	if(parse_output_config_keyword(key_str, &(cfg->status)) != 0) {
-		*errstr = log_error("Expected keyword \"pos\", \"enable\" or "
+		*errstr = log_error("Expected keyword \"pos\", \"prio\", \"enable\" or "
 		                    "\"disable\" in output configuration for output %s",
 		                    name);
 		goto error;
 	}
 	if(cfg->status == OUTPUT_ENABLE || cfg->status == OUTPUT_DISABLE) {
+		cfg->output_name = strdup(name);
+		return cfg;
+	}
+
+	if(strcmp(key_str, "prio") == 0) {
+		cfg->priority=parse_uint(saveptr, " ");
+		if(cfg->priority<0) {
+			*errstr = log_error( "Error parsing priority of output configuration for output %s", name);
+			goto error;
+		}
 		cfg->output_name = strdup(name);
 		return cfg;
 	}
@@ -669,6 +686,23 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 	} else if(strcmp(action, "resizeup") == 0) {
 		keybinding->action = KEYBINDING_RESIZE_TILE_VERTICAL;
 		keybinding->data.i = -10;
+	} else if(strcmp(action, "screen") == 0) {
+		keybinding->action = KEYBINDING_SWITCH_OUTPUT;
+		char *noutp_str = strtok_r(NULL, " ", &saveptr);
+		if(noutp_str == NULL) {
+			*errstr = log_error(
+			    "Expected argument for \"output\" action, got none.");
+			return -1;
+		}
+
+		long outp = strtol(noutp_str, NULL, 10);
+		if(outp < 1) {
+			*errstr = log_error("Workspace number must be an integer number "
+			                    "larger or equal to 1. Got %ld",
+			                    outp);
+			return -1;
+		}
+		keybinding->data.u = outp;
 	} else if(strcmp(action, "workspace") == 0) {
 		keybinding->action = KEYBINDING_SWITCH_WORKSPACE;
 		char *nws_str = strtok_r(NULL, " ", &saveptr);
@@ -686,12 +720,29 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			return -1;
 		}
 		keybinding->data.u = ws - 1;
+	} else if(strcmp(action, "movetoscreen") == 0) {
+		keybinding->action = KEYBINDING_MOVE_VIEW_TO_OUTPUT;
+		char *noutp_str = strtok_r(NULL, " ", &saveptr);
+		if(noutp_str == NULL) {
+			*errstr = log_error(
+			    "Expected argument for \"movetoscreen\" action, got none.");
+			return -1;
+		}
+
+		long outp = strtol(noutp_str, NULL, 10);
+		if(outp < 1) {
+			*errstr = log_error("Output number must be an integer larger or "
+			                    "equal to 1. Got %ld",
+			                    outp);
+			return -1;
+		}
+		keybinding->data.u = outp;
 	} else if(strcmp(action, "movetoworkspace") == 0) {
 		keybinding->action = KEYBINDING_MOVE_VIEW_TO_WORKSPACE;
 		char *nws_str = strtok_r(NULL, " ", &saveptr);
 		if(nws_str == NULL) {
 			*errstr = log_error(
-			    "Expected argument for \"workspace\" action, got none.");
+			    "Expected argument for \"movetoworkspace\" action, got none.");
 			return -1;
 		}
 
@@ -720,7 +771,11 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 	} else if(strcmp(action, "focusdown") == 0) {
 		keybinding->action = KEYBINDING_FOCUS_BOTTOM;
 	} else if(strcmp(action, "movetonextscreen") == 0) {
-		keybinding->action = KEYBINDING_MOVE_VIEW_TO_NEXT_OUTPUT;
+		keybinding->action = KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT;
+		keybinding->data.b=false;
+	} else if(strcmp(action, "movetoprevscreen") == 0) {
+		keybinding->action = KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT;
+		keybinding->data.b=true;
 	} else if(strcmp(action, "switchvt") == 0) {
 		keybinding->action = KEYBINDING_CHANGE_TTY;
 		char *ntty = strtok_r(NULL, " ", &saveptr);

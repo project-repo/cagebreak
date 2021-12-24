@@ -565,6 +565,29 @@ output_set_mode(struct wlr_output *output, int width, int height,
 }
 
 void
+output_insert(struct cg_server *server, struct cg_output *output) {
+	struct cg_output *it, *prev_it=NULL;
+	bool first=true;
+	wl_list_for_each(it,&server->outputs,link) {
+		if(it->priority<output->priority) {
+			if(first == true) {
+				wl_list_insert(&server->outputs,&output->link);
+			} else {
+				wl_list_insert(it->link.prev,&output->link);
+			}
+			return;
+		}
+		first=false;
+		prev_it=it;
+	}
+	if(prev_it==NULL) {
+		wl_list_insert(&server->outputs,&output->link);
+	} else {
+		wl_list_insert(&prev_it->link,&output->link);
+	}
+}
+
+void
 output_configure(struct cg_server *server, struct cg_output *output) {
 	struct wlr_output *wlr_output = output->wlr_output;
 	struct cg_output_config *config = output_find_config(server, wlr_output);
@@ -577,7 +600,7 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 		wlr_output_layout_remove(server->output_layout, wlr_output);
 	}
 
-	if(config == NULL || config->status == OUTPUT_ENABLE) {
+	if(config == NULL) {
 		wlr_output_layout_add_auto(server->output_layout, wlr_output);
 
 		struct wlr_output_mode *preferred_mode =
@@ -586,23 +609,30 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 			wlr_output_set_mode(wlr_output, preferred_mode);
 		}
 		wl_list_remove(&output->link);
-		wl_list_insert(&server->outputs, &output->link);
+		output_insert(server,output);
 		wlr_output_enable(wlr_output, true);
-		wlr_output_commit(wlr_output);
-	} else if(config->status == OUTPUT_DISABLE) {
-		output_clear(output);
-		wl_list_insert(&server->disabled_outputs, &output->link);
-		wlr_output_enable(wlr_output, false);
 		wlr_output_commit(wlr_output);
 	} else {
-		wl_list_remove(&output->link);
-		wl_list_insert(&server->outputs, &output->link);
-		output_set_mode(wlr_output, config->pos.width, config->pos.height,
-		                config->refresh_rate);
-		wlr_output_layout_add(server->output_layout, wlr_output, config->pos.x,
-		                      config->pos.y);
-		wlr_output_enable(wlr_output, true);
-		wlr_output_commit(wlr_output);
+		if(config->status == OUTPUT_DISABLE) {
+				output_clear(output);
+				wl_list_insert(&server->disabled_outputs, &output->link);
+				wlr_output_enable(wlr_output, false);
+				wlr_output_commit(wlr_output);
+		} else {
+			wl_list_remove(&output->link);
+			if(config->priority != -1) {
+				output->priority=config->priority;
+			}
+			if(config->pos.x != -1) {
+				output_set_mode(wlr_output, config->pos.width, config->pos.height,
+				                config->refresh_rate);
+				wlr_output_layout_add(server->output_layout, wlr_output, config->pos.x,
+				                      config->pos.y);
+			}
+			output_insert(server,output);
+			wlr_output_enable(wlr_output, true);
+			wlr_output_commit(wlr_output);
+		}
 	}
 }
 
@@ -626,17 +656,14 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	output->damage = wlr_output_damage_create(wlr_output);
 	output->last_scanned_out_view = NULL;
 
-	output->mode.notify = handle_output_mode;
-	wl_signal_add(&wlr_output->events.mode, &output->mode);
-	output->commit.notify = handle_output_commit;
-	wl_signal_add(&wlr_output->events.commit, &output->commit);
-	output->destroy.notify = handle_output_destroy;
-	wl_signal_add(&wlr_output->events.destroy, &output->destroy);
-	output->damage_frame.notify = handle_output_damage_frame;
-	wl_signal_add(&output->damage->events.frame, &output->damage_frame);
-	output->damage_destroy.notify = handle_output_damage_destroy;
-	wl_signal_add(&output->damage->events.destroy, &output->damage_destroy);
-
+	struct cg_output_priorities *it;
+	int prio=-1;
+	wl_list_for_each(it, &server->output_priorities, link) {
+		if(strcmp(output->wlr_output->name,it->ident)==0) {
+			prio=it->priority;
+		}
+	}
+	output->priority=prio;
 	wlr_output_set_transform(wlr_output, server->output_transform);
 	output->workspaces = NULL;
 
@@ -650,7 +677,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		        wlr_output->name, wlr_output->scale);
 	}
 
-	wl_list_insert(&server->outputs, &output->link);
+	output_insert(server,output);
 	output_configure(server, output);
 	wlr_output_damage_add_whole(output->damage);
 
@@ -672,6 +699,17 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
 	                                     DEFAULT_XCURSOR, server->seat->cursor);
 	wlr_cursor_warp(server->seat->cursor, NULL, 0, 0);
+
+	output->mode.notify = handle_output_mode;
+	wl_signal_add(&wlr_output->events.mode, &output->mode);
+	output->commit.notify = handle_output_commit;
+	wl_signal_add(&wlr_output->events.commit, &output->commit);
+	output->destroy.notify = handle_output_destroy;
+	wl_signal_add(&wlr_output->events.destroy, &output->destroy);
+	output->damage_frame.notify = handle_output_damage_frame;
+	wl_signal_add(&output->damage->events.frame, &output->damage_frame);
+	output->damage_destroy.notify = handle_output_damage_destroy;
+	wl_signal_add(&output->damage->events.destroy, &output->damage_destroy);
 }
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop

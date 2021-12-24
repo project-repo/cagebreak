@@ -29,6 +29,7 @@ enum keybinding_action {
 	                             // configuration
 	KEYBINDING_QUIT,
 	KEYBINDING_NOOP,
+	KEYBINDING_SWITCH_OUTPUT,          // data.u is the desired output
 	KEYBINDING_SWITCH_WORKSPACE,       // data.u is the desired workspace
 	KEYBINDING_SWITCH_MODE,            // data.u is the desired mode
 	KEYBINDING_SWITCH_DEFAULT_MODE,    // data.u is the desired mode
@@ -37,7 +38,8 @@ enum keybinding_action {
 	KEYBINDING_RESIZE_TILE_VERTICAL, // data.i is the number of pixels to add to
 	                                 // the current height
 	KEYBINDING_MOVE_VIEW_TO_WORKSPACE, // data.u is the desired workspace
-	KEYBINDING_MOVE_VIEW_TO_NEXT_OUTPUT,
+	KEYBINDING_MOVE_VIEW_TO_OUTPUT, // data.u is the desired output
+	KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT, //data.b is 0 if forward, 1 if reverse
 	KEYBINDING_SHOW_TIME,
 	KEYBINDING_SHOW_INFO,
 

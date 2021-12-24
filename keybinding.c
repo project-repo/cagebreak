@@ -593,28 +593,35 @@ into_process(const char *command) {
 }
 
 void
-keybinding_cycle_outputs(struct cg_server *server, bool reverse) {
-	if(reverse) {
-		server->curr_output = wl_container_of(server->curr_output->link.prev,
-		                                      server->curr_output, link);
-	} else {
-		server->curr_output = wl_container_of(server->curr_output->link.next,
-		                                      server->curr_output, link);
-	}
-	if(&server->curr_output->link == &server->outputs) {
-		if(reverse) {
-			server->curr_output = wl_container_of(
-			    server->curr_output->link.prev, server->curr_output, link);
-		} else {
-			server->curr_output = wl_container_of(
-			    server->curr_output->link.next, server->curr_output, link);
-		}
-	}
+set_output(struct cg_server *server, struct cg_output *output) {
+	server->curr_output = output;
 	seat_set_focus(
 	    server->seat,
 	    server->curr_output->workspaces[server->curr_output->curr_workspace]
 	        ->focused_tile->view);
 	message_printf(server->curr_output, "Current Output");
+}
+
+void
+keybinding_cycle_outputs(struct cg_server *server, bool reverse) {
+	struct cg_output *output=NULL;
+	if(reverse) {
+		output = wl_container_of(server->curr_output->link.prev,
+		                                      server->curr_output, link);
+	} else {
+		output = wl_container_of(server->curr_output->link.next,
+		                                      server->curr_output, link);
+	}
+	if(&output->link == &server->outputs) {
+		if(reverse) {
+			output = wl_container_of(
+			    output->link.prev, output, link);
+		} else {
+			output = wl_container_of(
+			    output->link.next, output, link);
+		}
+	}
+	set_output(server,output);
 }
 
 /* Cycle through views, whereby the workspace does not change */
@@ -718,7 +725,7 @@ keybinding_show_info(struct cg_server *server) {
 }
 
 void
-keybinding_move_view_to_next_output(struct cg_server *server) {
+keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 	if(wl_list_length(&server->outputs) <= 1) {
 		return;
 	}
@@ -736,7 +743,7 @@ keybinding_move_view_to_next_output(struct cg_server *server) {
 			seat_set_focus(server->seat, NULL);
 		}
 	}
-	keybinding_cycle_outputs(server, false);
+	keybinding_cycle_outputs(server, reverse);
 	if(view != NULL) {
 		wl_list_insert(&server->curr_output
 		                    ->workspaces[server->curr_output->curr_workspace]
@@ -832,6 +839,49 @@ keybinding_set_background(struct cg_server *server, float *bg) {
 }
 
 void
+keybinding_switch_output(struct cg_server *server, int output) {
+	struct cg_output *it;
+	int count=1;
+	wl_list_for_each(it,&server->outputs,link) {
+		if(count==output) {
+			set_output(server,it);
+			return;
+		}
+		++count;
+	}
+	message_printf(server->curr_output,"Output %d does not exist",output);
+	return;
+}
+
+void
+keybinding_move_view_to_output(struct cg_server *server, int output_num) {
+	struct cg_view *view =
+	    server->curr_output->workspaces[server->curr_output->curr_workspace]
+	        ->focused_tile->view;
+	if(view != NULL) {
+		wl_list_remove(&view->link);
+		server->curr_output->workspaces[server->curr_output->curr_workspace]
+		    ->focused_tile->view = NULL;
+		keybinding_cycle_views(server, false);
+		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
+		       ->focused_tile->view == NULL) {
+			seat_set_focus(server->seat, NULL);
+		}
+	}
+	keybinding_switch_output(server, output_num);
+	if(view != NULL) {
+		struct cg_workspace *ws =
+		    server->curr_output
+		        ->workspaces[server->curr_output->curr_workspace];
+		view->workspace = ws;
+		wl_list_insert(&ws->views, &view->link);
+		ws->focused_tile->view = view;
+		view_maximize(view, ws->focused_tile);
+		seat_set_focus(server->seat, view);
+	}
+}
+
+void
 keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 	struct cg_view *view =
 	    server->curr_output->workspaces[server->curr_output->curr_workspace]
@@ -860,6 +910,22 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 }
 
 void
+merge_config(struct cg_output_config *config_new, struct cg_output_config *config_old) {
+	if(config_new->status==OUTPUT_DEFAULT) {
+		config_new->status=config_old->status;
+	}
+	if(config_new->pos.x == -1) {
+		config_new->pos=config_old->pos;
+	}
+	if(config_new->refresh_rate==0) {
+		config_new->refresh_rate=config_old->refresh_rate;
+	}
+	if(config_new->priority==-1) {
+		config_new->priority=config_old->priority;
+	}
+}
+
+void
 keybinding_configure_output(struct cg_server *server,
                             struct cg_output_config *cfg) {
 	struct cg_output_config *config;
@@ -877,6 +943,7 @@ keybinding_configure_output(struct cg_server *server,
 	wl_list_for_each_safe(it, tmp, &server->output_config, link) {
 		if(strcmp(config->output_name, it->output_name) == 0) {
 			wl_list_remove(&it->link);
+			merge_config(config, it);
 			free(it->output_name);
 			free(it);
 		}
@@ -944,6 +1011,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	case KEYBINDING_SWITCH_WORKSPACE:
 		keybinding_switch_ws(server, data.u);
 		break;
+	case KEYBINDING_SWITCH_OUTPUT:
+		keybinding_switch_output(server, data.u);
+		break;
 	case KEYBINDING_SWITCH_MODE:
 		server->seat->mode = data.u;
 		break;
@@ -967,6 +1037,10 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_MOVE_VIEW_TO_WORKSPACE: {
 		keybinding_move_view_to_workspace(server, data.u);
+		break;
+	}
+	case KEYBINDING_MOVE_VIEW_TO_OUTPUT: {
+		keybinding_move_view_to_output(server, data.u);
 		break;
 	}
 	case KEYBINDING_SWAP_LEFT: {
@@ -1017,8 +1091,8 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		        ->focused_tile);
 		break;
 	}
-	case KEYBINDING_MOVE_VIEW_TO_NEXT_OUTPUT: {
-		keybinding_move_view_to_next_output(server);
+	case KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT: {
+		keybinding_move_view_to_cycle_output(server,data.b);
 		break;
 	}
 	case KEYBINDING_DEFINEKEY:

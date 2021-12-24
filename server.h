@@ -32,6 +32,7 @@ struct cg_server {
 	struct wl_list outputs;
 	struct cg_output *curr_output;
 	struct wl_listener new_output;
+	struct wl_list output_priorities;
 
 	struct wl_listener xdg_toplevel_decoration;
 	struct wl_listener new_xdg_shell_surface;
