@@ -26,7 +26,8 @@
 int
 full_screen_workspace_tiles(struct wlr_output_layout *layout,
                             struct wlr_output *output,
-                            struct cg_workspace *workspace, uint32_t *tiles_curr_id) {
+                            struct cg_workspace *workspace,
+                            uint32_t *tiles_curr_id) {
 	workspace->focused_tile = calloc(1, sizeof(struct cg_tile));
 	if(!workspace->focused_tile) {
 		return -1;
@@ -55,9 +56,10 @@ full_screen_workspace(struct cg_output *output) {
 		return NULL;
 	}
 	workspace->server = output->server;
-	workspace->num=-1;
+	workspace->num = -1;
 	if(full_screen_workspace_tiles(output->server->output_layout,
-	                               output->wlr_output, workspace, &output->server->tiles_curr_id) != 0) {
+	                               output->wlr_output, workspace,
+	                               &output->server->tiles_curr_id) != 0) {
 		free(workspace);
 		return NULL;
 	}

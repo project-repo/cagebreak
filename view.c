@@ -18,12 +18,12 @@
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_surface.h>
 
+#include "ipc_server.h"
 #include "output.h"
 #include "seat.h"
 #include "server.h"
 #include "view.h"
 #include "workspace.h"
-#include "ipc_server.h"
 #if CG_HAS_XWAYLAND
 #include "xwayland.h"
 #endif
@@ -251,11 +251,11 @@ view_for_each_popup(struct cg_view *view, wlr_surface_iterator_func_t iterator,
 void
 view_unmap(struct cg_view *view) {
 
-	uint32_t id=view->id;
-	uint32_t tile_id=view->tile->id;
-	uint32_t ws=view->workspace->num;
-	char *output_name=view->workspace->output->wlr_output->name;
-	char *title=view->impl->get_title(view);
+	uint32_t id = view->id;
+	uint32_t tile_id = view->tile->id;
+	uint32_t ws = view->workspace->num;
+	char *output_name = view->workspace->output->wlr_output->name;
+	char *title = view->impl->get_title(view);
 	/* If the view is not mapped, do nothing */
 	if(view->wlr_surface == NULL) {
 		return;
@@ -309,7 +309,10 @@ view_unmap(struct cg_view *view) {
 
 	wl_list_remove(&view->new_subsurface.link);
 	view->wlr_surface = NULL;
-	ipc_send_event(view->workspace->server,"view_unmap(view_id:%d,tile_id:%d,workspace:%d,output:%s,view_title:%s)",id,tile_id,ws+1,output_name,title);
+	ipc_send_event(view->workspace->server,
+	               "view_unmap(view_id:%d,tile_id:%d,workspace:%d,output:%s,"
+	               "view_title:%s)",
+	               id, tile_id, ws + 1, output_name, title);
 }
 
 void
@@ -348,7 +351,11 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 		wl_list_insert(&ws->views, &view->link);
 	}
 	seat_set_focus(output->server->seat, view);
-	ipc_send_event(output->server,"view_map(view_id:%d,tile_id:%d,workspace:%d,output:%s,view_title:%s)",view->id,view->tile->id,view->workspace->num+1,view->workspace->output->wlr_output->name,view->impl->get_title(view));
+	ipc_send_event(
+	    output->server,
+	    "view_map(view_id:%d,tile_id:%d,workspace:%d,output:%s,view_title:%s)",
+	    view->id, view->tile->id, view->workspace->num + 1,
+	    view->workspace->output->wlr_output->name, view->impl->get_title(view));
 }
 
 void
@@ -372,7 +379,7 @@ view_init(struct cg_view *view, enum cg_view_type type,
 	view->server = server;
 	view->type = type;
 	view->impl = impl;
-	view->id=server->views_curr_id;
+	view->id = server->views_curr_id;
 	++server->views_curr_id;
 
 	wl_list_init(&view->children);

@@ -307,8 +307,8 @@ main(int argc, char *argv[]) {
 	}
 
 	server.nws = 1;
-	server.views_curr_id=0;
-	server.tiles_curr_id=0;
+	server.views_curr_id = 0;
+	server.tiles_curr_id = 0;
 	server.message_config.fg_color[0] = 0.0;
 	server.message_config.fg_color[1] = 0.0;
 	server.message_config.fg_color[2] = 0.0;
