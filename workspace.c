@@ -26,7 +26,7 @@
 int
 full_screen_workspace_tiles(struct wlr_output_layout *layout,
                             struct wlr_output *output,
-                            struct cg_workspace *workspace) {
+                            struct cg_workspace *workspace, uint32_t *tiles_curr_id) {
 	workspace->focused_tile = calloc(1, sizeof(struct cg_tile));
 	if(!workspace->focused_tile) {
 		return -1;
@@ -40,6 +40,8 @@ full_screen_workspace_tiles(struct wlr_output_layout *layout,
 	workspace->focused_tile->tile.width = output_box->width;
 	workspace->focused_tile->tile.height = output_box->height;
 	workspace->focused_tile->view = NULL;
+	workspace->focused_tile->id = *tiles_curr_id;
+	++(*tiles_curr_id);
 	return 0;
 }
 #if CG_HAS_FANALYZE
@@ -53,8 +55,9 @@ full_screen_workspace(struct cg_output *output) {
 		return NULL;
 	}
 	workspace->server = output->server;
+	workspace->num=-1;
 	if(full_screen_workspace_tiles(output->server->output_layout,
-	                               output->wlr_output, workspace) != 0) {
+	                               output->wlr_output, workspace, &output->server->tiles_curr_id) != 0) {
 		free(workspace);
 		return NULL;
 	}

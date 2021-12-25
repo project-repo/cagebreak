@@ -32,6 +32,7 @@ struct cg_view {
 	const struct cg_view_impl *impl;
 
 	struct wl_listener new_subsurface;
+	uint32_t id;
 };
 
 struct cg_view_impl {

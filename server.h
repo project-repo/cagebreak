@@ -54,6 +54,8 @@ struct cg_server {
 	char **modes;
 	uint16_t nws;
 	float *bg_color;
+	uint32_t views_curr_id;
+	uint32_t tiles_curr_id;
 #ifdef DEBUG
 	bool debug_damage_tracking;
 #endif

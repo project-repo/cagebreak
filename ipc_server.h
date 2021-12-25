@@ -33,6 +33,8 @@ struct cg_ipc_handle {
 	struct sockaddr_un *sockaddr;
 };
 
+void
+ipc_send_event(struct cg_server *server, const char *fmt, ...);
 int
 ipc_init(struct cg_server *server);
 int

@@ -13,6 +13,7 @@
 #include "message.h"
 #include "parse.h"
 #include "server.h"
+#include "util.h"
 
 #include <fcntl.h>
 #include <stdlib.h>
@@ -21,6 +22,10 @@
 #include <sys/un.h>
 #include <unistd.h>
 #include <wlr/util/log.h>
+
+static const char ipc_magic[] = {'c', 'g', '-', 'i', 'p', 'c'};
+
+#define IPC_HEADER_SIZE (sizeof(ipc_magic) + 4)
 
 static void
 handle_display_destroy(struct wl_listener *listener, void *data) {
@@ -109,6 +114,44 @@ ipc_init(struct cg_server *server) {
 	return 0;
 }
 
+int ipc_client_handle_writable(int client_fd, uint32_t mask, void *data) {
+	struct cg_ipc_client *client = data;
+
+	if (mask & WL_EVENT_ERROR) {
+		ipc_client_disconnect(client);
+		return 0;
+	}
+
+	if (mask & WL_EVENT_HANGUP) {
+		ipc_client_disconnect(client);
+		return 0;
+	}
+
+	if (client->write_buffer_len <= 0) {
+		return 0;
+	}
+
+	ssize_t written = write(client->fd, client->write_buffer, client->write_buffer_len);
+
+	if (written == -1 && errno == EAGAIN) {
+		return 0;
+	} else if (written == -1) {
+		wlr_log(WLR_ERROR, "Unable to send data from queue to IPC client");
+		ipc_client_disconnect(client);
+		return 0;
+	}
+
+	memmove(client->write_buffer, client->write_buffer + written, client->write_buffer_len - written);
+	client->write_buffer_len -= written;
+
+	if (client->write_buffer_len == 0 && client->writable_event_source) {
+		wl_event_source_remove(client->writable_event_source);
+		client->writable_event_source = NULL;
+	}
+
+	return 0;
+}
+
 int
 ipc_handle_connection(int fd, uint32_t mask, void *data) {
 	(void)fd;
@@ -154,7 +197,7 @@ ipc_handle_connection(int fd, uint32_t mask, void *data) {
 	client->event_source =
 	    wl_event_loop_add_fd(server->event_loop, client_fd, WL_EVENT_READABLE,
 	                         ipc_client_handle_readable, client);
-	client->writable_event_source = NULL;
+	client->writable_event_source = wl_event_loop_add_fd(server->event_loop, client_fd, WL_EVENT_WRITABLE, ipc_client_handle_writable, client);
 
 	client->write_buffer_size = 128;
 	client->write_buffer_len = 0;
@@ -274,4 +317,60 @@ ipc_client_handle_command(struct cg_ipc_client *client) {
 		        client->read_buf_len - offset);
 	}
 	client->read_buf_len -= offset;
+}
+
+void ipc_send_event_client(struct cg_ipc_client *client, const char *payload, uint32_t payload_length) {
+	char data[IPC_HEADER_SIZE];
+
+	memcpy(data, ipc_magic, sizeof(ipc_magic));
+	memcpy(data + sizeof(ipc_magic), &payload_length, sizeof(payload_length));
+
+	while (client->write_buffer_len + IPC_HEADER_SIZE + payload_length >=
+				 client->write_buffer_size) {
+		client->write_buffer_size *= 2;
+	}
+
+	if (client->write_buffer_size > 4e6) { // 4 MB
+		wlr_log(WLR_ERROR, "Client write buffer too big (%zu), disconnecting client",
+				client->write_buffer_size);
+		ipc_client_disconnect(client);
+		return;
+	}
+
+	char *new_buffer = realloc(client->write_buffer, client->write_buffer_size);
+	if (!new_buffer) {
+		wlr_log(WLR_ERROR, "Unable to reallocate ipc client write buffer");
+		ipc_client_disconnect(client);
+		return;
+	}
+	client->write_buffer = new_buffer;
+
+	memcpy(client->write_buffer + client->write_buffer_len, data, IPC_HEADER_SIZE);
+	client->write_buffer_len += IPC_HEADER_SIZE;
+	memcpy(client->write_buffer + client->write_buffer_len, payload, payload_length);
+	client->write_buffer_len += payload_length;
+}
+
+void ipc_send_event(struct cg_server *server, const char *fmt, ...) {
+	if(wl_list_empty(&server->ipc.client_list)) {
+		return;
+	}
+	va_list args;
+	va_start(args, fmt);
+	char *msg = malloc_vsprintf_va_list(fmt, args);
+	if(msg == NULL) {
+		wlr_log(WLR_ERROR, "Unable to allocate memory for ipc event");
+		va_end(args);
+		return;
+	}
+	va_end(args);
+	struct cg_ipc_client *it,*tmp;
+	uint32_t len=strlen(msg);
+	wl_list_for_each_safe(it,tmp,&server->ipc.client_list,link) {
+		if(it->writable_event_source==NULL) {
+			it->writable_event_source = wl_event_loop_add_fd(server->event_loop, it->fd, WL_EVENT_WRITABLE, ipc_client_handle_writable, it);
+		}
+		ipc_send_event_client(it, msg, len);
+	}
+	free(msg);
 }

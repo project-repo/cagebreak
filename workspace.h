@@ -12,6 +12,7 @@ struct cg_tile {
 	struct cg_view *view;
 	struct cg_tile *next;
 	struct cg_tile *prev;
+	uint32_t id;
 };
 
 struct cg_workspace {
@@ -21,6 +22,7 @@ struct cg_workspace {
 	struct cg_output *output;
 
 	struct cg_tile *focused_tile;
+	uint32_t num;
 };
 
 struct cg_workspace *
@@ -28,7 +30,7 @@ full_screen_workspace(struct cg_output *output);
 int
 full_screen_workspace_tiles(struct wlr_output_layout *layout,
                             struct wlr_output *output,
-                            struct cg_workspace *workspace);
+                            struct cg_workspace *workspace, uint32_t *tiles_curr_id);
 void
 workspace_free_tiles(struct cg_workspace *workspace);
 void

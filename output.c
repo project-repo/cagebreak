@@ -8,7 +8,7 @@
  * See the LICENSE file accompanying this file.
  */
 
-#define _POSIX_C_SOURCE 200112L
+#define _POSIX_C_SOURCE 200809L
 
 #include "config.h"
 #include <wlr/config.h>
@@ -480,6 +480,7 @@ output_clear(struct cg_output *output) {
 static void
 output_destroy(struct cg_output *output) {
 	struct cg_server *server = output->server;
+	char *outp_name=strdup(output->wlr_output->name);
 
 	wl_list_remove(&output->destroy.link);
 	wl_list_remove(&output->mode.link);
@@ -499,6 +500,12 @@ output_destroy(struct cg_output *output) {
 
 	free(output);
 
+	if(outp_name!=NULL) {
+		ipc_send_event(server,"new_output(output:%s)",outp_name);
+		free(outp_name);
+	} else {
+		wlr_log(WLR_ERROR, "Failed to allocate memory for output name in output_destroy");
+	}
 	if(wl_list_empty(&server->outputs)) {
 		wl_display_terminate(server->wl_display);
 	}
@@ -684,6 +691,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	output->workspaces = malloc(server->nws * sizeof(struct cg_workspace *));
 	for(unsigned int i = 0; i < server->nws; ++i) {
 		output->workspaces[i] = full_screen_workspace(output);
+		output->workspaces[i]->num=i;
 		if(!output->workspaces[i]) {
 			wlr_log(WLR_ERROR, "Failed to allocate workspaces for output");
 			return;
@@ -710,6 +718,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	wl_signal_add(&output->damage->events.frame, &output->damage_frame);
 	output->damage_destroy.notify = handle_output_damage_destroy;
 	wl_signal_add(&output->damage->events.destroy, &output->damage_destroy);
+	ipc_send_event(server,"new_output(output:%s,priority:%d)",output->wlr_output->name,output->priority);
 }
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop

@@ -307,6 +307,8 @@ main(int argc, char *argv[]) {
 	}
 
 	server.nws = 1;
+	server.views_curr_id=0;
+	server.tiles_curr_id=0;
 	server.message_config.fg_color[0] = 0.0;
 	server.message_config.fg_color[1] = 0.0;
 	server.message_config.fg_color[2] = 0.0;
@@ -361,6 +363,12 @@ main(int argc, char *argv[]) {
 	server.output_layout = wlr_output_layout_create();
 	if(!server.output_layout) {
 		wlr_log(WLR_ERROR, "Unable to create output layout");
+		ret = 1;
+		goto end;
+	}
+
+	if(ipc_init(&server) != 0) {
+		wlr_log(WLR_ERROR, "Failed to initialize IPC");
 		ret = 1;
 		goto end;
 	}
@@ -557,12 +565,6 @@ main(int argc, char *argv[]) {
 		exit(0);
 	}
 
-	if(ipc_init(&server) != 0) {
-		wlr_log(WLR_ERROR, "Failed to initialize IPC");
-		ret = 1;
-		goto end;
-	}
-
 	{ // config_file should only be visible as long as it is valid
 		char *config_file = get_config_file();
 		if(config_file == NULL) {
@@ -642,6 +644,7 @@ end:
 	wlr_output_layout_destroy(server.output_layout);
 
 	free(server.input);
+	free(server.message_config.font);
 	pango_cairo_font_map_set_default(NULL);
 	cairo_debug_reset_static_data();
 	FcFini();
