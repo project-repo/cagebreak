@@ -168,6 +168,12 @@ by prepending a line with the # symbol.
 *movetonextscreen*
 	Move the current window to the next screen
 
+*movetoprevscreen*
+	Move the current window to the previous screen
+
+*movetoscreen <n>*
+	Move the currently focused window to the n-th screen
+
 *movetoworkspace <n>*
 	Move the currently focused window to the n-th workspace
 
@@ -180,13 +186,16 @@ by prepending a line with the # symbol.
 *only*
 	Remove all splits and make the current window fill the entire screen
 
-*output <name> [[pos <xpos> <ypos> res <width>x<height> rate <rate>] | enable | disable]*
+*output <name> [[pos <xpos> <ypos> res <width>x<height> rate <rate>] | enable | disable | prio <n> ]*
 	Configure the output "<name>". <xpos> and <ypos> are the position of the monitor
 	in pixels. The top-left monitor should have the coordinates 0 0. <width> and
 	<height> specify the resolution in pixels and <rate> sets the refresh rate of
 	the monitor (often this is 50 or 60). The options enable and disable
 	enable or disable the output <name>. Note that if <output> is the only enabled
-	output, *output <output> disable* has no effect.
+	output, *output <output> disable* has no effect. prio <n> is used to set the
+	priority of an output. If nothing else is set, outputs are added as they
+	request to be added and have a numerical priority of -1. Using prio <n>
+	it is possible to set priorities for outputs, where <n> >= 1.
 
 *prev*
 	Focus previous window in current tile
@@ -208,6 +217,9 @@ by prepending a line with the # symbol.
 
 *resizeup*
 	Resize the current tile towards the top
+
+*screen <n>*
+	Change to the n-th screen
 
 *show_info*
 	Display info about the current setup. In particular, print the identifiers
