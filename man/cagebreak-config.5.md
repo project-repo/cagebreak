@@ -195,7 +195,9 @@ by prepending a line with the # symbol.
 	output, *output <output> disable* has no effect. prio <n> is used to set the
 	priority of an output. If nothing else is set, outputs are added as they
 	request to be added and have a numerical priority of -1. Using prio <n>
-	it is possible to set priorities for outputs, where <n> >= 1.
+	it is possible to set priorities for outputs, where <n> >= 1. The larger <n> is,
+	the higher the priority is, that is to say, the earlier the output will
+	appear in the list of outputs.
 
 *prev*
 	Focus previous window in current tile
