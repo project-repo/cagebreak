@@ -30,9 +30,12 @@ Adds support for non-build dependencies and an option for builds without pandoc.
 
 ## Release 1.7.0
 
-Improve window ordering.
+Improves window ordering.
 
 ## Release 1.8.0
 
 Adds libinput configuration and virtual keyboard and pointer support.
 
+## Release 1.9.0
+
+Adds TODO see release.delete
