@@ -21,23 +21,23 @@ by prepending a line with the # symbol.
 *abort*
 	Return to the default mode without running any command
 
-*background - Set background color*
+*background*
 	Set the background color. This command expects three floating point numbers
 	between 0 and 1, specifying the r, g and b values respectively.
 	(e.g. "background 1.0 0.0 0.0" sets to background color to red)
 	There is no support for specifying a background image.
 
-*bind - Bind key to command in root mode*
+*bind*
 	This command requires a key (see *KEY DEFINITIONS*) and a command (see *COMMANDS*) as an argument.
 	Subsequently, pressing this key while in command mode executes the
 	supplied action. bind <key> <command> is equivalent to
 		definekey root <key> <command>
 
-*close - Close current window*
+*close*
 	This command closes the current window. It may be useful for windows of applications which
 	do not offer any method of closing them.
 
-*definekey - Bind key to action in arbitrary mode*
+*definekey*
 	This command behaves similarly to the *bind* command with the
 	difference that the mode in which the keybinding is activated is
 	specified by the user. A call to this function is to be structured as follows:
