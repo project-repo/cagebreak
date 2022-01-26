@@ -12,7 +12,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <wayland-server-core.h>
-#include <wlr/types/wlr_box.h>
+#include <wlr/util/box.h>
 #include <wlr/types/wlr_output.h>
 
 #include "input_manager.h"

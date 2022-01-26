@@ -1,7 +1,7 @@
 #ifndef CG_WORKSPACE_H
 #define CG_WORKSPACE_H
 
-#include <wlr/types/wlr_box.h>
+#include <wlr/util/box.h>
 
 struct cg_output;
 struct cg_server;
@@ -20,6 +20,7 @@ struct cg_workspace {
 	struct wl_list views;
 	struct wl_list unmanaged_views;
 	struct cg_output *output;
+	struct wlr_scene_tree *scene;
 
 	struct cg_tile *focused_tile;
 	uint32_t num;
@@ -38,5 +39,7 @@ void
 workspace_free(struct cg_workspace *workspace);
 void
 workspace_focus_tile(struct cg_workspace *ws, struct cg_tile *tile);
+void
+workspace_focus(struct cg_output *outp, int ws);
 
 #endif

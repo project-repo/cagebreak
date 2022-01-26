@@ -6,7 +6,7 @@
 
 struct cg_output;
 struct wlr_box;
-struct wlr_texture;
+struct wlr_buffer;
 
 enum cg_message_align {
 	CG_MESSAGE_TOP_LEFT,
@@ -25,7 +25,8 @@ struct cg_message_config {
 
 struct cg_message {
 	struct wlr_box *position;
-	struct wlr_texture *message;
+	struct wlr_scene_buffer *message;
+	struct wl_surface *surface;
 	struct wl_list link;
 };
 

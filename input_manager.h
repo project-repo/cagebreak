@@ -4,7 +4,7 @@
 #include "seat.h"
 #include "server.h"
 #include <wayland-server-core.h>
-#include <wlr/types/wlr_box.h>
+#include <wlr/util/box.h>
 
 struct cg_input_manager *
 input_manager_create(struct cg_server *server);

@@ -17,9 +17,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <string.h>
 #include <unistd.h>
 #include <wayland-server-core.h>
+#include <wayland-client.h>
 #include <wlr/backend.h>
+#include <wlr/types/wlr_scene.h>
+#include <wlr/render/allocator.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
@@ -28,6 +32,8 @@
 #include <wlr/types/wlr_export_dmabuf_v1.h>
 #include <wlr/types/wlr_gamma_control_v1.h>
 #include <wlr/types/wlr_idle.h>
+#include <wlr/types/wlr_viewporter.h>
+#include <wlr/types/wlr_presentation_time.h>
 #include <wlr/types/wlr_idle_inhibit_v1.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_screencopy_v1.h>
@@ -133,9 +139,6 @@ usage(FILE *file, const char *const cage) {
 	        "\n"
 	        " -r\t Rotate the output 90 degrees clockwise, specify up to three "
 	        "times\n"
-#ifdef DEBUG
-	        " -D\t Turn on damage tracking debugging\n"
-#endif
 	        " -h\t Display this help message\n"
 	        " -v\t Show the version number and exit\n"
 	        " -s\t Show information about the current setup and exit\n",
@@ -145,11 +148,7 @@ usage(FILE *file, const char *const cage) {
 static bool
 parse_args(struct cg_server *server, int argc, char *argv[]) {
 	int c;
-#ifdef DEBUG
-	while((c = getopt(argc, argv, "rDhvs")) != -1) {
-#else
 	while((c = getopt(argc, argv, "rhvs")) != -1) {
-#endif
 		switch(c) {
 		case 'r':
 			server->output_transform++;
@@ -157,11 +156,6 @@ parse_args(struct cg_server *server, int argc, char *argv[]) {
 				server->output_transform = WL_OUTPUT_TRANSFORM_NORMAL;
 			}
 			break;
-#ifdef DEBUG
-		case 'D':
-			server->debug_damage_tracking = true;
-			break;
-#endif
 		case 'h':
 			usage(stdout, argv[0]);
 			return false;
@@ -245,7 +239,6 @@ main(int argc, char *argv[]) {
 	struct wl_event_source *sigterm_source = NULL;
 	struct wl_event_source *sigalrm_source = NULL;
 	struct wlr_backend *backend = NULL;
-	struct wlr_renderer *renderer = NULL;
 	struct wlr_compositor *compositor = NULL;
 	struct wlr_data_device_manager *data_device_manager = NULL;
 	struct wlr_server_decoration_manager *server_decoration_manager = NULL;
@@ -253,6 +246,8 @@ main(int argc, char *argv[]) {
 	struct wlr_export_dmabuf_manager_v1 *export_dmabuf_manager = NULL;
 	struct wlr_screencopy_manager_v1 *screencopy_manager = NULL;
 	struct wlr_data_control_manager_v1 *data_control_manager = NULL;
+	struct wlr_viewporter *viewporter = NULL;
+	struct wlr_presentation *presentation = NULL;
 	struct wlr_xdg_output_manager_v1 *output_manager = NULL;
 	struct wlr_gamma_control_manager_v1 *gamma_control_manager = NULL;
 	struct wlr_xdg_shell *xdg_shell = NULL;
@@ -353,10 +348,23 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 
-	renderer = wlr_backend_get_renderer(backend);
-	wlr_renderer_init_wl_display(renderer, server.wl_display);
+	server.renderer = wlr_renderer_autocreate(backend);
+	if (!server.renderer) {
+		wlr_log(WLR_ERROR, "Unable to create the wlroots renderer");
+		ret = 1;
+		goto end;
+	}
 
-	server.bg_color = (float[4]){0, 0, 0, 1};
+	server.allocator = wlr_allocator_autocreate(server.backend, server.renderer);
+	if (!server.allocator) {
+		wlr_log(WLR_ERROR, "Unable to create the wlroots allocator");
+		ret = 1;
+		goto end;
+	}
+
+	wlr_renderer_init_wl_display(server.renderer, server.wl_display);
+
+	server.bg_color = (float[4]){0, 0, 1, 1};
 	wl_list_init(&server.outputs);
 	wl_list_init(&server.disabled_outputs);
 
@@ -373,7 +381,15 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 
-	compositor = wlr_compositor_create(server.wl_display, renderer);
+	server.scene = wlr_scene_create();
+	if (!server.scene) {
+		wlr_log(WLR_ERROR, "Unable to create scene");
+		ret = 1;
+		goto end;
+	}
+	wlr_scene_attach_output_layout(server.scene, server.output_layout);
+
+	compositor = wlr_compositor_create(server.wl_display, server.renderer);
 	if(!compositor) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots compositor");
 		ret = 1;
@@ -466,6 +482,29 @@ main(int argc, char *argv[]) {
 		ret = 1;
 		goto end;
 	}
+
+	viewporter = wlr_viewporter_create(server.wl_display);
+	if (!viewporter) {
+		wlr_log(WLR_ERROR, "Unable to create the viewporter interface");
+		ret = 1;
+		goto end;
+	}
+
+	presentation = wlr_presentation_create(server.wl_display, server.backend);
+	if (!presentation) {
+		wlr_log(WLR_ERROR, "Unable to create the presentation interface");
+		ret = 1;
+		goto end;
+	}
+	wlr_scene_set_presentation(server.scene, presentation);
+
+	export_dmabuf_manager = wlr_export_dmabuf_manager_v1_create(server.wl_display);
+	if (!export_dmabuf_manager) {
+		wlr_log(WLR_ERROR, "Unable to create the export DMABUF manager");
+		ret = 1;
+		goto end;
+	}
+
 
 	screencopy_manager = wlr_screencopy_manager_v1_create(server.wl_display);
 	if(!screencopy_manager) {

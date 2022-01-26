@@ -53,12 +53,11 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots', version: ['>=0.14.1', '< 0.15.0'])
+wlroots        = dependency('wlroots', version: ['>=0.14.1', '< 0.16.0'])
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')
 wayland_client = dependency('wayland-client')
-pixman         = dependency('pixman-1')
 xkbcommon      = dependency('xkbcommon')
 cairo          = dependency('cairo')
 pango          = dependency('pango')
@@ -132,7 +131,6 @@ cagebreak_source_strings = [
   'workspace.c',
   'output.c',
   'parse.c',
-  'render.c',
   'seat.c',
   'util.c',
   'view.c',
@@ -150,7 +148,6 @@ cagebreak_header_strings = [
   'workspace.h',
   'output.h',
   'parse.h',
-  'render.h',
   'seat.h',
   'server.h',
   'util.h',
@@ -194,7 +191,6 @@ cagebreak_dependencies_dict = {
   'libinput': [libinput,true],
   'libevdev': [libevdev,true],
   'libudev': [libudev,true],
-  'pixman': [pixman,true],
   'pango': [pango,true],
   'cairo': [cairo,true],
   'pangocairo': [pangocairo,true],
@@ -212,7 +208,6 @@ reproducible_build_versions = {
   'libinput': '1.19.2',
   'libevdev': '1.12.0',
   'libudev': '249',
-  'pixman': '0.40.0',
   'pango': '1.50.0',
   'cairo': '1.17.4',
   'pangocairo': '1.50.0',

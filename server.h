@@ -35,6 +35,10 @@ struct cg_server {
 	struct wl_listener new_output;
 	struct wl_list output_priorities;
 
+	struct wlr_renderer *renderer;
+	struct wlr_allocator *allocator;
+	struct wlr_scene *scene;
+
 	struct wl_listener xdg_toplevel_decoration;
 	struct wl_listener new_xdg_shell_surface;
 #if CG_HAS_XWAYLAND
@@ -56,9 +60,6 @@ struct cg_server {
 	float *bg_color;
 	uint32_t views_curr_id;
 	uint32_t tiles_curr_id;
-#ifdef DEBUG
-	bool debug_damage_tracking;
-#endif
 };
 
 void

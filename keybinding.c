@@ -7,6 +7,7 @@
 #include <wlr/backend/session.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_scene.h>
 #include <wlr/util/log.h>
 
 #include "input.h"
@@ -196,21 +197,13 @@ swap_tile(struct cg_tile *tile,
 	swap_tile->view = tmp_view;
 	if(tile->view != NULL) {
 		view_maximize(tile->view, tile);
-		view_damage_whole(tile->view);
-	} else {
-		wlr_output_damage_add_box(tile->workspace->output->damage, &tile->tile);
 	}
 	workspace_focus_tile(
 	    server->curr_output->workspaces[server->curr_output->curr_workspace],
 	    swap_tile);
 	if(swap_tile->view != NULL) {
 		view_maximize(swap_tile->view, swap_tile);
-		view_damage_whole(swap_tile->view);
-	} else {
-		wlr_output_damage_add_box(tile->workspace->output->damage,
-		                          &swap_tile->tile);
 	}
-
 	seat_set_focus(server->seat, swap_tile->view);
 	ipc_send_event(
 	    tile->workspace->output->server,
@@ -363,12 +356,7 @@ resize(struct cg_tile *tile, const struct cg_tile *parent, int coord_offset,
 	    old_height = tile->tile.height, old_width = tile->tile.width;
 	*get_coord(tile) += coord_offset;
 	*get_dim(tile) += dim_offset;
-	struct wlr_box damage_box = {
-	    .x = old_x,
-	    .y = old_y,
-	    .width = tile->tile.x - old_x == 0 ? tile->tile.width : coord_offset,
-	    .height = tile->tile.y == 0 ? tile->tile.height : coord_offset};
-	wlr_output_damage_add_box(tile->workspace->output->damage, &damage_box);
+
 	if(tile->view != NULL) {
 		view_maximize(tile->view, tile);
 	}
@@ -699,8 +687,6 @@ keybinding_cycle_views(struct cg_server *server, bool reverse) {
 		return;
 	}
 
-	wlr_output_damage_add_box(curr_workspace->output->damage,
-	                          &curr_workspace->focused_tile->tile);
 	/* Prevent seat_set_focus from reordering the views */
 	curr_workspace->focused_tile->view = wl_container_of(
 	    next_view->link.prev, curr_workspace->focused_tile->view, link);
@@ -743,10 +729,9 @@ keybinding_switch_ws(struct cg_server *server, uint32_t ws) {
 	}
 	struct cg_output *output = server->curr_output;
 	uint32_t old_ws = server->curr_output->curr_workspace;
-	output->curr_workspace = ws;
+	workspace_focus(output,ws);
 	seat_set_focus(server->seat,
 	               server->curr_output->workspaces[ws]->focused_tile->view);
-	wlr_output_damage_add_whole(output->damage);
 	message_printf(server->curr_output, "Workspace %d", ws + 1);
 	ipc_send_event(output->server,
 	               "switch_ws(old_workspace:%d,new_workspace:%d,output:%s)",
@@ -794,7 +779,6 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 		server->curr_output->workspaces[server->curr_output->curr_workspace]
 		    ->focused_tile->view = NULL;
 		keybinding_cycle_views(server, false);
-		view_damage_whole(view);
 		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
 		       ->focused_tile->view == NULL) {
 			seat_set_focus(server->seat, NULL);
@@ -864,7 +848,7 @@ keybinding_set_nws(struct cg_server *server, int nws) {
 		}
 
 		if(output->curr_workspace >= nws) {
-			output->curr_workspace = nws - 1;
+			workspace_focus(output,nws-1);
 		}
 	}
 	server->nws = nws;
@@ -908,6 +892,13 @@ keybinding_set_background(struct cg_server *server, float *bg) {
 	server->bg_color[0] = bg[0];
 	server->bg_color[1] = bg[1];
 	server->bg_color[2] = bg[2];
+	struct cg_output *it=NULL;
+	wl_list_for_each(it,&server->outputs,link) {
+		wlr_scene_rect_set_color(it->bg, server->bg_color);
+	}
+	wl_list_for_each(it,&server->disabled_outputs,link) {
+		wlr_scene_rect_set_color(it->bg, server->bg_color);
+	}
 }
 
 void

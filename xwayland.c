@@ -10,7 +10,7 @@
 #include <X11/Xutil.h>
 #include <stdbool.h>
 #include <wayland-server-core.h>
-#include <wlr/types/wlr_box.h>
+#include <wlr/util/box.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/log.h>
@@ -72,29 +72,15 @@ close(struct cg_view *view) {
 static void
 maximize(struct cg_view *view, int width, int height) {
 	struct cg_xwayland_view *xwayland_view = xwayland_view_from_view(view);
-	struct cg_output *output = view->workspace->output;
-
-	struct wlr_box *box = wlr_output_layout_get_box(
-	    view->server->output_layout, view->workspace->output->wlr_output);
 	struct wlr_xwayland_surface_size_hints *hints =
 	    xwayland_view->xwayland_surface->size_hints;
 
 	if(hints != NULL && hints->flags & PMaxSize) {
 		if(width > hints->max_width) {
-			wlr_output_damage_add_box(output->damage,
-			                          &(struct wlr_box){.x = view->ox + box->x,
-			                                            .y = view->oy + box->y,
-			                                            .width = width,
-			                                            .height = height});
 			width = hints->max_width;
 		}
 
 		if(height > hints->max_height) {
-			wlr_output_damage_add_box(output->damage,
-			                          &(struct wlr_box){.x = view->ox + box->x,
-			                                            .y = view->oy + box->y,
-			                                            .width = width,
-			                                            .height = height});
 			height = hints->max_height;
 		}
 	}
@@ -111,18 +97,6 @@ destroy(struct cg_view *view) {
 }
 
 static void
-for_each_surface(struct cg_view *view, wlr_surface_iterator_func_t iterator,
-                 void *data) {
-	wlr_surface_for_each_surface(view->wlr_surface, iterator, data);
-}
-
-static struct wlr_surface *
-wlr_surface_at(const struct cg_view *view, double sx, double sy, double *sub_x,
-               double *sub_y) {
-	return wlr_surface_surface_at(view->wlr_surface, sx, sy, sub_x, sub_y);
-}
-
-static void
 handle_xwayland_surface_request_fullscreen(struct wl_listener *listener,
                                            void *data) {
 	struct cg_xwayland_view *xwayland_view =
@@ -134,31 +108,10 @@ handle_xwayland_surface_request_fullscreen(struct wl_listener *listener,
 }
 
 static void
-handle_xwayland_surface_commit(struct wl_listener *listener, void *_data) {
-	struct cg_xwayland_view *xwayland_view =
-	    wl_container_of(listener, xwayland_view, commit);
-	struct cg_view *view = &xwayland_view->view;
-	/* xwayland surface has moved */
-	if(xwayland_view->xwayland_surface->x != view->ox ||
-	   xwayland_view->xwayland_surface->y != view->oy) {
-		output_damage_surface(view->workspace->output, view->wlr_surface,
-		                      view->ox, view->oy, true);
-		view->ox = xwayland_view->xwayland_surface->x;
-		view->oy = xwayland_view->xwayland_surface->y;
-		output_damage_surface(view->workspace->output, view->wlr_surface,
-		                      view->ox, view->oy, true);
-	} else {
-		view_damage_part(view);
-	}
-}
-
-static void
 handle_xwayland_surface_unmap(struct wl_listener *listener, void *_data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, unmap);
 	struct cg_view *view = &xwayland_view->view;
-
-	wl_list_remove(&xwayland_view->commit.link);
 
 	view_unmap(view);
 }
@@ -174,15 +127,9 @@ handle_xwayland_surface_map(struct wl_listener *listener, void *_data) {
 		view->oy = xwayland_view->xwayland_surface->y;
 	}
 
-	xwayland_view->commit.notify = handle_xwayland_surface_commit;
-	wl_signal_add(&xwayland_view->xwayland_surface->surface->events.commit,
-	              &xwayland_view->commit);
-
 	view_map(view, xwayland_view->xwayland_surface->surface,
 	         view->server->curr_output
 	             ->workspaces[view->server->curr_output->curr_workspace]);
-
-	view_damage_whole(view);
 }
 
 static void
@@ -207,10 +154,6 @@ static const struct cg_view_impl xwayland_view_impl = {
     .close = close,
     .maximize = maximize,
     .destroy = destroy,
-    .for_each_surface = for_each_surface,
-    /* XWayland doesn't have a separate popup iterator. */
-    .for_each_popup = NULL,
-    .wlr_surface_at = wlr_surface_at,
 };
 
 void

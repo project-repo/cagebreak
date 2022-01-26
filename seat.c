@@ -22,6 +22,7 @@
 #include <wlr/types/wlr_idle.h>
 #include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/types/wlr_primary_selection.h>
+#include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_seat.h>
 #include <wlr/types/wlr_surface.h>
 #include <wlr/types/wlr_touch.h>
@@ -46,67 +47,22 @@
 static void
 drag_icon_update_position(struct cg_drag_icon *drag_icon);
 
-/* XDG toplevels may have nested surfaces, such as popup windows for context
- * menus or tooltips. This function tests if any of those are underneath the
- * coordinates lx and ly (in output Layout Coordinates). If so, it sets the
- * surface pointer to that wlr_surface and the sx and sy coordinates to the
- * coordinates relative to that surface's top-left corner. */
-static bool
-view_at(const struct cg_view *view, double lx, double ly,
-        struct wlr_surface **surface, double *sx, double *sy) {
-	struct wlr_box *output_layout_box = wlr_output_layout_get_box(
-	    view->server->output_layout, view->workspace->output->wlr_output);
-	if(output_layout_box == NULL) {
-		return false;
-	}
-
-	double view_sx = lx - view->ox - output_layout_box->x;
-	double view_sy = ly - view->oy - output_layout_box->y;
-
-	double _sx, _sy;
-	struct wlr_surface *_surface =
-	    view_wlr_surface_at(view, view_sx, view_sy, &_sx, &_sy);
-	if(_surface != NULL) {
-		*sx = _sx;
-		*sy = _sy;
-		*surface = _surface;
-		return true;
-	}
-
-	return false;
-}
-
 /* If desktop_view_at returns a view, there is also a
  * surface. There cannot be a surface without a view, either. It's
  * both or nothing. */
 static struct cg_view *
 desktop_view_at(const struct cg_server *server, double lx, double ly,
                 struct wlr_surface **surface, double *sx, double *sy) {
-	struct cg_view *view;
-	wl_list_for_each(
-	    view,
-	    &server->curr_output->workspaces[server->curr_output->curr_workspace]
-	         ->unmanaged_views,
-	    link) {
-		if(view_at(view, lx, ly, surface, sx, sy)) {
-			return view;
-		}
+	struct wlr_scene_node *node=wlr_scene_node_at(&server->scene->node, lx,ly,sx,sy);
+	if(node == NULL || node->type != WLR_SCENE_NODE_SURFACE) {
+		return NULL;
 	}
+	*surface = wlr_scene_surface_from_node(node)->surface;
 
-	bool first = true;
-	for(struct cg_tile *tile =
-	        server->curr_output->workspaces[server->curr_output->curr_workspace]
-	            ->focused_tile;
-	    first ||
-	    server->curr_output->workspaces[server->curr_output->curr_workspace]
-	            ->focused_tile != tile;
-	    tile = tile->next) {
-		first = false;
-		if(tile->view != NULL && view_at(tile->view, lx, ly, surface, sx, sy)) {
-			return tile->view;
-		}
+	while(node != NULL && node->data == NULL) {
+		node=node->parent;
 	}
-	return NULL;
+	return node->data;
 }
 
 static void
@@ -721,24 +677,10 @@ handle_cursor_motion(struct wl_listener *listener, void *data) {
 }
 
 static void
-drag_icon_damage(struct cg_drag_icon *drag_icon) {
-	struct cg_output *output;
-	wl_list_for_each(output, &drag_icon->seat->server->outputs, link) {
-		struct wlr_box *output_layout_box = wlr_output_layout_get_box(
-		    output->server->output_layout, output->wlr_output);
-		output_damage_surface(output, drag_icon->wlr_drag_icon->surface,
-		                      drag_icon->lx - output_layout_box->x,
-		                      drag_icon->ly - output_layout_box->y, true);
-	}
-}
-
-static void
 drag_icon_update_position(struct cg_drag_icon *drag_icon) {
 	struct wlr_drag_icon *wlr_icon = drag_icon->wlr_drag_icon;
 	struct cg_seat *seat = drag_icon->seat;
 	struct wlr_touch_point *point;
-
-	drag_icon_damage(drag_icon);
 
 	switch(wlr_icon->drag->grab_type) {
 	case WLR_DRAG_GRAB_KEYBOARD:
@@ -756,8 +698,7 @@ drag_icon_update_position(struct cg_drag_icon *drag_icon) {
 		drag_icon->ly = seat->touch_ly;
 		break;
 	}
-
-	drag_icon_damage(drag_icon);
+	wlr_scene_node_set_position(drag_icon->scene_node, drag_icon->lx, drag_icon->ly);
 }
 
 static void
@@ -765,9 +706,9 @@ handle_drag_icon_destroy(struct wl_listener *listener, void *_data) {
 	struct cg_drag_icon *drag_icon =
 	    wl_container_of(listener, drag_icon, destroy);
 
-	drag_icon_damage(drag_icon);
 	wl_list_remove(&drag_icon->link);
 	wl_list_remove(&drag_icon->destroy.link);
+	wlr_scene_node_destroy(drag_icon->scene_node);
 	free(drag_icon);
 }
 
@@ -813,6 +754,11 @@ handle_start_drag(struct wl_listener *listener, void *data) {
 	}
 	drag_icon->seat = seat;
 	drag_icon->wlr_drag_icon = wlr_drag_icon;
+	drag_icon->scene_node = wlr_scene_subsurface_tree_create(&seat->server->scene->node, wlr_drag_icon->surface);
+	if(!drag_icon->scene_node) {
+		free(drag_icon);
+		return;
+	}
 
 	drag_icon->destroy.notify = handle_drag_icon_destroy;
 	wl_signal_add(&wlr_drag_icon->events.destroy, &drag_icon->destroy);
@@ -1038,5 +984,9 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 		                               NULL);
 	}
 
+	wlr_scene_node_raise_to_top(view->scene_node);
 	process_cursor_motion(seat, -1);
+	struct wlr_box *box = wlr_output_layout_get_box(
+	    server->output_layout, view->workspace->output->wlr_output);
+	wlr_scene_node_set_position(&view->workspace->output->bg->node, box->x, box->y);
 }
