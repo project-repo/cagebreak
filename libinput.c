@@ -368,10 +368,10 @@ cg_input_configure_libinput_device(struct cg_input_device *input_device) {
 	}
 }
 
-void
+bool
 cg_input_reset_libinput_device(struct cg_input_device *input_device) {
 	if(!wlr_input_device_is_libinput(input_device->wlr_device)) {
-		return;
+		return false;
 	}
 
 	struct libinput_device *device =
@@ -416,6 +416,7 @@ cg_input_reset_libinput_device(struct cg_input_device *input_device) {
 	float matrix[6];
 	libinput_device_config_calibration_get_default_matrix(device, matrix);
 	changed |= set_calibration_matrix(device, matrix);
+	return changed;
 }
 
 bool

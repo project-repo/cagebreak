@@ -204,6 +204,21 @@ For every release after 1.0.5, hashes will be provided.
 
 For every release after 1.7.0, hashes will be provided for man pages too.
 
+1.8.3 cagebreak
+
+  * sha 256: 85803b75b1be0d9bf600175ce6aa981a1632768872e5afddea7569f825c1f7c3
+  * sha 512: 96c9b33804bbd7c652e32556d5001e12c2b07ab7127118a050be513bd6e0d6241fb78c80d9cce50447ae32a7b33c5c6a6cf1def36efaf3d8e8ddb028bcd769df
+
+1.8.3 cagebreak.1
+
+  * sha 256: e583f818d73484cbcae65dbe6ffc226ea58fdad87363213ea5b1059d866216e4
+  * sha 512: b96d8f9308d31bb1faa346267136fd7a53caed95065e7da09713b5f64addb42c835b27cd6cfa6bcf8c5b5d572a73b1e828f47b14e06a00b0871a77a25a286597
+
+1.8.3 cagebreak-config.5
+
+  * sha 256: d0be008e0e5d47b876ccfb8cf70967097673b81fa93718838db45f4056b76bc0
+  * sha 512: 42f8d25eb89219aebd00e927627a51fd8b7f6fda6f7c6147abbc0e4fae5de1ceb5827b79a814127a0706cc213d7717733e02cfa5275960cb0cce23eb54493b1e
+
 1.8.2 cagebreak
 
   * sha 256: f4d275d48ba3d999969f8cb3c8142d27aa8e8d362106ee7575e4b13c02173b2a

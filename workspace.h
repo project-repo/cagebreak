@@ -1,7 +1,7 @@
 #ifndef CG_WORKSPACE_H
 #define CG_WORKSPACE_H
 
-#include <wlr/types/wlr_box.h>
+#include <wlr/util/box.h>
 
 struct cg_output;
 struct cg_server;

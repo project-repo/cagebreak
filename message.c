@@ -86,10 +86,9 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	cairo_surface_flush(surface);
 	unsigned char *data = cairo_image_surface_get_data(surface);
 	int stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, width);
-	struct wlr_renderer *renderer =
-	    wlr_backend_get_renderer(output->wlr_output->backend);
-	texture = wlr_texture_from_pixels(renderer, DRM_FORMAT_ARGB8888, stride,
-	                                  width, height, data);
+	texture =
+	    wlr_texture_from_pixels(output->server->renderer, DRM_FORMAT_ARGB8888,
+	                            stride, width, height, data);
 	cairo_surface_destroy(surface);
 	g_object_unref(pango);
 	cairo_destroy(cairo);

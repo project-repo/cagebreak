@@ -22,6 +22,8 @@ struct cg_server {
 	struct cg_seat *seat;
 	struct cg_input_manager *input;
 	struct wlr_backend *backend;
+	struct wlr_renderer *renderer;
+	struct wlr_allocator *allocator;
 	struct wlr_idle *idle;
 	struct wlr_idle_inhibit_manager_v1 *idle_inhibit_v1;
 	struct wl_listener new_idle_inhibitor_v1;

@@ -7,7 +7,7 @@
  * See the LICENSE file accompanying this file.
  */
 
-#include <wlr/types/wlr_box.h>
+#include <wlr/util/box.h>
 
 #include "util.h"
 #include <stdlib.h>

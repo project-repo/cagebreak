@@ -2,7 +2,7 @@
 #define CG_OUTPUT_H
 
 #include <wayland-server-core.h>
-#include <wlr/types/wlr_box.h>
+#include <wlr/util/box.h>
 
 struct cg_server;
 struct cg_view;

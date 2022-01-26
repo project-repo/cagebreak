@@ -12,11 +12,11 @@
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
 #include <wlr/render/wlr_renderer.h>
-#include <wlr/types/wlr_box.h>
 #include <wlr/types/wlr_matrix.h>
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_surface.h>
+#include <wlr/util/box.h>
 #include <wlr/util/log.h>
 #include <wlr/util/region.h>
 
@@ -29,8 +29,8 @@
 #include "workspace.h"
 
 static void
-scissor_output(struct wlr_output *output, pixman_box32_t *rect) {
-	struct wlr_renderer *renderer = wlr_backend_get_renderer(output->backend);
+scissor_output(struct wlr_output *output, pixman_box32_t *rect,
+               struct wlr_renderer *renderer) {
 
 	struct wlr_box box = {
 	    .x = rect->x1,
@@ -56,10 +56,7 @@ struct render_data {
 static void
 render_texture(struct wlr_output *wlr_output, pixman_region32_t *output_damage,
                struct wlr_texture *texture, const struct wlr_box *box,
-               const float matrix[static 9]) {
-	struct wlr_renderer *renderer =
-	    wlr_backend_get_renderer(wlr_output->backend);
-
+               const float matrix[static 9], struct wlr_renderer *renderer) {
 	pixman_region32_t damage;
 	pixman_region32_init(&damage);
 	pixman_region32_union_rect(&damage, &damage, box->x, box->y, box->width,
@@ -72,7 +69,7 @@ render_texture(struct wlr_output *wlr_output, pixman_region32_t *output_damage,
 	int nrects;
 	pixman_box32_t *rects = pixman_region32_rectangles(&damage, &nrects);
 	for(int i = 0; i < nrects; i++) {
-		scissor_output(wlr_output, &rects[i]);
+		scissor_output(wlr_output, &rects[i], renderer);
 		wlr_render_texture_with_matrix(renderer, texture, matrix, 1.0F);
 	}
 
@@ -109,7 +106,8 @@ render_surface_iterator(struct cg_output *output, struct wlr_surface *surface,
 		box->height =
 		    box->height > data->tile_height ? data->tile_height : box->height;
 	}
-	render_texture(wlr_output, output_damage, texture, box, matrix);
+	render_texture(wlr_output, output_damage, texture, box, matrix,
+	               output->server->renderer);
 }
 
 static void
@@ -179,8 +177,7 @@ output_render(struct cg_output *output, pixman_region32_t *damage) {
 	struct cg_server *server = output->server;
 	struct wlr_output *wlr_output = output->wlr_output;
 
-	struct wlr_renderer *renderer =
-	    wlr_backend_get_renderer(wlr_output->backend);
+	struct wlr_renderer *renderer = output->server->renderer;
 	if(!renderer) {
 		wlr_log(WLR_DEBUG, "Expected the output backend to have a renderer");
 		return;
@@ -202,7 +199,7 @@ output_render(struct cg_output *output, pixman_region32_t *damage) {
 	int nrects;
 	pixman_box32_t *rects = pixman_region32_rectangles(damage, &nrects);
 	for(int i = 0; i < nrects; i++) {
-		scissor_output(wlr_output, &rects[i]);
+		scissor_output(wlr_output, &rects[i], renderer);
 		wlr_renderer_clear(renderer, server->bg_color);
 	}
 
@@ -238,7 +235,7 @@ output_render(struct cg_output *output, pixman_region32_t *damage) {
 		                       WL_OUTPUT_TRANSFORM_NORMAL, 0.0F,
 		                       wlr_output->transform_matrix);
 		render_texture(output->wlr_output, damage, message->message,
-		               message->position, matrix);
+		               message->position, matrix, renderer);
 	}
 	render_drag_icons(output, damage, &server->seat->drag_icons);
 
