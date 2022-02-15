@@ -786,14 +786,11 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 	}
 	keybinding_cycle_outputs(server, reverse);
 	if(view != NULL) {
-		wl_list_insert(&server->curr_output
-		                    ->workspaces[server->curr_output->curr_workspace]
-		                    ->views,
-		               &view->link);
-		server->curr_output->workspaces[server->curr_output->curr_workspace]
-		    ->focused_tile->view = view;
-		view->workspace = server->curr_output
-		                      ->workspaces[server->curr_output->curr_workspace];
+		struct cg_workspace *ws=server->curr_output->workspaces[server->curr_output->curr_workspace];
+		wl_list_insert(&ws->views, &view->link);
+		ws->focused_tile->view = view;
+		wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
+		view->workspace = ws;
 		view->tile = view->workspace->focused_tile;
 		view_maximize(view, view->tile);
 		seat_set_focus(server->seat, view);
@@ -942,6 +939,7 @@ keybinding_move_view_to_output(struct cg_server *server, int output_num) {
 		        ->workspaces[server->curr_output->curr_workspace];
 		view->workspace = ws;
 		wl_list_insert(&ws->views, &view->link);
+		wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
 		ws->focused_tile->view = view;
 		view_maximize(view, ws->focused_tile);
 		seat_set_focus(server->seat, view);
@@ -982,6 +980,7 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 		        ->workspaces[server->curr_output->curr_workspace];
 		view->workspace = ws;
 		wl_list_insert(&ws->views, &view->link);
+		wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
 		ws->focused_tile->view = view;
 		view_maximize(view, ws->focused_tile);
 		seat_set_focus(server->seat, view);

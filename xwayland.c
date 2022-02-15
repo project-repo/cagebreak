@@ -10,7 +10,6 @@
 #include <X11/Xutil.h>
 #include <stdbool.h>
 #include <wayland-server-core.h>
-#include <wlr/util/box.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/log.h>
@@ -121,10 +120,12 @@ handle_xwayland_surface_map(struct wl_listener *listener, void *_data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, map);
 	struct cg_view *view = &xwayland_view->view;
-
 	if(!xwayland_view_should_manage(view)) {
-		view->ox = xwayland_view->xwayland_surface->x;
-		view->oy = xwayland_view->xwayland_surface->y;
+		struct wlr_output_layout *output_layout = view->server->output_layout;
+		struct wlr_box *output_box = wlr_output_layout_get_box(
+		    output_layout, view->server->curr_output->wlr_output);
+		view->ox = xwayland_view->xwayland_surface->x-output_box->x;
+		view->oy = xwayland_view->xwayland_surface->y-output_box->y;
 	}
 
 	view_map(view, xwayland_view->xwayland_surface->surface,

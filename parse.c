@@ -864,12 +864,12 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		char *mode = strtok_r(NULL, " ", &saveptr);
 		if(mode == NULL) {
 			*errstr =
-			    log_error("Expected mode after \"switch_mode\". Got nothing.");
+			    log_error("Expected mode after \"mode\". Got nothing.");
 			return -1;
 		}
 		int mode_idx = get_mode_index_from_name(server->modes, mode);
 		if(mode_idx == -1) {
-			*errstr = log_error("Unknown mode \"%s\" for switch_mode", mode);
+			*errstr = log_error("Unknown mode \"%s\" for \"mode\"", mode);
 			return -1;
 		}
 		keybinding->data.u = (unsigned int)mode_idx;

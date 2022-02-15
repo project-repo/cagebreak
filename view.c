@@ -108,7 +108,7 @@ void
 view_unmap(struct cg_view *view) {
 
 	uint32_t id = view->id;
-	uint32_t tile_id = view->tile->id;
+	uint32_t tile_id = 0;
 	uint32_t ws = view->workspace->num;
 	char *output_name = view->workspace->output->wlr_output->name;
 	char *title = view->impl->get_title(view);
@@ -117,13 +117,18 @@ view_unmap(struct cg_view *view) {
 		return;
 	}
 
+	if(view->tile == NULL) {
+		tile_id=-1;
+	} else {
+		tile_id=view->tile->id;
+	}
+
 	wlr_scene_node_destroy(view->scene_node);
 
 #if CG_HAS_XWAYLAND
 	if((view->type != CG_XWAYLAND_VIEW || xwayland_view_should_manage(view)))
 #endif
 	{
-		struct cg_tile *view_tile = view_get_tile(view);
 		struct cg_view *prev = view_get_prev_view(view);
 		if(view == view->server->seat->focused_view) {
 			seat_set_focus(view->server->seat, prev);
@@ -133,7 +138,7 @@ view_unmap(struct cg_view *view) {
 			seat_set_focus(view->server->seat,
 			               view->server->seat->focused_view);
 		}
-		view_tile = view_get_tile(view);
+		struct cg_tile *view_tile = view_get_tile(view);
 		if(view_tile != NULL) {
 			view_tile->view = prev;
 			if(prev != NULL) {
@@ -180,6 +185,9 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	   their own (x,y) coordinates in handle_wayland_surface_map. */
 	if(view->type == CG_XWAYLAND_VIEW && !xwayland_view_should_manage(view)) {
 		wl_list_insert(&ws->unmanaged_views, &view->link);
+		struct wlr_box *box = wlr_output_layout_get_box(
+		    view->server->output_layout, view->workspace->output->wlr_output);
+		wlr_scene_node_set_position(view->scene_node, view->ox+box->x, view->oy+box->y);
 	} else
 #endif
 	{
@@ -188,10 +196,16 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 		wl_list_insert(&ws->views, &view->link);
 	}
 	seat_set_focus(output->server->seat, view);
+	int tile_id=0;
+	if(view->tile==NULL) {
+		tile_id=-1;
+	} else {
+		tile_id=view->tile->id;
+	}
 	ipc_send_event(
 	    output->server,
 	    "view_map(view_id:%d,tile_id:%d,workspace:%d,output:%s,view_title:%s)",
-	    view->id, view->tile->id, view->workspace->num + 1,
+	    view->id, tile_id, view->workspace->num + 1,
 	    view->workspace->output->wlr_output->name, view->impl->get_title(view));
 }
 
