@@ -1,8 +1,8 @@
-cagebreak-config(1) "Version 1.8.2" "Cagebreak Manual"
+cagebreak-config(5) "Version 1.8.2" "Cagebreak Manual"
 
 # NAME
 
-*cagebreak-config* — Cagebreak config file
+*cagebreak-config* — Cagebreak configuration file
 
 # SYNOPSIS
 
@@ -10,91 +10,108 @@ cagebreak-config(1) "Version 1.8.2" "Cagebreak Manual"
 
 # DESCRIPTION
 
-The cagebreak configuration file is a simple plain text file which configures
-the way cagebreak behaves.
-Each line constitutes a separate command which is parsed
-independently from the rest of the file. Comments can be added
-by prepending a line with the # symbol.
+The cagebreak configuration is a plain text file.
+
+Each line consists of a comment or a command and its arguments which
+are parsed sequentially but independently from the rest of the file.
+
+Each line starting with a "#" is a comment.
+
+See *KEY DEFINITIONS* for details on modifier keys and *MODES* for details
+on modes.
 
 ## COMMANDS
 
 *abort*
-	Return to the default mode without running any command
+	Return to default mode
 
-*background - Set background color*
-	Set the background color. This command expects three floating point numbers
-	between 0 and 1, specifying the r, g and b values respectively.
-	(e.g. "background 1.0 0.0 0.0" sets to background color to red)
-	There is no support for specifying a background image.
+*background <r> <g> <b>*
+	Set RGB of background - <[r|g|b]> are floating point numbers
+	between 0 and 1.
+	There is no support for background images.
 
-*bind - Bind key to command in root mode*
-	This command requires a key (see *KEY DEFINITIONS*) and a command (see *COMMANDS*) as an argument.
-	Subsequently, pressing this key while in command mode executes the
-	supplied action. bind <key> <command> is equivalent to
-		definekey root <key> <command>
+```
+# Set background to red
+background 1.0 0.0 0.0
+```
 
-*close - Close current window*
-	This command closes the current window. It may be useful for windows of applications which
-	do not offer any method of closing them.
+*bind <key> <command>*
+	Bind <key> to execute <command> if pressed in root mode
 
-*definekey - Bind key to action in arbitrary mode*
-	This command behaves similarly to the *bind* command with the
-	difference that the mode in which the keybinding is activated is
-	specified by the user. A call to this function is to be structured as follows:
+```
+bind <key> <command>
+# is equivalent to
+definekey root <key> <command>
+```
 
-		definekey <mode> <key> <command>
+*close*
+	Close current window - This may be useful for windows of
+	applications which do not offer any method of closing them.
 
-*definemode*
-	This command requires a single argument; the name of the mode to be defined.
-	Subsequent to a call to this function, the defined mode may be used along with
-	the definekey command to create a custom key mapping. Synopsis:
+*definekey <mode> <key> <command>*
+	Bind <key> to execute <command> if pressed in <mode> -
+	*definekey* is a more general version of *bind*.
 
-		definemode <mode>
+*definemode <mode>*
+	Define new mode <mode> - After a call to *definemode*,
+	<mode> can be used with *definekey* to create a custom key mapping.
 
-*escape*
-	Defines the key with which the current mode can be changed to "root".
-	escape <key> is equivalent to definekey top <key> switch_mode root
+```
+# define new mode and create a mapping for it
+definemode foo
+definekey foo C-t abort
+```
+
+*escape <key>*
+	Set <key> to switch to root mode to execute one command
+
+```
+escape <key>
+# is equivalent to
+definekey top <key> mode root
+```
 
 *exchangedown*
-	Exchange the current window with the window in the tile to the bottom
+	Exchange current window with window in the tile to the bottom
 
 *exchangeleft*
-	Exchange the current window with the window in the tile to the left
+	Exchange current window with window in the tile to the left
 
 *exchangeright*
-	Exchange the current window with the window in the tile to the right
+	Exchange current window with window in the tile to the right
 
 *exchangeup*
-	Exchange the current window with the window in the tile to the top
+	Exchange current window with window in the tile to the top
 
-*exec*
-	Executes the supplied shell command using *sh -c "<command>"*. Synopsis:
-
-		exec <command>
+*exec <command>*
+	Execute <command> using *sh -c*
 
 *focus*
 	Focus next tile
 
 *focusdown*
-	Focus the tile to the bottom
+	Focus tile to the bottom
 
 *focusleft*
-	Focus the tile to the left
+	Focus tile to the left
 
 *focusprev*
 	Focus previous tile
 
 *focusright*
-	Focus the tile to the right
+	Focus tile to the right
 
 *focusup*
-	Focus the tile to the top
+	Focus tile to the top
 
 *hsplit*
 	Split current tile horizontally
 
 *input <identifier> <setting> <value>*
-	Set the setting "<setting>" to "<value>" for device "<identifier>". The identifier can either be "\*" (wildcard), of the form "type:<device_type>" or the identifier of the device as printed for example by *cagebreak -s*. The supported input types are
+	Set <setting> to <value> for device <identifier> -
+	<identifier> can be "\*" (wildcard), of the form
+	"type:<device_type>" or the identifier of the device as printed
+	for example by *cagebreak -s*. The supported input types are
 	- touchpad
 	- pointer
 	- keyboard
@@ -103,135 +120,142 @@ by prepending a line with the # symbol.
 	- tablet_pad
 	- switch
 
-	Configurations are applied sequentially. Currently, only libinput devices may be configured. The available settings and their corresponding values are as follows:
+	Configurations are applied sequentially. Currently, only libinput
+	devices may be configured. The available settings and their
+	corresponding values are as follows:
 
 	*accel_profile adaptive|flat*
-		Sets the pointer acceleration profile for the specified input device.
+		Set pointer acceleration profile for specified input device
 
 	*calibration_matrix <6 space-separated floating point values>*
-		Sets the calibration matrix.
+		Set calibration matrix
 
 	*click_method none|button_areas|clickfinger*
-		Changes the click method for the specified device.
+		Change click method for the specified device
 
 	*drag enabled|disabled*
-		Enables or disables tap-and-drag for specified input device.
+		Enable or disable tap-and-drag for specified input device
 
 	*drag_lock enabled|disabled*
-		Enables or disables drag lock for specified input device.
+		Enable or disable drag lock for specified input device
 
 	*dwt enabled|disabled*
-		Enables or disables disable-while-typing for the specified input device.
+		Enable or disable disable-while-typing for specified input
+		device
 
 	*enabled|disabled|disabled_on_external_mouse*
-		Enables or disables send_events for specified input device. Disabling
-		send_events disables the input device.
+		Enable or disable send_events for specified input device -
+		Disabling send_events disables the input device.
 
 	*left_handed enabled|disabled*
-		Enables or disables left handed mode for specified input device.
+		Enable or disable left handed mode for specified input device
 
 	*middle_emulation enabled|disabled*
-		Enables or disables middle click emulation.
+		Enable or disable middle click emulation
 
 	*natural_scroll enabled|disabled*
-		Enables or disables natural (inverted) scrolling for the specified input
-		device.
+		Enable or disable natural (inverted) scrolling for specified
+		input device
 
 	*pointer_accel [<-1|1>]*
-		Changes the pointer acceleration for the specified input device.
+		Change the pointer acceleration for specified input device
 
 	*scroll_button disable|<event-code-or-name>*
-		Sets the button used for scroll_method on_button_down. The button can
-		be given as an event name or code, which can be obtained from *libinput
-		debug-events*. If set to
-		_disable_, it disables the scroll_method on_button_down.
+		Set button used for scroll_method on_button_down - The button
+		can be given as an event name or code, which can be obtained from
+		*libinput debug-events*. If set to _disable_, it disables the
+		scroll_method on_button_down.
 
 	*scroll_factor <floating point value>*
-		Changes the scroll factor for the specified input device. Scroll speed will
-		be scaled by the given value, which must be non-negative.
+		Change the scroll factor for the specified input device - Scroll
+		speed will be scaled by the given value, which must be non-negative.
 
 	*scroll_method none|two_finger|edge|on_button_down*
-		Changes the scroll method for the specified input device.
+		Change scroll method for specified input device
 
 	*tap enabled|disabled*
-		Enables or disables tap for specified input device.
+		Enable or disable tap for specified input device
 
 	*tap_button_map lrm|lmr*
-		Specifies which button mapping to use for tapping. _lrm_ treats 1 finger as
-		left click, 2 fingers as right click, and 3 fingers as middle click. _lmr_
-		treats 1 finger as left click, 2 fingers as middle click, and 3 fingers as
-		right click.
+		Specify which button mapping to use for tapping - _lrm_ treats 1
+		finger as left click, 2 fingers as right click, and 3 fingers as
+		middle click. _lmr_ treats 1 finger as left click, 2 fingers as
+		middle click, and 3 fingers as right click.
 
 *mode <mode>*
-	Enter mode "<mode>". After a keybinding is processed, return to default mode
+	Enter mode "<mode>" - Returns to default mode, after a command is
+	executed.
 
 *movetonextscreen*
-	Move the current window to the next screen
+	Move current window to next screen
 
 *movetoprevscreen*
-	Move the current window to the previous screen
+	Move current window to previous screen
 
 *movetoscreen <n>*
-	Move the currently focused window to the n-th screen
+	Move currently focused window to <n>-th screen
 
 *movetoworkspace <n>*
-	Move the currently focused window to the n-th workspace
+	Move currently focused window to <n>-th workspace
 
 *next*
 	Focus next window in current tile
 
 *nextscreen*
-	Focus the next screen
+	Focus next screen
 
 *only*
-	Remove all splits and make the current window fill the entire screen
+	Remove all splits and make current window fill the entire screen
 
 *output <name> [[pos <xpos> <ypos> res <width>x<height> rate <rate>] | enable | disable | prio <n> ]*
-	Configure the output "<name>". <xpos> and <ypos> are the position of the monitor
-	in pixels. The top-left monitor should have the coordinates 0 0. <width> and
-	<height> specify the resolution in pixels and <rate> sets the refresh rate of
-	the monitor (often this is 50 or 60). The options enable and disable
-	enable or disable the output <name>. Note that if <output> is the only enabled
-	output, *output <output> disable* has no effect. prio <n> is used to set the
-	priority of an output. If nothing else is set, outputs are added as they
-	request to be added and have a numerical priority of -1. Using prio <n>
-	it is possible to set priorities for outputs, where <n> >= 1. The larger <n> is,
-	the higher the priority is, that is to say, the earlier the output will
-	appear in the list of outputs.
+	Configure output "<name>" -
+	- <xpos> and <ypos> are the position of the
+	  monitor in pixels. The top-left monitor should have the coordinates 0 0.
+	- <width> and <height> specify the resolution in pixels.
+	- <rate> sets the refresh rate of the monitor (often this is 50 or 60).
+	- enable and disable enable or disable <name>. Note that if
+	  <output> is the only enabled output, *output <output> disable* has
+	  no effect.
+	- prio <n> is used to set the priority of an output. If
+	  nothing else is set, outputs are added as they request to be added
+	  and have a numerical priority of -1. Using prio <n> it is possible
+	  to set priorities for outputs, where <n> >= 1. The larger <n> is,
+	  the higher the priority is, that is to say, the earlier the output
+	  will appear in the list of outputs.
 
 *prev*
 	Focus previous window in current tile
 
 *prevscreen*
-	Focus the previous screen
+	Focus previous screen
 
 *quit*
 	Exit cagebreak
 
 *resizedown*
-	Resize the current tile towards the bottom
+	Resize current tile towards the bottom
 
 *resizeleft*
-	Resize the current tile towards the left
+	Resize current tile towards the left
 
 *resizeright*
-	Resize the current tile towards the right
+	Resize current tile towards the right
 
 *resizeup*
-	Resize the current tile towards the top
+	Resize current tile towards the top
 
 *screen <n>*
-	Change to the n-th screen
+	Change to <n>-th screen
 
 *show_info*
-	Display info about the current setup. In particular, print the identifiers
+	Display information about the current setup - In particular, print the identifiers
 	of the available inputs and outputs.
 
 *setmode <mode>*
-	Set the default mode to <mode>
+	Set default mode to <mode>
 
 *switchvt <n>*
-	Switch to tty n
+	Switch to tty <n>
 
 *time*
 	Display time
@@ -240,31 +264,37 @@ by prepending a line with the # symbol.
 	Split current tile vertically
 
 *workspace <n>*
-	Change to the n-th workspace
+	Change to <n>-th workspace
 
-*workspaces*
-	Requires a single integer larger than 1 and less than 30 as an argument. Sets the number of
-	workspaces to the supplied number
+*workspaces <n>*
+	Set number of workspaces to <n> - <n> is a single integer larger than 1
+	and less than 30.
 
 # MODES
 
 By default, three modes are defined:
 
 *top*
-	The default mode. Keybindings defined in this mode can be accessed
-	directly, without the use of an escape key.
+	Default mode - Keybindings defined in this mode can be accessed
+	directly.
+	- *definekey* can be used to set keybindings for top mode.
+	- *setmode* can be used to set a different default mode.
 
 *root*
-	The command mode. Keybindings defined in this mode can be accessed
-	after pressing the key defined by the *escape* command.
+	Command mode - Keybindings defined in this mode can be accessed
+	after pressing the key defined by *escape*.
+	- *bind* can be used to set keybindings for root mode.
 
 *resize*
-	Resize mode. This mode is used for resizing tiles.
+	Resize mode - Used to resize tiles.
+
+*definemode* can be used to create additional modes.
 
 # KEY DEFINITIONS
 
 Keys are specified by their names as displayed for example by *xev*.
-In addition, modifiers can be specified using the following syntax:
+
+Modifiers can be specified using the following syntax:
 
 	<mod>-<key>
 
@@ -284,9 +314,11 @@ The supported modifiers are:
 
 *5 - Mod 5*
 
-For example to specify the keybinding Control+t, the expression:
+For example to specify the keybinding Control+t, the expression
 
-	C-t
+```
+C-t
+```
 
 is used.
 
@@ -301,7 +333,9 @@ See GitHub Issues: <https://github.com/project-repo/cagebreak/issues>
 # LICENSE
 
 Copyright (c) 2020-2022 The Cagebreak authors
+
 Copyright (c) 2018-2020 Jente Hidskes
+
 Copyright (c) 2019 The Sway authors
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of

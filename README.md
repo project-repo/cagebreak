@@ -121,7 +121,7 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
         * [ ] man/cagebreak-config
         * [ ] Set EPOCH to release day in man generation in meson.build
       * [ ] wiki
-      * [ ] README.md Changelog for major and minor releases but not patches
+      * [ ] Changelog.md for major and minor releases but not patches
     * [ ] Fixed bugs documented in Bugs.md
       * [ ] Include issue description from github
   * [ ] Testing
@@ -134,7 +134,7 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
   * [ ] meson.build reproducible build versions are current archlinux libraries and gcc
   * [ ] Cagebreak is reproducible on multiple machines
   * [ ] Documented reproducible build artefacts
-    * [ ] Hashes of the artefacts in README.md
+    * [ ] Hashes of the artefacts in Hashes.md
     * [ ] Renamed previous signatures
     * [ ] Created gpg signature of the artefacts
       * [ ] `gpg --detach-sign -u keyid cagebreak`
@@ -169,7 +169,7 @@ occur. Once any failure occurs the entire checklist must be completed from scrat
   * [ ] Checked archive
     * [ ] tar -xvf release_version.tar.gz
     * [ ] cd cagebreak
-    * [ ] meson build --buildtype=release
+    * [ ] meson build -Dxwayland=true -Dman-pages=true --buildtype=release
     * [ ] ninja -C build
     * [ ] gpg --verify ../signatures/cagebreak.sig build/cagebreak
     * [ ] cd ..
@@ -204,200 +204,8 @@ For every release after 1.0.5, hashes will be provided.
 
 For every release after 1.7.0, hashes will be provided for man pages too.
 
-1.8.2 cagebreak
+See [Hashes.md](Hashes.md)
 
-  * sha 256: f4d275d48ba3d999969f8cb3c8142d27aa8e8d362106ee7575e4b13c02173b2a
-  * sha 512: 72b11cb966b0978133b9848c2a7f57574c599c7fe895ca9f1cba16930216e1ac8aeae86d976593fc01b15e94ecc1430666f474654cf2fe41eda8c1181bf03f3d
-
-1.8.2 cagebreak.1
-
-  * sha 256: 51ee97a7c0b86268cf7622f84f7b1813df8e4a7838c00aae412a611d3693e87a
-  * sha 512: 5ce826afbee9cbc1129f37463f5b6d4dfc060583f6f7816dd5039b18d66a2b7e22f7293a4aa03acc4e6c690886d0297fef5b9f85d720a4467becfd833b59a160
-
-1.8.2 cagebreak-config.5
-
-  * sha 256: 7c780ba85211ba40c7535b3f10f12312f9edeaa10030228ba21a96724469a325
-  * sha 512: 9a56ba16c2aed6f17d4098e54900a5d25602f986e3606dd6ed26563c1920c66404b210dbca9f41bfcc3284bf5a42b750263bcaa2317320f8725e8f9c66e8b893
-
-1.8.1 cagebreak
-
-  * sha 256: e3247281d21525413790e3feceae129d9b0559497615d3fdd64ec2fc4ab9ab3d
-  * sha 512: 8c7c2820be9d7c74e3f9e239c7da740ff41d7f11cd40953dbfbc59c04942077f08625f6d7ec37e6037fd9c4b6950fc4f9af23478080665fdda867c65e0a187bf
-
-1.8.1 cagebreak.1
-
-  * sha 256: 96997afdfde9c2719533799aa48c8f036610bb04bc719130d2ab3a3617b072ee
-  * sha 512: 0831f5d2e3b4f23fd5775df2b7f6486099d64962567222a8fb49e6a40e7d29ed36a7c2c16201bbdcc985ac74f1d0e034b530afbe0ce58d6a0c53d467cff0a6a0
-
-1.8.1 cagebreak-config.5
-
-  * sha 256: bd0e2eb02ba28ec1c8f2bd0fd5cd4c84af24b615fcc477414e49e68e1963cf1b
-  * sha 512: 7135a2b371294bfdc759a393c13fa0225f1789dba94bb09e96ae689796215b8030280d6cc09c9d1fe139f000f5a4748efd16bb3e5d3b9fcc74a19259802f20ef
-
-1.8.0 cagebreak
-
-  * sha 256: ac84aa4a08c311da79ca29d92eef4254cb625674b255dbb75621ee6b171a1d79
-  * sha 512: c047bb1986fd1d444547e4d64aa7ef9138b3d30327ac3ad9b4c6976e8df6638bae07c39293b5bc9c20e959c0a22b0e40eb2b23b4766d9a5531377ff954b16229
-
-1.8.0 cagebreak.1
-
-  * sha 256: 4de43de7bde67d6d806d206dffc34389f0b5c3ba648bfef673b7bc0adeb29202
-  * sha 512: 72aac9a2e9a47f2f85949222d5944dc293332a616e3b961c625fe876172f66638038057c30aa18904d6d969451f468b4fe45e918c0b204cf6952d58ea4c69c33
-
-1.8.0 cagebreak-config.5
-
-  * sha 256: 678aadde06b5ff6bfbd9bc9460423210f9599bcaa0e50c2eae076dc6d6852781
-  * sha 512: 72056018fc1c559f26bd7e007b3f1db7d478cec7ec9337620e03a1e3d06910e244a52e8f655ea4f5d73669ffe064bbd23506005d9a6c06764b0f820d7a1df43f
-
-1.7.4 cagebreak
-
-  * sha 256: c7442db906239b13f8d09e91cbe01f9e47b2a2c75bbb4b52adefd15dfbfa820f
-  * sha 512: 9c36ce706f31e1b8afacd8f9cd216c460d66030e0b2736a3dd929902b0d5fc52c5e69dbf6787205b8c495d960e00b6e7f633da86ab6e31613f1b4a9fd47c9f0e
-
-1.7.4 cagebreak.1
-
-  * sha 256: 3dacc521e5e9b963cceeefeed6a10104c7c415d86826a72788aba5b33ce320f1
-  * sha 512: 0a4c4fbff09dd403fed61056ae3211ad2b4370b4e9ed07806fc22624e5312b4a25e469dc0eef1ca4556cbb8efabb0127e7519df79852e110faa98fb17ca377de
-
-1.7.4 cagebreak-config.5
-
-  * sha 256: ed22fed1818172f31d3fb3efbe5e66b49f135cb2367b1c85209fd880ff7532ab
-  * sha 512: cc634c63962ae50b4de20a3aad8ca0970175b53156690d69e6a69fd8f370ad20d84db783cc7e94c61d4d4d89f1205d43622690e58afba549ed57ddad009e3bac
-
-1.7.3 cagebreak
-
-  * sha 256: 8adb4911d9603fec5b8eb4f67a09be95b8f0b37e50d4ab579191da78df18f70b
-  * sha 512: eddaecd7b577b9fe77b1ed4d341074f7f860967568392d0479543ea8860b4289df3eb5645885e18e35260b14843663ae50f98103f8016e857237a397632322a6
-
-1.7.3 cagebreak.1
-
-  * sha 256: bcc623e42c86ab65bc2f8cb7e4377ca0d816ddc281527b7caeded62753e943b8
-  * sha 512: b4290e1040bd6a299d478ad6b695de75cf030d0d274340b43d3ed4382cf6877f824cd4ed9d7020bfb55afe276c62de7fc07c3fbee6f6485c6440a024115afe12
-
-1.7.3 cagebreak-config.5
-
-  * sha 256: b9789b6abd473e9afb33d4e2c7822f7d8f3c10e9eb3fb70c47b713f6331c626a
-  * sha 512: c49e01cfc4a4ed272f054bea8f2845f0e3f1609cf85d1a0ce14c1b67dc207df153b11bc20ceef09c855d467f0e013e54623ce9f70c217c4278607fc54d0e3206
-
-1.7.2 cagebreak
-
-  * sha 256: 40f4642e8e8caee338055079b046f6e0b790c87226ee307b27a64fcb2a6c6472
-  * sha 512: 22c5f1986ca4262a7c08a6c03cffe36eaedd8c3c5e27e12baf12a90f94aea088ac93ee107770f162fc70148be687f6394b8fd64ad3fe14414bdf63b55b33798e
-
-1.7.2 cagebreak.1
-
-  * sha 256: 3253e592c40c78fd3733c761163acc2efaaf5865627cf51fd33cc0bc5d9cc6e7
-  * sha 512: 901305e166c10aa7e4a26b721a69e0ba4779f4f8ee690551438ceadae65929f13949457872b9397dd46c5b7bad6a6f2638d6fd6df9bc5567c914c798cbf3e9a4
-
-1.7.2 cagebreak-config.5
-
-  * sha 256: 148ec4d80dc9a86485fe77f8daf1f7fa4cb3d1b6aaa709bb012005583779e1f7
-  * sha 512: d5732572e47dd07078ac2f6d589522e6007188fc05ac79520c93442212d5c0341459f135191b88c608a75b2f56c2de4065566bd869fbc24e475936d32a54a7f8
-
-1.7.1 cagebreak
-
-  * sha 256: 5a40797e016a2fa32b5bb70a056b35c482bef09f1795bbaf0188dbadaf8197c3
-  * sha 512: 2ef327b63ac4651f23517be8d5cb8fbec99bd889f52f8abfd62a09ca6e6c0060347ab8d60e4917d39edd36db34597a673239967533f14457733acb97f6c29a7f
-
-1.7.1 cagebreak.1
-
-  * sha 256: 0301f04254ae6e7ada7e22bbe7aee022ec0793fbce434a396868258e6f1ea4cf
-  * sha 512: f0c0c5de30be907e9ba5c9cfa0bca8cef3e94c0b5f52de9e2c3681c85aa957f75e92b5e26bb894c3a5e251295cfe7a1470653cc7dc05564d7d91c6eb43b7409a
-
-1.7.1 cagebreak-config.5
-
-  * sha 256: 6882330a77f3ff98ea642f47b4090b38d542abf0b7be3f226486c5614899efc6
-  * sha 512: a572f97836e4ccc6d67aa21c7f4aaebe06adb066c70038b670ec1ef267e3750764cb53e96b8d7bc24c7f993f24c0cfabee183307b45006d049f7416559bcaca4
-
-1.7.0
-
-  * sha 256: 5af11b84e61a82a1a276e8f91f6ebc6baafd2c98d22be3da1d01734cc9d55faa
-  * sha 512: 45474115fb4c28fe1ee91ad54706bfe521b6e70bd8ea619b94a3f50bae426891bf6a0387aa9b2f7f6d18349280c4e84973e4e433d50c090e5a764c64fa67795d
-
-1.6.0
-
-  * sha 256: aef473eae73454429afb158d66a7bd9aec75ef915845b7508de5448820357aa8
-  * sha 512: 17889bc1af9f343598a5ee599b25e702987dd0bd905a9566874e8a0094c57168e413938624949fa214e6e382cbcf89d7342292b44012cd8e692947f6c01a960a
-
-1.5.1
-
-  * sha 256: 9c6df4b94c180f5657cb424383aa2bf3aca063c8e7b40af0497be1ef7bdb858a
-  * sha 512: 219f753347ae64a4dd593568797438742e9ddae380c729598d8eda863080a6ed4e5086d735fc348c48328bb795a5a5b57b0421be5dd45755744d895b24312627
-
-1.5.0
-
-  * sha 256: 22010e2916493b0d7cfb08c2196f12589509ce11010a7107aed13ddbfd9709cc
-  * sha 512: 707d6cc01326ba32402f9fb402ff8aceaeaba63ca6ba2eb157e5a4c83123515a3a74da960813479db303eddc2e7f79f39b241dff05b89d47d72d5f1d20ca6d37
-
-1.4.4
-
-  * sha 256: c6e08e19feb17f768e136cf02f5692ef121ff289763dc60ef8678103803d3307
-  * sha 512: aebf27fa9c24f93dfd0b7c96536c253e2ea603d6746c40e8de2163e06367bc57ac4e22d6c07dd1e0963cce5b18b460d373e15b5c12a5a42ae6b70787971960c9
-
-1.4.3
-
-  * sha 256: 5e29cbaf7c0c5ca74f71a5605bb3d6e302e051798401fee9a79419720b8d8e95
-  * sha 512: 8004865f8603648d9ac9bb700f3ee040e6516c222ad3d783b34219c8fa3a7bdbba6abb74fe92c4d0bd4dbbce0ec4d08be12297a8bad5032baeb589eec557e24e
-
-1.4.2
-
-  * sha 256: 27efb9328cf9cab1f81e66627696baf8c7cc2c372339a2890f955b40f3a7c396
-  * sha 512: afcdbbce0753aff4770a88ddbd7df5687a7de0c77de3a2d296f85a8b8e01813212be6a0b69548aadef58e0e7da19ffea71c4f3448572656d4b19ff7f2f2fb70a
-
-1.4.1
-
-  * sha 256: c3e0ccceaf1078b91071c40b0ccb7c4f8e53ae38b05ee6637f9f39f7f6ece2cb
-  * sha 512: fd77f39fc7a7e5376d8505a61d643ed4d8f4cfbbf38d70cf9ef6989645e8cc6cb9d4b1024d241dc689b6fd927a405c97b9c918b6994b8f9ab7406646f37b952d
-
-1.4.0
-
-  * sha 256: 14aa93d890c62cc763b3b546a51ad8560479d5e91fa9f949858ae6bc785e80be
-  * sha 512: 88f93b49792684c38553b65d2296a0e502a059814a0cfff30d05c89958870d6f66d67aac2074cfd307bad82b0d72d5c4944822a61a68f665dc161407db365fbc
-
-1.3.4
-
-  * sha 256: ea9f634b8f6e2b9f191745a25abff4969eb7ea19cb3186b79a6138904aedeb1c
-  * sha 512: 9094f9c92acbff8fd95d38e7458c5184804f8913fa8c405bc2b6a0a220fe478b06cfeadbae41bd5ef84bde8d5642c249df9dada953e39c25926aa650c30a5309
-
-1.3.3
-
-  * sha 256: 801851ceb52afac333a1decdd236ddef55555f8b36f865e8b3a831975a496f0d
-  * sha 512: ce64dd56ab99bba0a83414fecc82d85322e1ca5ca3a2ca77bdc7055b2dd10fd5e20e3ff62809a696d1b04ff0046fed88e2d7538aa447099d7c2d7df8e627b2e0
-
-1.3.2
-
-  * sha 256: 2cefab73b8d5902b30adb0dda1bd292af2ee808d232abcc4b2a2802d522d5232
-  * sha 512: 3789efde2cb6f629c77738dd6c8638646b345d5272868aa9b244b2b19c53e6a0f5911d34744e3a9ff6253c73b2b11f6714f37ae86cc21d6979e0c8539315d659
-
-1.3.1
-
-  * sha 256: 71be224cd99d20da4f039675ec5c48213dd14ef027b804501fa3241886b2b08b
-  * sha 512: d094b786e5a74b01699997a85747943e6de3544cc903dd1c5dba449c66bd925b6378de800d3734969dabf8a20c7004dc3402e3c59577db09ce107b68a1f7bd21
-
-1.3.0
-
-  * sha 256: aecc5292f56f7250d777110cee1f11a92018a9eb2117d7d37cd51d7d3a5cbae0
-  * sha 512: 1d2d220f44787a97359a32f305e33185f0369551e61a9d7066023bfa43de50849eba5bcbb0083d2dc563ac993b8d51dd733afa0adb2a823ef50ecfee5624bbc0
-
-1.2.1
-
-  * sha 256: 803f7667dc4997062f9ec95afcdca0cac68c82a7cf057cef83fe1ccfee33b8bc
-  * sha 512: 4d6b7efea10d190a153f893123b1715f290f4b131b490f3d23f489e2dd8edbb886001282849aad9575ad2f40375bbbded59c1cb6157115fcc14dd6a2a061b103
-
-1.2.0
-
-  * sha 256: b3c6135833001a0ef600ea9628cca11f4130a524ebe748929d8f7bad034f2bf0
-  * sha 512: c044a086a9f65b0d27d05e2f12a20fe5d77386fc5682991c13a1894a84804bcd337c9167235869661d6e6581133521bd710ef2330066a5d2e2703d1630042f3f
-
-1.1.0
-
-  * sha 256: fc393e225c549f893b9e21e8b904e546d5857bac1d905b3d26334c8f8a1cda11
-  * sha 512: 8b94b1069e767202bcab087cb592eadc42f0453d17ee119d48760be00bc66278cf0fa60bb09308d30cb551df6a7a3e26e2ab8b29c04f0e953cc6906542cd2d6f
-
-1.0.6
-
-  * sha 256: 712ae9a8f17a9e589e108f0d503da203cc5eaf1c4a6ca6efb5b4c83b432ce0b8
-  * sha 512: d574003023a00cfd6623aac986a5a7f397cfd0bc9114017629a8c72731b0df3977c4a31768502dfa8a6607be06930089b2ccf6ffca9b5bcd1096b7ca0aede226
 
 #### GPG Signatures
 
@@ -410,7 +218,7 @@ Due to errors in the release process, the releases 1.7.1 and 1.7.2 did not inclu
 signatures in the appropriate folder of the git repository. However, signatures were provided
 as release-artefacts at the time of release. The signatures were introduced into the
 repository with 1.7.3. The integrity of cagebreak is still the same because the signatures were
-provided as release-artefacts (which were themselves signed) and the hashes in README.md
+provided as release-artefacts (which were themselves signed) and the hashes in Hashes.md
 are part of a signed release tag.
 
 #### Signing Keys
@@ -500,66 +308,17 @@ In the meantime, add `-Db_detect-leaks=0` to the meson command to exclude memory
 
 For any bug, please [create an
 issue](https://github.com/project-repo/cagebreak/issues/new) on
-[GitHub](https://github.com/project-rep/cagebreak).
+[GitHub](https://github.com/project-repo/cagebreak).
 
 Fixed bugs are to be assigned a number and summarized inside Bugs.md for future reference
 independent of github, in case this service is unavailable.
 
-### Security Bugs
-
-Should you want to get in touch with the developers of cagebreak to report a
-security vulnerability or a different issue confidentially, contact
-`cagebreak @ project-repo . co`.
-
-We will try to respond to everything that is not obvious spam.
-
-Please encrypt your email with the appropriate GPG key found in `keys/`.
-
-  * B15B92642760E11FE002DE168708D42451A94AB5
-  * F8DD9F8DD12B85A28F5827C4678E34D2E753AA3C
-
-Note that the keys are signed by cagebreak signing keys.
-
-If you want us to respond via GPG-encrypted mail, please include your own
-public key or provide the fingerprint and directions to obtain the key.
+For other means of contacting the Cagebreak authors and for security issues
+see [SECURITY.md](SECURITY.md).
 
 ## Changelog
 
-### Release 1.0.0
-
-Adds basic tiling window manager functionality to cage.
-
-### Release 1.1.0
-
-Unifies commands and actions. See Issue 4 in Bugs.md.
-
-### Release 1.2.0
-
-Adds output configuration as described in the man pages.
-
-### Release 1.3.0
-
-Adds IPC as described in the man pages.
-
-### Release 1.4.0
-
-Adds close command for windows as described in the man pages.
-
-### Release 1.5.0
-
-Adds options to disable or enable outputs. See Issue 22 in Bugs.md and Issue #2 on github.
-
-### Release 1.6.0
-
-Adds support for non-build dependencies and an option for builds without pandoc.
-
-### Release 1.7.0
-
-Improve window ordering.
-
-### Release 1.8.0
-
-Adds libinput configuration and virtual keyboard and pointer support.
+See [Changelog.md](Changelog.md)
 
 ## Contributors
 
@@ -569,4 +328,5 @@ Adds libinput configuration and virtual keyboard and pointer support.
 
 ## License
 
-Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE)
+Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE# Cagebreak: A Wayland Tiling Compositor Inspired by Ratpoison
+

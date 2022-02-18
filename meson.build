@@ -224,11 +224,11 @@ foreach name, dep : cagebreak_dependencies_dict
   if reproducible_build_versions[name] != '-1'
     if dep[1] == false
       if dep[0].version() < reproducible_build_versions[name]
-        warning('The installed version of "' + name + '" on your machine (' + dep[0].version() + ') is older than the one used to generate the binary specified in the README section "Reproducible Builds" (' + reproducible_build_versions[name] + '). It is recommended to use an up-to-date version for compiling cagebreak.'
+        warning('The installed version of "' + name + '" on your machine (' + dep[0].version() + ') is older than the one used to generate the binary specified in Hashes.md (' + reproducible_build_versions[name] + '). It is recommended to use an up-to-date version for compiling cagebreak.'
         )
       endif
     elif reproducible_build_versions[name] != dep[0].version()
-      warning('The installed version of "' + name + '" on your machine (' + dep[0].version() + ') differs from the one used to generate the binary specified in the README section "Reproducible Builds" (' + reproducible_build_versions[name] + '). Cagebreak does not guarantee a reproducible build for this configuration.'
+      warning('The installed version of "' + name + '" on your machine (' + dep[0].version() + ') differs from the one used to generate the binary specified in Hashes.md (' + reproducible_build_versions[name] + '). Cagebreak does not guarantee a reproducible build for this configuration.'
       )
       break
     endif
@@ -239,9 +239,9 @@ reproducible_build_compiler = 'gcc'
 reproducible_build_compiler_version = '11.1.0'
 
 if cc.get_id() != reproducible_build_compiler
-  warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in the README section "Reproducible Builds" (' + reproducible_build_compiler + ').')
+  warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in Hashes.md (' + reproducible_build_compiler + ').')
 elif cc.version() != reproducible_build_compiler_version
-  warning('The version of ' + cc.get_id() + ' (' + cc.version() + ') differs from the one used to generate the binary specified in the README section "Reproducible Builds" ' + reproducible_build_compiler_version + '.')
+  warning('The version of ' + cc.get_id() + ' (' + cc.version() + ') differs from the one used to generate the binary specified in Hashes.md ' + reproducible_build_compiler_version + '.')
 endif
 
 executable(
