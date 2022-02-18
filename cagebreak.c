@@ -475,14 +475,6 @@ main(int argc, char *argv[]) {
 	wlr_server_decoration_manager_set_default_mode(
 	    server_decoration_manager, WLR_SERVER_DECORATION_MANAGER_MODE_SERVER);
 
-	export_dmabuf_manager =
-	    wlr_export_dmabuf_manager_v1_create(server.wl_display);
-	if(!export_dmabuf_manager) {
-		wlr_log(WLR_ERROR, "Unable to create the export DMABUF manager");
-		ret = 1;
-		goto end;
-	}
-
 	viewporter = wlr_viewporter_create(server.wl_display);
 	if (!viewporter) {
 		wlr_log(WLR_ERROR, "Unable to create the viewporter interface");
