@@ -731,6 +731,14 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_LAYOUT_FULLSCREEN;
 	} else if(strcmp(action, "abort") == 0) {
 		keybinding->action = KEYBINDING_NOOP;
+	} else if(strcmp(action, "message") == 0) {
+		keybinding->action = KEYBINDING_DISPLAY_MESSAGE;
+		if(saveptr == NULL) {
+			*errstr = log_error("Not enough paramaters to \"message\". Expected "
+			                    "string to display.");
+			return -1;
+		}
+		keybinding->data.c = strdup(saveptr);
 	} else if(strcmp(action, "time") == 0) {
 		keybinding->action = KEYBINDING_SHOW_TIME;
 	} else if(strcmp(action, "nextscreen") == 0) {

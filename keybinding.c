@@ -766,6 +766,11 @@ keybinding_show_info(struct cg_server *server) {
 }
 
 void
+keybinding_display_message(struct cg_server *server, char *msg) {
+	message_printf(server->curr_output, "%s", msg);
+}
+
+void
 keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 	if(wl_list_length(&server->outputs) <= 1) {
 		return;
@@ -1145,6 +1150,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_SHOW_INFO:
 		keybinding_show_info(server);
+		break;
+	case KEYBINDING_DISPLAY_MESSAGE:
+		keybinding_display_message(server,data.c);
 		break;
 	case KEYBINDING_RESIZE_TILE_HORIZONTAL:
 		resize_tile(server, data.i, 0);

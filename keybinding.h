@@ -44,6 +44,7 @@ enum keybinding_action {
 	                                      // reverse
 	KEYBINDING_SHOW_TIME,
 	KEYBINDING_SHOW_INFO,
+	KEYBINDING_DISPLAY_MESSAGE,
 
 	KEYBINDING_SWAP_LEFT,
 	KEYBINDING_SWAP_RIGHT,
