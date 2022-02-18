@@ -132,56 +132,71 @@ keybinding_list_free(struct keybinding_list *list) {
 	free(list);
 }
 
+// Returns whether x is between a and b (a exclusive, b exclusive) where
+// a<b
+bool
+is_between_strict(int a, int b, int x) {
+	return a < x && x < b;
+}
+
 struct cg_tile *
 find_right_tile(const struct cg_tile *tile) {
 	struct cg_tile *it = tile->next;
-	while(it != tile && it->tile.x != tile->tile.x + tile->tile.width) {
+	int center=tile->tile.y+tile->tile.height/2;
+	while(it != tile) {
+		if(it->tile.x== tile->tile.x+tile->tile.width) {
+			if(is_between_strict(it->tile.y,it->tile.y+it->tile.height,center)||it->tile.y+it->tile.height==center) {
+				return it;
+			}
+		}
 		it = it->next;
 	}
-	if(it == tile) {
-		return NULL;
-	} else {
-		return it;
-	}
+	return NULL;
 }
 
 struct cg_tile *
 find_left_tile(const struct cg_tile *tile) {
-	struct cg_tile *it = tile->prev;
-	while(it != tile && it->tile.x + it->tile.width != tile->tile.x) {
-		it = it->prev;
+	struct cg_tile *it = tile->next;
+	int center=tile->tile.y+tile->tile.height/2;
+	while(it != tile) {
+		if(it->tile.x+it->tile.width == tile->tile.x) {
+			if(is_between_strict(it->tile.y,it->tile.y+it->tile.height,center)||it->tile.y+it->tile.height==center) {
+				return it;
+			}
+		}
+		it = it->next;
 	}
-	if(it == tile) {
-		return NULL;
-	} else {
-		return it;
-	}
+	return NULL;
 }
 
 struct cg_tile *
 find_top_tile(const struct cg_tile *tile) {
-	struct cg_tile *it = tile->prev;
-	while(it != tile && it->tile.y + it->tile.height != tile->tile.y) {
-		it = it->prev;
+	struct cg_tile *it = tile->next;
+	int center=tile->tile.x+tile->tile.width/2;
+	while(it != tile) {
+		if(it->tile.y+it->tile.height == tile->tile.y) {
+			if(is_between_strict(it->tile.x,it->tile.x+it->tile.width,center)||it->tile.x+it->tile.width==center) {
+				return it;
+			}
+		}
+		it = it->next;
 	}
-	if(it == tile) {
-		return NULL;
-	} else {
-		return it;
-	}
+	return NULL;
 }
 
 struct cg_tile *
 find_bottom_tile(const struct cg_tile *tile) {
 	struct cg_tile *it = tile->next;
-	while(it != tile && it->tile.y != tile->tile.y + tile->tile.height) {
+	int center=tile->tile.x+tile->tile.width/2;
+	while(it != tile) {
+		if(it->tile.y == tile->tile.y+tile->tile.height) {
+			if(is_between_strict(it->tile.x,it->tile.x+it->tile.width,center)||it->tile.x+it->tile.width==center) {
+				return it;
+			}
+		}
 		it = it->next;
 	}
-	if(it == tile) {
-		return NULL;
-	} else {
-		return it;
-	}
+	return NULL;
 }
 
 void
@@ -262,13 +277,6 @@ focus_tile_top(struct cg_tile *tile) {
 void
 focus_tile_bottom(struct cg_tile *tile) {
 	focus_tile(tile, find_bottom_tile);
-}
-
-// Returns whether x is between a and b (a exclusive, b exclusive) where
-// a<b
-bool
-is_between_strict(int a, int b, int x) {
-	return a < x && x < b;
 }
 
 int
