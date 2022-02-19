@@ -42,6 +42,7 @@ enum keybinding_action {
 	KEYBINDING_MOVE_VIEW_TO_OUTPUT,       // data.u is the desired output
 	KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT, // data.b is 0 if forward, 1 if
 	                                      // reverse
+	KEYBINDING_DUMP,
 	KEYBINDING_SHOW_TIME,
 	KEYBINDING_SHOW_INFO,
 	KEYBINDING_DISPLAY_MESSAGE,

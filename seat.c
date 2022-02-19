@@ -47,18 +47,19 @@
 static void
 drag_icon_update_position(struct cg_drag_icon *drag_icon);
 
-/* If desktop_view_at returns a view, there is also a
+/* If seat_desktop_view_at returns a view, there is also a
  * surface. There cannot be a surface without a view, either. It's
  * both or nothing. */
-static struct cg_view *
-desktop_view_at(const struct cg_server *server, double lx, double ly,
+struct cg_view *
+seat_desktop_view_at(const struct cg_server *server, double lx, double ly,
                 struct wlr_surface **surface, double *sx, double *sy) {
 	struct wlr_scene_node *node=wlr_scene_node_at(&server->scene->node, lx,ly,sx,sy);
 	if(node == NULL || node->type != WLR_SCENE_NODE_SURFACE) {
 		return NULL;
 	}
-	*surface = wlr_scene_surface_from_node(node)->surface;
-
+	if(surface!=NULL) {
+		*surface = wlr_scene_surface_from_node(node)->surface;
+	}
 	while(node != NULL && node->data == NULL) {
 		node=node->parent;
 	}
@@ -531,7 +532,7 @@ handle_touch_down(struct wl_listener *listener, void *data) {
 	double sx, sy;
 	struct wlr_surface *surface;
 	struct cg_view *view =
-	    desktop_view_at(seat->server, lx, ly, &surface, &sx, &sy);
+	    seat_desktop_view_at(seat->server, lx, ly, &surface, &sx, &sy);
 
 	uint32_t serial = 0;
 	if(view) {
@@ -577,7 +578,7 @@ handle_touch_motion(struct wl_listener *listener, void *data) {
 	double sx, sy;
 	struct wlr_surface *surface;
 	struct cg_view *view =
-	    desktop_view_at(seat->server, lx, ly, &surface, &sx, &sy);
+	    seat_desktop_view_at(seat->server, lx, ly, &surface, &sx, &sy);
 
 	if(view) {
 		wlr_seat_touch_point_focus(seat->seat, surface, event->time_msec,
@@ -632,7 +633,7 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 	struct wlr_seat *wlr_seat = seat->seat;
 	struct wlr_surface *surface = NULL;
 
-	struct cg_view *view = desktop_view_at(seat->server, seat->cursor->x,
+	struct cg_view *view = seat_desktop_view_at(seat->server, seat->cursor->x,
 	                                       seat->cursor->y, &surface, &sx, &sy);
 
 	if(!view) {

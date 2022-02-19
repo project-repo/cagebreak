@@ -7,10 +7,12 @@
 #include <wlr/backend/session.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/util/log.h>
 
 #include "input.h"
+#include "util.h"
 #include "input_manager.h"
 #include "keybinding.h"
 #include "message.h"
@@ -761,6 +763,273 @@ keybinding_show_time(struct cg_server *server) {
 	free(msg);
 }
 
+struct dyn_str {
+	uint32_t len;
+	uint32_t cur_pos;
+	char **str_arr;
+};
+
+/*Note that inp is in an invalid state after calling the function * and should no longer be used.*/
+char *dyn_str_to_str(struct dyn_str *inp) {
+	char *outp=calloc(inp->len+1,sizeof(char));
+	if(outp == NULL) {
+		return NULL;
+	}
+	outp[inp->len]='\0';
+	uint32_t tmp_pos=0;
+	for(uint32_t i=0;i<inp->cur_pos;++i) {
+		strcat(outp+tmp_pos,inp->str_arr[i]);
+		tmp_pos+=strlen(inp->str_arr[i]);
+		free(inp->str_arr[i]);
+	}
+	free(inp->str_arr);
+	return outp;
+}
+
+int
+print_str(struct dyn_str *outp, const char *fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	char *ret = malloc_vsprintf_va_list(fmt, args);
+	if(ret == NULL) {
+		return -1;
+	}
+	outp->str_arr[outp->cur_pos]=ret;
+	++outp->cur_pos;
+	outp->len+=strlen(ret);
+	return 0;
+}
+
+void
+print_modes(struct dyn_str *str,char **modes) {
+	uint32_t len=0;
+	char **tmp=modes;
+	uint32_t nmemb=0;
+	while(*tmp!=NULL) {
+		len+=strlen(*tmp);
+		++nmemb;
+		++tmp;
+	}
+	/* We are assuming here that we have at least one mode, which is given by the initialization of cagebreak */
+	char *modes_str=calloc(len+3*(nmemb-1)+1, sizeof(char));
+	modes_str[len+nmemb-1]='\0';
+	uint32_t tmp_pos=0;
+	for(uint32_t i=0;i<nmemb;++i) {
+		if(i!=0) {
+			strcat(modes_str+tmp_pos,"\",\"");
+			tmp_pos+=3;
+		}
+		strcat(modes_str+tmp_pos,modes[i]);
+		tmp_pos+=strlen(modes[i]);
+	}
+	print_str(str,"\"modes\":[\"%s\"],\n",modes_str);
+	free(modes_str);
+}
+
+char *print_view(struct cg_view *view) {
+	struct dyn_str outp_str;
+	outp_str.len=0;
+	outp_str.cur_pos=0;
+	uint32_t nmemb=4;
+	outp_str.str_arr=calloc(nmemb,sizeof(char *));
+	print_str(&outp_str,"\"id\": %d,\n",view->id);
+	char *title_str=view->impl->get_title(view);
+	print_str(&outp_str,"\"title\": \"%s\",\n",title_str==NULL?"":title_str);
+	print_str(&outp_str,"\"coords\": [\"x\":%d,\"y\":%d],\n",view->ox,view->oy);
+	print_str(&outp_str,"\"type\": \"%s\",\n",view->type==CG_XWAYLAND_VIEW?"xwayland":"xdg");
+	return dyn_str_to_str(&outp_str);
+}
+
+char *print_tile(struct cg_tile *tile) {
+	struct dyn_str outp_str;
+	outp_str.len=0;
+	outp_str.cur_pos=0;
+	uint32_t nmemb=4;
+	outp_str.str_arr=calloc(nmemb,sizeof(char *));
+	print_str(&outp_str,"\"id\": %d,\n",tile->id);
+	print_str(&outp_str,"\"coords\": [\"x\":%d,\"y\":%d],\n",tile->tile.x,tile->tile.y);
+	print_str(&outp_str,"\"size\": [\"width\":%d,\"height\":%d],\n",tile->tile.width,tile->tile.height);
+	print_str(&outp_str,"\"view\": \"%d\",\n",tile->view==NULL?-1:(int)tile->view->id);
+	return dyn_str_to_str(&outp_str);
+}
+
+char *
+print_views(struct cg_workspace *ws) {
+	struct dyn_str outp_str;
+	outp_str.len=0;
+	outp_str.cur_pos=0;
+	uint32_t nviews=wl_list_length(&ws->views);
+	if(nviews==0) {
+		return strdup("{}");
+	}
+	outp_str.str_arr=calloc(2*nviews-1,sizeof(char *));
+	struct cg_view *it;
+	uint32_t count=0;
+	wl_list_for_each(it,&ws->views,link) {
+		if(count!=0) {
+			print_str(&outp_str,",");
+		}
+		++count;
+		char *view_str=print_view(it);
+		if(view_str!=NULL) {
+			print_str(&outp_str,"{\n%s\n}",view_str);
+			free(view_str);
+		}
+	}
+	return dyn_str_to_str(&outp_str);
+}
+
+char *
+print_tiles(struct cg_workspace *ws) {
+	struct dyn_str outp_str;
+	outp_str.len=0;
+	outp_str.cur_pos=0;
+	uint32_t ntiles=0;
+	bool first=true;
+	for(struct cg_tile *tile=ws->focused_tile;first||tile!=ws->focused_tile;tile=tile->next) {
+		first=false;
+		++ntiles;
+	}
+	if(ntiles==0) {
+		return strdup("{}");
+	}
+	outp_str.str_arr=calloc(2*ntiles-1,sizeof(char *));
+	first=true;
+	for(struct cg_tile *tile=ws->focused_tile;first||tile!=ws->focused_tile;tile=tile->next) {
+		if(first==false) {
+			print_str(&outp_str,",");
+		}
+		first=false;
+		char *tile_str=print_tile(tile);
+		if(tile_str!=NULL) {
+			print_str(&outp_str,"{\n%s\n}",tile_str);
+			free(tile_str);
+		}
+	}
+	return dyn_str_to_str(&outp_str);
+}
+
+char *
+print_workspace(struct cg_workspace *ws) {
+	struct dyn_str outp_str;
+	outp_str.len=0;
+	outp_str.cur_pos=0;
+	uint32_t nmemb=6;
+	outp_str.str_arr=calloc(nmemb,sizeof(char *));
+	print_str(&outp_str,"\"views\": [");
+	char *views_str=print_views(ws);
+	if(views_str!=NULL) {
+		print_str(&outp_str,"%s",views_str);
+		free(views_str);
+	}
+	print_str(&outp_str,"],");
+	print_str(&outp_str,"\"tiles\": [");
+	char *tiles_str=print_tiles(ws);
+	if(tiles_str!=NULL) {
+		print_str(&outp_str,"%s",tiles_str);
+		free(tiles_str);
+	}
+	print_str(&outp_str,"]");
+	return dyn_str_to_str(&outp_str);
+}
+
+char *
+print_workspaces(struct cg_output *outp) {
+	struct dyn_str outp_str;
+	outp_str.len=0;
+	outp_str.cur_pos=0;
+	outp_str.str_arr=calloc((2*outp->server->nws-1)+2,sizeof(char *));
+	print_str(&outp_str, "\"workspaces\": [");
+	for(int i=0;i<outp->server->nws;++i) {
+		if(i!=0) {
+			print_str(&outp_str,",");
+		}
+		char *ws=print_workspace(outp->workspaces[i]);
+		if(ws != NULL) {
+			print_str(&outp_str,"{%s}",ws);
+			free(ws);
+		}
+	}
+	print_str(&outp_str, "],\n");
+	return dyn_str_to_str(&outp_str);
+}
+
+char *
+print_output(struct cg_output *outp) {
+	struct dyn_str outp_str;
+	outp_str.len=0;
+	outp_str.cur_pos=0;
+	uint32_t nmemb=5;
+	outp_str.str_arr=calloc(nmemb,sizeof(char *));
+	print_str(&outp_str,"\"%s\": {\n",outp->wlr_output->name);
+	print_str(&outp_str,"\"priority\": %d,\n",outp->priority);
+	print_str(&outp_str,"\"curr_workspace\": %d,\n",outp->curr_workspace);
+	char *workspaces_str=print_workspaces(outp);
+	if(workspaces_str!=NULL) {
+		print_str(&outp_str, "%s",workspaces_str);
+		free(workspaces_str);
+	}
+	print_str(&outp_str,"}");
+	return dyn_str_to_str(&outp_str);
+}
+
+char *
+print_outputs(struct cg_server *server) {
+	uint32_t noutps=wl_list_length(&server->outputs);
+	struct dyn_str outp_str;
+	outp_str.len=0;
+	outp_str.cur_pos=0;
+	outp_str.str_arr=calloc((2*noutps-1)+2,sizeof(char *));
+	print_str(&outp_str, "\"outputs\": [");
+	struct cg_output *it;
+	uint32_t count=0;
+	wl_list_for_each(it,&server->outputs,link) {
+		if(count!=0) {
+			print_str(&outp_str,",");
+		}
+		++count;
+		char *outp=print_output(it);
+		if(outp == NULL) {
+			continue;
+		}
+		print_str(&outp_str,"%s",outp);
+		free(outp);
+	}
+	print_str(&outp_str, "],\n");
+	return dyn_str_to_str(&outp_str);
+}
+
+void
+keybinding_dump(struct cg_server *server) {
+	struct dyn_str str;
+	str.len=0;
+	str.cur_pos=0;
+	uint32_t nmemb=11;
+	str.str_arr=calloc(nmemb,sizeof(char *));
+
+	print_str(&str,"{");
+	print_str(&str,"\"nws\":%d,\n",server->nws);
+	print_str(&str,"\"bg_color\":[%f,%f,%f,%f],\n",server->bg_color[0],server->bg_color[1],server->bg_color[2],server->bg_color[3]);
+	print_str(&str,"\"views_curr_id\":%d,\n",server->views_curr_id);
+	print_str(&str,"\"tiles_curr_id\":%d,\n",server->tiles_curr_id);
+	print_str(&str,"\"curr_output\":%s,\n",server->curr_output->wlr_output->name);
+	print_modes(&str,server->modes);
+	char *outps_str=print_outputs(server);
+	print_str(&str,"%s",outps_str);
+	free(outps_str);
+	print_str(&str,"\"cursor_coords\":{\"x\":%f,\"y\":%f},\n",server->seat->cursor->x,server->seat->cursor->y);
+	struct cg_view *focused_view=seat_desktop_view_at(server,server->seat->cursor->x,server->seat->cursor->y,NULL,NULL,NULL);
+	print_str(&str,"\"cursor_focused_view\":%d,\n",focused_view==NULL?-1:(int) focused_view->id);
+	print_str(&str,"}");
+
+	char *send_str=dyn_str_to_str(&str);
+	if(send_str==NULL) {
+		wlr_log(WLR_ERROR, "Unable to create output string for \"dump\".");
+	}
+	ipc_send_event(server, send_str);
+	free(send_str);
+}
+
 void
 keybinding_show_info(struct cg_server *server) {
 	char *msg = server_show_info(server);
@@ -1155,6 +1424,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_SHOW_TIME:
 		keybinding_show_time(server);
+		break;
+	case KEYBINDING_DUMP:
+		keybinding_dump(server);
 		break;
 	case KEYBINDING_SHOW_INFO:
 		keybinding_show_info(server);

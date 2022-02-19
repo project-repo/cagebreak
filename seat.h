@@ -11,6 +11,7 @@ struct cg_input_device;
 struct wlr_seat;
 struct wlr_xcursor_manager;
 struct wlr_backend;
+struct wlr_surface;
 
 #define DEFAULT_XCURSOR "left_ptr"
 #define XCURSOR_SIZE 24
@@ -93,6 +94,9 @@ struct cg_drag_icon {
 	struct wl_listener destroy;
 };
 
+struct cg_view *
+seat_desktop_view_at(const struct cg_server *server, double lx, double ly,
+                struct wlr_surface **surface, double *sx, double *sy);
 struct cg_seat *
 seat_create(struct cg_server *server, struct wlr_backend *backend);
 void

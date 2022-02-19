@@ -711,6 +711,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_SPLIT_HORIZONTAL;
 	} else if(strcmp(action, "quit") == 0) {
 		keybinding->action = KEYBINDING_QUIT;
+	} else if(strcmp(action, "dump") == 0) {
+		keybinding->action = KEYBINDING_DUMP;
 	} else if(strcmp(action, "show_info") == 0) {
 		keybinding->action = KEYBINDING_SHOW_INFO;
 	} else if(strcmp(action, "close") == 0) {
