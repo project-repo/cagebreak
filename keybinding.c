@@ -836,7 +836,11 @@ char *print_view(struct cg_view *view) {
 	char *title_str=view->impl->get_title(view);
 	print_str(&outp_str,"\"title\": \"%s\",\n",title_str==NULL?"":title_str);
 	print_str(&outp_str,"\"coords\": [\"x\":%d,\"y\":%d],\n",view->ox,view->oy);
+#if CG_HAS_XWAYLAND
 	print_str(&outp_str,"\"type\": \"%s\",\n",view->type==CG_XWAYLAND_VIEW?"xwayland":"xdg");
+#else
+	print_str(&outp_str,"\"type\": \"xdg\",\n");
+#endif
 	return dyn_str_to_str(&outp_str);
 }
 
