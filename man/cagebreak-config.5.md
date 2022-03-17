@@ -187,10 +187,10 @@ definekey top <key> mode root
 	executed.
 
 *movetonextscreen*
-	Move current window to next screen
+	Move currently focused window to next screen
 
 *movetoprevscreen*
-	Move current window to previous screen
+	Move currently focused window to previous screen
 
 *movetoscreen <n>*
 	Move currently focused window to <n>-th screen
