@@ -83,14 +83,6 @@ set_sig_handler(int sig, void (*action)(int)) {
 	}
 }
 
-void
-sig_chld_handler(int signal) {
-	int pid = 1;
-	while(pid > 0) {
-		pid = waitpid(WAIT_ANY, NULL, WNOHANG);
-	}
-}
-
 static bool
 drop_permissions(void) {
 	if(getuid() != geteuid() || getgid() != getegid()) {
@@ -325,8 +317,6 @@ main(int argc, char *argv[]) {
 	sigalrm_source =
 	    wl_event_loop_add_signal(event_loop, SIGALRM, handle_signal, &server);
 	server.event_loop = event_loop;
-
-	set_sig_handler(SIGCHLD, sig_chld_handler);
 
 	backend = wlr_backend_autocreate(server.wl_display);
 	if(!backend) {

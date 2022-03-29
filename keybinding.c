@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <unistd.h>
+#include <sys/wait.h>
 #include <wayland-server-core.h>
 #include <wlr/backend/multi.h>
 #include <wlr/backend/session.h>
@@ -1396,8 +1397,16 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_split_vertical(server);
 		break;
 	case KEYBINDING_RUN_COMMAND:
-		if(fork() == 0) {
-			into_process(data.c);
+		{
+			int pid;
+			if((pid=fork()) == 0) {
+				if(fork() == 0) {
+					into_process(data.c);
+				}
+				_exit(0);
+			} else if(pid > 0) {
+				waitpid(pid,NULL,0);
+			}
 		}
 		break;
 	case KEYBINDING_CYCLE_VIEWS:
