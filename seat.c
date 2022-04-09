@@ -95,7 +95,6 @@ remove_touch(struct cg_seat *seat, struct cg_touch *touch) {
 	if(!touch) {
 		return;
 	}
-	wl_list_remove(&touch->link);
 	wlr_cursor_detach_input_device(seat->cursor, touch->device->wlr_device);
 	--seat->num_touch;
 	free(touch);
