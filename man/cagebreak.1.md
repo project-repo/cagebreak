@@ -1,8 +1,8 @@
-cagebreak(1) "Version 1.8.2" "Cagebreak Manual"
+cagebreak(1) "Version 1.9.0" "Cagebreak Manual"
 
 # NAME
 
-cagebreak - A Wayland tiling compositor to the likes of ratpoison
+cagebreak - A Wayland tiling compositor
 
 # SYNOPSIS
 
