@@ -125,7 +125,7 @@ occur.
         * [ ] man/cagebreak
         * [ ] man/cagebreak-config
         * [ ] Set EPOCH to release day in man generation in meson.build
-      * [ ] wiki
+      * [ ] FAQ.md
       * [ ] Changelog.md for major and minor releases but not patches
     * [ ] Check features for SECURITY.md relevance (changes to socket scope
           for example)
@@ -134,6 +134,7 @@ occur.
   * [ ] Testing
     * [ ] Manual testing
     * [ ] Libfuzzer testing
+    * [ ] Build version without xwayland support
   * [ ] Version Number
     * [ ] meson.build
     * [ ] git tag
@@ -172,6 +173,9 @@ occur.
     * [ ] `cp build/cagebreak-config.5 release-artefacts_version/`
     * [ ] `cp build/cagebreak-config.5.sig release-artefacts_version/`
     * [ ] `cp LICENSE release-artefacts_version/`
+    * [ ] `cp README.md release-artefacts_version/`
+    * [ ] `cp SECURITY.md release-artefacts_version/`
+    * [ ] `cp FAQ.md release-artefacts_version/`
     * [ ] `export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf release-artefacts_version.tar.gz release-artefacts_version`
   * [ ] Checked archive
     * [ ] tar -xvf release_version.tar.gz
