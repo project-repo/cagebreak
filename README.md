@@ -74,13 +74,6 @@ option. Then, add `-Dxwayland=true` to the `meson` command above. Note
 that you'll need to have the XWayland binary installed on your system
 for this to work.
 
-#### -D option
-
-If cagebreak is not a release build, the binary has the -D option, which
-enables damage-debug mode. In damage-debug mode, all regions of the screen
-which are not rerendered are colored in red in order to facilitate debugging
-of damage tracking issues.
-
 ##### Man Pages
 
 Cagebreak has man pages. To use them, make sure that you have `scdoc`
