@@ -1,12 +1,12 @@
 # Frequently Asked Questions
 
-## How do I do $thing with cagebreak?
+## How do I do a particular thing with cagebreak?
 
   * Check the man pages
     * [cagebreak config](man/cagebreak-config.5.md) (probably where you find the answer)
     * [cagebreak](man/cagebreak.1.md) (command line options etc.)
   * Check the rest of this FAQ
-  * [Open an issue](https://wiki.archlinux.org/title/Linux_console/Keyboard_configuration) or otherwise get in touch with the development team (See section Email Contact in [SECURITY.md](SECURITY.md)).
+  * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) or otherwise get in touch with the development team (See section Email Contact in [SECURITY.md](SECURITY.md)).
 
 Note that the feature set of cagebreak is intentionally limited.
 
