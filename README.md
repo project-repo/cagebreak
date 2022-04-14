@@ -1,19 +1,23 @@
 # Cagebreak: A Wayland Tiling Compositor Inspired by Ratpoison
 
-This is Cagebreak, a Wayland tiling compositor. The goal of this project is to
-provide a successor to ratpoison for Wayland users. However, this is
-no reimplementation of ratpoison. Should you like to know if a feature
-will be implemented, open an issue or get in touch with the development team.
+This is Cagebreak, a Wayland tiling compositor.
+
+The goal of this project is to provide a successor to ratpoison for Wayland
+users. However, this is no reimplementation of ratpoison.
+
+Should you like to know if a feature will be implemented, open an issue
+or get in touch with the development team.
 
 For documentation of Cagebreak, please see
-the man pages for [cagebreak](man/cagebreak.1.md) and cagebreak
-[configuration](man/cagebreak-config.5.md) and the
-[Wiki](https://github.com/project-repo/cagebreak/wiki/).
+  * the man pages
+    * [cagebreak](man/cagebreak.1.md)
+    * [configuration](man/cagebreak-config.5.md)
+  * also the [FAQ](FAQ.md)
 
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
 compositor.
 
-Cagebreak is currently being developed under Arch Linux and uses the libraries
+Cagebreak is developed under Arch Linux and uses the libraries
 as they are obtained through pacman. However, cagebreak should also work on
 other distributions given the proper library versions.
 
@@ -21,8 +25,11 @@ other distributions given the proper library versions.
 
 If you are using archlinux, just use the PKGBUILDs from the aur:
 
-  * Using the `cagebreak` package, Cagebreak is compiled on the target system (since release 1.3.0)
-  * Using `cagebreak-bin` package, the pre-built binaries are extracted to the appropriate paths on the target system (since release 1.3.2)
+  * Using [cagebreak](https://aur.archlinux.org/packages/cagebreak), Cagebreak is
+    compiled on the target system (since release 1.3.0)
+  * Using [cagebreak-bin](https://aur.archlinux.org/packages/cagebreak-bin),
+    the pre-built binaries are extracted to
+    appropriate paths on the target system (since release 1.3.2)
 
 See [cagebreak-pkgbuild](https://github.com/project-repo/cagebreak-pkgbuild) for details.
 
@@ -59,7 +66,7 @@ $ ninja -C build
 By default, this builds a debug build. To build a release build, use `meson
 build --buildtype=release`.
 
-#### Xwayland Support
+##### Xwayland Support
 
 Cagebreak comes with compile-time support for XWayland. To enable this,
 first make sure that your version of wlroots is compiled with this
@@ -67,9 +74,16 @@ option. Then, add `-Dxwayland=true` to the `meson` command above. Note
 that you'll need to have the XWayland binary installed on your system
 for this to work.
 
-#### Man Pages
+#### -D option
 
-Cagebreak has man pages. To use them, make sure that you have `pandoc`
+If cagebreak is not a release build, the binary has the -D option, which
+enables damage-debug mode. In damage-debug mode, all regions of the screen
+which are not rerendered are colored in red in order to facilitate debugging
+of damage tracking issues.
+
+##### Man Pages
+
+Cagebreak has man pages. To use them, make sure that you have `scdoc`
 installed. Then, add `-Dman-pages=true` to the `meson` command.
 
 ### Running Cagebreak
@@ -81,24 +95,22 @@ KMS+DRM backend. For more configuration options, see the man pages.
 
 ## Contributing to Cagebreak
 
-Cagebreak is currently developed to fit the needs of its creators. Should you desire
-to implement a feature, please let us know in advance by opening an issue. However,
-the feature set is intentionally limited (i.e. we removed support for a desktop
-background) and will continue to be so in the future.
+Cagebreak is currently developed to fit the needs of its creators. Should you
+desire to implement a feature, please let us know in advance by opening
+an issue. However, the feature set is intentionally limited (i.e. we removed
+support for a desktop background) and will continue to be so in the future.
 
-Nonetheless, don't be intimidated by the (slightly lengthy) release checklist or any other
-part of this file. Do what you can, open an issue and we will collaborate
-toward a solution.
+Nonetheless, don't be intimidated by the (slightly lengthy) release checklist
+or any other part of this file. Do what you can, open an issue and we will
+collaborate toward a solution.
 
 ### Branching Strategy and Versioning
 
-All features are to be developed on feature branches, named after the feature.
+There exists a branch `development` to which all reasonable code
+is comitted for final testing.
 
-There exists a branch `development` to which all reasonable feature branches
-are merged for final testing.
-
-Once `development` is ready for a release, meaning that the release checklist is fulfilled,
-it is merged into `master`, creating a new release, which is tagged and signed.
+Once `development` is ready for a release, it is merged into `master` (possibly via
+a cherry-picked branch), creating a new release, which is tagged and signed.
 
 All releases are tagged according to [semantic versioning](https://semver.org) guidelines.
 
@@ -107,7 +119,7 @@ In the past, our git history did not perfectly reflect this scheme.
 ### Releases
 
 The release checklist must be completely fulfilled in one run for a release to
-occur. Once any failure occurs the entire checklist must be completed from scratch.
+occur.
 
   * [ ] `git checkout development`
   * [ ] `git pull origin development`
