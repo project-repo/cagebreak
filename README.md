@@ -134,6 +134,8 @@ occur.
         * [ ] Set EPOCH to release day in man generation in meson.build
       * [ ] wiki
       * [ ] Changelog.md for major and minor releases but not patches
+    * [ ] Check features for SECURITY.md relevance (changes to socket scope
+          for example)
     * [ ] Fixed bugs documented in Bugs.md
       * [ ] Include issue description from github
   * [ ] Testing
