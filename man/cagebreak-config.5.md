@@ -48,6 +48,33 @@ definekey root <key> <command>
 	Close current window - This may be useful for windows of
 	applications which do not offer any method of closing them.
 
+configure_message [font <font description>|[f|b]g_color <r> <g> b> <a>|display_time <n>]
+	Configure message characteristics -
+    - font <font description> sets
+      - <font description> is
+        - X core font description or
+        - FreeType font description via pango
+    - fg_color <r> <g> <b> <a> sets RGBA of foreground
+    - bg_color <r> <g> <b> <a> sets RGBA of background
+    - display_time <n> sets display time in seconds
+
+```
+# Set font
+## Set example X code font
+configure_message font -misc-fixed-medium-r-normal--13-120-75-75-C-70-iso10646-1
+## Set example FreeType font description
+configure_message font pango:monospace 10
+
+# Set foreground RGBA to red
+configure_message fg_color 1.0 0.0 0.0 1.0
+
+# Set background RGBA to red
+configure_message bg_color 1.0 0.0 0.0 1.0
+
+# Set duration for message display to four seconds
+configure_message display_time 4
+```
+
 *definekey <mode> <key> <command>*
 	Bind <key> to execute <command> if pressed in <mode> -
 	*definekey* is a more general version of *bind*.
@@ -181,6 +208,9 @@ definekey top <key> mode root
 		finger as left click, 2 fingers as right click, and 3 fingers as
 		middle click. _lmr_ treats 1 finger as left click, 2 fingers as
 		middle click, and 3 fingers as right click.
+
+message <text>
+	Display a line of arbitrary text.
 
 *mode <mode>*
 	Enter mode "<mode>" - Returns to default mode, after a command is
