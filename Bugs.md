@@ -364,3 +364,258 @@ When I type in anything, the text is refreshed and becomes visible only followin
 ```
 
 Cagebreak had an error with damage tracking.
+
+### Issue 29
+
+  * github issue number: #19
+  * Fixed: 1.9.0
+
+bda65hp:
+```
+Hi,
+Is there a way to easily change de font? "monospace 10" are too small for my eyes. I've changed them in message.c but can you add a configuration option, please?
+Same for the display time of these window. They sometimes disappear too fast (mainly time).
+May be a config for the background and foreground color of the message window too?
+
+cagebreak is great :)
+```
+
+project-repo:
+```
+No, there is currently no easy way to change the font size, background or display
+time of the message.
+
+Adding these ideas as a command is a good idea though.
+
+To summarize, the release pertaining to #19 will presumably introduce a
+command for configuring the cagebreak messages. This command will be
+able to set the following:
+
+ * [ ] Font size
+ * [ ] Font colour
+ * [ ] Background colour
+ * [ ] Display time of message
+
+Another, related, idea would be to have an interface for sending
+arbitrary messages over the socket which are then displayed by
+cagebreak. This may also be added to the above features.
+
+We're glad to hear that you enjoy cagebreak! Thank you for helping to
+make it even greater.
+
+cheers
+project-repo
+```
+
+bda65hp:
+```
+Awesome :)
+Displaying time in locale format (or configurable) will be great too ;)
+```
+
+project-repo:
+```
+Yes, once it is possible to send arbitrary messages via cagebreak over
+the socket it will be possible to have the date be displayed however you
+like!
+cheers
+project-repo
+```
+
+project-repo:
+```
+We pushed some code to development implementing this in 348925e (configuration) and f12a161 (message command). Sorry for not writing this much sooner. However, at least it will be part of the upcoming release.
+
+cheers
+project-repo
+```
+
+###   Issue 30
+
+  * github issue number: #11
+  * Fixed: 1.9.0
+
+kinleyd:
+```
+In my first post I forgot to thank you for cagebreak. I've been evaluating compositors for my needs and have been through kiwmi, japokwm, wayfire, sway and cagebreak. So far I like cagebreak most of all.
+
+Back to my question:
+
+You currently support 'movetonextscreen' but there is no equivalent movetoprevscreen.
+For multiple 3 to 4 screen configurations the second command would be useful.
+
+Also, is it not possible to move to a screen directly, like 'movetoscreen 3'?
+
+The same thing with prevscreen and nextscreen: something like 'focusscreen 3', if it were possible, would be useful.
+```
+
+project-repo:
+```
+Thank you! It's great to hear that cagebreak seems to suit your needs.
+
+About your question, yes, that absolutely makes sense. The reason this
+wasn't implemented earlier is that no-one has needed it up to now, but
+seeing as there now appears to be a use-case, we can definitely
+implement these features. In future releases, cagebreak will then most
+likely support movetoprevscreen and movetoscreen <n> (as these are
+distinct functionalities).
+
+The only issue I see at this point is that the numbering of screens is
+not directly canonical. To resolve this, I suggest that per default,
+screens are numbered according to the order in which they were added
+along with an additional configuration option to specify numbering (this
+would most likely be an additional option for the already existent
+output command). Does that seem fine to you?
+cheers,
+project-repo
+```
+
+kinleyd:
+```
+Yes, that would be perfect. Thank you!
+```
+
+kinleyd:
+```
+May I suggest we also have 'screen <n>' like we have 'workspace <n>'.
+```
+
+project-repo:
+```
+Thank you for this suggestion. This will be implemented in the release
+where the rest of this issue is resolved (probably the next one).
+
+To summarize, presumably the release pertaining to #11 will include:
+
+  * [ ] movetoprevscreen as a command symmetric to movetonextscreen
+  * [ ]  movetoscreen <n> as a command similar to movetoworkspace
+  * [ ]  screen <n> as a command similar to workspace <n>
+  * [ ]  additional output functionality for monitor numbering (of
+         course backwards-compatible, such that valid configs remain
+         valid)
+
+If anything changes with regard to this draft, we will post it here so
+you can let us know what you think.
+
+cheers,
+project-repo
+```
+
+kinleyd:
+```
+Super - I greatly look forward to their addition, and thank you for your responsiveness!
+```
+
+project-repo:
+```
+Everything mentioned on our last comment has now been implemented on the
+development branch. (More specifically in 851a2f8,
+though documentation was added later.)
+
+The simple commands work as proposed in our previous comment.
+The output command has a new feature called prio now, which you can call as follows:
+
+output <name of the output> prio <n>
+
+All outputs, regardless of configuration are added once they request to be added
+and have a default priority of -1. Using prio, you can set priorities
+greater than or equal to 1 for specific outputs and hence order your outputs
+as you wish. Note that cagebreak -s might be useful while fiddling around
+with this.
+
+If you like, you can check it out on development and compile it for yourself.
+If you're up to it we would be glad to know what you think about it,
+especially when output prio is applied to your multi-screen setup and
+regarding the readability of the cagebreak-config man page description of
+output prio.
+
+Please note that this is not a release yet and the development branch
+might undergo changes.
+
+cheers
+project-repo
+```
+
+kinleyd:
+```
+I took the development branch for a swirl, and it looks good. Thank you!
+
+Everything works as you had set out: screen, movetoscreen, movetoprevscreen and output screen prio all work as expected. The default screen position now reflects the prio settings and that's great.
+
+I took a look at the updates to the man page as well and it looks quite clear.
+
+So hey, thank you for the great work! I look forward to the incorporation of the new features in the master branch when it is ready.
+
+Happy holidays and a happy new year!
+```
+
+### Issue 31
+
+  * github issue number: #25
+  * Fixed: 1.9.0
+
+```
+The configuration man page for the input send events setting is missing the events word:
+
+diff --git man/cagebreak-config.5.md man/cagebreak-config.5.md
+index 4eea4c5..c618314 100644
+--- man/cagebreak-config.5.md
++++ man/cagebreak-config.5.md
+@@ -123,7 +123,7 @@ by prepending a line with the # symbol.
+    *dwt enabled|disabled*
+         Enables or disables disable-while-typing for the specified input device.
+
+          -       *enabled|disabled|disabled_on_external_mouse*
+          - +     *events enabled|disabled|disabled_on_external_mouse*
+                            Enables or disables send_events for specified input device. Disabling
+                            send_events disables the input device.
+Slightly off topic: I was hoping to use this setting to hide the mouse cursor, but it doesn't work. My embedded system must expose a pointer device even though none is connected, altough I can only infer that much because the system is very bare bones and I can't check. Is there a way to do that?
+```
+
+The word was omitted before 1.9.0. Mouse hiding was relegated to a new issue (#26).
+
+### Issue 32
+
+  * github issue number: #24
+  * Fixed: 1.9.0
+
+```
+The wlr/xwayland.h include in output.c:32 is missing an #if CG_HAS_XWAYLAND guard, which breaks building without xwayland.
+```
+
+Cagebreak did not build without xwayland. This bug has been fixed and building
+without xwayland has been added to the release checklist.
+
+### Issue 33
+
+  * github issue number: #23
+  * Fixed: 1.9.0
+
+```
+Similar to djpohly/dwl#177. Xwayland works fine elsewhere: cage, hikari, kwinft, labwc, phoc, river, sway, wayfire.
+```
+$ cagebreak
+[...]
+00:00:00.085 [xwayland/server.c:92] Starting Xwayland on :0
+00:00:00.116 [render/swapchain.c:105] Allocating new swapchain buffer
+00:00:00.118 [render/allocator/gbm.c:142] Allocated 1280x720 GBM buffer (format 0x34325258, modifier 0x100000000000004)
+00:00:00.118 [render/gles2/renderer.c:143] Created GL FBO for buffer 1280x720
+00:00:00.160 [types/wlr_surface.c:748] New wlr_surface 0x880d81f80 (res 0x86f22d380)
+00:00:00.165 [xwayland/server.c:243] waitpid for Xwayland fork failed: No child processes
+(EE) failed to read Wayland events: Broken pipe
+xterm: Xt error: Can't open display: :0
+
+$ cc --version
+FreeBSD clang version 11.0.1 (git@github.com:llvm/llvm-project.git llvmorg-11.0.1-0-g43ff75f2c3fe)
+Target: x86_64-unknown-freebsd13.0
+Thread model: posix
+InstalledDir: /usr/bin
+
+$ pkg info -x cagebreak wayland wlroots
+cagebreak-1.8.3
+wayland-1.20.0
+wayland-protocols-1.25
+xwayland-devel-21.0.99.1.171
+wlroots-0.15.1
+```
+```
