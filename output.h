@@ -23,9 +23,16 @@ struct cg_output {
 	struct cg_workspace **workspaces;
 	struct wl_list messages;
 	int curr_workspace;
+	int priority;
 	struct cg_view *last_scanned_out_view;
 
 	struct wl_list link; // cg_server::outputs
+};
+
+struct cg_output_priorities {
+	char *ident;
+	int priority;
+	struct wl_list link;
 };
 
 enum output_status { OUTPUT_ENABLE, OUTPUT_DISABLE, OUTPUT_DEFAULT };
@@ -35,6 +42,7 @@ struct cg_output_config {
 	struct wlr_box pos;
 	char *output_name;
 	float refresh_rate;
+	int priority;
 	struct wl_list link; // cg_server::output_config
 };
 

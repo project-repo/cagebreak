@@ -23,6 +23,7 @@ bind N nextscreen
 bind P prevscreen
 bind a time
 bind C-n movetonextscreen
+bind C-p movetoprevscreen
 bind H exchangeleft
 bind J exchangedown
 bind K exchangeup
@@ -33,6 +34,7 @@ bind k focusup
 bind l focusright
 bind t exec xterm
 bind C-k close
+#bind m message Hello World!
 definekey resize h resizeleft
 definekey resize l resizeright
 definekey resize j resizedown
@@ -42,6 +44,20 @@ definekey resize Escape setmode top
 ######################
 #Workspaces
 ######################
+bind 1 screen 1
+bind 2 screen 2
+bind 3 screen 3
+bind 4 screen 4
+bind 5 screen 5
+bind 6 screen 6
+
+bind A-1 movetoscreen 1
+bind A-2 movetoscreen 2
+bind A-3 movetoscreen 3
+bind A-4 movetoscreen 4
+bind A-5 movetoscreen 5
+bind A-6 movetoscreen 6
+
 definekey top A-1 workspace 1
 definekey top A-2 workspace 2
 definekey top A-3 workspace 3
@@ -78,6 +94,7 @@ definekey top XF86MonBrightnessUp exec xbacklight -inc 1
 #output eDP-1 pos 0 0 res 1366x768 rate 60
 #output eDP-1 disable
 #output eDP-1 enable
+#output eDP-1 prio 1
 
 #####################
 #Input configuration

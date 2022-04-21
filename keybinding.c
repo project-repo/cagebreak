@@ -1,6 +1,7 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
 #include <wayland-server-core.h>
 #include <wlr/backend/multi.h>
@@ -718,7 +719,12 @@ keybinding_show_info(struct cg_server *server) {
 }
 
 void
-keybinding_move_view_to_next_output(struct cg_server *server) {
+keybinding_display_message(struct cg_server *server, char *msg) {
+	message_printf(server->curr_output, "%s", msg);
+}
+
+void
+keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 	if(wl_list_length(&server->outputs) <= 1) {
 		return;
 	}
@@ -927,19 +933,22 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	case KEYBINDING_SPLIT_VERTICAL:
 		keybinding_split_vertical(server);
 		break;
-	case KEYBINDING_RUN_COMMAND:
-		if(fork() == 0) {
-			into_process(data.c);
+	case KEYBINDING_RUN_COMMAND: {
+		int pid;
+		if((pid = fork()) == 0) {
+			if(fork() == 0) {
+				into_process(data.c);
+			}
+			_exit(0);
+		} else if(pid > 0) {
+			waitpid(pid, NULL, 0);
 		}
-		break;
+	} break;
 	case KEYBINDING_CYCLE_VIEWS:
 		keybinding_cycle_views(server, data.b);
 		break;
 	case KEYBINDING_CYCLE_TILES:
 		keybinding_cycle_tiles(server, data.b);
-		break;
-	case KEYBINDING_CYCLE_OUTPUT:
-		keybinding_cycle_outputs(server, data.b);
 		break;
 	case KEYBINDING_SWITCH_WORKSPACE:
 		keybinding_switch_ws(server, data.u);
@@ -958,6 +967,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_SHOW_INFO:
 		keybinding_show_info(server);
+		break;
+	case KEYBINDING_DISPLAY_MESSAGE:
+		keybinding_display_message(server, data.c);
 		break;
 	case KEYBINDING_RESIZE_TILE_HORIZONTAL:
 		resize_tile(server, data.i, 0);
@@ -1017,8 +1029,8 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		        ->focused_tile);
 		break;
 	}
-	case KEYBINDING_MOVE_VIEW_TO_NEXT_OUTPUT: {
-		keybinding_move_view_to_next_output(server);
+	case KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT: {
+		keybinding_move_view_to_cycle_output(server, data.b);
 		break;
 	}
 	case KEYBINDING_DEFINEKEY:

@@ -29,7 +29,9 @@
 #include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/util/log.h>
 #include <wlr/util/region.h>
+#if CG_HAS_XWAYLAND
 #include <wlr/xwayland.h>
+#endif
 
 #include "keybinding.h"
 #include "message.h"

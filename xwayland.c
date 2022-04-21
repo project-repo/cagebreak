@@ -6,6 +6,7 @@
  *
  * See the LICENSE file accompanying this file.
  */
+#include "config.h"
 
 #include <X11/Xutil.h>
 #include <stdbool.h>
@@ -14,7 +15,9 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/box.h>
 #include <wlr/util/log.h>
+#if CG_HAS_XWAYLAND
 #include <wlr/xwayland.h>
+#endif
 
 #include "output.h"
 #include "server.h"

@@ -8,6 +8,7 @@
 
 #include "input_manager.h"
 #include "keybinding.h"
+#include "message.h"
 #include "output.h"
 #include "parse.h"
 #include "server.h"
@@ -122,7 +123,7 @@ parse_input_config(char **saveptr, char **errstr) {
 	char *ident = NULL;
 	if(cfg == NULL) {
 		*errstr =
-		    log_error("Failed to allocate memory for output configuration");
+		    log_error("Failed to allocate memory for input configuration");
 		goto error;
 	}
 
@@ -340,6 +341,9 @@ parse_input_config(char **saveptr, char **errstr) {
 			    "Invalid option \"%s\" to setting \"tap_button_map\"", value);
 			goto error;
 		}
+	} else {
+		*errstr = log_error("Invalid option to command \"input\"");
+		goto error;
 	}
 
 	free(value);
@@ -503,6 +507,8 @@ parse_output_config_keyword(char *key_str, enum output_status *status) {
 	}
 	if(strcmp(key_str, "pos") == 0) {
 		*status = OUTPUT_DEFAULT;
+	} else if(strcmp(key_str, "prio") == 0) {
+		*status = OUTPUT_DEFAULT;
 	} else if(strcmp(key_str, "enable") == 0) {
 		*status = OUTPUT_ENABLE;
 	} else if(strcmp(key_str, "disable") == 0) {
@@ -521,6 +527,11 @@ parse_output_config(char **saveptr, char **errstr) {
 		    log_error("Failed to allocate memory for output configuration");
 		goto error;
 	}
+	cfg->status = OUTPUT_DEFAULT;
+	cfg->pos.x = -1;
+	cfg->output_name = NULL;
+	cfg->refresh_rate = 0;
+	cfg->priority = -1;
 	char *name = strtok_r(NULL, " ", saveptr);
 	if(name == NULL) {
 		*errstr =
@@ -529,12 +540,24 @@ parse_output_config(char **saveptr, char **errstr) {
 	}
 	char *key_str = strtok_r(NULL, " ", saveptr);
 	if(parse_output_config_keyword(key_str, &(cfg->status)) != 0) {
-		*errstr = log_error("Expected keyword \"pos\", \"enable\" or "
+		*errstr = log_error("Expected keyword \"pos\", \"prio\", \"enable\" or "
 		                    "\"disable\" in output configuration for output %s",
 		                    name);
 		goto error;
 	}
 	if(cfg->status == OUTPUT_ENABLE || cfg->status == OUTPUT_DISABLE) {
+		cfg->output_name = strdup(name);
+		return cfg;
+	}
+
+	if(strcmp(key_str, "prio") == 0) {
+		cfg->priority = parse_uint(saveptr, " ");
+		if(cfg->priority < 0) {
+			*errstr = log_error(
+			    "Error parsing priority of output configuration for output %s",
+			    name);
+			goto error;
+		}
 		cfg->output_name = strdup(name);
 		return cfg;
 	}
@@ -606,6 +629,74 @@ error:
 	return NULL;
 }
 
+struct cg_message_config *
+parse_message_config(char **saveptr, char **errstr) {
+	struct cg_message_config *cfg = calloc(1, sizeof(struct cg_message_config));
+	if(cfg == NULL) {
+		*errstr =
+		    log_error("Failed to allocate memory for message configuration");
+		goto error;
+	}
+
+	cfg->bg_color[0] = -1;
+	cfg->fg_color[0] = -1;
+	cfg->display_time = -1;
+	cfg->font = NULL;
+
+	char *setting = strtok_r(NULL, " ", saveptr);
+	if(setting == NULL) {
+		*errstr = log_error(
+		    "Expected setting to be set for message configuration, got none");
+		goto error;
+	}
+
+	if(strcmp(setting, "font") == 0) {
+		cfg->font = strdup(*saveptr);
+		if(cfg->font == NULL) {
+			*errstr = log_error("Unable to allocate memory for font descrition "
+			                    "in command \"message\"");
+			goto error;
+		}
+	} else if(strcmp(setting, "display_time") == 0) {
+		cfg->display_time = parse_uint(saveptr, " ");
+		if(cfg->display_time < 0) {
+			*errstr =
+			    log_error("Error parsing command \"configure_message "
+			              "display_time\", expected a non-negative integer");
+			goto error;
+		}
+	} else if(strcmp(setting, "bg_color") == 0) {
+		for(int i = 0; i < 4; ++i) {
+			cfg->bg_color[i] = parse_float(saveptr, " ");
+			if(cfg->bg_color[i] == FLT_MIN) {
+				*errstr = log_error(
+				    "Error parsing command \"configure_message bg_color\", "
+				    "expected 4 float values separated by spaces");
+				goto error;
+			}
+		}
+	} else if(strcmp(setting, "fg_color") == 0) {
+		for(int i = 0; i < 4; ++i) {
+			cfg->fg_color[i] = parse_float(saveptr, " ");
+			if(cfg->fg_color[i] == FLT_MIN) {
+				*errstr = log_error(
+				    "Error parsing command \"configure_message bg_color\", "
+				    "expected 4 float values separated by spaces");
+				goto error;
+			}
+		}
+	} else {
+		*errstr = log_error("Invalid option to command \"configure_message\"");
+		goto error;
+	}
+	return cfg;
+
+error:
+	wlr_log(WLR_ERROR, "Message configuration must be of the form "
+	                   "'configure_message <setting> <value>'");
+	return NULL;
+}
+
 int
 parse_command(struct cg_server *server, struct keybinding *keybinding,
               char *saveptr, char **errstr) {
@@ -641,6 +732,15 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_LAYOUT_FULLSCREEN;
 	} else if(strcmp(action, "abort") == 0) {
 		keybinding->action = KEYBINDING_NOOP;
+	} else if(strcmp(action, "message") == 0) {
+		keybinding->action = KEYBINDING_DISPLAY_MESSAGE;
+		if(saveptr == NULL) {
+			*errstr =
+			    log_error("Not enough paramaters to \"message\". Expected "
+			              "string to display.");
+			return -1;
+		}
+		keybinding->data.c = strdup(saveptr);
 	} else if(strcmp(action, "time") == 0) {
 		keybinding->action = KEYBINDING_SHOW_TIME;
 	} else if(strcmp(action, "nextscreen") == 0) {
@@ -669,6 +769,23 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 	} else if(strcmp(action, "resizeup") == 0) {
 		keybinding->action = KEYBINDING_RESIZE_TILE_VERTICAL;
 		keybinding->data.i = -10;
+	} else if(strcmp(action, "screen") == 0) {
+		keybinding->action = KEYBINDING_SWITCH_OUTPUT;
+		char *noutp_str = strtok_r(NULL, " ", &saveptr);
+		if(noutp_str == NULL) {
+			*errstr =
+			    log_error("Expected argument for \"output\" action, got none.");
+			return -1;
+		}
+
+		long outp = strtol(noutp_str, NULL, 10);
+		if(outp < 1) {
+			*errstr = log_error("Workspace number must be an integer number "
+			                    "larger or equal to 1. Got %ld",
+			                    outp);
+			return -1;
+		}
+		keybinding->data.u = outp;
 	} else if(strcmp(action, "workspace") == 0) {
 		keybinding->action = KEYBINDING_SWITCH_WORKSPACE;
 		char *nws_str = strtok_r(NULL, " ", &saveptr);
@@ -686,12 +803,29 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			return -1;
 		}
 		keybinding->data.u = ws - 1;
+	} else if(strcmp(action, "movetoscreen") == 0) {
+		keybinding->action = KEYBINDING_MOVE_VIEW_TO_OUTPUT;
+		char *noutp_str = strtok_r(NULL, " ", &saveptr);
+		if(noutp_str == NULL) {
+			*errstr = log_error(
+			    "Expected argument for \"movetoscreen\" action, got none.");
+			return -1;
+		}
+
+		long outp = strtol(noutp_str, NULL, 10);
+		if(outp < 1) {
+			*errstr = log_error("Output number must be an integer larger or "
+			                    "equal to 1. Got %ld",
+			                    outp);
+			return -1;
+		}
+		keybinding->data.u = outp;
 	} else if(strcmp(action, "movetoworkspace") == 0) {
 		keybinding->action = KEYBINDING_MOVE_VIEW_TO_WORKSPACE;
 		char *nws_str = strtok_r(NULL, " ", &saveptr);
 		if(nws_str == NULL) {
 			*errstr = log_error(
-			    "Expected argument for \"workspace\" action, got none.");
+			    "Expected argument for \"movetoworkspace\" action, got none.");
 			return -1;
 		}
 
@@ -720,7 +854,11 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 	} else if(strcmp(action, "focusdown") == 0) {
 		keybinding->action = KEYBINDING_FOCUS_BOTTOM;
 	} else if(strcmp(action, "movetonextscreen") == 0) {
-		keybinding->action = KEYBINDING_MOVE_VIEW_TO_NEXT_OUTPUT;
+		keybinding->action = KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT;
+		keybinding->data.b = false;
+	} else if(strcmp(action, "movetoprevscreen") == 0) {
+		keybinding->action = KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT;
+		keybinding->data.b = true;
 	} else if(strcmp(action, "switchvt") == 0) {
 		keybinding->action = KEYBINDING_CHANGE_TTY;
 		char *ntty = strtok_r(NULL, " ", &saveptr);
@@ -735,13 +873,12 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_SWITCH_MODE;
 		char *mode = strtok_r(NULL, " ", &saveptr);
 		if(mode == NULL) {
-			*errstr =
-			    log_error("Expected mode after \"switch_mode\". Got nothing.");
+			*errstr = log_error("Expected mode after \"mode\". Got nothing.");
 			return -1;
 		}
 		int mode_idx = get_mode_index_from_name(server->modes, mode);
 		if(mode_idx == -1) {
-			*errstr = log_error("Unknown mode \"%s\" for switch_mode", mode);
+			*errstr = log_error("Unknown mode \"%s\" for \"mode\"", mode);
 			return -1;
 		}
 		keybinding->data.u = (unsigned int)mode_idx;
@@ -806,6 +943,12 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_CONFIGURE_INPUT;
 		keybinding->data.i_cfg = parse_input_config(&saveptr, errstr);
 		if(keybinding->data.i_cfg == NULL) {
+			return -1;
+		}
+	} else if(strcmp(action, "configure_message") == 0) {
+		keybinding->action = KEYBINDING_CONFIGURE_MESSAGE;
+		keybinding->data.m_cfg = parse_message_config(&saveptr, errstr);
+		if(keybinding->data.m_cfg == NULL) {
 			return -1;
 		}
 	} else {

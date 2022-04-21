@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.8.3',
+  version: '1.9.0',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -206,16 +206,16 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.20.0',
   'wayland_cursor': '1.20.0',
-  'wlroots': '0.15.0',
-  'xkbcommon': '1.3.1',
-  'fontconfig': '2.13.94',
-  'libinput': '1.19.3',
-  'libevdev': '1.12.0',
+  'wlroots': '0.15.1',
+  'xkbcommon': '1.4.0',
+  'fontconfig': '2.14.0',
+  'libinput': '1.20.1',
+  'libevdev': '1.12.1',
   'libudev': '250',
   'pixman': '0.40.0',
-  'pango': '1.50.3',
-  'cairo': '1.17.4',
-  'pangocairo': '1.50.3',
+  'pango': '1.50.7',
+  'cairo': '1.17.6',
+  'pangocairo': '1.50.7',
   'math': '-1'
 }
 
@@ -241,7 +241,7 @@ foreach name, dep : cagebreak_dependencies_dict
 endforeach
 
 reproducible_build_compiler = 'gcc'
-reproducible_build_compiler_version = '11.1.0'
+reproducible_build_compiler_version = '11.2.0'
 
 if cc.get_id() != reproducible_build_compiler
   warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in the README section "Reproducible Builds" (' + reproducible_build_compiler + ').')
@@ -270,7 +270,7 @@ if get_option('man-pages')
     output : 'cagebreak.1',
     input : 'man/cagebreak.1.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1638785664 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1650564686 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir1
     )
@@ -279,7 +279,7 @@ if get_option('man-pages')
     output : 'cagebreak-config.5',
     input : 'man/cagebreak-config.5.md',
 	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1638785664 ; @0@ < @INPUT@'.format(scdoc.path())],
+    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1650564686 ; @0@ < @INPUT@'.format(scdoc.path())],
     install: true,
     install_dir: mandir5
     )
