@@ -161,8 +161,7 @@ view_unmap(struct cg_view *view) {
 
 	view->wlr_surface = NULL;
 	ipc_send_event(view->workspace->server,
-	               "view_unmap(view_id:%d,tile_id:%d,workspace:%d,output:%s,"
-	               "view_title:%s)",
+	               "{\"event_name\":\"view_unmap\",\"view_id\":\"%d\",\"tile_id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\",\"view_title\":\"%s\"}",
 	               id, tile_id, ws + 1, output_name, title);
 }
 
@@ -204,7 +203,7 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	}
 	ipc_send_event(
 	    output->server,
-	    "view_map(view_id:%d,tile_id:%d,workspace:%d,output:%s,view_title:%s)",
+	    "{\"event_name\":\"view_map\",\"view_id\":\"%d\",\"tile_id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\",\"view_title\":\"%s\"}",
 	    view->id, tile_id, view->workspace->num + 1,
 	    view->workspace->output->wlr_output->name, view->impl->get_title(view));
 }

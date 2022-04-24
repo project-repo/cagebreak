@@ -141,7 +141,7 @@ output_destroy(struct cg_output *output) {
 	free(output);
 
 	if(outp_name != NULL) {
-		ipc_send_event(server, "new_output(output:%s)", outp_name);
+		ipc_send_event(server, "{\"event_name\":\"new_output\",\"output\":\"%s\"}", outp_name);
 		free(outp_name);
 	} else {
 		wlr_log(WLR_ERROR,
@@ -433,7 +433,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	wl_signal_add(&wlr_output->events.commit, &output->commit);
 	output->mode.notify = handle_output_mode;
 	wl_signal_add(&wlr_output->events.mode, &output->mode);
-	ipc_send_event(server, "new_output(output:%s,priority:%d)",
+	ipc_send_event(server, "{\"event_name\":\"new_output\",\"output\":\"%s\",\"priority\":\"%d\"}",
 	               output->wlr_output->name, output->priority);
 }
 #if CG_HAS_FANALYZE
