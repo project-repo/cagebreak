@@ -1007,7 +1007,7 @@ keybinding_dump(struct cg_server *server) {
 	struct dyn_str str;
 	str.len=0;
 	str.cur_pos=0;
-	uint32_t nmemb=11;
+	uint32_t nmemb=10;
 	str.str_arr=calloc(nmemb,sizeof(char *));
 
 	print_str(&str,"{");
@@ -1021,8 +1021,6 @@ keybinding_dump(struct cg_server *server) {
 	print_str(&str,"%s",outps_str);
 	free(outps_str);
 	print_str(&str,"\"cursor_coords\":{\"x\":%f,\"y\":%f},\n",server->seat->cursor->x,server->seat->cursor->y);
-	struct cg_view *focused_view=seat_desktop_view_at(server,server->seat->cursor->x,server->seat->cursor->y,NULL,NULL,NULL);
-	print_str(&str,"\"cursor_focused_view\":%d,\n",focused_view==NULL?-1:(int) focused_view->id);
 	print_str(&str,"}");
 
 	char *send_str=dyn_str_to_str(&str);

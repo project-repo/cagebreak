@@ -47,25 +47,6 @@
 static void
 drag_icon_update_position(struct cg_drag_icon *drag_icon);
 
-/* If seat_desktop_view_at returns a view, there is also a
- * surface. There cannot be a surface without a view, either. It's
- * both or nothing. */
-struct cg_view *
-seat_desktop_view_at(const struct cg_server *server, double lx, double ly,
-                struct wlr_surface **surface, double *sx, double *sy) {
-	struct wlr_scene_node *node=wlr_scene_node_at(&server->scene->node, lx,ly,sx,sy);
-	if(node == NULL || node->type != WLR_SCENE_NODE_SURFACE) {
-		return NULL;
-	}
-	if(surface!=NULL) {
-		*surface = wlr_scene_surface_from_node(node)->surface;
-	}
-	while(node != NULL && node->data == NULL) {
-		node=node->parent;
-	}
-	return node->data;
-}
-
 static void
 update_capabilities(const struct cg_seat *seat) {
 	uint32_t caps = 0;
@@ -529,14 +510,12 @@ handle_touch_down(struct wl_listener *listener, void *data) {
 	                                     event->y, &lx, &ly);
 
 	double sx, sy;
-	struct wlr_surface *surface;
-	struct cg_view *view =
-	    seat_desktop_view_at(seat->server, lx, ly, &surface, &sx, &sy);
+	struct wlr_scene_node *node=wlr_scene_node_at(&seat->server->scene->node, lx,ly,&sx,&sy);
 
 	uint32_t serial = 0;
-	if(view) {
+	if(node&&node->type == WLR_SCENE_NODE_SURFACE) {
 		serial = wlr_seat_touch_notify_down(
-		    seat->seat, surface, event->time_msec, event->touch_id, sx, sy);
+		    seat->seat, wlr_scene_surface_from_node(node)->surface, event->time_msec, event->touch_id, sx, sy);
 	}
 
 	if(serial && wlr_seat_touch_num_points(seat->seat) == 1) {
@@ -575,12 +554,10 @@ handle_touch_motion(struct wl_listener *listener, void *data) {
 	                                     event->y, &lx, &ly);
 
 	double sx, sy;
-	struct wlr_surface *surface;
-	struct cg_view *view =
-	    seat_desktop_view_at(seat->server, lx, ly, &surface, &sx, &sy);
+	struct wlr_scene_node *node=wlr_scene_node_at(&seat->server->scene->node, lx,ly,&sx,&sy);
 
-	if(view) {
-		wlr_seat_touch_point_focus(seat->seat, surface, event->time_msec,
+	if(node&&node->type == WLR_SCENE_NODE_SURFACE) {
+		wlr_seat_touch_point_focus(seat->seat, wlr_scene_surface_from_node(node)->surface, event->time_msec,
 		                           event->touch_id, sx, sy);
 		wlr_seat_touch_notify_motion(seat->seat, event->time_msec,
 		                             event->touch_id, sx, sy);
@@ -632,18 +609,19 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 	struct wlr_seat *wlr_seat = seat->seat;
 	struct wlr_surface *surface = NULL;
 
-	struct cg_view *view = seat_desktop_view_at(seat->server, seat->cursor->x,
-	                                       seat->cursor->y, &surface, &sx, &sy);
+	struct wlr_scene_node *node=wlr_scene_node_at(&seat->server->scene->node, seat->cursor->x,seat->cursor->y,&sx,&sy);
 
-	if(!view) {
-		wlr_seat_pointer_clear_focus(wlr_seat);
-	} else {
+
+	if(node&&node->type == WLR_SCENE_NODE_SURFACE) {
+		surface=wlr_scene_surface_from_node(node)->surface;
 		wlr_seat_pointer_notify_enter(wlr_seat, surface, sx, sy);
 
 		bool focus_changed = wlr_seat->pointer_state.focused_surface != surface;
 		if(!focus_changed && time > 0) {
 			wlr_seat_pointer_notify_motion(wlr_seat, time, sx, sy);
 		}
+	} else {
+		wlr_seat_pointer_clear_focus(wlr_seat);
 	}
 
 	struct cg_drag_icon *drag_icon;

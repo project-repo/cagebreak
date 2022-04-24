@@ -94,9 +94,6 @@ struct cg_drag_icon {
 	struct wl_listener destroy;
 };
 
-struct cg_view *
-seat_desktop_view_at(const struct cg_server *server, double lx, double ly,
-                struct wlr_surface **surface, double *sx, double *sy);
 struct cg_seat *
 seat_create(struct cg_server *server, struct wlr_backend *backend);
 void
