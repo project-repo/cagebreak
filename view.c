@@ -102,6 +102,7 @@ view_maximize(struct cg_view *view, struct cg_tile *tile) {
 	wlr_scene_node_set_position(view->scene_node, view->ox+box->x, view->oy+box->y);
 	view->impl->maximize(view, tile->tile.width, tile->tile.height);
 	view->tile = tile;
+	wlr_scene_node_raise_to_top(view->scene_node);
 }
 
 void
