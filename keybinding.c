@@ -664,7 +664,7 @@ keybinding_cycle_outputs(struct cg_server *server, bool reverse) {
 
 /* Cycle through views, whereby the workspace does not change */
 void
-keybinding_cycle_views(struct cg_server *server, bool reverse) {
+keybinding_cycle_views(struct cg_server *server, bool reverse, bool ipc) {
 	struct cg_workspace *curr_workspace =
 	    server->curr_output->workspaces[server->curr_output->curr_workspace];
 	struct cg_view *current_view = curr_workspace->focused_tile->view;
@@ -701,11 +701,13 @@ keybinding_cycle_views(struct cg_server *server, bool reverse) {
 	curr_workspace->focused_tile->view = wl_container_of(
 	    next_view->link.prev, curr_workspace->focused_tile->view, link);
 	seat_set_focus(server->seat, next_view);
+	if(ipc) {
 	ipc_send_event(curr_workspace->output->server,
 	               "{\"event_name\":\"cycle_views\",\"old_view_id\":\"%d\",\"new_view_id\":\"%d\",\"tile_id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
-	               current_view->id, next_view->id, next_view->tile->id,
+	               current_view->link.next==curr_workspace->views.next?-1:(int) current_view->id, next_view==NULL?-1:(int) next_view->id, next_view->tile->id,
 	               curr_workspace->num + 1,
 	               curr_workspace->output->wlr_output->name);
+	}
 }
 
 void
@@ -1061,7 +1063,7 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 		wl_list_remove(&view->link);
 		server->curr_output->workspaces[server->curr_output->curr_workspace]
 		    ->focused_tile->view = NULL;
-		keybinding_cycle_views(server, false);
+		keybinding_cycle_views(server, false,false);
 		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
 		       ->focused_tile->view == NULL) {
 			seat_set_focus(server->seat, NULL);
@@ -1209,7 +1211,7 @@ keybinding_move_view_to_output(struct cg_server *server, int output_num) {
 		wl_list_remove(&view->link);
 		server->curr_output->workspaces[server->curr_output->curr_workspace]
 		    ->focused_tile->view = NULL;
-		keybinding_cycle_views(server, false);
+		keybinding_cycle_views(server, false,false);
 		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
 		       ->focused_tile->view == NULL) {
 			seat_set_focus(server->seat, NULL);
@@ -1249,7 +1251,7 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 		wl_list_remove(&view->link);
 		server->curr_output->workspaces[server->curr_output->curr_workspace]
 		    ->focused_tile->view = NULL;
-		keybinding_cycle_views(server, false);
+		keybinding_cycle_views(server, false, false);
 		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
 		       ->focused_tile->view == NULL) {
 			seat_set_focus(server->seat, NULL);
@@ -1404,7 +1406,7 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		}
 		break;
 	case KEYBINDING_CYCLE_VIEWS:
-		keybinding_cycle_views(server, data.b);
+		keybinding_cycle_views(server, data.b,true);
 		break;
 	case KEYBINDING_CYCLE_TILES:
 		keybinding_cycle_tiles(server, data.b);
