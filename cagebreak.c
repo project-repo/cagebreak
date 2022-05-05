@@ -28,6 +28,7 @@
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_data_control_v1.h>
+#include <wlr/types/wlr_primary_selection_v1.h>
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_export_dmabuf_v1.h>
 #include <wlr/types/wlr_gamma_control_v1.h>
@@ -499,6 +500,12 @@ main(int argc, char *argv[]) {
 	                                                  server.output_layout);
 	if(!output_manager) {
 		wlr_log(WLR_ERROR, "Unable to create the output manager");
+		ret = 1;
+		goto end;
+	}
+
+	if(!wlr_primary_selection_v1_device_manager_create(server.wl_display)) {
+		wlr_log(WLR_ERROR, "Unable to create the primary selection device manager");
 		ret = 1;
 		goto end;
 	}
