@@ -950,6 +950,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	case KEYBINDING_CYCLE_TILES:
 		keybinding_cycle_tiles(server, data.b);
 		break;
+	case KEYBINDING_CYCLE_OUTPUT:
+		keybinding_cycle_outputs(server, data.b);
+		break;
 	case KEYBINDING_SWITCH_WORKSPACE:
 		keybinding_switch_ws(server, data.u);
 		break;
