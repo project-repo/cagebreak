@@ -35,7 +35,6 @@ struct wlr_texture *
 create_message_texture(const char *string, const struct cg_output *output) {
 	const int WIDTH_PADDING = 8;
 	const int HEIGHT_PADDING = 2;
-	const char *font = "pango:Monospace 10";
 
 	struct wlr_texture *texture;
 	double scale = output->wlr_output->scale;
@@ -60,7 +59,8 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	cairo_font_options_set_subpixel_order(
 	    fo, to_cairo_subpixel_order(output->wlr_output->subpixel));
 	cairo_set_font_options(c, fo);
-	get_text_size(c, font, &width, &height, NULL, scale, "%s", string);
+	get_text_size(c, output->server->message_config.font, &width, &height, NULL,
+	              scale, "%s", string);
 	width += 2 * WIDTH_PADDING;
 	height += 2 * HEIGHT_PADDING;
 	cairo_surface_destroy(dummy_surface);
@@ -72,16 +72,19 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	cairo_set_antialias(cairo, CAIRO_ANTIALIAS_BEST);
 	cairo_set_font_options(cairo, fo);
 	cairo_font_options_destroy(fo);
-	cairo_set_source_rgba(cairo, 0.9, 0.85, 0.85, 1.0);
+	float *bg_col = output->server->message_config.bg_color;
+	cairo_set_source_rgba(cairo, bg_col[0], bg_col[1], bg_col[2], bg_col[3]);
 	cairo_paint(cairo);
 	PangoContext *pango = pango_cairo_create_context(cairo);
-	cairo_set_source_rgba(cairo, 0, 0, 0, 1);
+	float *fg_col = output->server->message_config.fg_color;
+	cairo_set_source_rgba(cairo, fg_col[0], fg_col[1], fg_col[2], fg_col[3]);
 	cairo_set_line_width(cairo, 2);
 	cairo_rectangle(cairo, 0, 0, width, height);
 	cairo_stroke(cairo);
 	cairo_move_to(cairo, WIDTH_PADDING, HEIGHT_PADDING);
 
-	pango_printf(cairo, font, scale, "%s", string);
+	pango_printf(cairo, output->server->message_config.font, scale, "%s",
+	             string);
 
 	cairo_surface_flush(surface);
 	unsigned char *data = cairo_image_surface_get_data(surface);
@@ -175,7 +178,7 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 
 	message_set_output(output, buffer, box, CG_MESSAGE_TOP_RIGHT);
 	free(buffer);
-	alarm(output->server->message_timeout);
+	alarm(output->server->message_config.display_time);
 }
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop
@@ -194,7 +197,7 @@ message_printf_pos(struct cg_output *output, struct wlr_box *position,
 
 	message_set_output(output, buffer, position, align);
 	free(buffer);
-	alarm(output->server->message_timeout);
+	alarm(output->server->message_config.display_time);
 }
 
 void
