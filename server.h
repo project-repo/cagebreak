@@ -3,6 +3,7 @@
 
 #include "config.h"
 #include "ipc_server.h"
+#include "message.h"
 
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
@@ -44,6 +45,7 @@ struct cg_server {
 	struct keybinding_list *keybindings;
 	struct wl_list output_config;
 	struct wl_list input_config;
+	struct cg_message_config message_config;
 
 	enum wl_output_transform output_transform;
 
