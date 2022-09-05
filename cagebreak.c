@@ -355,7 +355,7 @@ main(int argc, char *argv[]) {
 
 	wlr_renderer_init_wl_display(server.renderer, server.wl_display);
 
-	server.bg_color = (float[4]){0, 0, 1, 1};
+	server.bg_color = (float[4]){0, 0, 0, 1};
 	wl_list_init(&server.outputs);
 	wl_list_init(&server.disabled_outputs);
 
