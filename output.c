@@ -71,24 +71,17 @@ output_clear(struct cg_output *output) {
 				first = false;
 				tile->view = NULL;
 			}
+			struct cg_workspace *ws=server->curr_output->workspaces[server->curr_output->curr_workspace];
 			wl_list_for_each_safe(view, view_tmp, &output->workspaces[i]->views,
 			                      link) {
 				wl_list_remove(&view->link);
 				if(wl_list_empty(&server->outputs)) {
 					view->impl->destroy(view);
 				} else {
-					wl_list_insert(
-					    &server->curr_output
-					         ->workspaces[server->curr_output->curr_workspace]
-					         ->views,
-					    &view->link);
-					view->workspace =
-					    server->curr_output
-					        ->workspaces[server->curr_output->curr_workspace];
-					view->tile =
-					    server->curr_output
-					        ->workspaces[server->curr_output->curr_workspace]
-					        ->focused_tile;
+					wl_list_insert(&ws->views,&view->link);
+					wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
+					view->workspace = ws;
+					view->tile = ws->focused_tile;
 					if(server->seat->focused_view == NULL) {
 						seat_set_focus(server->seat, view);
 					}
@@ -100,18 +93,10 @@ output_clear(struct cg_output *output) {
 				if(wl_list_empty(&server->outputs)) {
 					view->impl->destroy(view);
 				} else {
-					wl_list_insert(
-					    &server->curr_output
-					         ->workspaces[server->curr_output->curr_workspace]
-					         ->unmanaged_views,
-					    &view->link);
-					view->workspace =
-					    server->curr_output
-					        ->workspaces[server->curr_output->curr_workspace];
-					view->tile =
-					    server->curr_output
-					        ->workspaces[server->curr_output->curr_workspace]
-					        ->focused_tile;
+					wl_list_insert(&ws->unmanaged_views, &view->link);
+					wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
+					view->workspace = ws;
+					view->tile = ws->focused_tile;
 				}
 			}
 		}
