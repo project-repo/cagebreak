@@ -311,7 +311,7 @@ ipc_client_handle_command(struct cg_ipc_client *client) {
 		offset = (nl_pos - client->read_buffer) + 1;
 	}
 	if(offset == 0) {
-		wlr_log(WLR_ERROR, "Line received was longer that %d, discarding it",
+		wlr_log(WLR_ERROR, "Line received was longer than %d, discarding it",
 		        MAX_LINE_SIZE);
 		client->read_buf_len = 0;
 		client->read_discard = 1;
