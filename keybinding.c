@@ -469,14 +469,16 @@ keybinding_workspace_fullscreen(struct cg_server *server) {
 	struct cg_view *current_view = seat_get_focus(server->seat);
 	struct cg_output *output = server->curr_output;
 
-	/* We are focused on the background */
-	if(current_view == NULL) {
-		struct cg_view *it = NULL;
-		wl_list_for_each(it, &output->workspaces[output->curr_workspace]->views,
-		                 link) {
-			if(view_is_visible(it)) {
+	struct cg_view *it = NULL, *tmp = NULL;
+	wl_list_for_each_safe(it, tmp, &output->workspaces[output->curr_workspace]->views,
+	                 link) {
+		if(view_is_visible(it)) {
+			if(current_view == NULL) {
 				current_view = it;
-				break;
+			}
+			if(&it->link!=&output->workspaces[output->curr_workspace]->views) {
+				wl_list_remove(&it->link);
+				wl_list_insert(&output->workspaces[output->curr_workspace]->views, &it->link);
 			}
 		}
 	}
