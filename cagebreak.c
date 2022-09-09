@@ -226,6 +226,7 @@ get_config_file() {
 
 int
 main(int argc, char *argv[]) {
+	printf("This is cagebreak, version %s\n",CG_VERSION);
 	struct cg_server server = {0};
 	struct wl_event_loop *event_loop = NULL;
 	struct wl_event_source *sigint_source = NULL;
