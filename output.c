@@ -25,9 +25,9 @@
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_surface.h>
 #include <wlr/types/wlr_xcursor_manager.h>
-#include <wlr/types/wlr_scene.h>
 #include <wlr/util/log.h>
 #include <wlr/util/region.h>
 #if CG_HAS_XWAYLAND
@@ -71,14 +71,16 @@ output_clear(struct cg_output *output) {
 				first = false;
 				tile->view = NULL;
 			}
-			struct cg_workspace *ws=server->curr_output->workspaces[server->curr_output->curr_workspace];
+			struct cg_workspace *ws =
+			    server->curr_output
+			        ->workspaces[server->curr_output->curr_workspace];
 			wl_list_for_each_safe(view, view_tmp, &output->workspaces[i]->views,
 			                      link) {
 				wl_list_remove(&view->link);
 				if(wl_list_empty(&server->outputs)) {
 					view->impl->destroy(view);
 				} else {
-					wl_list_insert(&ws->views,&view->link);
+					wl_list_insert(&ws->views, &view->link);
 					wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
 					view->workspace = ws;
 					view->tile = ws->focused_tile;
@@ -126,7 +128,9 @@ output_destroy(struct cg_output *output) {
 	free(output);
 
 	if(outp_name != NULL) {
-		ipc_send_event(server, "{\"event_name\":\"new_output\",\"output\":\"%s\"}", outp_name);
+		ipc_send_event(server,
+		               "{\"event_name\":\"new_output\",\"output\":\"%s\"}",
+		               outp_name);
 		free(outp_name);
 	} else {
 		wlr_log(WLR_ERROR,
@@ -145,13 +149,13 @@ handle_output_destroy(struct wl_listener *listener, void *data) {
 
 static void
 handle_output_frame(struct wl_listener *listener, void *data) {
-	struct cg_output *output=wl_container_of(listener, output, frame);
+	struct cg_output *output = wl_container_of(listener, output, frame);
 	if(!output->wlr_output->enabled) {
 		return;
 	}
 	wlr_scene_output_commit(output->scene_output);
 
-	struct timespec now={0};
+	struct timespec now = {0};
 	clock_gettime(CLOCK_MONOTONIC, &now);
 	wlr_scene_output_send_frame_done(output->scene_output, &now);
 }
@@ -201,7 +205,10 @@ output_set_mode(struct wlr_output *output, int width, int height,
 	}
 	wlr_output_set_mode(output, best);
 	if(!wlr_output_test(output)) {
-		wlr_log(WLR_ERROR, "Unable to assign configured mode to %s, picking arbitrary available mode",output->name);
+		wlr_log(WLR_ERROR,
+		        "Unable to assign configured mode to %s, picking arbitrary "
+		        "available mode",
+		        output->name);
 		struct wlr_output_mode *mode;
 		wl_list_for_each(mode, &output->modes, link) {
 			if(mode == best) {
@@ -286,18 +293,20 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 		}
 	}
 	struct wlr_scene_output *scene_output;
-	wl_list_for_each(scene_output,&output->server->scene->outputs,link) {
+	wl_list_for_each(scene_output, &output->server->scene->outputs, link) {
 		if(scene_output->output == wlr_output) {
-			output->scene_output=scene_output;
+			output->scene_output = scene_output;
 			break;
 		}
 	}
-	if(output->bg!=NULL) {
+	if(output->bg != NULL) {
 		wlr_scene_node_destroy(&output->bg->node);
 	}
-	output->bg=wlr_scene_rect_create(&output->scene_output->scene->node, output->wlr_output->width,output->wlr_output->height, server->bg_color);
-	struct wlr_box *box = wlr_output_layout_get_box(
-	    server->output_layout, output->wlr_output);
+	output->bg = wlr_scene_rect_create(
+	    &output->scene_output->scene->node, output->wlr_output->width,
+	    output->wlr_output->height, server->bg_color);
+	struct wlr_box *box =
+	    wlr_output_layout_get_box(server->output_layout, output->wlr_output);
 	wlr_scene_node_set_position(&output->bg->node, box->x, box->y);
 	wlr_scene_node_lower_to_bottom(&output->bg->node);
 }
@@ -349,7 +358,8 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	struct cg_server *server = wl_container_of(listener, server, new_output);
 	struct wlr_output *wlr_output = data;
 
-	if(!wlr_output_init_render(wlr_output,server->allocator,server->renderer)) {
+	if(!wlr_output_init_render(wlr_output, server->allocator,
+	                           server->renderer)) {
 		wlr_log(WLR_ERROR, "Failed to initialize output rendering");
 		return;
 	}
@@ -400,7 +410,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	}
 
 	wlr_scene_node_raise_to_top(&output->workspaces[0]->scene->node);
-	workspace_focus(output,0);
+	workspace_focus(output, 0);
 
 	/* We are the first output. Set the current output to this one. */
 	if(server->curr_output == NULL) {
@@ -418,8 +428,10 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	wl_signal_add(&wlr_output->events.commit, &output->commit);
 	output->mode.notify = handle_output_mode;
 	wl_signal_add(&wlr_output->events.mode, &output->mode);
-	ipc_send_event(server, "{\"event_name\":\"new_output\",\"output\":\"%s\",\"priority\":\"%d\"}",
-	               output->wlr_output->name, output->priority);
+	ipc_send_event(
+	    server,
+	    "{\"event_name\":\"new_output\",\"output\":\"%s\",\"priority\":\"%d\"}",
+	    output->wlr_output->name, output->priority);
 }
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop

@@ -16,29 +16,29 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/wait.h>
 #include <string.h>
+#include <sys/wait.h>
 #include <unistd.h>
-#include <wayland-server-core.h>
 #include <wayland-client.h>
+#include <wayland-server-core.h>
 #include <wlr/backend.h>
-#include <wlr/types/wlr_scene.h>
 #include <wlr/render/allocator.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_data_control_v1.h>
-#include <wlr/types/wlr_primary_selection_v1.h>
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_export_dmabuf_v1.h>
 #include <wlr/types/wlr_gamma_control_v1.h>
 #include <wlr/types/wlr_idle.h>
-#include <wlr/types/wlr_viewporter.h>
-#include <wlr/types/wlr_presentation_time.h>
 #include <wlr/types/wlr_idle_inhibit_v1.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_presentation_time.h>
+#include <wlr/types/wlr_primary_selection_v1.h>
+#include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_screencopy_v1.h>
 #include <wlr/types/wlr_server_decoration.h>
+#include <wlr/types/wlr_viewporter.h>
 #if CG_HAS_XWAYLAND
 #include <wlr/types/wlr_xcursor_manager.h>
 #endif
@@ -226,7 +226,7 @@ get_config_file() {
 
 int
 main(int argc, char *argv[]) {
-	printf("This is cagebreak, version %s\n",CG_VERSION);
+	printf("This is cagebreak, version %s\n", CG_VERSION);
 	struct cg_server server = {0};
 	struct wl_event_loop *event_loop = NULL;
 	struct wl_event_source *sigint_source = NULL;
@@ -341,14 +341,15 @@ main(int argc, char *argv[]) {
 	}
 
 	server.renderer = wlr_renderer_autocreate(backend);
-	if (!server.renderer) {
+	if(!server.renderer) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots renderer");
 		ret = 1;
 		goto end;
 	}
 
-	server.allocator = wlr_allocator_autocreate(server.backend, server.renderer);
-	if (!server.allocator) {
+	server.allocator =
+	    wlr_allocator_autocreate(server.backend, server.renderer);
+	if(!server.allocator) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots allocator");
 		ret = 1;
 		goto end;
@@ -374,7 +375,7 @@ main(int argc, char *argv[]) {
 	}
 
 	server.scene = wlr_scene_create();
-	if (!server.scene) {
+	if(!server.scene) {
 		wlr_log(WLR_ERROR, "Unable to create scene");
 		ret = 1;
 		goto end;
@@ -468,27 +469,27 @@ main(int argc, char *argv[]) {
 	    server_decoration_manager, WLR_SERVER_DECORATION_MANAGER_MODE_SERVER);
 
 	viewporter = wlr_viewporter_create(server.wl_display);
-	if (!viewporter) {
+	if(!viewporter) {
 		wlr_log(WLR_ERROR, "Unable to create the viewporter interface");
 		ret = 1;
 		goto end;
 	}
 
 	presentation = wlr_presentation_create(server.wl_display, server.backend);
-	if (!presentation) {
+	if(!presentation) {
 		wlr_log(WLR_ERROR, "Unable to create the presentation interface");
 		ret = 1;
 		goto end;
 	}
 	wlr_scene_set_presentation(server.scene, presentation);
 
-	export_dmabuf_manager = wlr_export_dmabuf_manager_v1_create(server.wl_display);
-	if (!export_dmabuf_manager) {
+	export_dmabuf_manager =
+	    wlr_export_dmabuf_manager_v1_create(server.wl_display);
+	if(!export_dmabuf_manager) {
 		wlr_log(WLR_ERROR, "Unable to create the export DMABUF manager");
 		ret = 1;
 		goto end;
 	}
-
 
 	screencopy_manager = wlr_screencopy_manager_v1_create(server.wl_display);
 	if(!screencopy_manager) {
@@ -506,7 +507,8 @@ main(int argc, char *argv[]) {
 	}
 
 	if(!wlr_primary_selection_v1_device_manager_create(server.wl_display)) {
-		wlr_log(WLR_ERROR, "Unable to create the primary selection device manager");
+		wlr_log(WLR_ERROR,
+		        "Unable to create the primary selection device manager");
 		ret = 1;
 		goto end;
 	}

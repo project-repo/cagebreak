@@ -10,8 +10,8 @@
 #include <wlr/util/box.h>
 
 #include "util.h"
-#include <stdlib.h>
 #include <math.h>
+#include <stdlib.h>
 
 int
 scale_length(int length, int offset, double scale) {

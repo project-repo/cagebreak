@@ -20,7 +20,7 @@ enum cg_view_type {
 struct cg_view {
 	struct cg_workspace *workspace;
 	struct cg_server *server;
-	struct wl_list link;     // server::views
+	struct wl_list link; // server::views
 	struct wlr_surface *wlr_surface;
 	struct cg_tile *tile;
 	struct wlr_scene_node *scene_node;

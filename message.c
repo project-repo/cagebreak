@@ -1,17 +1,17 @@
 #include <cairo/cairo.h>
 #include <drm_fourcc.h>
 #include <pango/pangocairo.h>
+#include <sys/mman.h>
 #include <unistd.h>
 #include <wayland-client.h>
 #include <wlr/backend.h>
+#include <wlr/render/allocator.h>
+#include <wlr/render/drm_format_set.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
-#include <wlr/util/log.h>
-#include <sys/mman.h>
-#include <wlr/render/allocator.h>
 #include <wlr/types/wlr_scene.h>
-#include <wlr/render/drm_format_set.h>
+#include <wlr/util/log.h>
 
 #include "message.h"
 #include "output.h"
@@ -26,14 +26,17 @@ struct msg_buffer {
 	size_t stride;
 };
 
-static void msg_buffer_destroy(struct wlr_buffer *wlr_buffer) {
+static void
+msg_buffer_destroy(struct wlr_buffer *wlr_buffer) {
 	struct msg_buffer *buffer = wl_container_of(wlr_buffer, buffer, base);
 	free(buffer->data);
 	free(buffer);
 }
 
-static bool msg_buffer_begin_data_ptr_access(struct wlr_buffer *wlr_buffer,
-		uint32_t flags, void **data, uint32_t *format, size_t *stride) {
+static bool
+msg_buffer_begin_data_ptr_access(struct wlr_buffer *wlr_buffer, uint32_t flags,
+                                 void **data, uint32_t *format,
+                                 size_t *stride) {
 	struct msg_buffer *buffer = wl_container_of(wlr_buffer, buffer, base);
 	if(data != NULL) {
 		*data = (void *)buffer->data;
@@ -47,19 +50,21 @@ static bool msg_buffer_begin_data_ptr_access(struct wlr_buffer *wlr_buffer,
 	return true;
 }
 
-static void msg_buffer_end_data_ptr_access(struct wlr_buffer *wlr_buffer) {
+static void
+msg_buffer_end_data_ptr_access(struct wlr_buffer *wlr_buffer) {
 	// This space is intentionally left blank
 }
 
 static const struct wlr_buffer_impl msg_buffer_impl = {
-	.destroy = msg_buffer_destroy,
-	.begin_data_ptr_access = msg_buffer_begin_data_ptr_access,
-	.end_data_ptr_access = msg_buffer_end_data_ptr_access,
+    .destroy = msg_buffer_destroy,
+    .begin_data_ptr_access = msg_buffer_begin_data_ptr_access,
+    .end_data_ptr_access = msg_buffer_end_data_ptr_access,
 };
 
-static struct msg_buffer *msg_buffer_create(uint32_t width, uint32_t height, uint32_t stride) {
+static struct msg_buffer *
+msg_buffer_create(uint32_t width, uint32_t height, uint32_t stride) {
 	struct msg_buffer *buffer = calloc(1, sizeof(*buffer));
-	if (buffer == NULL) {
+	if(buffer == NULL) {
 		return NULL;
 	}
 
@@ -68,7 +73,7 @@ static struct msg_buffer *msg_buffer_create(uint32_t width, uint32_t height, uin
 	buffer->stride = stride;
 
 	buffer->data = malloc(buffer->stride * height);
-	if (buffer->data == NULL) {
+	if(buffer->data == NULL) {
 		free(buffer);
 		return NULL;
 	}
@@ -150,14 +155,16 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	unsigned char *data = cairo_image_surface_get_data(surface);
 	int stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, width);
 
-	struct msg_buffer *buf=msg_buffer_create(width, height,stride);
+	struct msg_buffer *buf = msg_buffer_create(width, height, stride);
 	void *data_ptr;
 
-	if(!wlr_buffer_begin_data_ptr_access(&buf->base, WLR_BUFFER_DATA_PTR_ACCESS_WRITE,&data_ptr,NULL,NULL)) {
+	if(!wlr_buffer_begin_data_ptr_access(&buf->base,
+	                                     WLR_BUFFER_DATA_PTR_ACCESS_WRITE,
+	                                     &data_ptr, NULL, NULL)) {
 		wlr_log(WLR_ERROR, "Failed to get pointer access to message buffer");
 		return NULL;
 	}
-	memcpy(data_ptr,data,stride*height);
+	memcpy(data_ptr, data, stride * height);
 	wlr_buffer_end_data_ptr_access(&buf->base);
 
 	cairo_surface_destroy(surface);
@@ -217,12 +224,15 @@ message_set_output(struct cg_output *output, const char *string,
 		break;
 	}
 
-	message->message=wlr_scene_buffer_create(&output->scene_output->scene->node,&buf->base);
+	message->message =
+	    wlr_scene_buffer_create(&output->scene_output->scene->node, &buf->base);
 	wlr_scene_node_raise_to_top(&message->message->node);
-	wlr_scene_node_set_enabled(&message->message->node,true);
+	wlr_scene_node_set_enabled(&message->message->node, true);
 	struct wlr_box *outp_box = wlr_output_layout_get_box(
 	    output->server->output_layout, output->wlr_output);
-	wlr_scene_node_set_position(&message->message->node, message->position->x+outp_box->x, message->position->y+outp_box->y);
+	wlr_scene_node_set_position(&message->message->node,
+	                            message->position->x + outp_box->x,
+	                            message->position->y + outp_box->y);
 }
 
 void
@@ -279,7 +289,7 @@ message_clear(struct cg_output *output) {
 	struct cg_message *message, *tmp;
 	wl_list_for_each_safe(message, tmp, &output->messages, link) {
 		wl_list_remove(&message->link);
-		struct wlr_buffer *buf=message->message->buffer;
+		struct wlr_buffer *buf = message->message->buffer;
 		wlr_scene_node_destroy(&message->message->node);
 		free(message->position);
 		buf->impl->destroy(buf);

@@ -12,8 +12,8 @@
 #include <stdlib.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_output_layout.h>
-#include <wlr/util/log.h>
 #include <wlr/types/wlr_scene.h>
+#include <wlr/util/log.h>
 
 #include "message.h"
 #include "output.h"
@@ -58,7 +58,8 @@ full_screen_workspace(struct cg_output *output) {
 	}
 	workspace->server = output->server;
 	workspace->num = -1;
-	workspace->scene = wlr_scene_tree_create(&output->scene_output->scene->node);
+	workspace->scene =
+	    wlr_scene_tree_create(&output->scene_output->scene->node);
 	if(full_screen_workspace_tiles(output->server->output_layout,
 	                               output->wlr_output, workspace,
 	                               &output->server->tiles_curr_id) != 0) {
@@ -100,7 +101,9 @@ workspace_free(struct cg_workspace *workspace) {
 
 void
 workspace_focus(struct cg_output *outp, int ws) {
-	wlr_scene_node_place_above(&outp->bg->node,&outp->workspaces[outp->curr_workspace]->scene->node);
-	wlr_scene_node_place_above(&outp->workspaces[ws]->scene->node,&outp->bg->node);
-	outp->curr_workspace=ws;
+	wlr_scene_node_place_above(
+	    &outp->bg->node, &outp->workspaces[outp->curr_workspace]->scene->node);
+	wlr_scene_node_place_above(&outp->workspaces[ws]->scene->node,
+	                           &outp->bg->node);
+	outp->curr_workspace = ws;
 }
