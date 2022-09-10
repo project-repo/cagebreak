@@ -488,10 +488,7 @@ keybinding_workspace_fullscreen(struct cg_server *server) {
 			}
 			if(&it->link !=
 			   &output->workspaces[output->curr_workspace]->views) {
-				wl_list_remove(&it->link);
-				wl_list_insert(
-				    &output->workspaces[output->curr_workspace]->views,
-				    &it->link);
+				seat_set_focus(server->seat,it);
 			}
 		}
 	}
