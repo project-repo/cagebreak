@@ -182,7 +182,7 @@ output_find_config(struct cg_server *server, struct wlr_output *output) {
 	return NULL;
 }
 
-static void
+static int
 output_set_mode(struct wlr_output *output, int width, int height,
                 float refresh_rate) {
 	int mhz = (int)(refresh_rate * 1000);
@@ -191,7 +191,7 @@ output_set_mode(struct wlr_output *output, int width, int height,
 		wlr_log(WLR_DEBUG, "Assigning custom mode to %s", output->name);
 		wlr_output_set_custom_mode(output, width, height,
 		                           refresh_rate > 0 ? mhz : 0);
-		return;
+		return 0;
 	}
 
 	struct wlr_output_mode *mode, *best = NULL;
@@ -228,6 +228,10 @@ output_set_mode(struct wlr_output *output, int width, int height,
 			}
 		}
 	}
+	if(!wlr_output_test(output)) {
+		return 1;
+	}
+	return 0;
 }
 
 void
@@ -290,8 +294,14 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 				output->priority = config->priority;
 			}
 			if(config->pos.x != -1) {
-				output_set_mode(wlr_output, config->pos.width,
-				                config->pos.height, config->refresh_rate);
+				if(output_set_mode(wlr_output, config->pos.width,
+				                config->pos.height, config->refresh_rate)!=0) {
+					output_clear(output);
+					wl_list_insert(&server->disabled_outputs,&output->link);
+					wlr_output_enable(wlr_output, false);
+					wlr_output_commit(wlr_output);
+					return;
+				}
 				wlr_output_layout_add(server->output_layout, wlr_output,
 				                      config->pos.x, config->pos.y);
 			}
