@@ -56,9 +56,13 @@ full_screen_workspace(struct cg_output *output) {
 	if(!workspace) {
 		return NULL;
 	}
+	struct wlr_scene_output *scene_output=wlr_scene_get_scene_output(output->server->scene,output->wlr_output);
+	if(scene_output == NULL) {
+		return NULL;
+	}
 	workspace->server = output->server;
 	workspace->num = -1;
-	workspace->scene = wlr_scene_tree_create(&output->scene_output->scene->node);
+	workspace->scene = wlr_scene_tree_create(&scene_output->scene->node);
 	if(full_screen_workspace_tiles(output->server->output_layout,
 	                               output->wlr_output, workspace,
 	                               &output->server->tiles_curr_id) != 0) {
