@@ -63,6 +63,9 @@ static void
 activate(struct cg_view *view, bool activate) {
 	struct cg_xwayland_view *xwayland_view = xwayland_view_from_view(view);
 	wlr_xwayland_surface_activate(xwayland_view->xwayland_surface, activate);
+	if(activate) {
+		wlr_xwayland_surface_restack(xwayland_view->xwayland_surface, NULL, XCB_STACK_MODE_ABOVE);
+	}
 }
 
 static void
