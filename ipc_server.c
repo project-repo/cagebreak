@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/un.h>
 #include <unistd.h>
 #include <wlr/util/log.h>
@@ -101,6 +102,7 @@ ipc_init(struct cg_server *server) {
 		return -1;
 	}
 
+	chmod(ipc->sockaddr->sun_path, 0700);
 	setenv("CAGEBREAK_SOCKET", ipc->sockaddr->sun_path, 1);
 
 	wl_list_init(&ipc->client_list);
