@@ -371,7 +371,6 @@ output_make_workspace_fullscreen(struct cg_output *output,int ws) {
 	struct cg_server *server=output->server;
 	struct cg_view *current_view = seat_get_focus(server->seat);
 
-	/* We are focused on the background */
 	if(current_view == NULL||ws != output->curr_workspace) {
 		struct cg_view *it = NULL;
 		wl_list_for_each(it, &output->workspaces[ws]->views,
