@@ -656,6 +656,12 @@ handle_cursor_motion(struct wl_listener *listener, void *data) {
 	                event->delta_y);
 	process_cursor_motion(seat, event->time_msec);
 	wlr_idle_notify_activity(seat->server->idle, seat->seat);
+	struct wlr_output *c_outp = wlr_output_layout_output_at(seat->server->output_layout,seat->cursor->x,seat->cursor->y);
+	if(seat->cursor_output != NULL && seat->cursor_output != c_outp) {
+		ipc_send_event(seat->server, "{\"event_name\":\"cursor_switch_output\",\"old_output\":\"%s\",\"new_output\":\"%s\"}",
+		               seat->cursor_output->name, c_outp->name);
+	}
+	seat->cursor_output=c_outp;
 }
 
 static void

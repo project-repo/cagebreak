@@ -476,42 +476,10 @@ resize_tile(struct cg_server *server, int hpixs, int vpixs) {
 
 void
 keybinding_workspace_fullscreen(struct cg_server *server) {
-	struct cg_view *current_view = seat_get_focus(server->seat);
+	output_make_workspace_fullscreen(server->curr_output,server->curr_output->curr_workspace);
 	struct cg_output *output = server->curr_output;
-
-	struct cg_view *it = NULL, *tmp = NULL;
-	wl_list_for_each_safe(
-	    it, tmp, &output->workspaces[output->curr_workspace]->views, link) {
-		if(view_is_visible(it)) {
-			if(current_view == NULL) {
-				current_view = it;
-			}
-			if(&it->link !=
-			   &output->workspaces[output->curr_workspace]->views) {
-				seat_set_focus(server->seat,it);
-			}
-		}
-	}
-
-	workspace_free_tiles(output->workspaces[output->curr_workspace]);
-	if(full_screen_workspace_tiles(server->output_layout, output->wlr_output,
-	                               output->workspaces[output->curr_workspace],
-	                               &server->tiles_curr_id) != 0) {
-		wlr_log(WLR_ERROR, "Failed to allocate space for fullscreen workspace");
-		return;
-	}
-
-	struct cg_view *it_view;
-	wl_list_for_each(it_view,
-	                 &output->workspaces[output->curr_workspace]->views, link) {
-		it_view->tile =
-		    output->workspaces[output->curr_workspace]->focused_tile;
-	}
-
-	seat_set_focus(server->seat, current_view);
-	ipc_send_event(output->server,
-	               "{\"event_name\":\"fullscreen\",\"tile_id\":\"%d\","
-	               "\"workspace\":\"%d\",\"output\":\"%s\"}",
+	ipc_send_event(server,
+	               "{\"event_name\":\"fullscreen\",\"tile_id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
 	               output->workspaces[output->curr_workspace]->focused_tile->id,
 	               output->workspaces[output->curr_workspace]->num + 1,
 	               output->wlr_output->name);
