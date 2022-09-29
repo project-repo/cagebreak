@@ -25,9 +25,9 @@
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_surface.h>
 #include <wlr/types/wlr_xcursor_manager.h>
-#include <wlr/types/wlr_scene.h>
 #include <wlr/util/log.h>
 #include <wlr/util/region.h>
 #if CG_HAS_XWAYLAND
@@ -71,24 +71,19 @@ output_clear(struct cg_output *output) {
 				first = false;
 				tile->view = NULL;
 			}
+			struct cg_workspace *ws =
+			    server->curr_output
+			        ->workspaces[server->curr_output->curr_workspace];
 			wl_list_for_each_safe(view, view_tmp, &output->workspaces[i]->views,
 			                      link) {
 				wl_list_remove(&view->link);
 				if(wl_list_empty(&server->outputs)) {
 					view->impl->destroy(view);
 				} else {
-					wl_list_insert(
-					    &server->curr_output
-					         ->workspaces[server->curr_output->curr_workspace]
-					         ->views,
-					    &view->link);
-					view->workspace =
-					    server->curr_output
-					        ->workspaces[server->curr_output->curr_workspace];
-					view->tile =
-					    server->curr_output
-					        ->workspaces[server->curr_output->curr_workspace]
-					        ->focused_tile;
+					wl_list_insert(&ws->views, &view->link);
+					wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
+					view->workspace = ws;
+					view->tile = ws->focused_tile;
 					if(server->seat->focused_view == NULL) {
 						seat_set_focus(server->seat, view);
 					}
@@ -100,18 +95,10 @@ output_clear(struct cg_output *output) {
 				if(wl_list_empty(&server->outputs)) {
 					view->impl->destroy(view);
 				} else {
-					wl_list_insert(
-					    &server->curr_output
-					         ->workspaces[server->curr_output->curr_workspace]
-					         ->unmanaged_views,
-					    &view->link);
-					view->workspace =
-					    server->curr_output
-					        ->workspaces[server->curr_output->curr_workspace];
-					view->tile =
-					    server->curr_output
-					        ->workspaces[server->curr_output->curr_workspace]
-					        ->focused_tile;
+					wl_list_insert(&ws->unmanaged_views, &view->link);
+					wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
+					view->workspace = ws;
+					view->tile = ws->focused_tile;
 				}
 			}
 		}
@@ -141,7 +128,9 @@ output_destroy(struct cg_output *output) {
 	free(output);
 
 	if(outp_name != NULL) {
-		ipc_send_event(server, "{\"event_name\":\"new_output\",\"output\":\"%s\"}", outp_name);
+		ipc_send_event(server,
+		               "{\"event_name\":\"new_output\",\"output\":\"%s\"}",
+		               outp_name);
 		free(outp_name);
 	} else {
 		wlr_log(WLR_ERROR,
@@ -160,15 +149,19 @@ handle_output_destroy(struct wl_listener *listener, void *data) {
 
 static void
 handle_output_frame(struct wl_listener *listener, void *data) {
-	struct cg_output *output=wl_container_of(listener, output, frame);
+	struct cg_output *output = wl_container_of(listener, output, frame);
 	if(!output->wlr_output->enabled) {
 		return;
 	}
-	wlr_scene_output_commit(output->scene_output);
+	struct wlr_scene_output *scene_output=wlr_scene_get_scene_output(output->server->scene,output->wlr_output);
+	if(scene_output == NULL) {
+		return;
+	}
+	wlr_scene_output_commit(scene_output);
 
-	struct timespec now={0};
+	struct timespec now = {0};
 	clock_gettime(CLOCK_MONOTONIC, &now);
-	wlr_scene_output_send_frame_done(output->scene_output, &now);
+	wlr_scene_output_send_frame_done(scene_output, &now);
 }
 
 struct cg_output_config *
@@ -182,7 +175,7 @@ output_find_config(struct cg_server *server, struct wlr_output *output) {
 	return NULL;
 }
 
-static void
+static int
 output_set_mode(struct wlr_output *output, int width, int height,
                 float refresh_rate) {
 	int mhz = (int)(refresh_rate * 1000);
@@ -191,7 +184,7 @@ output_set_mode(struct wlr_output *output, int width, int height,
 		wlr_log(WLR_DEBUG, "Assigning custom mode to %s", output->name);
 		wlr_output_set_custom_mode(output, width, height,
 		                           refresh_rate > 0 ? mhz : 0);
-		return;
+		return 0;
 	}
 
 	struct wlr_output_mode *mode, *best = NULL;
@@ -215,19 +208,28 @@ output_set_mode(struct wlr_output *output, int width, int height,
 		wlr_log(WLR_DEBUG, "Assigning configured mode to %s", output->name);
 	}
 	wlr_output_set_mode(output, best);
+	wlr_output_commit(output);
 	if(!wlr_output_test(output)) {
-		wlr_log(WLR_ERROR, "Unable to assign configured mode to %s, picking arbitrary available mode",output->name);
+		wlr_log(WLR_ERROR,
+		        "Unable to assign configured mode to %s, picking arbitrary "
+		        "available mode",
+		        output->name);
 		struct wlr_output_mode *mode;
 		wl_list_for_each(mode, &output->modes, link) {
 			if(mode == best) {
 				continue;
 			}
 			wlr_output_set_mode(output, mode);
+			wlr_output_commit(output);
 			if(wlr_output_test(output)) {
 				break;
 			}
 		}
+		if(!wlr_output_test(output)) {
+			return 1;
+		}
 	}
+	return 0;
 }
 
 void
@@ -285,32 +287,41 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 			wlr_output_enable(wlr_output, false);
 			wlr_output_commit(wlr_output);
 		} else {
-			wl_list_remove(&output->link);
 			if(config->priority != -1) {
 				output->priority = config->priority;
 			}
 			if(config->pos.x != -1) {
-				output_set_mode(wlr_output, config->pos.width,
-				                config->pos.height, config->refresh_rate);
+				if(output_set_mode(wlr_output, config->pos.width,
+				                config->pos.height, config->refresh_rate)!=0) {
+					wlr_log(WLR_ERROR,"Setting output mode failed, disabling output.");
+					output_clear(output);
+					wl_list_insert(&server->disabled_outputs,&output->link);
+					wlr_output_enable(wlr_output, false);
+					wlr_output_commit(wlr_output);
+					return;
+				}
 				wlr_output_layout_add(server->output_layout, wlr_output,
 				                      config->pos.x, config->pos.y);
+				/* Since the size of the output may have changed, we reinitialize all workspaces with a fullscreen layout */
+				for(unsigned int i = 0; i < output->server->nws; ++i) {
+					output_make_workspace_fullscreen(output,i);
+				}
 			}
+			wl_list_remove(&output->link);
 			output_insert(server, output);
 			wlr_output_enable(wlr_output, true);
 			wlr_output_commit(wlr_output);
 		}
 	}
-	struct wlr_scene_output *scene_output;
-	wl_list_for_each(scene_output,&output->server->scene->outputs,link) {
-		if(scene_output->output == wlr_output) {
-			output->scene_output=scene_output;
-			break;
-		}
-	}
 	if(output->bg!=NULL) {
 		wlr_scene_node_destroy(&output->bg->node);
+		output->bg=NULL;
 	}
-	output->bg=wlr_scene_rect_create(&output->scene_output->scene->node, output->wlr_output->width,output->wlr_output->height, server->bg_color);
+	struct wlr_scene_output *scene_output = wlr_scene_get_scene_output(output->server->scene,output->wlr_output);
+	if(scene_output == NULL) {
+		return;
+	}
+	output->bg=wlr_scene_rect_create(&scene_output->scene->node, output->wlr_output->width,output->wlr_output->height, server->bg_color);
 	struct wlr_box *box = wlr_output_layout_get_box(
 	    server->output_layout, output->wlr_output);
 	wlr_scene_node_set_position(&output->bg->node, box->x, box->y);
@@ -355,6 +366,42 @@ handle_output_mode(struct wl_listener *listener, void *data) {
 	}
 }
 
+void
+output_make_workspace_fullscreen(struct cg_output *output,int ws) {
+	struct cg_server *server=output->server;
+	struct cg_view *current_view = seat_get_focus(server->seat);
+
+	if(current_view == NULL||ws != output->curr_workspace) {
+		struct cg_view *it = NULL;
+		wl_list_for_each(it, &output->workspaces[ws]->views,
+		                 link) {
+			if(view_is_visible(it)) {
+				current_view = it;
+				break;
+			}
+		}
+	}
+
+	workspace_free_tiles(output->workspaces[ws]);
+	if(full_screen_workspace_tiles(server->output_layout, output->wlr_output,
+	                               output->workspaces[ws],
+	                               &server->tiles_curr_id) != 0) {
+		wlr_log(WLR_ERROR, "Failed to allocate space for fullscreen workspace");
+		return;
+	}
+
+	struct cg_view *it_view;
+	wl_list_for_each(it_view, &output->workspaces[ws]->views, link) {
+		it_view->tile = output->workspaces[ws]->focused_tile;
+	}
+
+	if(ws == output->curr_workspace) {
+		seat_set_focus(server->seat, current_view);
+	}
+}
+
+
+
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
@@ -364,7 +411,8 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	struct cg_server *server = wl_container_of(listener, server, new_output);
 	struct wlr_output *wlr_output = data;
 
-	if(!wlr_output_init_render(wlr_output,server->allocator,server->renderer)) {
+	if(!wlr_output_init_render(wlr_output, server->allocator,
+	                           server->renderer)) {
 		wlr_log(WLR_ERROR, "Failed to initialize output rendering");
 		return;
 	}
@@ -415,7 +463,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	}
 
 	wlr_scene_node_raise_to_top(&output->workspaces[0]->scene->node);
-	workspace_focus(output,0);
+	workspace_focus(output, 0);
 
 	/* We are the first output. Set the current output to this one. */
 	if(server->curr_output == NULL) {
@@ -433,8 +481,10 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	wl_signal_add(&wlr_output->events.commit, &output->commit);
 	output->mode.notify = handle_output_mode;
 	wl_signal_add(&wlr_output->events.mode, &output->mode);
-	ipc_send_event(server, "{\"event_name\":\"new_output\",\"output\":\"%s\",\"priority\":\"%d\"}",
-	               output->wlr_output->name, output->priority);
+	ipc_send_event(
+	    server,
+	    "{\"event_name\":\"new_output\",\"output\":\"%s\",\"priority\":\"%d\"}",
+	    output->wlr_output->name, output->priority);
 }
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop

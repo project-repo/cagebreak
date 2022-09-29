@@ -63,6 +63,9 @@ static void
 activate(struct cg_view *view, bool activate) {
 	struct cg_xwayland_view *xwayland_view = xwayland_view_from_view(view);
 	wlr_xwayland_surface_activate(xwayland_view->xwayland_surface, activate);
+	if(activate) {
+		wlr_xwayland_surface_restack(xwayland_view->xwayland_surface, NULL, XCB_STACK_MODE_ABOVE);
+	}
 }
 
 static void
@@ -89,8 +92,9 @@ maximize(struct cg_view *view, int width, int height) {
 
 	struct wlr_box *output_box = wlr_output_layout_get_box(
 	    view->server->output_layout, view->server->curr_output->wlr_output);
-	wlr_xwayland_surface_configure(xwayland_view->xwayland_surface, view->ox+output_box->x,
-	                               view->oy+output_box->y, width, height);
+	wlr_xwayland_surface_configure(xwayland_view->xwayland_surface,
+	                               view->ox + output_box->x,
+	                               view->oy + output_box->y, width, height);
 	wlr_xwayland_surface_set_maximized(xwayland_view->xwayland_surface, true);
 }
 
@@ -129,8 +133,8 @@ handle_xwayland_surface_map(struct wl_listener *listener, void *_data) {
 		struct wlr_output_layout *output_layout = view->server->output_layout;
 		struct wlr_box *output_box = wlr_output_layout_get_box(
 		    output_layout, view->server->curr_output->wlr_output);
-		view->ox = xwayland_view->xwayland_surface->x-output_box->x;
-		view->oy = xwayland_view->xwayland_surface->y-output_box->y;
+		view->ox = xwayland_view->xwayland_surface->x - output_box->x;
+		view->oy = xwayland_view->xwayland_surface->y - output_box->y;
 	}
 
 	view_map(view, xwayland_view->xwayland_surface->surface,

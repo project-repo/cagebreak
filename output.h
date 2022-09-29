@@ -12,7 +12,6 @@ struct wlr_surface;
 struct cg_output {
 	struct cg_server *server;
 	struct wlr_output *wlr_output;
-	struct wlr_scene_output *scene_output;
 	struct wlr_scene_rect *bg;
 
 	struct wl_listener mode;
@@ -56,5 +55,6 @@ void
 output_configure(struct cg_server *server, struct cg_output *output);
 void
 output_set_window_title(struct cg_output *output, const char *title);
-
+void
+output_make_workspace_fullscreen(struct cg_output *output,int ws);
 #endif

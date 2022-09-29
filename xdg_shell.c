@@ -9,16 +9,16 @@
 
 #define _POSIX_C_SOURCE 200809L
 
-#include <stdbool.h>
 #include <assert.h>
+#include <stdbool.h>
 #include <wayland-server-core.h>
-#include <wlr/util/box.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
 #include <wlr/types/wlr_xdg_shell.h>
+#include <wlr/util/box.h>
 #include <wlr/util/edges.h>
 #include <wlr/util/log.h>
-#include <wlr/types/wlr_scene.h>
 
 #include "output.h"
 #include "server.h"
@@ -29,26 +29,28 @@
 static struct cg_view *
 popup_get_view(struct wlr_xdg_popup *popup) {
 	while(true) {
-		if(popup->parent == NULL || !wlr_surface_is_xdg_surface(popup->parent)) {
+		if(popup->parent == NULL ||
+		   !wlr_surface_is_xdg_surface(popup->parent)) {
 			return NULL;
 		}
-		struct wlr_xdg_surface *xdg_surface = wlr_xdg_surface_from_wlr_surface(popup->parent);
+		struct wlr_xdg_surface *xdg_surface =
+		    wlr_xdg_surface_from_wlr_surface(popup->parent);
 		switch(xdg_surface->role) {
-			case WLR_XDG_SURFACE_ROLE_TOPLEVEL:
-				return xdg_surface->data;
-			case WLR_XDG_SURFACE_ROLE_POPUP:
-				popup=xdg_surface->popup;
-				break;
-			case WLR_XDG_SURFACE_ROLE_NONE:
-				return NULL;
+		case WLR_XDG_SURFACE_ROLE_TOPLEVEL:
+			return xdg_surface->data;
+		case WLR_XDG_SURFACE_ROLE_POPUP:
+			popup = xdg_surface->popup;
+			break;
+		case WLR_XDG_SURFACE_ROLE_NONE:
+			return NULL;
 		}
 	}
 }
 
 static void
-xdg_decoration_handle_destroy(struct wl_listener *listener, void *data)
-{
-	struct cg_xdg_decoration *xdg_decoration = wl_container_of(listener, xdg_decoration, destroy);
+xdg_decoration_handle_destroy(struct wl_listener *listener, void *data) {
+	struct cg_xdg_decoration *xdg_decoration =
+	    wl_container_of(listener, xdg_decoration, destroy);
 
 	wl_list_remove(&xdg_decoration->destroy.link);
 	wl_list_remove(&xdg_decoration->request_mode.link);
@@ -196,31 +198,31 @@ handle_xdg_shell_surface_destroy(struct wl_listener *listener, void *_data) {
 	view_destroy(view);
 }
 
-static const struct cg_view_impl xdg_shell_view_impl = {
-    .get_title = get_title,
-    .is_primary = is_primary,
-    .activate = activate,
-    .close = close,
-    .maximize = maximize,
-    .destroy = destroy
-};
-
+static const struct cg_view_impl xdg_shell_view_impl = {.get_title = get_title,
+                                                        .is_primary =
+                                                            is_primary,
+                                                        .activate = activate,
+                                                        .close = close,
+                                                        .maximize = maximize,
+                                                        .destroy = destroy};
 
 void
-handle_xdg_shell_surface_new(struct wl_listener *listener, void *data)
-{
-	struct cg_server *server = wl_container_of(listener, server, new_xdg_shell_surface);
+handle_xdg_shell_surface_new(struct wl_listener *listener, void *data) {
+	struct cg_server *server =
+	    wl_container_of(listener, server, new_xdg_shell_surface);
 	struct wlr_xdg_surface *xdg_surface = data;
 
-	switch (xdg_surface->role) {
+	switch(xdg_surface->role) {
 	case WLR_XDG_SURFACE_ROLE_TOPLEVEL:;
-		struct cg_xdg_shell_view *xdg_shell_view = calloc(1, sizeof(struct cg_xdg_shell_view));
-		if (!xdg_shell_view) {
+		struct cg_xdg_shell_view *xdg_shell_view =
+		    calloc(1, sizeof(struct cg_xdg_shell_view));
+		if(!xdg_shell_view) {
 			wlr_log(WLR_ERROR, "Failed to allocate XDG Shell view");
 			return;
 		}
 
-		view_init(&xdg_shell_view->view, CG_XDG_SHELL_VIEW, &xdg_shell_view_impl,server);
+		view_init(&xdg_shell_view->view, CG_XDG_SHELL_VIEW,
+		          &xdg_shell_view_impl, server);
 
 		xdg_shell_view->xdg_surface = xdg_surface;
 
@@ -230,21 +232,24 @@ handle_xdg_shell_surface_new(struct wl_listener *listener, void *data)
 		wl_signal_add(&xdg_surface->events.unmap, &xdg_shell_view->unmap);
 		xdg_shell_view->destroy.notify = handle_xdg_shell_surface_destroy;
 		wl_signal_add(&xdg_surface->events.destroy, &xdg_shell_view->destroy);
-		xdg_shell_view->request_fullscreen.notify = handle_xdg_shell_surface_request_fullscreen;
-		wl_signal_add(&xdg_surface->toplevel->events.request_fullscreen, &xdg_shell_view->request_fullscreen);
+		xdg_shell_view->request_fullscreen.notify =
+		    handle_xdg_shell_surface_request_fullscreen;
+		wl_signal_add(&xdg_surface->toplevel->events.request_fullscreen,
+		              &xdg_shell_view->request_fullscreen);
 
 		xdg_surface->data = xdg_shell_view;
 		break;
 	case WLR_XDG_SURFACE_ROLE_POPUP:;
 		struct wlr_xdg_popup *popup = xdg_surface->popup;
 		struct cg_view *view = popup_get_view(popup);
-		if (view == NULL) {
+		if(view == NULL) {
 			return;
 		}
 
 		struct wlr_scene_node *parent_scene_node = NULL;
-		struct wlr_xdg_surface *parent = wlr_xdg_surface_from_wlr_surface(popup->parent);
-		switch (parent->role) {
+		struct wlr_xdg_surface *parent =
+		    wlr_xdg_surface_from_wlr_surface(popup->parent);
+		switch(parent->role) {
 		case WLR_XDG_SURFACE_ROLE_TOPLEVEL:;
 			parent_scene_node = view->scene_node;
 			break;
@@ -254,13 +259,15 @@ handle_xdg_shell_surface_new(struct wl_listener *listener, void *data)
 		case WLR_XDG_SURFACE_ROLE_NONE:
 			break;
 		}
-		if (parent_scene_node == NULL) {
+		if(parent_scene_node == NULL) {
 			return;
 		}
 
-		struct wlr_scene_node *popup_scene_node = wlr_scene_xdg_surface_create(parent_scene_node, xdg_surface);
-		if (popup_scene_node == NULL) {
-			wlr_log(WLR_ERROR, "Failed to allocate scene-graph node for XDG popup");
+		struct wlr_scene_node *popup_scene_node =
+		    wlr_scene_xdg_surface_create(parent_scene_node, xdg_surface);
+		if(popup_scene_node == NULL) {
+			wlr_log(WLR_ERROR,
+			        "Failed to allocate scene-graph node for XDG popup");
 			return;
 		}
 

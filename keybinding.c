@@ -1,25 +1,25 @@
 #define _POSIX_C_SOURCE 200809L
 
 #include <string.h>
-#include <unistd.h>
 #include <sys/wait.h>
+#include <unistd.h>
 #include <wayland-server-core.h>
 #include <wlr/backend/multi.h>
 #include <wlr/backend/session.h>
+#include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
-#include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/util/log.h>
 
 #include "input.h"
-#include "util.h"
 #include "input_manager.h"
 #include "keybinding.h"
 #include "message.h"
 #include "output.h"
 #include "seat.h"
 #include "server.h"
+#include "util.h"
 #include "view.h"
 #include "workspace.h"
 
@@ -145,10 +145,12 @@ is_between_strict(int a, int b, int x) {
 struct cg_tile *
 find_right_tile(const struct cg_tile *tile) {
 	struct cg_tile *it = tile->next;
-	int center=tile->tile.y+tile->tile.height/2;
+	int center = tile->tile.y + tile->tile.height / 2;
 	while(it != tile) {
-		if(it->tile.x== tile->tile.x+tile->tile.width) {
-			if(is_between_strict(it->tile.y,it->tile.y+it->tile.height,center)||it->tile.y+it->tile.height==center) {
+		if(it->tile.x == tile->tile.x + tile->tile.width) {
+			if(is_between_strict(it->tile.y, it->tile.y + it->tile.height,
+			                     center) ||
+			   it->tile.y + it->tile.height == center) {
 				return it;
 			}
 		}
@@ -160,10 +162,12 @@ find_right_tile(const struct cg_tile *tile) {
 struct cg_tile *
 find_left_tile(const struct cg_tile *tile) {
 	struct cg_tile *it = tile->next;
-	int center=tile->tile.y+tile->tile.height/2;
+	int center = tile->tile.y + tile->tile.height / 2;
 	while(it != tile) {
-		if(it->tile.x+it->tile.width == tile->tile.x) {
-			if(is_between_strict(it->tile.y,it->tile.y+it->tile.height,center)||it->tile.y+it->tile.height==center) {
+		if(it->tile.x + it->tile.width == tile->tile.x) {
+			if(is_between_strict(it->tile.y, it->tile.y + it->tile.height,
+			                     center) ||
+			   it->tile.y + it->tile.height == center) {
 				return it;
 			}
 		}
@@ -175,10 +179,12 @@ find_left_tile(const struct cg_tile *tile) {
 struct cg_tile *
 find_top_tile(const struct cg_tile *tile) {
 	struct cg_tile *it = tile->next;
-	int center=tile->tile.x+tile->tile.width/2;
+	int center = tile->tile.x + tile->tile.width / 2;
 	while(it != tile) {
-		if(it->tile.y+it->tile.height == tile->tile.y) {
-			if(is_between_strict(it->tile.x,it->tile.x+it->tile.width,center)||it->tile.x+it->tile.width==center) {
+		if(it->tile.y + it->tile.height == tile->tile.y) {
+			if(is_between_strict(it->tile.x, it->tile.x + it->tile.width,
+			                     center) ||
+			   it->tile.x + it->tile.width == center) {
 				return it;
 			}
 		}
@@ -190,10 +196,12 @@ find_top_tile(const struct cg_tile *tile) {
 struct cg_tile *
 find_bottom_tile(const struct cg_tile *tile) {
 	struct cg_tile *it = tile->next;
-	int center=tile->tile.x+tile->tile.width/2;
+	int center = tile->tile.x + tile->tile.width / 2;
 	while(it != tile) {
-		if(it->tile.y == tile->tile.y+tile->tile.height) {
-			if(is_between_strict(it->tile.x,it->tile.x+it->tile.width,center)||it->tile.x+it->tile.width==center) {
+		if(it->tile.y == tile->tile.y + tile->tile.height) {
+			if(is_between_strict(it->tile.x, it->tile.x + it->tile.width,
+			                     center) ||
+			   it->tile.x + it->tile.width == center) {
 				return it;
 			}
 		}
@@ -223,11 +231,11 @@ swap_tile(struct cg_tile *tile,
 		view_maximize(swap_tile->view, swap_tile);
 	}
 	seat_set_focus(server->seat, swap_tile->view);
-	ipc_send_event(
-	    tile->workspace->output->server,
-	    "{\"event_name\":\"swap_tile\",\"tile_id\":\"%d\",\"swap_tile_id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
-	    tile->id, swap_tile->id, tile->workspace->num + 1,
-	    tile->workspace->output->wlr_output->name);
+	ipc_send_event(tile->workspace->output->server,
+	               "{\"event_name\":\"swap_tile\",\"tile_id\":\"%d\",\"swap_"
+	               "tile_id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
+	               tile->id, swap_tile->id, tile->workspace->num + 1,
+	               tile->workspace->output->wlr_output->name);
 }
 
 void
@@ -372,7 +380,9 @@ resize(struct cg_tile *tile, const struct cg_tile *parent, int coord_offset,
 		view_maximize(tile->view, tile);
 	}
 	ipc_send_event(tile->workspace->output->server,
-	               "{\"event_name\":\"resize_tile\",\"tile_id\":\"%d\",\"old_dims\":\"[%d;%d;%d;%d]\",\"new_dims\":\"[%d;%d;%d;%d]\",\"workspace\":\"%d\",\"output\":\"%s\"}",
+	               "{\"event_name\":\"resize_tile\",\"tile_id\":\"%d\",\"old_"
+	               "dims\":\"[%d;%d;%d;%d]\",\"new_dims\":\"[%d;%d;%d;%d]\","
+	               "\"workspace\":\"%d\",\"output\":\"%s\"}",
 	               tile->id, old_x, old_y, old_height, old_width, tile->tile.x,
 	               tile->tile.y, tile->tile.height, tile->tile.width,
 	               tile->workspace->num + 1,
@@ -466,38 +476,9 @@ resize_tile(struct cg_server *server, int hpixs, int vpixs) {
 
 void
 keybinding_workspace_fullscreen(struct cg_server *server) {
-	struct cg_view *current_view = seat_get_focus(server->seat);
+	output_make_workspace_fullscreen(server->curr_output,server->curr_output->curr_workspace);
 	struct cg_output *output = server->curr_output;
-
-	/* We are focused on the background */
-	if(current_view == NULL) {
-		struct cg_view *it = NULL;
-		wl_list_for_each(it, &output->workspaces[output->curr_workspace]->views,
-		                 link) {
-			if(view_is_visible(it)) {
-				current_view = it;
-				break;
-			}
-		}
-	}
-
-	workspace_free_tiles(output->workspaces[output->curr_workspace]);
-	if(full_screen_workspace_tiles(server->output_layout, output->wlr_output,
-	                               output->workspaces[output->curr_workspace],
-	                               &server->tiles_curr_id) != 0) {
-		wlr_log(WLR_ERROR, "Failed to allocate space for fullscreen workspace");
-		return;
-	}
-
-	struct cg_view *it_view;
-	wl_list_for_each(it_view,
-	                 &output->workspaces[output->curr_workspace]->views, link) {
-		it_view->tile =
-		    output->workspaces[output->curr_workspace]->focused_tile;
-	}
-
-	seat_set_focus(server->seat, current_view);
-	ipc_send_event(output->server,
+	ipc_send_event(server,
 	               "{\"event_name\":\"fullscreen\",\"tile_id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
 	               output->workspaces[output->curr_workspace]->focused_tile->id,
 	               output->workspaces[output->curr_workspace]->num + 1,
@@ -592,7 +573,8 @@ keybinding_split_output(struct cg_output *output, bool vertical) {
 	}
 	ipc_send_event(
 	    output->server,
-	    "{\"event_name\":\"split\",\"tile_id\":\"%d\",\"new_tile_id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\",\"vertical\":\"%d\"}",
+	    "{\"event_name\":\"split\",\"tile_id\":\"%d\",\"new_tile_id\":\"%d\","
+	    "\"workspace\":\"%d\",\"output\":\"%s\",\"vertical\":\"%d\"}",
 	    curr_workspace->focused_tile->id, new_tile->id, curr_workspace->num + 1,
 	    curr_workspace->output->wlr_output->name, vertical);
 }
@@ -608,7 +590,8 @@ keybinding_close_view(struct cg_view *view) {
 	uint32_t ws = view->workspace->num;
 	view->impl->close(view);
 	ipc_send_event(outp->server,
-	               "{\"event_name\":\"close\",\"view_id\":\"%d\",\"tile_id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
+	               "{\"event_name\":\"close\",\"view_id\":\"%d\",\"tile_id\":"
+	               "\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
 	               view_id, tile_id, ws + 1, outp->wlr_output->name);
 }
 
@@ -657,9 +640,11 @@ keybinding_cycle_outputs(struct cg_server *server, bool reverse) {
 		}
 	}
 	set_output(server, output);
-	ipc_send_event(
-	    output->server, "{\"event_name\":\"cycle_outputs\",\"old_output\":\"%s\",\"new_output\":\"%s\",\"reverse\":\"%d\"}",
-	    old_output->wlr_output->name, output->wlr_output->name, reverse);
+	ipc_send_event(output->server,
+	               "{\"event_name\":\"cycle_outputs\",\"old_output\":\"%s\","
+	               "\"new_output\":\"%s\",\"reverse\":\"%d\"}",
+	               old_output->wlr_output->name, output->wlr_output->name,
+	               reverse);
 }
 
 /* Cycle through views, whereby the workspace does not change */
@@ -702,11 +687,16 @@ keybinding_cycle_views(struct cg_server *server, bool reverse, bool ipc) {
 	    next_view->link.prev, curr_workspace->focused_tile->view, link);
 	seat_set_focus(server->seat, next_view);
 	if(ipc) {
-	ipc_send_event(curr_workspace->output->server,
-	               "{\"event_name\":\"cycle_views\",\"old_view_id\":\"%d\",\"new_view_id\":\"%d\",\"tile_id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
-	               current_view->link.next==curr_workspace->views.next?-1:(int) current_view->id, next_view==NULL?-1:(int) next_view->id, next_view->tile->id,
-	               curr_workspace->num + 1,
-	               curr_workspace->output->wlr_output->name);
+		ipc_send_event(curr_workspace->output->server,
+		               "{\"event_name\":\"cycle_views\",\"old_view_id\":\"%d\","
+		               "\"new_view_id\":\"%d\",\"tile_id\":\"%d\","
+		               "\"workspace\":\"%d\",\"output\":\"%s\"}",
+		               current_view->link.next == curr_workspace->views.next
+		                   ? -1
+		                   : (int)current_view->id,
+		               next_view == NULL ? -1 : (int)next_view->id,
+		               next_view->tile->id, curr_workspace->num + 1,
+		               curr_workspace->output->wlr_output->name);
 	}
 }
 
@@ -725,7 +715,8 @@ keybinding_cycle_tiles(struct cg_server *server, bool reverse) {
 	seat_set_focus(server->seat, next_view);
 	ipc_send_event(
 	    output->server,
-	    "{\"event_name\":\"cycle_tiles\",\"old_tile_id\":\"%d\",\"new_tile_id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
+	    "{\"event_name\":\"cycle_tiles\",\"old_tile_id\":\"%d\",\"new_tile_"
+	    "id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
 	    old_tile->id, workspace->focused_tile->id, workspace->num + 1,
 	    output->wlr_output->name);
 }
@@ -740,12 +731,13 @@ keybinding_switch_ws(struct cg_server *server, uint32_t ws) {
 	}
 	struct cg_output *output = server->curr_output;
 	uint32_t old_ws = server->curr_output->curr_workspace;
-	workspace_focus(output,ws);
+	workspace_focus(output, ws);
 	seat_set_focus(server->seat,
 	               server->curr_output->workspaces[ws]->focused_tile->view);
 	message_printf(server->curr_output, "Workspace %d", ws + 1);
 	ipc_send_event(output->server,
-	               "{\"event_name\":\"switch_ws\",\"old_workspace\":\"%d\",\"new_workspace\":\"%d\",\"output\":\"%s\"}",
+	               "{\"event_name\":\"switch_ws\",\"old_workspace\":\"%d\","
+	               "\"new_workspace\":\"%d\",\"output\":\"%s\"}",
 	               old_ws + 1, ws + 1, output->wlr_output->name);
 	return 0;
 }
@@ -770,17 +762,19 @@ struct dyn_str {
 	char **str_arr;
 };
 
-/*Note that inp is in an invalid state after calling the function * and should no longer be used.*/
-char *dyn_str_to_str(struct dyn_str *inp) {
-	char *outp=calloc(inp->len+1,sizeof(char));
+/*Note that inp is in an invalid state after calling the function * and should
+ * no longer be used.*/
+char *
+dyn_str_to_str(struct dyn_str *inp) {
+	char *outp = calloc(inp->len + 1, sizeof(char));
 	if(outp == NULL) {
 		return NULL;
 	}
-	outp[inp->len]='\0';
-	uint32_t tmp_pos=0;
-	for(uint32_t i=0;i<inp->cur_pos;++i) {
-		strcat(outp+tmp_pos,inp->str_arr[i]);
-		tmp_pos+=strlen(inp->str_arr[i]);
+	outp[inp->len] = '\0';
+	uint32_t tmp_pos = 0;
+	for(uint32_t i = 0; i < inp->cur_pos; ++i) {
+		strcat(outp + tmp_pos, inp->str_arr[i]);
+		tmp_pos += strlen(inp->str_arr[i]);
 		free(inp->str_arr[i]);
 	}
 	free(inp->str_arr);
@@ -795,89 +789,98 @@ print_str(struct dyn_str *outp, const char *fmt, ...) {
 	if(ret == NULL) {
 		return -1;
 	}
-	outp->str_arr[outp->cur_pos]=ret;
+	outp->str_arr[outp->cur_pos] = ret;
 	++outp->cur_pos;
-	outp->len+=strlen(ret);
+	outp->len += strlen(ret);
 	return 0;
 }
 
 void
-print_modes(struct dyn_str *str,char **modes) {
-	uint32_t len=0;
-	char **tmp=modes;
-	uint32_t nmemb=0;
-	while(*tmp!=NULL) {
-		len+=strlen(*tmp);
+print_modes(struct dyn_str *str, char **modes) {
+	uint32_t len = 0;
+	char **tmp = modes;
+	uint32_t nmemb = 0;
+	while(*tmp != NULL) {
+		len += strlen(*tmp);
 		++nmemb;
 		++tmp;
 	}
-	/* We are assuming here that we have at least one mode, which is given by the initialization of cagebreak */
-	char *modes_str=calloc(len+3*(nmemb-1)+1, sizeof(char));
-	modes_str[len+nmemb-1]='\0';
-	uint32_t tmp_pos=0;
-	for(uint32_t i=0;i<nmemb;++i) {
-		if(i!=0) {
-			strcat(modes_str+tmp_pos,"\",\"");
-			tmp_pos+=3;
+	/* We are assuming here that we have at least one mode, which is given by
+	 * the initialization of cagebreak */
+	char *modes_str = calloc(len + 3 * (nmemb - 1) + 1, sizeof(char));
+	modes_str[len + nmemb - 1] = '\0';
+	uint32_t tmp_pos = 0;
+	for(uint32_t i = 0; i < nmemb; ++i) {
+		if(i != 0) {
+			strcat(modes_str + tmp_pos, "\",\"");
+			tmp_pos += 3;
 		}
-		strcat(modes_str+tmp_pos,modes[i]);
-		tmp_pos+=strlen(modes[i]);
+		strcat(modes_str + tmp_pos, modes[i]);
+		tmp_pos += strlen(modes[i]);
 	}
-	print_str(str,"\"modes\":[\"%s\"],\n",modes_str);
+	print_str(str, "\"modes\":[\"%s\"],\n", modes_str);
 	free(modes_str);
 }
 
-char *print_view(struct cg_view *view) {
+char *
+print_view(struct cg_view *view) {
 	struct dyn_str outp_str;
-	outp_str.len=0;
-	outp_str.cur_pos=0;
-	uint32_t nmemb=4;
-	outp_str.str_arr=calloc(nmemb,sizeof(char *));
-	print_str(&outp_str,"\"id\": %d,\n",view->id);
-	char *title_str=view->impl->get_title(view);
-	print_str(&outp_str,"\"title\": \"%s\",\n",title_str==NULL?"":title_str);
-	print_str(&outp_str,"\"coords\": [\"x\":%d,\"y\":%d],\n",view->ox,view->oy);
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	uint32_t nmemb = 4;
+	outp_str.str_arr = calloc(nmemb, sizeof(char *));
+	print_str(&outp_str, "\"id\": %d,\n", view->id);
+	char *title_str = view->impl->get_title(view);
+	print_str(&outp_str, "\"title\": \"%s\",\n",
+	          title_str == NULL ? "" : title_str);
+	print_str(&outp_str, "\"coords\": [\"x\":%d,\"y\":%d],\n", view->ox,
+	          view->oy);
 #if CG_HAS_XWAYLAND
-	print_str(&outp_str,"\"type\": \"%s\",\n",view->type==CG_XWAYLAND_VIEW?"xwayland":"xdg");
+	print_str(&outp_str, "\"type\": \"%s\",\n",
+	          view->type == CG_XWAYLAND_VIEW ? "xwayland" : "xdg");
 #else
-	print_str(&outp_str,"\"type\": \"xdg\",\n");
+	print_str(&outp_str, "\"type\": \"xdg\",\n");
 #endif
 	return dyn_str_to_str(&outp_str);
 }
 
-char *print_tile(struct cg_tile *tile) {
+char *
+print_tile(struct cg_tile *tile) {
 	struct dyn_str outp_str;
-	outp_str.len=0;
-	outp_str.cur_pos=0;
-	uint32_t nmemb=4;
-	outp_str.str_arr=calloc(nmemb,sizeof(char *));
-	print_str(&outp_str,"\"id\": %d,\n",tile->id);
-	print_str(&outp_str,"\"coords\": [\"x\":%d,\"y\":%d],\n",tile->tile.x,tile->tile.y);
-	print_str(&outp_str,"\"size\": [\"width\":%d,\"height\":%d],\n",tile->tile.width,tile->tile.height);
-	print_str(&outp_str,"\"view\": \"%d\",\n",tile->view==NULL?-1:(int)tile->view->id);
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	uint32_t nmemb = 4;
+	outp_str.str_arr = calloc(nmemb, sizeof(char *));
+	print_str(&outp_str, "\"id\": %d,\n", tile->id);
+	print_str(&outp_str, "\"coords\": [\"x\":%d,\"y\":%d],\n", tile->tile.x,
+	          tile->tile.y);
+	print_str(&outp_str, "\"size\": [\"width\":%d,\"height\":%d],\n",
+	          tile->tile.width, tile->tile.height);
+	print_str(&outp_str, "\"view\": \"%d\",\n",
+	          tile->view == NULL ? -1 : (int)tile->view->id);
 	return dyn_str_to_str(&outp_str);
 }
 
 char *
 print_views(struct cg_workspace *ws) {
 	struct dyn_str outp_str;
-	outp_str.len=0;
-	outp_str.cur_pos=0;
-	uint32_t nviews=wl_list_length(&ws->views);
-	if(nviews==0) {
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	uint32_t nviews = wl_list_length(&ws->views);
+	if(nviews == 0) {
 		return strdup("{}");
 	}
-	outp_str.str_arr=calloc(2*nviews-1,sizeof(char *));
+	outp_str.str_arr = calloc(2 * nviews - 1, sizeof(char *));
 	struct cg_view *it;
-	uint32_t count=0;
-	wl_list_for_each(it,&ws->views,link) {
-		if(count!=0) {
-			print_str(&outp_str,",");
+	uint32_t count = 0;
+	wl_list_for_each(it, &ws->views, link) {
+		if(count != 0) {
+			print_str(&outp_str, ",");
 		}
 		++count;
-		char *view_str=print_view(it);
-		if(view_str!=NULL) {
-			print_str(&outp_str,"{\n%s\n}",view_str);
+		char *view_str = print_view(it);
+		if(view_str != NULL) {
+			print_str(&outp_str, "{\n%s\n}", view_str);
 			free(view_str);
 		}
 	}
@@ -887,27 +890,29 @@ print_views(struct cg_workspace *ws) {
 char *
 print_tiles(struct cg_workspace *ws) {
 	struct dyn_str outp_str;
-	outp_str.len=0;
-	outp_str.cur_pos=0;
-	uint32_t ntiles=0;
-	bool first=true;
-	for(struct cg_tile *tile=ws->focused_tile;first||tile!=ws->focused_tile;tile=tile->next) {
-		first=false;
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	uint32_t ntiles = 0;
+	bool first = true;
+	for(struct cg_tile *tile = ws->focused_tile;
+	    first || tile != ws->focused_tile; tile = tile->next) {
+		first = false;
 		++ntiles;
 	}
-	if(ntiles==0) {
+	if(ntiles == 0) {
 		return strdup("{}");
 	}
-	outp_str.str_arr=calloc(2*ntiles-1,sizeof(char *));
-	first=true;
-	for(struct cg_tile *tile=ws->focused_tile;first||tile!=ws->focused_tile;tile=tile->next) {
-		if(first==false) {
-			print_str(&outp_str,",");
+	outp_str.str_arr = calloc(2 * ntiles - 1, sizeof(char *));
+	first = true;
+	for(struct cg_tile *tile = ws->focused_tile;
+	    first || tile != ws->focused_tile; tile = tile->next) {
+		if(first == false) {
+			print_str(&outp_str, ",");
 		}
-		first=false;
-		char *tile_str=print_tile(tile);
-		if(tile_str!=NULL) {
-			print_str(&outp_str,"{\n%s\n}",tile_str);
+		first = false;
+		char *tile_str = print_tile(tile);
+		if(tile_str != NULL) {
+			print_str(&outp_str, "{\n%s\n}", tile_str);
 			free(tile_str);
 		}
 	}
@@ -917,41 +922,41 @@ print_tiles(struct cg_workspace *ws) {
 char *
 print_workspace(struct cg_workspace *ws) {
 	struct dyn_str outp_str;
-	outp_str.len=0;
-	outp_str.cur_pos=0;
-	uint32_t nmemb=6;
-	outp_str.str_arr=calloc(nmemb,sizeof(char *));
-	print_str(&outp_str,"\"views\": [");
-	char *views_str=print_views(ws);
-	if(views_str!=NULL) {
-		print_str(&outp_str,"%s",views_str);
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	uint32_t nmemb = 6;
+	outp_str.str_arr = calloc(nmemb, sizeof(char *));
+	print_str(&outp_str, "\"views\": [");
+	char *views_str = print_views(ws);
+	if(views_str != NULL) {
+		print_str(&outp_str, "%s", views_str);
 		free(views_str);
 	}
-	print_str(&outp_str,"],");
-	print_str(&outp_str,"\"tiles\": [");
-	char *tiles_str=print_tiles(ws);
-	if(tiles_str!=NULL) {
-		print_str(&outp_str,"%s",tiles_str);
+	print_str(&outp_str, "],");
+	print_str(&outp_str, "\"tiles\": [");
+	char *tiles_str = print_tiles(ws);
+	if(tiles_str != NULL) {
+		print_str(&outp_str, "%s", tiles_str);
 		free(tiles_str);
 	}
-	print_str(&outp_str,"]");
+	print_str(&outp_str, "]");
 	return dyn_str_to_str(&outp_str);
 }
 
 char *
 print_workspaces(struct cg_output *outp) {
 	struct dyn_str outp_str;
-	outp_str.len=0;
-	outp_str.cur_pos=0;
-	outp_str.str_arr=calloc((2*outp->server->nws-1)+2,sizeof(char *));
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	outp_str.str_arr = calloc((2 * outp->server->nws - 1) + 2, sizeof(char *));
 	print_str(&outp_str, "\"workspaces\": [");
-	for(int i=0;i<outp->server->nws;++i) {
-		if(i!=0) {
-			print_str(&outp_str,",");
+	for(int i = 0; i < outp->server->nws; ++i) {
+		if(i != 0) {
+			print_str(&outp_str, ",");
 		}
-		char *ws=print_workspace(outp->workspaces[i]);
+		char *ws = print_workspace(outp->workspaces[i]);
 		if(ws != NULL) {
-			print_str(&outp_str,"{%s}",ws);
+			print_str(&outp_str, "{%s}", ws);
 			free(ws);
 		}
 	}
@@ -962,42 +967,42 @@ print_workspaces(struct cg_output *outp) {
 char *
 print_output(struct cg_output *outp) {
 	struct dyn_str outp_str;
-	outp_str.len=0;
-	outp_str.cur_pos=0;
-	uint32_t nmemb=5;
-	outp_str.str_arr=calloc(nmemb,sizeof(char *));
-	print_str(&outp_str,"\"%s\": {\n",outp->wlr_output->name);
-	print_str(&outp_str,"\"priority\": %d,\n",outp->priority);
-	print_str(&outp_str,"\"curr_workspace\": %d,\n",outp->curr_workspace);
-	char *workspaces_str=print_workspaces(outp);
-	if(workspaces_str!=NULL) {
-		print_str(&outp_str, "%s",workspaces_str);
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	uint32_t nmemb = 5;
+	outp_str.str_arr = calloc(nmemb, sizeof(char *));
+	print_str(&outp_str, "\"%s\": {\n", outp->wlr_output->name);
+	print_str(&outp_str, "\"priority\": %d,\n", outp->priority);
+	print_str(&outp_str, "\"curr_workspace\": %d,\n", outp->curr_workspace);
+	char *workspaces_str = print_workspaces(outp);
+	if(workspaces_str != NULL) {
+		print_str(&outp_str, "%s", workspaces_str);
 		free(workspaces_str);
 	}
-	print_str(&outp_str,"}");
+	print_str(&outp_str, "}");
 	return dyn_str_to_str(&outp_str);
 }
 
 char *
 print_outputs(struct cg_server *server) {
-	uint32_t noutps=wl_list_length(&server->outputs);
+	uint32_t noutps = wl_list_length(&server->outputs);
 	struct dyn_str outp_str;
-	outp_str.len=0;
-	outp_str.cur_pos=0;
-	outp_str.str_arr=calloc((2*noutps-1)+2,sizeof(char *));
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	outp_str.str_arr = calloc((2 * noutps - 1) + 2, sizeof(char *));
 	print_str(&outp_str, "\"outputs\": [");
 	struct cg_output *it;
-	uint32_t count=0;
-	wl_list_for_each(it,&server->outputs,link) {
-		if(count!=0) {
-			print_str(&outp_str,",");
+	uint32_t count = 0;
+	wl_list_for_each(it, &server->outputs, link) {
+		if(count != 0) {
+			print_str(&outp_str, ",");
 		}
 		++count;
-		char *outp=print_output(it);
+		char *outp = print_output(it);
 		if(outp == NULL) {
 			continue;
 		}
-		print_str(&outp_str,"%s",outp);
+		print_str(&outp_str, "%s", outp);
 		free(outp);
 	}
 	print_str(&outp_str, "],\n");
@@ -1007,26 +1012,29 @@ print_outputs(struct cg_server *server) {
 void
 keybinding_dump(struct cg_server *server) {
 	struct dyn_str str;
-	str.len=0;
-	str.cur_pos=0;
-	uint32_t nmemb=10;
-	str.str_arr=calloc(nmemb,sizeof(char *));
+	str.len = 0;
+	str.cur_pos = 0;
+	uint32_t nmemb = 10;
+	str.str_arr = calloc(nmemb, sizeof(char *));
 
-	print_str(&str,"{");
-	print_str(&str,"\"nws\":%d,\n",server->nws);
-	print_str(&str,"\"bg_color\":[%f,%f,%f,%f],\n",server->bg_color[0],server->bg_color[1],server->bg_color[2],server->bg_color[3]);
-	print_str(&str,"\"views_curr_id\":%d,\n",server->views_curr_id);
-	print_str(&str,"\"tiles_curr_id\":%d,\n",server->tiles_curr_id);
-	print_str(&str,"\"curr_output\":%s,\n",server->curr_output->wlr_output->name);
-	print_modes(&str,server->modes);
-	char *outps_str=print_outputs(server);
-	print_str(&str,"%s",outps_str);
+	print_str(&str, "{");
+	print_str(&str, "\"nws\":%d,\n", server->nws);
+	print_str(&str, "\"bg_color\":[%f,%f,%f,%f],\n", server->bg_color[0],
+	          server->bg_color[1], server->bg_color[2], server->bg_color[3]);
+	print_str(&str, "\"views_curr_id\":%d,\n", server->views_curr_id);
+	print_str(&str, "\"tiles_curr_id\":%d,\n", server->tiles_curr_id);
+	print_str(&str, "\"curr_output\":%s,\n",
+	          server->curr_output->wlr_output->name);
+	print_modes(&str, server->modes);
+	char *outps_str = print_outputs(server);
+	print_str(&str, "%s", outps_str);
 	free(outps_str);
-	print_str(&str,"\"cursor_coords\":{\"x\":%f,\"y\":%f},\n",server->seat->cursor->x,server->seat->cursor->y);
-	print_str(&str,"}");
+	print_str(&str, "\"cursor_coords\":{\"x\":%f,\"y\":%f},\n",
+	          server->seat->cursor->x, server->seat->cursor->y);
+	print_str(&str, "}");
 
-	char *send_str=dyn_str_to_str(&str);
-	if(send_str==NULL) {
+	char *send_str = dyn_str_to_str(&str);
+	if(send_str == NULL) {
 		wlr_log(WLR_ERROR, "Unable to create output string for \"dump\".");
 	}
 	ipc_send_event(server, send_str);
@@ -1063,7 +1071,7 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 		wl_list_remove(&view->link);
 		server->curr_output->workspaces[server->curr_output->curr_workspace]
 		    ->focused_tile->view = NULL;
-		keybinding_cycle_views(server, false,false);
+		keybinding_cycle_views(server, false, false);
 		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
 		       ->focused_tile->view == NULL) {
 			seat_set_focus(server->seat, NULL);
@@ -1071,7 +1079,9 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 	}
 	keybinding_cycle_outputs(server, reverse);
 	if(view != NULL) {
-		struct cg_workspace *ws=server->curr_output->workspaces[server->curr_output->curr_workspace];
+		struct cg_workspace *ws =
+		    server->curr_output
+		        ->workspaces[server->curr_output->curr_workspace];
 		wl_list_insert(&ws->views, &view->link);
 		ws->focused_tile->view = view;
 		wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
@@ -1080,11 +1090,11 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 		view_maximize(view, view->tile);
 		seat_set_focus(server->seat, view);
 	}
-	ipc_send_event(
-	    server,
-	    "{\"event_name\":\"move_view_cycle_output\",\"view_id\":\"%d\",\"old_output\":\"%s\",\"new_output\":\"%s\"}",
-	    view->id, old_outp->wlr_output->name,
-	    server->curr_output->wlr_output->name);
+	ipc_send_event(server,
+	               "{\"event_name\":\"move_view_cycle_output\",\"view_id\":\"%"
+	               "d\",\"old_output\":\"%s\",\"new_output\":\"%s\"}",
+	               view->id, old_outp->wlr_output->name,
+	               server->curr_output->wlr_output->name);
 }
 
 void
@@ -1130,7 +1140,7 @@ keybinding_set_nws(struct cg_server *server, int nws) {
 		}
 
 		if(output->curr_workspace >= nws) {
-			workspace_focus(output,nws-1);
+			workspace_focus(output, nws - 1);
 		}
 	}
 	server->nws = nws;
@@ -1138,8 +1148,10 @@ keybinding_set_nws(struct cg_server *server, int nws) {
 	    server->seat,
 	    server->curr_output->workspaces[server->curr_output->curr_workspace]
 	        ->focused_tile->view);
-	ipc_send_event(server, "{\"event_name\":\"set_nws\",\"old_nws\":\"%d\",\"new_nws\":\"%d\"}", old_nws,
-	               server->nws);
+	ipc_send_event(
+	    server,
+	    "{\"event_name\":\"set_nws\",\"old_nws\":\"%d\",\"new_nws\":\"%d\"}",
+	    old_nws, server->nws);
 }
 
 void
@@ -1156,29 +1168,34 @@ keybinding_definemode(struct cg_server *server, char *mode) {
 	server->modes[length] = NULL;
 
 	server->modes[length - 1] = strdup(mode);
-	ipc_send_event(server, "{\"event_name\":\"definemode\",\"mode\":\"%s\"}", mode);
+	ipc_send_event(server, "{\"event_name\":\"definemode\",\"mode\":\"%s\"}",
+	               mode);
 }
 
 void
 keybinding_definekey(struct cg_server *server, struct keybinding *kb) {
 	keybinding_list_push(server->keybindings, kb);
-	ipc_send_event(server, "{\"event_name\":\"definekey\",\"modifiers\":\"%d\",\"key\":\"%d\",\"command\":\"%d\"}",
+	ipc_send_event(server,
+	               "{\"event_name\":\"definekey\",\"modifiers\":\"%d\",\"key\":"
+	               "\"%d\",\"command\":\"%d\"}",
 	               kb->modifiers, kb->key, kb->action);
 }
 
 void
 keybinding_set_background(struct cg_server *server, float *bg) {
-	ipc_send_event(server, "{\"event_name\":\"background\",\"old_bg\":\"[%f,%f,%f]\",\"new_bg\":\"[%f,%f,%f]\"}",
+	ipc_send_event(server,
+	               "{\"event_name\":\"background\",\"old_bg\":\"[%f,%f,%f]\","
+	               "\"new_bg\":\"[%f,%f,%f]\"}",
 	               server->bg_color[0], server->bg_color[1],
 	               server->bg_color[2], bg[0], bg[1], bg[2]);
 	server->bg_color[0] = bg[0];
 	server->bg_color[1] = bg[1];
 	server->bg_color[2] = bg[2];
-	struct cg_output *it=NULL;
-	wl_list_for_each(it,&server->outputs,link) {
+	struct cg_output *it = NULL;
+	wl_list_for_each(it, &server->outputs, link) {
 		wlr_scene_rect_set_color(it->bg, server->bg_color);
 	}
-	wl_list_for_each(it,&server->disabled_outputs,link) {
+	wl_list_for_each(it, &server->disabled_outputs, link) {
 		wlr_scene_rect_set_color(it->bg, server->bg_color);
 	}
 }
@@ -1191,7 +1208,9 @@ keybinding_switch_output(struct cg_server *server, int output) {
 	wl_list_for_each(it, &server->outputs, link) {
 		if(count == output) {
 			set_output(server, it);
-			ipc_send_event(server, "{\"event_name\":\"switch_output\",\"old_output\":\"%s\",\"new_output\":\"%s\"}",
+			ipc_send_event(server,
+			               "{\"event_name\":\"switch_output\",\"old_output\":"
+			               "\"%s\",\"new_output\":\"%s\"}",
 			               old_outp->wlr_output->name, it->wlr_output->name);
 			return;
 		}
@@ -1211,7 +1230,7 @@ keybinding_move_view_to_output(struct cg_server *server, int output_num) {
 		wl_list_remove(&view->link);
 		server->curr_output->workspaces[server->curr_output->curr_workspace]
 		    ->focused_tile->view = NULL;
-		keybinding_cycle_views(server, false,false);
+		keybinding_cycle_views(server, false, false);
 		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
 		       ->focused_tile->view == NULL) {
 			seat_set_focus(server->seat, NULL);
@@ -1235,10 +1254,12 @@ keybinding_move_view_to_output(struct cg_server *server, int output_num) {
 		view_title = view->impl->get_title(view);
 		view_id = view->id;
 	}
-	ipc_send_event(server,
-	               "{\"event_name\":\"move_view_to_output\",\"view_id\":\"%d\",\"old_output\":\"%s\",\"new_output\":\"%s\",\"view_title\":\"%s\"}",
-	               view_id, old_outp->wlr_output->name,
-	               server->curr_output->wlr_output->name, view_title);
+	ipc_send_event(
+	    server,
+	    "{\"event_name\":\"move_view_to_output\",\"view_id\":\"%d\",\"old_"
+	    "output\":\"%s\",\"new_output\":\"%s\",\"view_title\":\"%s\"}",
+	    view_id, old_outp->wlr_output->name,
+	    server->curr_output->wlr_output->name, view_title);
 }
 
 void
@@ -1270,10 +1291,12 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 		seat_set_focus(server->seat, view);
 	}
 	ipc_send_event(server,
-	               "{\"event_name\":\"move_view_to_ws\",\"view_id\":\"%d\",\"old_workspace\":\"%d\",\"new_workspace\":\"%d\",\"output\":\"%s\",\"view_title\":\"%s\"}",
-	               view==NULL?-1:(int)view->id, old_ws, ws,
+	               "{\"event_name\":\"move_view_to_ws\",\"view_id\":\"%d\","
+	               "\"old_workspace\":\"%d\",\"new_workspace\":\"%d\","
+	               "\"output\":\"%s\",\"view_title\":\"%s\"}",
+	               view == NULL ? -1 : (int)view->id, old_ws, ws,
 	               server->curr_output->wlr_output->name,
-	               view==NULL?"":view->impl->get_title(view));
+	               view == NULL ? "" : view->impl->get_title(view));
 }
 
 void
@@ -1322,16 +1345,20 @@ keybinding_configure_output(struct cg_server *server,
 	wl_list_for_each_safe(output, tmp_output, &server->outputs, link) {
 		if(strcmp(config->output_name, output->wlr_output->name) == 0) {
 			output_configure(server, output);
-			ipc_send_event(output->server, "{\"event_name\":\"configure_output\",\"output\":\"%s\"}",
-			               cfg->output_name);
+			ipc_send_event(
+			    output->server,
+			    "{\"event_name\":\"configure_output\",\"output\":\"%s\"}",
+			    cfg->output_name);
 			return;
 		}
 	}
 	wl_list_for_each_safe(output, tmp_output, &server->disabled_outputs, link) {
 		if(strcmp(config->output_name, output->wlr_output->name) == 0) {
 			output_configure(server, output);
-			ipc_send_event(output->server, "{\"event_name\":\"configure_output\",\"output\":\"%s\"}",
-			               cfg->output_name);
+			ipc_send_event(
+			    output->server,
+			    "{\"event_name\":\"configure_output\",\"output\":\"%s\"}",
+			    cfg->output_name);
 			return;
 		}
 	}
@@ -1341,7 +1368,9 @@ void
 keybinding_configure_input(struct cg_server *server,
                            struct cg_input_config *cfg) {
 	cg_input_apply_config(cfg, server);
-	ipc_send_event(server, "{\"event_name\":\"configure_input\",\"input\":\"%s\"}", cfg->identifier);
+	ipc_send_event(server,
+	               "{\"event_name\":\"configure_input\",\"input\":\"%s\"}",
+	               cfg->identifier);
 }
 
 void
@@ -1392,21 +1421,19 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	case KEYBINDING_SPLIT_VERTICAL:
 		keybinding_split_vertical(server);
 		break;
-	case KEYBINDING_RUN_COMMAND:
-		{
-			int pid;
-			if((pid=fork()) == 0) {
-				if(fork() == 0) {
-					into_process(data.c);
-				}
-				_exit(0);
-			} else if(pid > 0) {
-				waitpid(pid,NULL,0);
+	case KEYBINDING_RUN_COMMAND: {
+		int pid;
+		if((pid = fork()) == 0) {
+			if(fork() == 0) {
+				into_process(data.c);
 			}
+			_exit(0);
+		} else if(pid > 0) {
+			waitpid(pid, NULL, 0);
 		}
-		break;
+	} break;
 	case KEYBINDING_CYCLE_VIEWS:
-		keybinding_cycle_views(server, data.b,true);
+		keybinding_cycle_views(server, data.b, true);
 		break;
 	case KEYBINDING_CYCLE_TILES:
 		keybinding_cycle_tiles(server, data.b);
@@ -1424,7 +1451,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		server->seat->mode = data.u;
 		break;
 	case KEYBINDING_SWITCH_DEFAULT_MODE:
-		ipc_send_event(server, "{\"event_name\":\"switch_default_mode\",\"old_mode\":\"%d\",\"mode\":\"%d\"}",
+		ipc_send_event(server,
+		               "{\"event_name\":\"switch_default_mode\",\"old_mode\":"
+		               "\"%d\",\"mode\":\"%d\"}",
 		               server->seat->default_mode, data.u);
 		server->seat->mode = data.u;
 		server->seat->default_mode = data.u;
@@ -1441,7 +1470,7 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_show_info(server);
 		break;
 	case KEYBINDING_DISPLAY_MESSAGE:
-		keybinding_display_message(server,data.c);
+		keybinding_display_message(server, data.c);
 		break;
 	case KEYBINDING_RESIZE_TILE_HORIZONTAL:
 		resize_tile(server, data.i, 0);

@@ -736,8 +736,9 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 	} else if(strcmp(action, "message") == 0) {
 		keybinding->action = KEYBINDING_DISPLAY_MESSAGE;
 		if(saveptr == NULL) {
-			*errstr = log_error("Not enough paramaters to \"message\". Expected "
-			                    "string to display.");
+			*errstr =
+			    log_error("Not enough paramaters to \"message\". Expected "
+			              "string to display.");
 			return -1;
 		}
 		keybinding->data.c = strdup(saveptr);
@@ -873,8 +874,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_SWITCH_MODE;
 		char *mode = strtok_r(NULL, " ", &saveptr);
 		if(mode == NULL) {
-			*errstr =
-			    log_error("Expected mode after \"mode\". Got nothing.");
+			*errstr = log_error("Expected mode after \"mode\". Got nothing.");
 			return -1;
 		}
 		int mode_idx = get_mode_index_from_name(server->modes, mode);

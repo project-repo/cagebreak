@@ -19,6 +19,7 @@
 #include <stdlib.h>
 #include <sys/ioctl.h>
 #include <sys/socket.h>
+#include <sys/stat.h>
 #include <sys/un.h>
 #include <unistd.h>
 #include <wlr/util/log.h>
@@ -101,6 +102,7 @@ ipc_init(struct cg_server *server) {
 		return -1;
 	}
 
+	chmod(ipc->sockaddr->sun_path, 0700);
 	setenv("CAGEBREAK_SOCKET", ipc->sockaddr->sun_path, 1);
 
 	wl_list_init(&ipc->client_list);
@@ -311,7 +313,7 @@ ipc_client_handle_command(struct cg_ipc_client *client) {
 		offset = (nl_pos - client->read_buffer) + 1;
 	}
 	if(offset == 0) {
-		wlr_log(WLR_ERROR, "Line received was longer that %d, discarding it",
+		wlr_log(WLR_ERROR, "Line received was longer than %d, discarding it",
 		        MAX_LINE_SIZE);
 		client->read_buf_len = 0;
 		client->read_discard = 1;
