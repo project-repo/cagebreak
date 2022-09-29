@@ -145,6 +145,7 @@ occur.
     * [ ] meson.build
     * [ ] git tag
     * [ ] man pages
+    * [ ] README.md repology badges minversion
   * [ ] meson.build reproducible build versions are current archlinux libraries and gcc
   * [ ] Cagebreak is reproducible on multiple machines
   * [ ] Documented reproducible build artefacts
