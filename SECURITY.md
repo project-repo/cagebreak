@@ -84,7 +84,7 @@ and any software run by the user may exfiltrate any data the user has access to.
 Not applicable - Cagebreak offers functionality to terminate itself, which is
 available to all user software over the socket.
 
-#### Elevation of privilege
+#### Elevation of Privilege
 
 Software may gain arbitrary code execution rights if it has access to the
 Cagebreak socket. Privilege escalation to root is unlikely since privileges
