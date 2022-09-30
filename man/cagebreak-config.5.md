@@ -355,6 +355,7 @@ is used.
 # SEE ALSO
 
 *cagebreak(1)*
+*cagebreak-socket(7)*
 
 # BUGS
 

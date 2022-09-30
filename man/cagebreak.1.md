@@ -68,6 +68,7 @@ are displayed in a message box at the top right of the screen.
 # SEE ALSO
 
 *cagebreak-config(5)*
+*cagebreak-socket(7)*
 
 # BUGS
 
