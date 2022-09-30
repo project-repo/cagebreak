@@ -691,6 +691,9 @@ parse_message_config(char **saveptr, char **errstr) {
 	return cfg;
 
 error:
+	if(cfg!=NULL) {
+		free(cfg);
+	}
 	wlr_log(WLR_ERROR, "Message configuration must be of the form "
 	                   "'configure_message <setting> <value>'");
 	return NULL;

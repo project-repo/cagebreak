@@ -368,56 +368,6 @@ cg_input_configure_libinput_device(struct cg_input_device *input_device) {
 	}
 }
 
-void
-cg_input_reset_libinput_device(struct cg_input_device *input_device) {
-	if(!wlr_input_device_is_libinput(input_device->wlr_device)) {
-		return;
-	}
-
-	struct libinput_device *device =
-	    wlr_libinput_get_device_handle(input_device->wlr_device);
-	wlr_log(WLR_DEBUG, "cg_input_reset_libinput_device(%s)",
-	        input_device->identifier);
-	bool changed = false;
-
-	changed |= set_send_events(
-	    device, libinput_device_config_send_events_get_default_mode(device));
-	changed |=
-	    set_tap(device, libinput_device_config_tap_get_default_enabled(device));
-	changed |= set_tap_button_map(
-	    device, libinput_device_config_tap_get_default_button_map(device));
-	changed |= set_tap_drag(
-	    device, libinput_device_config_tap_get_default_drag_enabled(device));
-	changed |= set_tap_drag_lock(
-	    device,
-	    libinput_device_config_tap_get_default_drag_lock_enabled(device));
-	changed |= set_accel_speed(
-	    device, libinput_device_config_accel_get_default_speed(device));
-	changed |= set_accel_profile(
-	    device, libinput_device_config_accel_get_default_profile(device));
-	changed |= set_natural_scroll(
-	    device,
-	    libinput_device_config_scroll_get_default_natural_scroll_enabled(
-	        device));
-	changed |= set_left_handed(
-	    device, libinput_device_config_left_handed_get_default(device));
-	changed |= set_click_method(
-	    device, libinput_device_config_click_get_default_method(device));
-	changed |= set_middle_emulation(
-	    device,
-	    libinput_device_config_middle_emulation_get_default_enabled(device));
-	changed |= set_scroll_method(
-	    device, libinput_device_config_scroll_get_default_method(device));
-	changed |= set_scroll_button(
-	    device, libinput_device_config_scroll_get_default_button(device));
-	changed |=
-	    set_dwt(device, libinput_device_config_dwt_get_default_enabled(device));
-
-	float matrix[6];
-	libinput_device_config_calibration_get_default_matrix(device, matrix);
-	changed |= set_calibration_matrix(device, matrix);
-}
-
 bool
 cg_libinput_device_is_builtin(struct cg_input_device *cg_device) {
 	if(!wlr_input_device_is_libinput(cg_device->wlr_device)) {

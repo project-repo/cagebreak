@@ -274,12 +274,14 @@ main(int argc, char *argv[]) {
 	/* Wayland requires XDG_RUNTIME_DIR to be set. */
 	if(!getenv("XDG_RUNTIME_DIR")) {
 		wlr_log(WLR_ERROR, "XDG_RUNTIME_DIR is not set in the environment");
+		free(server.modes);
 		return 1;
 	}
 
 	server.wl_display = wl_display_create();
 	if(!server.wl_display) {
 		wlr_log(WLR_ERROR, "Cannot allocate a Wayland display");
+		free(server.modes);
 		return 1;
 	}
 
@@ -292,6 +294,7 @@ main(int argc, char *argv[]) {
 	if(server.modes[0] == NULL || server.modes[1] == NULL ||
 	   server.modes[2] == NULL) {
 		wlr_log(WLR_ERROR, "Error allocating default modes");
+		free(server.modes);
 		return 1;
 	}
 

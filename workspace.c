@@ -59,6 +59,7 @@ full_screen_workspace(struct cg_output *output) {
 	}
 	struct wlr_scene_output *scene_output=wlr_scene_get_scene_output(output->server->scene,output->wlr_output);
 	if(scene_output == NULL) {
+		free(workspace);
 		return NULL;
 	}
 	workspace->server = output->server;

@@ -64,6 +64,7 @@ input_device_get_identifier(struct wlr_input_device *device) {
 	char *identifier = malloc(len);
 	if(!identifier) {
 		wlr_log(WLR_ERROR, "Unable to allocate unique input device name");
+		free(name);
 		return NULL;
 	}
 
