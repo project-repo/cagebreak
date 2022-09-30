@@ -153,7 +153,8 @@ handle_output_frame(struct wl_listener *listener, void *data) {
 	if(!output->wlr_output->enabled) {
 		return;
 	}
-	struct wlr_scene_output *scene_output=wlr_scene_get_scene_output(output->server->scene,output->wlr_output);
+	struct wlr_scene_output *scene_output =
+	    wlr_scene_get_scene_output(output->server->scene, output->wlr_output);
 	if(scene_output == NULL) {
 		return;
 	}
@@ -292,19 +293,22 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 			}
 			if(config->pos.x != -1) {
 				if(output_set_mode(wlr_output, config->pos.width,
-				                config->pos.height, config->refresh_rate)!=0) {
-					wlr_log(WLR_ERROR,"Setting output mode failed, disabling output.");
+				                   config->pos.height,
+				                   config->refresh_rate) != 0) {
+					wlr_log(WLR_ERROR,
+					        "Setting output mode failed, disabling output.");
 					output_clear(output);
-					wl_list_insert(&server->disabled_outputs,&output->link);
+					wl_list_insert(&server->disabled_outputs, &output->link);
 					wlr_output_enable(wlr_output, false);
 					wlr_output_commit(wlr_output);
 					return;
 				}
 				wlr_output_layout_add(server->output_layout, wlr_output,
 				                      config->pos.x, config->pos.y);
-				/* Since the size of the output may have changed, we reinitialize all workspaces with a fullscreen layout */
+				/* Since the size of the output may have changed, we
+				 * reinitialize all workspaces with a fullscreen layout */
 				for(unsigned int i = 0; i < output->server->nws; ++i) {
-					output_make_workspace_fullscreen(output,i);
+					output_make_workspace_fullscreen(output, i);
 				}
 			}
 			wl_list_remove(&output->link);
@@ -313,17 +317,20 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 			wlr_output_commit(wlr_output);
 		}
 	}
-	if(output->bg!=NULL) {
+	if(output->bg != NULL) {
 		wlr_scene_node_destroy(&output->bg->node);
-		output->bg=NULL;
+		output->bg = NULL;
 	}
-	struct wlr_scene_output *scene_output = wlr_scene_get_scene_output(output->server->scene,output->wlr_output);
+	struct wlr_scene_output *scene_output =
+	    wlr_scene_get_scene_output(output->server->scene, output->wlr_output);
 	if(scene_output == NULL) {
 		return;
 	}
-	output->bg=wlr_scene_rect_create(&scene_output->scene->node, output->wlr_output->width,output->wlr_output->height, server->bg_color);
-	struct wlr_box *box = wlr_output_layout_get_box(
-	    server->output_layout, output->wlr_output);
+	output->bg = wlr_scene_rect_create(
+	    &scene_output->scene->node, output->wlr_output->width,
+	    output->wlr_output->height, server->bg_color);
+	struct wlr_box *box =
+	    wlr_output_layout_get_box(server->output_layout, output->wlr_output);
 	wlr_scene_node_set_position(&output->bg->node, box->x, box->y);
 	wlr_scene_node_lower_to_bottom(&output->bg->node);
 }
@@ -367,14 +374,13 @@ handle_output_mode(struct wl_listener *listener, void *data) {
 }
 
 void
-output_make_workspace_fullscreen(struct cg_output *output,int ws) {
-	struct cg_server *server=output->server;
+output_make_workspace_fullscreen(struct cg_output *output, int ws) {
+	struct cg_server *server = output->server;
 	struct cg_view *current_view = seat_get_focus(server->seat);
 
-	if(current_view == NULL||ws != output->curr_workspace) {
+	if(current_view == NULL || ws != output->curr_workspace) {
 		struct cg_view *it = NULL;
-		wl_list_for_each(it, &output->workspaces[ws]->views,
-		                 link) {
+		wl_list_for_each(it, &output->workspaces[ws]->views, link) {
 			if(view_is_visible(it)) {
 				current_view = it;
 				break;
@@ -399,8 +405,6 @@ output_make_workspace_fullscreen(struct cg_output *output,int ws) {
 		seat_set_focus(server->seat, current_view);
 	}
 }
-
-
 
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic push

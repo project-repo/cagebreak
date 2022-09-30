@@ -636,29 +636,39 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 	wlr_idle_notify_activity(seat->server->idle, seat->seat);
 
 	/* Check if cursor switched tile */
-	struct wlr_output *c_outp = wlr_output_layout_output_at(seat->server->output_layout,seat->cursor->x,seat->cursor->y);
+	struct wlr_output *c_outp = wlr_output_layout_output_at(
+	    seat->server->output_layout, seat->cursor->x, seat->cursor->y);
 	struct cg_output *cg_outp = NULL;
-	wl_list_for_each(cg_outp,&seat->server->outputs,link) {
+	wl_list_for_each(cg_outp, &seat->server->outputs, link) {
 		if(cg_outp->wlr_output == c_outp) {
 			break;
 		}
 	}
 	struct cg_tile *c_tile;
-	bool first=true;
+	bool first = true;
 	for(c_tile = cg_outp->workspaces[cg_outp->curr_workspace]->focused_tile;
-	    first || c_tile != cg_outp->workspaces[cg_outp->curr_workspace]->focused_tile; c_tile = c_tile->next) {
+	    first ||
+	    c_tile != cg_outp->workspaces[cg_outp->curr_workspace]->focused_tile;
+	    c_tile = c_tile->next) {
 		first = false;
-		double ox=seat->cursor->x,oy=seat->cursor->y;
-		wlr_output_layout_output_coords(seat->server->output_layout,c_outp,&ox,&oy);
-		if(c_tile->tile.x<=ox&&c_tile->tile.y<=oy&&c_tile->tile.x+c_tile->tile.width>=ox&&c_tile->tile.y+c_tile->tile.height>=oy) {
+		double ox = seat->cursor->x, oy = seat->cursor->y;
+		wlr_output_layout_output_coords(seat->server->output_layout, c_outp,
+		                                &ox, &oy);
+		if(c_tile->tile.x <= ox && c_tile->tile.y <= oy &&
+		   c_tile->tile.x + c_tile->tile.width >= ox &&
+		   c_tile->tile.y + c_tile->tile.height >= oy) {
 			break;
 		}
 	}
 	if(seat->cursor_tile != NULL && seat->cursor_tile != c_tile) {
-		ipc_send_event(seat->server, "{\"event_name\":\"cursor_switch_tile\",\"old_output\":\"%s\",\"old_tile\":\"%d\",\"new_output\":\"%s\",\"new_tile\":\"%d\"}",
-		               seat->cursor_tile->workspace->output->wlr_output->name, seat->cursor_tile->id,c_outp->name,c_tile->id);
+		ipc_send_event(
+		    seat->server,
+		    "{\"event_name\":\"cursor_switch_tile\",\"old_output\":\"%s\","
+		    "\"old_tile\":\"%d\",\"new_output\":\"%s\",\"new_tile\":\"%d\"}",
+		    seat->cursor_tile->workspace->output->wlr_output->name,
+		    seat->cursor_tile->id, c_outp->name, c_tile->id);
 	}
-	seat->cursor_tile=c_tile;
+	seat->cursor_tile = c_tile;
 }
 
 static void
