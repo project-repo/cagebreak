@@ -257,15 +257,18 @@ install_data('examples/config', install_dir : '/etc/xdg/cagebreak')
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
+  secssinceepoch = 1664566469
+  shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
   mandir5 = join_paths(get_option('mandir'), 'man5')
+  mandir7 = join_paths(get_option('mandir'), 'man7')
 
   cagebreak_man = custom_target('cagebreak_man',
     output : 'cagebreak.1',
     input : 'man/cagebreak.1.md',
-	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1638785664 ; @0@ < @INPUT@'.format(scdoc.path())],
+    capture : true,
+    command : [sh, '-c', shcommand],
     install: true,
     install_dir: mandir1
     )
@@ -273,10 +276,19 @@ if get_option('man-pages')
   cagebreak_man = custom_target('cagebreak_config_man',
     output : 'cagebreak-config.5',
     input : 'man/cagebreak-config.5.md',
-	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1638785664 ; @0@ < @INPUT@'.format(scdoc.path())],
+    capture : true,
+    command : [sh, '-c', shcommand],
     install: true,
     install_dir: mandir5
+    )
+
+  cagebreak_man = custom_target('cagebreak_socket_man',
+    output : 'cagebreak-socket.7',
+    input : 'man/cagebreak-socket.7.md',
+    capture : true,
+    command : [sh, '-c', shcommand],
+    install: true,
+    install_dir: mandir7
     )
 endif
 
