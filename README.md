@@ -122,6 +122,7 @@ occur.
   * [ ] `git pull origin development`
   * [ ] `git push origin development`
   * [ ] `ninja -C build clang-format` makes no changes
+  * [ ] `ninja -C build scan-build` shows no issues
   * [ ] New version number determined according to [semantic versioning](https://semver.org) guidelines
   * [ ] Relevant Documentation completed
     * [ ] New features
