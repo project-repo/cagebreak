@@ -50,13 +50,13 @@ definekey root <key> <command>
 
 configure_message [font <font description>|[f|b]g_color <r> <g> b> <a>|display_time <n>]
 	Configure message characteristics -
-    - font <font description> sets
-      - <font description> is
-        - X core font description or
-        - FreeType font description via pango
-    - fg_color <r> <g> <b> <a> sets RGBA of foreground
-    - bg_color <r> <g> <b> <a> sets RGBA of background
-    - display_time <n> sets display time in seconds
+	- font <font description> sets
+	  - <font description> is
+	    - X core font description or
+	    - FreeType font description via pango
+	- fg_color <r> <g> <b> <a> sets RGBA of foreground
+	- bg_color <r> <g> <b> <a> sets RGBA of background
+	- display_time <n> sets display time in seconds
 
 ```
 # Set font
