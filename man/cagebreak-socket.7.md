@@ -30,7 +30,9 @@ example
 
 ## SECURITY
 
-The socket is restricted to the user for reading, writing and execution.
+The socket is restricted to the user for reading, writing and execution (700).
+
+All user software can execute arbitrary code while cagebreak is running.
 
 ## EXAMPLES
 
