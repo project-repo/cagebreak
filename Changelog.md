@@ -38,4 +38,29 @@ Adds libinput configuration and virtual keyboard and pointer support.
 
 ## Release 1.9.0
 
-Adds TODO see release.delete
+- Add message functionality (as per Issue 29 in Bugs.md)
+  - message <text>
+  - configure_message
+- Add (as per Issue 30 in Bugs.md)
+  - movetoprevscreen
+  - movetoscreen <n>
+  - screen <n>
+  - additional output functionality for monitor numbering
+- Improve configuration documentation
+  - Fix Issue 31 in Bugs.md (word omission)
+- Improve README.md and split off some files
+  - Add SECURITY.md
+  - Add Hashes.md (hashes of cagebreak binaries and man pages if built reproducably)
+  - Add Changelog.md (changelog for major and minor releases but not patches)
+  - Add FAQ.md (updated information from the former wiki)
+- Depreciate wiki
+- Fix Issue 32 in Bugs.md
+  - Improve release checklist to partially prevent the above issue
+    in the future
+- Fix Issue 33 in Bugs.md
+- Fix Issue 34 in Bugs.md
+- Manage gpg keys
+  - Add new cagebreak gpg signing keys
+  - Add new cagebreak email contact gpg key
+  - Add new project-repo AUR gpg key (relevant for cagebreak-pkgbuild)
+

@@ -231,7 +231,6 @@ For every release after 1.7.0, hashes will be provided for man pages too.
 
 See [Hashes.md](Hashes.md)
 
-
 #### GPG Signatures
 
 For every release after 1.0.5, a GPG signature will be provided in `signatures`.

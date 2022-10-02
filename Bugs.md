@@ -619,3 +619,36 @@ xwayland-devel-21.0.99.1.171
 wlroots-0.15.1
 ```
 ```
+
+## Issue 34
+
+  * github issue number: N/A
+  * Fixed: 1.9.0
+
+Cagebreak crashed when a touch device was removed due to a call to
+`wl_list_remove` on a pointer which was never initialized.
+
+## Issue 35
+
+  * github issue number: N/A
+  * Fixed: 1.9.1
+
+Cagebreak 1.9.0 broke the nextscreen and prevscreen functionality.
+This issue was not present in earlier releases.
+
+## Issue 36
+
+  * github issue number: N/A
+  * Fixed: 1.9.1
+
+Cagebreak 1.9.0 broke the configure_message functionality.
+This issue was not present in earlier releases.
+
+## Issue 37
+
+  * github issue number: N/A
+  * Fixed: 1.9.1
+
+Cagebreak 1.9.0 broke the screen/movetoscreen functionality.
+This issue was not present in earlier releases.
+

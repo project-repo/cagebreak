@@ -8,6 +8,7 @@
 
 #include "input_manager.h"
 #include "keybinding.h"
+#include "message.h"
 #include "output.h"
 #include "parse.h"
 #include "server.h"

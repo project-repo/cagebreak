@@ -13,6 +13,7 @@
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/util/box.h>
 #include <wlr/util/log.h>
 #if CG_HAS_XWAYLAND
 #include <wlr/xwayland.h>
