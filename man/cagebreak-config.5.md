@@ -258,7 +258,7 @@ message <text>
 	  the higher the priority is, that is to say, the earlier the output
 	  will appear in the list of outputs.
 	*output* and the *screen* family of commands are similar in that they
-  both deal with monitors on some level.
+	both deal with monitors on some level.
 	- *output* addresses outputs by their name and is vaguely symmetric
 	  to *input*.
 	- Any *screen* command deals with the number identifying a
