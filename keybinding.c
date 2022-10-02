@@ -476,10 +476,12 @@ resize_tile(struct cg_server *server, int hpixs, int vpixs) {
 
 void
 keybinding_workspace_fullscreen(struct cg_server *server) {
-	output_make_workspace_fullscreen(server->curr_output,server->curr_output->curr_workspace);
+	output_make_workspace_fullscreen(server->curr_output,
+	                                 server->curr_output->curr_workspace);
 	struct cg_output *output = server->curr_output;
 	ipc_send_event(server,
-	               "{\"event_name\":\"fullscreen\",\"tile_id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
+	               "{\"event_name\":\"fullscreen\",\"tile_id\":\"%d\","
+	               "\"workspace\":\"%d\",\"output\":\"%s\"}",
 	               output->workspaces[output->curr_workspace]->focused_tile->id,
 	               output->workspaces[output->curr_workspace]->num + 1,
 	               output->wlr_output->name);

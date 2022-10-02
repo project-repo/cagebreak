@@ -1,5 +1,9 @@
 # Cagebreak: A Wayland Tiling Compositor Inspired by Ratpoison
 
+[![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions)
+
+[![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.0.0)](https://repology.org/project/cagebreak/versions)
+
 This is Cagebreak, a Wayland tiling compositor.
 
 The goal of this project is to provide a successor to ratpoison for Wayland
@@ -118,17 +122,20 @@ occur.
   * [ ] `git pull origin development`
   * [ ] `git push origin development`
   * [ ] `ninja -C build clang-format` makes no changes
+  * [ ] `ninja -C build scan-build` shows no issues
   * [ ] New version number determined according to [semantic versioning](https://semver.org) guidelines
   * [ ] Relevant Documentation completed
     * [ ] New features
       * [ ] man pages
         * [ ] man/cagebreak
         * [ ] man/cagebreak-config
+        * [ ] man/cagebreak-socket
         * [ ] Set EPOCH to release day in man generation in meson.build
       * [ ] FAQ.md
       * [ ] Changelog.md for major and minor releases but not patches
     * [ ] Check features for SECURITY.md relevance (changes to socket scope
           for example)
+      * [ ] Synchronize any socket changes to cagebreak-socket man page
     * [ ] Fixed bugs documented in Bugs.md
       * [ ] Include issue description from github
   * [ ] Testing
@@ -139,6 +146,7 @@ occur.
     * [ ] meson.build
     * [ ] git tag
     * [ ] man pages
+    * [ ] README.md repology badges minversion
   * [ ] meson.build reproducible build versions are current archlinux libraries and gcc
   * [ ] Cagebreak is reproducible on multiple machines
   * [ ] Documented reproducible build artefacts
@@ -148,6 +156,7 @@ occur.
       * [ ] `gpg --detach-sign -u keyid cagebreak`
       * [ ] `gpg --detach-sign -u keyid cagebreak.1`
       * [ ] `gpg --detach-sign -u keyid cagebreak-config.5`
+      * [ ] `gpg --detach-sign -u keyid cagebreak-socket.7`
   * [ ] `git add` relevant files
   * [ ] `git commit`
   * [ ] `git push origin development`
@@ -160,9 +169,12 @@ occur.
   * [ ] `git tag -u keyid version HEAD` and insert message
   * [ ] `git tag -v version` and check output
   * [ ] `git push --tags origin master`
-  * [ ] `git checkout development`
+  * [ ] `git checkout development` (merge to development depends on whether release was a hotfix)
   * [ ] `git merge master`
   * [ ] `git push --tags origin development`
+  * [ ] `git checkout hotfix` (hotfix is to be kept current with master after releases)
+  * [ ] `git merge master`
+  * [ ] `git push --tags origin hotfix`
   * [ ] `git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .`
   * [ ] Create release-artefacts_version.tar.gz
     * [ ] `mkdir release-artefacts_version`
@@ -172,6 +184,8 @@ occur.
     * [ ] `cp build/cagebreak.1.sig release-artefacts_version/`
     * [ ] `cp build/cagebreak-config.5 release-artefacts_version/`
     * [ ] `cp build/cagebreak-config.5.sig release-artefacts_version/`
+    * [ ] `cp build/cagebreak-socket.7 release-artefacts_version/`
+    * [ ] `cp build/cagebreak-socket.7.sig release-artefacts_version/`
     * [ ] `cp LICENSE release-artefacts_version/`
     * [ ] `cp README.md release-artefacts_version/`
     * [ ] `cp SECURITY.md release-artefacts_version/`
@@ -341,5 +355,5 @@ See [Changelog.md](Changelog.md)
 
 ## License
 
-Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE# Cagebreak: A Wayland Tiling Compositor Inspired by Ratpoison
+Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE) Cagebreak: A Wayland Tiling Compositor Inspired by Ratpoison
 

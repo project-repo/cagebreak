@@ -1,4 +1,4 @@
-cagebreak-config(5) "Version 1.9.0" "Cagebreak Manual"
+cagebreak-config(5) "Version 2.0.0" "Cagebreak Manual"
 
 # NAME
 
@@ -50,13 +50,13 @@ definekey root <key> <command>
 
 configure_message [font <font description>|[f|b]g_color <r> <g> b> <a>|display_time <n>]
 	Configure message characteristics -
-    - font <font description> sets
-      - <font description> is
-        - X core font description or
-        - FreeType font description via pango
-    - fg_color <r> <g> <b> <a> sets RGBA of foreground
-    - bg_color <r> <g> <b> <a> sets RGBA of background
-    - display_time <n> sets display time in seconds
+	- font <font description> sets
+	  - <font description> is
+	    - X core font description or
+	    - FreeType font description via pango
+	- fg_color <r> <g> <b> <a> sets RGBA of foreground
+	- bg_color <r> <g> <b> <a> sets RGBA of background
+	- display_time <n> sets display time in seconds
 
 ```
 # Set font
@@ -218,21 +218,26 @@ message <text>
 
 *movetonextscreen*
 	Move currently focused window to next screen
+	See *output* for differences between screen and output.
 
 *movetoprevscreen*
 	Move currently focused window to previous screen
+	See *output* for differences between screen and output.
 
 *movetoscreen <n>*
 	Move currently focused window to <n>-th screen
+	See *output* for differences between screen and output.
 
 *movetoworkspace <n>*
 	Move currently focused window to <n>-th workspace
+	See *output* for differences between screen and output.
 
 *next*
 	Focus next window in current tile
 
 *nextscreen*
 	Focus next screen
+	See *output* for differences between screen and output.
 
 *only*
 	Remove all splits and make current window fill the entire screen
@@ -252,6 +257,14 @@ message <text>
 	  to set priorities for outputs, where <n> >= 1. The larger <n> is,
 	  the higher the priority is, that is to say, the earlier the output
 	  will appear in the list of outputs.
+	*output* and the *screen* familiy of commands are similar in dealing
+	with monitors on some level.
+	- *output* addresses outputs by their name and is vaguely symmetric
+	  to *input*.
+	- Any *screen* command deals with the number identifying a
+	  monitor within a Cagebreak session either explicitely or
+	  implicitly by changing it in some way (i.e. the
+	  commands containing next and prev).
 
 *prev*
 	Focus previous window in current tile
@@ -276,6 +289,7 @@ message <text>
 
 *screen <n>*
 	Change to <n>-th screen
+	See *output* for differences between screen and output.
 
 *show_info*
 	Display information about the current setup - In particular, print the identifiers
@@ -355,6 +369,7 @@ is used.
 # SEE ALSO
 
 *cagebreak(1)*
+*cagebreak-socket(7)*
 
 # BUGS
 

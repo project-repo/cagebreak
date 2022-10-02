@@ -224,11 +224,13 @@ message_set_output(struct cg_output *output, const char *string,
 		break;
 	}
 
-	struct wlr_scene_output *scene_output = wlr_scene_get_scene_output(output->server->scene,output->wlr_output);
+	struct wlr_scene_output *scene_output =
+	    wlr_scene_get_scene_output(output->server->scene, output->wlr_output);
 	if(scene_output == NULL) {
 		return;
 	}
-	message->message=wlr_scene_buffer_create(&scene_output->scene->node,&buf->base);
+	message->message =
+	    wlr_scene_buffer_create(&scene_output->scene->node, &buf->base);
 	wlr_scene_node_raise_to_top(&message->message->node);
 	wlr_scene_node_set_enabled(&message->message->node, true);
 	struct wlr_box *outp_box = wlr_output_layout_get_box(

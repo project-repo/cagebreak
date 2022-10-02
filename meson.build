@@ -1,5 +1,5 @@
 project('cagebreak', 'c',
-  version: '1.8.2',
+  version: '2.0.0',
   license: 'MIT',
   default_options: [
     'c_std=c11',
@@ -200,17 +200,17 @@ cagebreak_dependencies_dict = {
 reproducible_build_versions = { 
   'server_protos': '-1',
   'wayland_server': '1.19.0',
-  'wayland_client': '1.19.0',
-  'wayland_cursor': '1.19.0',
-  'wlroots': '0.14.1',
-  'xkbcommon': '1.3.1',
-  'fontconfig': '2.13.94',
-  'libinput': '1.19.2',
-  'libevdev': '1.12.0',
-  'libudev': '249',
-  'pango': '1.50.0',
-  'cairo': '1.17.4',
-  'pangocairo': '1.50.0',
+  'wayland_client': '1.21.0',
+  'wayland_cursor': '1.21.0',
+  'wlroots': '0.15.1',
+  'xkbcommon': '1.4.1',
+  'fontconfig': '2.14.0',
+  'libinput': '1.21.0',
+  'libevdev': '1.13.0',
+  'libudev': '251',
+  'pango': '1.50.10',
+  'cairo': '1.17.6',
+  'pangocairo': '1.50.10',
   'math': '-1'
 }
 
@@ -236,7 +236,7 @@ foreach name, dep : cagebreak_dependencies_dict
 endforeach
 
 reproducible_build_compiler = 'gcc'
-reproducible_build_compiler_version = '11.1.0'
+reproducible_build_compiler_version = '12.2.0'
 
 if cc.get_id() != reproducible_build_compiler
   warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in Hashes.md (' + reproducible_build_compiler + ').')
@@ -257,15 +257,18 @@ install_data('examples/config', install_dir : '/etc/xdg/cagebreak')
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
+  secssinceepoch = 1664566469
+  shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
   mandir5 = join_paths(get_option('mandir'), 'man5')
+  mandir7 = join_paths(get_option('mandir'), 'man7')
 
   cagebreak_man = custom_target('cagebreak_man',
     output : 'cagebreak.1',
     input : 'man/cagebreak.1.md',
-	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1638785664 ; @0@ < @INPUT@'.format(scdoc.path())],
+    capture : true,
+    command : [sh, '-c', shcommand],
     install: true,
     install_dir: mandir1
     )
@@ -273,10 +276,19 @@ if get_option('man-pages')
   cagebreak_man = custom_target('cagebreak_config_man',
     output : 'cagebreak-config.5',
     input : 'man/cagebreak-config.5.md',
-	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1638785664 ; @0@ < @INPUT@'.format(scdoc.path())],
+    capture : true,
+    command : [sh, '-c', shcommand],
     install: true,
     install_dir: mandir5
+    )
+
+  cagebreak_man = custom_target('cagebreak_socket_man',
+    output : 'cagebreak-socket.7',
+    input : 'man/cagebreak-socket.7.md',
+    capture : true,
+    command : [sh, '-c', shcommand],
+    install: true,
+    install_dir: mandir7
     )
 endif
 

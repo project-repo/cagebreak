@@ -16,8 +16,8 @@
 #include <wlr/util/log.h>
 
 #include "message.h"
-#include "seat.h"
 #include "output.h"
+#include "seat.h"
 #include "server.h"
 #include "workspace.h"
 
@@ -57,7 +57,8 @@ full_screen_workspace(struct cg_output *output) {
 	if(!workspace) {
 		return NULL;
 	}
-	struct wlr_scene_output *scene_output=wlr_scene_get_scene_output(output->server->scene,output->wlr_output);
+	struct wlr_scene_output *scene_output =
+	    wlr_scene_get_scene_output(output->server->scene, output->wlr_output);
 	if(scene_output == NULL) {
 		free(workspace);
 		return NULL;
@@ -92,8 +93,10 @@ void
 workspace_free_tiles(struct cg_workspace *workspace) {
 	workspace->focused_tile->prev->next = NULL;
 	while(workspace->focused_tile != NULL) {
-		if(workspace->output->server->running&&workspace->output->server->seat->cursor_tile==workspace->focused_tile) {
-			workspace->output->server->seat->cursor_tile=NULL;
+		if(workspace->output->server->running &&
+		   workspace->output->server->seat->cursor_tile ==
+		       workspace->focused_tile) {
+			workspace->output->server->seat->cursor_tile = NULL;
 		}
 		struct cg_tile *next = workspace->focused_tile->next;
 		free(workspace->focused_tile);
