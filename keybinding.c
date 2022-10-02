@@ -1092,9 +1092,9 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 		view_maximize(view, view->tile);
 		seat_set_focus(server->seat, view);
 	}
-	int id=-1;
+	int id = -1;
 	if(view != NULL) {
-		id=view->id;
+		id = view->id;
 	}
 	ipc_send_event(server,
 	               "{\"event_name\":\"move_view_cycle_output\",\"view_id\":\"%"
