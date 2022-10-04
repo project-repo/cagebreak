@@ -1,10 +1,9 @@
-project('cagebreak', 'c',
-  version: '2.0.0',
-  license: 'MIT',
-  default_options: [
-    'c_std=c11',
-    'warning_level=3',
-  ],
+project(
+  'cagebreak',
+  'c',
+version : '2.0.0',
+license : 'MIT',
+default_options : ['c_std=c11', 'warning_level=3']
 )
 
 add_project_arguments(
