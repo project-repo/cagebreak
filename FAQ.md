@@ -25,6 +25,23 @@ Set the following environment variables
 
 to activate wayland support for firefox.
 
+## How are applications launched in Cagebreak?
+
+There are multiple ways to launch external programs in cagebreak.
+
+  * Using a terminal emulator is a perfectly valid way to launch
+    applications. If you want to be able to close the terminal
+    you used to start the program, you may use `&disown`, which should
+    be available in every shell.
+  * Using the `exec` command in the cagebreak config, it is possible to
+    launch programs when cagebreak is started. Moreover, as this command
+    can be combined with commands such as `bind`, it can be used to
+    create custom keybindings which execute external programs. (See also
+    the man page `cagebreak-config`).
+  * All commands mentioned previously are also available over the socket
+    which allows the creation of (arbitrary) keybindings on the fly and
+    a fortiori keybindings running arbitrary commands.
+
 ## Which further resources are available?
 
   * [Arch Linux Wiki entry for Cagebreak](https://wiki.archlinux.org/title/Cagebreak)
