@@ -48,6 +48,7 @@ Please see:
     * [configuration](man/cagebreak-config.5.md)
     * [socket](man/cagebreak-socket.7.md)
   * the [FAQ](FAQ.md)
+  * [SECURITY.md](SECURITY.md)
   * the [Changelog](Changelog.md)
 
 
