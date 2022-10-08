@@ -18,6 +18,7 @@ For documentation of Cagebreak, please see
   * the man pages
     * [cagebreak](man/cagebreak.1.md)
     * [configuration](man/cagebreak-config.5.md)
+    * [socket](man/cagebreak-socket.7.md)
   * also the [FAQ](FAQ.md)
 
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
