@@ -16,7 +16,7 @@ users. However, this is no reimplementation of ratpoison.
 
 Should you want to know if a feature will be implemented, file a bug or
 otherwise get in touch, [open an issue](https://github.com/project-repo/cagebreak/issues/new)
-or get in touch with the development team (See [SECURITY.md](SECURITY.md) for details.).
+or write an e-mail (See [SECURITY.md](SECURITY.md) for details.).
 
 
 #### Compatibility & Development Distribution
@@ -42,12 +42,19 @@ details on getting started and the documentation for everything else.
 ### Documentation
 
 For documentation on Cagebreak, please see
+  * this file
   * man pages
     * [cagebreak](man/cagebreak.1.md)
     * [configuration](man/cagebreak-config.5.md)
     * [socket](man/cagebreak-socket.7.md)
   * [FAQ](FAQ.md)
 
+### Contributing
+
+Just [open an issue](https://github.com/project-repo/cagebreak/issues/new)
+and state your feature request.
+Don't write something and open a pull request because we may not
+accept it for many reasons.
 ### Naming
 
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
