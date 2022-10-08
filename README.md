@@ -1,15 +1,23 @@
-# Cagebreak: A Wayland Tiling Compositor Inspired by Ratpoison
+# Cagebreak: A Wayland Tiling Compositor
 
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.0.0)](https://repology.org/project/cagebreak/versions)
 
-## Quick Introduction
+## Quick Introduction to Cagebreak
 
-This is Cagebreak, a [Wayland](https://wayland.freedesktop.org/) tiling compositor.
+This is Cagebreak.
+
+Cagebreak is a [Wayland](https://wayland.freedesktop.org/) tiling compositor
+based on [Cage](https://github.com/Hjdskes/cage) and inspired by [ratpoison](https://www.nongnu.org/ratpoison/).
 
 ### Goal
 
 The goal of this project is to provide a successor to [ratpoison](https://www.nongnu.org/ratpoison/) for Wayland
 users. However, this is no reimplementation of ratpoison.
+
+#### New Features
+
+Should you like to know if a feature will be implemented, open an issue
+or get in touch with the development team.
 
 ### Documentation
 
@@ -20,21 +28,21 @@ For documentation of Cagebreak, please see
     * [socket](man/cagebreak-socket.7.md)
   * also the [FAQ](FAQ.md)
 
-### New Features
-
-Should you like to know if a feature will be implemented, open an issue
-or get in touch with the development team.
-
 ### Compatibility & Development Distribution
 
-Cagebreak is developed under [Arch Linux](https://archlinux.org/) and uses the libraries
-as they are obtained through [pacman](https://wiki.archlinux.org/title/Pacman). However, cagebreak should also work on
-other distributions given the proper library versions.
+Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the libraries
+(and software versions) as they are obtained through [pacman](https://wiki.archlinux.org/title/Pacman)
+at the time of release. Any other use is out of scope.
 
-### History
+Everything else probably works with a bit of luck. We
+make no guarantees.
+
+### Naming
 
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
-compositor.
+compositor. Since it breaks the
+kiosk into tiles the name .
+
 
 This also explains the name Cagebreak, since it breaks the
 kiosk into tiles.
