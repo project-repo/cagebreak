@@ -14,19 +14,12 @@ based on [Cage](https://github.com/Hjdskes/cage) and inspired by [ratpoison](htt
 The goal of this project is to provide a successor to [ratpoison](https://www.nongnu.org/ratpoison/) for Wayland
 users. However, this is no reimplementation of ratpoison.
 
-#### New Features
+#### New Features, Bugs and Contact Information
 
-Should you like to know if a feature will be implemented, open an issue
-or get in touch with the development team.
+Should you want to know if a feature will be implemented, file a bug or
+otherwise get in touch, [open an issue](https://github.com/project-repo/cagebreak/issues/new)
+or get in touch with the development team (See [SECURITY.md](SECURITY.md) for details.).
 
-### Documentation
-
-For documentation of Cagebreak, please see
-  * the man pages
-    * [cagebreak](man/cagebreak.1.md)
-    * [configuration](man/cagebreak-config.5.md)
-    * [socket](man/cagebreak-socket.7.md)
-  * also the [FAQ](FAQ.md)
 
 ### Compatibility & Development Distribution
 
@@ -36,6 +29,26 @@ at the time of release. Any other use is out of scope.
 
 Everything else probably works with a bit of luck. We
 make no guarantees.
+
+### Quick Installation
+
+This assumes Arch Linux:
+
+1. Use the [cagebreak PKGBUILD](https://aur.archlinux.org/packages/cagebreak).
+2. Add an example config such as [config](examples/config) to `$USER/.config/cagebreak/config`
+3. Execute cagebreak like any other binary.
+
+See the [ArchWiki](https://wiki.archlinux.org/title/Cagebreak#Getting_started) for
+details on getting started and the documentation for everything else.
+
+### Documentation
+
+For documentation on Cagebreak, please see
+  * man pages
+    * [cagebreak](man/cagebreak.1.md)
+    * [configuration](man/cagebreak-config.5.md)
+    * [socket](man/cagebreak-socket.7.md)
+  * [FAQ](FAQ.md)
 
 ### Naming
 
