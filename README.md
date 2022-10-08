@@ -7,7 +7,7 @@
 Cagebreak is a [Wayland](https://wayland.freedesktop.org/) tiling compositor
 based on [Cage](https://github.com/Hjdskes/cage) and inspired by [ratpoison](https://www.nongnu.org/ratpoison/).
 
-### Goal
+### Purpose
 
 The goal of this project is to provide a successor to [ratpoison](https://www.nongnu.org/ratpoison/) for Wayland
 users. However, this is no reimplementation of ratpoison.
