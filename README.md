@@ -41,13 +41,14 @@ details on getting started and the documentation for everything else.
 
 ### Documentation
 
-For documentation on Cagebreak, please see
-  * this file
-  * man pages
+Please see:
+  * the rest of this file
+  * the man pages:
     * [cagebreak](man/cagebreak.1.md)
     * [configuration](man/cagebreak-config.5.md)
     * [socket](man/cagebreak-socket.7.md)
-  * [FAQ](FAQ.md)
+  * the [FAQ](FAQ.md)
+
 
 ### Contributing
 
