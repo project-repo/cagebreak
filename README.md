@@ -2,13 +2,16 @@
 
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.0.0)](https://repology.org/project/cagebreak/versions)
 
+## Quick Introduction
+
 This is Cagebreak, a [Wayland](https://wayland.freedesktop.org/) tiling compositor.
+
+### Goal
 
 The goal of this project is to provide a successor to [ratpoison](https://www.nongnu.org/ratpoison/) for Wayland
 users. However, this is no reimplementation of ratpoison.
 
-Should you like to know if a feature will be implemented, open an issue
-or get in touch with the development team.
+### Documentation
 
 For documentation of Cagebreak, please see
   * the man pages
@@ -17,16 +20,28 @@ For documentation of Cagebreak, please see
     * [socket](man/cagebreak-socket.7.md)
   * also the [FAQ](FAQ.md)
 
-Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
-compositor.
+### New Features
+
+Should you like to know if a feature will be implemented, open an issue
+or get in touch with the development team.
+
+### Compatibility & Development Distribution
 
 Cagebreak is developed under [Arch Linux](https://archlinux.org/) and uses the libraries
 as they are obtained through [pacman](https://wiki.archlinux.org/title/Pacman). However, cagebreak should also work on
 other distributions given the proper library versions.
 
+### History
+
+Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
+compositor.
+
+This also explains the name Cagebreak, since it breaks the
+kiosk into tiles.
+
 ## Installation
 
-If you are using archlinux, just use the PKGBUILDs from the aur:
+If you are using Arch Linux, just use the PKGBUILDs from the aur:
 
   * Using [cagebreak](https://aur.archlinux.org/packages/cagebreak), Cagebreak is
     compiled on the target system (since release 1.3.0)
