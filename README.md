@@ -58,15 +58,15 @@ Just [open an issue](https://github.com/project-repo/cagebreak/issues/new)
 and state your feature request.
 Don't write something and open a pull request because we may not
 accept it for many reasons.
-### Naming
+
+### Name
 
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
 compositor. Since it breaks the
-kiosk into tiles the name .
+kiosk into tiles the name Cagebreak seemed appropriate.
 
 
-This also explains the name Cagebreak, since it breaks the
-kiosk into tiles.
+
 
 ## Installation
 
