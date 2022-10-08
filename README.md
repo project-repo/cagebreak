@@ -4,8 +4,6 @@
 
 ## Quick Introduction to Cagebreak
 
-This is Cagebreak.
-
 Cagebreak is a [Wayland](https://wayland.freedesktop.org/) tiling compositor
 based on [Cage](https://github.com/Hjdskes/cage) and inspired by [ratpoison](https://www.nongnu.org/ratpoison/).
 
@@ -21,7 +19,7 @@ otherwise get in touch, [open an issue](https://github.com/project-repo/cagebrea
 or get in touch with the development team (See [SECURITY.md](SECURITY.md) for details.).
 
 
-### Compatibility & Development Distribution
+#### Compatibility & Development Distribution
 
 Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the libraries
 (and software versions) as they are obtained through [pacman](https://wiki.archlinux.org/title/Pacman)
