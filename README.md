@@ -62,7 +62,7 @@ kiosk into tiles.
 
 ## Installation
 
-If you are using Arch Linux, just use the PKGBUILDs from the aur:
+On Arch Linux, just use the PKGBUILDs from the [AUR](https://aur.archlinux.org/):
 
   * Using [cagebreak](https://aur.archlinux.org/packages/cagebreak), Cagebreak is
     compiled on the target system (since release 1.3.0)
@@ -367,8 +367,7 @@ In the meantime, add `-Db_detect-leaks=0` to the meson command to exclude memory
 
 ## Bugs
 
-For any bug, please [create an
-issue](https://github.com/project-repo/cagebreak/issues/new) on
+For any bug, please [create an issue](https://github.com/project-repo/cagebreak/issues/new) on
 [GitHub](https://github.com/project-repo/cagebreak).
 
 Fixed bugs are to be assigned a number and summarized inside Bugs.md for future reference
