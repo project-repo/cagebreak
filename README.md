@@ -9,8 +9,8 @@ based on [Cage](https://github.com/Hjdskes/cage) and inspired by [ratpoison](htt
 
 ### Purpose
 
-The goal of this project is to provide a successor to [ratpoison](https://www.nongnu.org/ratpoison/) for Wayland
-users. However, this is no reimplementation of ratpoison.
+The goal of this project is to provide a successor to [ratpoison](https://www.nongnu.org/ratpoison/) for Wayland.
+However, this is no reimplementation of ratpoison.
 
 #### New Features, Bugs and Contact Information
 
