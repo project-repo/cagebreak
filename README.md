@@ -25,7 +25,7 @@ Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the libraries
 (and software versions) as they are obtained through [pacman](https://wiki.archlinux.org/title/Pacman)
 at the time of release. Any other use is out of scope.
 
-Everything else probably works with a bit of luck. We
+Most other setups probably work with a bit of luck. We
 make no guarantees.
 
 ### Quick Installation
