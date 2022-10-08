@@ -1,12 +1,7 @@
 # Cagebreak: A Wayland Tiling Compositor Inspired by Ratpoison
 
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.0.0)](https://repology.org/project/cagebreak/versions)
 
-[![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions)
-
-[![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.0.0)](https://repology.org/project/cagebreak/versions)
-
-This is Cagebreak, a Wayland tiling compositor.
 This is Cagebreak, a [Wayland](https://wayland.freedesktop.org/) tiling compositor.
 
 The goal of this project is to provide a successor to [ratpoison](https://www.nongnu.org/ratpoison/) for Wayland
