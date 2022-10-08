@@ -7,8 +7,9 @@
 [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.0.0)](https://repology.org/project/cagebreak/versions)
 
 This is Cagebreak, a Wayland tiling compositor.
+This is Cagebreak, a [Wayland](https://wayland.freedesktop.org/) tiling compositor.
 
-The goal of this project is to provide a successor to ratpoison for Wayland
+The goal of this project is to provide a successor to [ratpoison](https://www.nongnu.org/ratpoison/) for Wayland
 users. However, this is no reimplementation of ratpoison.
 
 Should you like to know if a feature will be implemented, open an issue
@@ -24,8 +25,8 @@ For documentation of Cagebreak, please see
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
 compositor.
 
-Cagebreak is developed under Arch Linux and uses the libraries
-as they are obtained through pacman. However, cagebreak should also work on
+Cagebreak is developed under [Arch Linux](https://archlinux.org/) and uses the libraries
+as they are obtained through [pacman](https://wiki.archlinux.org/title/Pacman). However, cagebreak should also work on
 other distributions given the proper library versions.
 
 ## Installation
@@ -44,8 +45,8 @@ See [cagebreak-pkgbuild](https://github.com/project-repo/cagebreak-pkgbuild) for
 
 There are different ways to obtain cagebreak source:
 
-  * git clone (for all releases)
-  * download release asset tarballs (starting at release 1.2.1)
+  * [git clone](https://github.com/project-repo/cagebreak) (for all releases)
+  * [download release asset tarballs](https://github.com/project-repo/cagebreak/releases) (starting at release 1.2.1)
 
 ### Verifying Source Code
 
