@@ -9,15 +9,16 @@ based on [Cage](https://github.com/Hjdskes/cage) and inspired by [ratpoison](htt
 
 ### Purpose
 
-The goal of this project is to provide a successor to [ratpoison](https://www.nongnu.org/ratpoison/) for Wayland.
+The goal of this project is to provide a successor to ratpoison for Wayland.
 However, this is no reimplementation of ratpoison.
 
 #### New Features, Bugs and Contact Information
 
 Should you want to know if a feature will be implemented, file a bug or
-otherwise get in touch, [open an issue](https://github.com/project-repo/cagebreak/issues/new)
+get in touch, [open an issue](https://github.com/project-repo/cagebreak/issues/new)
 or write an e-mail (See [SECURITY.md](SECURITY.md) for details.).
 
+The Roadmap section outlines what is planned for the future.
 
 #### Compatibility & Development Distribution
 
@@ -41,7 +42,6 @@ details on getting started and the documentation for everything else.
 
 ### Documentation
 
-Please see:
   * the rest of this file
   * the man pages:
     * [cagebreak](man/cagebreak.1.md)
@@ -51,13 +51,23 @@ Please see:
   * [SECURITY.md](SECURITY.md)
   * the [Changelog](Changelog.md)
 
+### Uninstallation
+
+`pacman -R cagebreak` should be sufficient.
 
 ### Contributing
 
-Just [open an issue](https://github.com/project-repo/cagebreak/issues/new)
-and state your feature request.
-Don't write something and open a pull request because we may not
-accept it for many reasons.
+  * Just [open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your feature request.
+    We will consider the proposal and get back to you.
+  * Don't open a pull request. We might not accept your code and
+    it would be sad to waste the effort.
+  * Respect the Code of Conduct (TODO link) (To date, we never
+    had to intervene - Keep it that way!)
+
+Reviewing the project in any aspect is always welcome.
+
+If you have ideas on improving the testing and quality assurance
+aspects, your input is particularly welcome.
 
 ### Name
 
