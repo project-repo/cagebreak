@@ -406,5 +406,5 @@ See [Changelog.md](Changelog.md)
 
 ## License
 
-Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE) Cagebreak: A Wayland Tiling Compositor Inspired by Ratpoison
+Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE)
 
