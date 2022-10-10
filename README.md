@@ -64,11 +64,6 @@ details on getting started and the documentation for everything else.
   * Respect the Code of Conduct (TODO link) (To date, we never
     had to intervene - Keep it that way!)
 
-Reviewing the project in any aspect is always welcome.
-
-If you have ideas on improving the testing and quality assurance
-aspects, your input is particularly welcome.
-
 ### Name
 
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
