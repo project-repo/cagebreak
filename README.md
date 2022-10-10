@@ -412,6 +412,47 @@ in the future:
   * Add or modify features, which the authors find convenient or important.
   * Improve the [OpenSSF Best Practices Badge Program](https://bestpractices.coreinfrastructure.org/en) level
 
+## Governance
+
+Cagebreak is managed by project-repo.
+
+Project-repo is a pseudonym of at least two individuals acting
+as benevolent dictators for the project by the others mutual consent.
+
+The individuals comprising project-repo are not otherwise associated
+by payment from any organisation or grant.
+
+For all intents and purposes consider project-repo as a single
+benevolent dictator for life that happens to occupy at least two brains.
+
+### Roles
+
+There are members of project-repo and those who are not.
+
+There are no specific roles forced unto anyone.
+
+### Bus Factor
+
+The Bus Factor is a measure of how many people have to be
+incapacitated for a project to be unable to continue.
+
+The current bus factor for Cagebreak is: 1
+
+Project-repo could still react to issues (even confidential
+e-mails) and fix easier issues if any one individual were
+incapacitated.
+
+However, not all aspects of the code or release engineering
+are fully resilient to the loss of any one individual.
+
+We strive to improve the Bus Factor to at least two in all
+aspects of Cagebreak.
+
+### Governance Issues
+
+Anyone can use the information in [SECURITY.md](SECURITY.md) to
+contact the members of project-repo to bring governance
+issues to their attention.
 
 ## Compatibility & Development Distribution
 
