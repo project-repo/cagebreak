@@ -412,6 +412,20 @@ in the future:
   * Add or modify features, which the authors find convenient or important.
   * Improve the [OpenSSF Best Practices Badge Program](https://bestpractices.coreinfrastructure.org/en) level
 
+
+## Compatibility & Development Distribution
+
+Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the libraries
+(and software versions) as they are obtained through [pacman](https://wiki.archlinux.org/title/Pacman)
+at the time of release. Any other use is out of scope.
+
+However, Cagebreak may also work on other distributions given the
+proper library versions (Some package maintainers have done this and it
+seems to work (To date, we dealt with a few Issues and never felt the
+need to ask for the distribution the user was having the issue on.)).
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/cagebreak.svg)](https://repology.org/project/cagebreak/versions)
+
 ## Bugs
 
 For any bug, please [create an issue](https://github.com/project-repo/cagebreak/issues/new) on
