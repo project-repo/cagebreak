@@ -186,23 +186,26 @@ The release commit is tagged with the release version.
 
 In the past, our git history did not perfectly reflect this scheme.
 
-### Releases
+### Release Procedure
 
-The release checklist must be completely fulfilled in one run for a release to
+The release procedure outlines the process for a release to
 occur.
 
   * [ ] `git checkout development`
   * [ ] `git pull origin development`
   * [ ] `git push origin development`
-  * [ ] `ninja -C build clang-format` makes no changes
-  * [ ] `ninja -C build scan-build` shows no issues
-  * [ ] New version number determined according to [semantic versioning](https://semver.org) guidelines
+  * [ ] New semantic version number determined
+  * [ ] Adjust version number
+    * [ ] meson.build
+    * [ ] git tag
+    * [ ] man pages
+    * [ ] README.md repology badges minversion
   * [ ] Relevant Documentation completed
     * [ ] New features
       * [ ] man pages
-        * [ ] man/cagebreak
-        * [ ] man/cagebreak-config
-        * [ ] man/cagebreak-socket
+        * [ ] cagebreak
+        * [ ] cagebreak-config
+        * [ ] cagebreak-socket
         * [ ] Set EPOCH to release day in man generation in meson.build
       * [ ] FAQ.md
       * [ ] Changelog.md for major and minor releases but not patches
@@ -210,17 +213,14 @@ occur.
           for example)
       * [ ] Synchronize any socket changes to cagebreak-socket man page
     * [ ] Fixed bugs documented in Bugs.md
-      * [ ] Include issue description from github
+      * [ ] Include issue discussion from github, where applicable
   * [ ] Testing
     * [ ] Manual testing
     * [ ] Libfuzzer testing
     * [ ] Build version without xwayland support
-  * [ ] Version Number
-    * [ ] meson.build
-    * [ ] git tag
-    * [ ] man pages
-    * [ ] README.md repology badges minversion
   * [ ] meson.build reproducible build versions are current archlinux libraries and gcc
+  * [ ] `ninja -C build clang-format` makes no changes
+  * [ ] `ninja -C build scan-build` shows no issues
   * [ ] Cagebreak is reproducible on multiple machines
   * [ ] Documented reproducible build artefacts
     * [ ] Hashes of the artefacts in Hashes.md
