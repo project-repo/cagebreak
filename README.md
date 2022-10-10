@@ -435,5 +435,7 @@ See [Changelog.md](Changelog.md)
 
 ## License
 
+MIT
+
 Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE)
 
