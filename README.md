@@ -403,6 +403,15 @@ Currently, there are memory leaks which do not seem to stem from our code but ra
 the code of wl-roots or some other library we depend on. We are working on the problem.
 In the meantime, add `-Db_detect-leaks=0` to the meson command to exclude memory leaks.
 
+## Roadmap
+
+Cagebreak plans to do or keep doing the following things
+in the future:
+
+  * React to all issues.
+  * Add or modify features, which the authors find convenient or important.
+  * Improve the [OpenSSF Best Practices Badge Program](https://bestpractices.coreinfrastructure.org/en) level
+
 ## Bugs
 
 For any bug, please [create an issue](https://github.com/project-repo/cagebreak/issues/new) on
