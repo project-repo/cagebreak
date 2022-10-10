@@ -70,9 +70,6 @@ Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
 compositor. Since it breaks the
 kiosk into tiles the name Cagebreak seemed appropriate.
 
-
-
-
 ## Installation
 
 On Arch Linux, just use the PKGBUILDs from the [AUR](https://aur.archlinux.org/):
