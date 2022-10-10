@@ -64,6 +64,10 @@ details on getting started and the documentation for everything else.
   * Respect the Code of Conduct (TODO link) (To date, we never
     had to intervene - Keep it that way!)
 
+### What's New?
+
+See [Changelog.md](Changelog.md)
+
 ### Name
 
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
@@ -474,10 +478,6 @@ independent of github, in case this service is unavailable.
 
 For other means of contacting the Cagebreak authors and for security issues
 see [SECURITY.md](SECURITY.md).
-
-## Changelog
-
-See [Changelog.md](Changelog.md)
 
 ## Contributors
 
