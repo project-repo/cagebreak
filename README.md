@@ -138,26 +138,51 @@ within an existing X11 or Wayland session, it will open in a virtual output as
 a window in your existing session. If you run it in a TTY, it'll run with the
 KMS+DRM backend. For more configuration options, see the man pages.
 
-## Contributing to Cagebreak
+## Contributing
 
-Cagebreak is currently developed to fit the needs of its creators. Should you
-desire to implement a feature, please let us know in advance by opening
-an issue. However, the feature set is intentionally limited (i.e. we removed
-support for a desktop background) and will continue to be so in the future.
+  * Just [open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your feature request.
+    We will consider the proposal and get back to you.
+  * Don't open a pull request. We might not accept your code and
+    it would be sad to waste the effort.
+  * Respect the Code of Conduct (TODO link) (To date, we never
+    had to intervene - Keep it that way!)
 
-Nonetheless, don't be intimidated by the (slightly lengthy) release checklist
-or any other part of this file. Do what you can, open an issue and we will
-collaborate toward a solution.
+### Good First Contributions
 
-### Branching Strategy and Versioning
+  * Reviewing the project is always welcome.
+    * Read the code.
+    * Read the documentation.
+    * Test whether the documentation matches the code.
+    * Test Cagebreak in more esoteric setups (many monitors, for instance).
+    * Compile the code.
+  * Ideas on improving the testing and quality assurance are particularly
+    welcome.
+  * The points above still apply.
 
-There exists a branch `development` to which all reasonable code
-is comitted for final testing.
+### Philosophy
 
-Once `development` is ready for a release, it is merged into `master` (possibly via
-a cherry-picked branch), creating a new release, which is tagged and signed.
+Cagebreak is currently developed to fit the needs of its creators.
 
-All releases are tagged according to [semantic versioning](https://semver.org) guidelines.
+The feature set is intentionally limited - we removed
+support for a desktop background image for example.
+
+Nonetheless, don't be intimidated by any other part of this file.
+Do your best and we will collaborate toward a solution.
+
+### Versioning & Branching Strategy
+
+Cagebreak uses [semantic versioning](https://semver.org).
+
+There are three permanent branches in cagebreak:
+
+  * `master` (for releases)
+  * `development` (for polishing code between releases)
+  * `hotfix` (for small emergent releases, usually up-to-date with master)
+
+Releases are merged to master as per the release procedure, with
+reasonable exceptions as the situation requires.
+
+The release commit is tagged with the release version.
 
 In the past, our git history did not perfectly reflect this scheme.
 
