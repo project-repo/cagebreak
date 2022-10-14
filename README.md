@@ -452,7 +452,7 @@ aspects of Cagebreak.
 ### Governance Issues
 
 Anyone can use the information in [SECURITY.md](SECURITY.md) to
-contact the members of project-repo to bring governance
+contact the members of project-repo and bring governance
 issues to their attention.
 
 ## Compatibility & Development Distribution
