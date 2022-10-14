@@ -468,6 +468,9 @@ need to ask for the distribution the user was having the issue on.)).
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/cagebreak.svg)](https://repology.org/project/cagebreak/versions)
 
+You should use Arch Linux if you want to modify Cagebreak
+for yourself.
+
 ## Bugs
 
 For any bug, please [create an issue](https://github.com/project-repo/cagebreak/issues/new) on
