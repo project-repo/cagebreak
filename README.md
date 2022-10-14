@@ -189,6 +189,133 @@ need to ask for the distribution the user was having the issue on.)).
 You should use Arch Linux if you want to modify Cagebreak
 for yourself.
 
+### GCC and -fanalyzer
+
+Cagebreak should compile with any reasonably new gcc or clang. Consider
+a gcc version of at least [10.1](https://gcc.gnu.org/gcc-10/changes.html) if
+you want to get the benefit of the brand-new
+[-fanalyzer](https://gcc.gnu.org/onlinedocs/gcc/Static-Analyzer-Options.html)
+flag. However, this new flag sometimes produces false-postives and we
+selectively disable warnings for affected code segments as described below.
+
+Meson is configured to set `CG_HAS_FANALYZE` if `-fanalyzer` is available.
+Therefore, to maintain portability, false-positive fanalyzer warnings are to be
+disabled using the following syntax:
+
+```
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "WARNING OPTION"
+#endif
+```
+and after
+
+```
+#if CG_HAS_FANALYZE
+#pragma GCC diagnostic pop
+#endif
+```
+
+### Fuzzing
+
+Along with the project source code, a fuzzing framework based on `libfuzzer` is
+supplied. This allows for the testing of the parsing code responsible for reading
+the `cagebreak` configuration file. When `libfuzzer` is available (please
+use the `clang` compiler to enable it), building the fuzz-testing software can
+be enabled by passing `-Dfuzz=true` to meson. This generates a `build/fuzz/fuzz-parse`
+binary according to the `libfuzzer` specifications. Further documentation on
+how to run this binary can be found [here](https://llvm.org/docs/LibFuzzer.html).
+
+Here is an example workflow:
+
+```
+rm -rf build
+CC=clang meson build -Dfuzz=true -Db_sanitize=address,undefined -Db_lundef=false
+ninja -C build/
+mkdir build/fuzz_corpus
+cp examples/config build/fuzz_corpus/
+WLR_BACKENDS=headless ./build/fuzz/fuzz-parse -jobs=12 -max_len=50000 -close_fd_mask=3 build/fuzz_corpus/
+```
+
+You may want to tweak `-jobs` or add other options depending on your own setup.
+We have found code path discovery to increase rapidly when the fuzzer is supplied
+with an initial config file. We are working on improving our fuzzing coverage to
+find bugs in other areas of the code.
+
+#### Caveat
+
+Currently, there are memory leaks which do not seem to stem from our code but rather
+the code of wl-roots or some other library we depend on. We are working on the problem.
+In the meantime, add `-Db_detect-leaks=0` to the meson command to exclude memory leaks.
+
+### Reproducible Builds
+
+Cagebreak offers reproducible builds given the exact library versions specified
+in `meson.build`. Should a version mismatch occur, a warning will be emitted. We have
+decided on this compromise to allow flexibility and security. In general we will
+adapt the versions to the packages available under Arch Linux at the time of
+release.
+
+There are reproducibility issues up to and including release `1.2.0`. See
+`Issue 5` in [Bugs.md](Bugs.md).
+
+#### Reproducible Build Instructions
+
+All hashes and signatures are provided for the following build instructions.
+
+```
+meson build -Dxwayland=true -Dman-pages=true --buildtype=release
+ninja -C build
+```
+
+#### Hashes for Builds
+
+For every release after 1.0.5, hashes will be provided.
+
+For every release after 1.7.0, hashes will be provided for man pages too.
+
+See [Hashes.md](Hashes.md)
+
+#### GPG Signatures
+
+For every release after 1.0.5, a GPG signature will be provided in `signatures`.
+
+The current signature is called `cagebreak.sig`, whereas all older signatures
+will be named after their release version.
+
+Due to errors in the release process, the releases 1.7.1 and 1.7.2 did not include the release
+signatures in the appropriate folder of the git repository. However, signatures were provided
+as release-artefacts at the time of release. The signatures were introduced into the
+repository with 1.7.3. The integrity of cagebreak is still the same because the signatures were
+provided as release-artefacts (which were themselves signed) and the hashes in Hashes.md
+are part of a signed release tag.
+
+#### Signing Keys
+
+All releases are signed by at least one of the following collection of
+keys.
+
+  * E79F6D9E113529F4B1FFE4D5C4F974D70CEC2C5B
+  * 4739D329C9187A1C2795C20A02ABFDEC3A40545F
+  * 7535AB89220A5C15A728B75F74104CC7DCA5D7A8
+  * 827BC2320D535AEAD0540E6E2E66F65D99761A6F
+  * A88D7431E5BAAD0B6EAE550AC8D61D8BD4FA3C46
+  * 8F872885968EB8C589A32E9539ACC012896D450F
+  * 896B92AF738C974E0065BF42F2576BD366156BB9
+  * AA927AFD50AF7C6810E69FE8274F2C605359E31B
+  * BE2DED372287BC4EB2213E13A0C743848A638955
+  * 0F3476E4B2404F95EC41600683D5810F7911B020
+
+Should we at any point retire a key, we will only replace it with keys signed
+by at least one of the above collection.
+
+We registered project-repo.co and added mail addresses after release `1.3.0`.
+
+We now have a mail address and its key is signed by signing keys. See Security
+Bugs for details.
+
+The full public keys can be found in `keys/` along with any revocation certificates.
+
 ### Versioning & Branching Strategy
 
 Cagebreak uses [semantic versioning](https://semver.org).
@@ -295,133 +422,6 @@ occur.
   * [ ] `gpg --detach-sign -u keyid release_version.tar.gz`
   * [ ] `gpg --detach-sign -u keyid release-artefacts_version.tar.gz`
   * [ ] Upload archives and signatures as release assets
-
-### Reproducible Builds
-
-Cagebreak offers reproducible builds given the exact library versions specified
-in `meson.build`. Should a version mismatch occur, a warning will be emitted. We have
-decided on this compromise to allow flexibility and security. In general we will
-adapt the versions to the packages available under Arch Linux at the time of
-release.
-
-There are reproducibility issues up to and including release `1.2.0`. See
-`Issue 5` in [Bugs.md](Bugs.md).
-
-#### Reproducible Build Instructions
-
-All hashes and signatures are provided for the following build instructions.
-
-```
-meson build -Dxwayland=true -Dman-pages=true --buildtype=release
-ninja -C build
-```
-
-#### Hashes for Builds
-
-For every release after 1.0.5, hashes will be provided.
-
-For every release after 1.7.0, hashes will be provided for man pages too.
-
-See [Hashes.md](Hashes.md)
-
-#### GPG Signatures
-
-For every release after 1.0.5, a GPG signature will be provided in `signatures`.
-
-The current signature is called `cagebreak.sig`, whereas all older signatures
-will be named after their release version.
-
-Due to errors in the release process, the releases 1.7.1 and 1.7.2 did not include the release
-signatures in the appropriate folder of the git repository. However, signatures were provided
-as release-artefacts at the time of release. The signatures were introduced into the
-repository with 1.7.3. The integrity of cagebreak is still the same because the signatures were
-provided as release-artefacts (which were themselves signed) and the hashes in Hashes.md
-are part of a signed release tag.
-
-#### Signing Keys
-
-All releases are signed by at least one of the following collection of
-keys.
-
-  * E79F6D9E113529F4B1FFE4D5C4F974D70CEC2C5B
-  * 4739D329C9187A1C2795C20A02ABFDEC3A40545F
-  * 7535AB89220A5C15A728B75F74104CC7DCA5D7A8
-  * 827BC2320D535AEAD0540E6E2E66F65D99761A6F
-  * A88D7431E5BAAD0B6EAE550AC8D61D8BD4FA3C46
-  * 8F872885968EB8C589A32E9539ACC012896D450F
-  * 896B92AF738C974E0065BF42F2576BD366156BB9
-  * AA927AFD50AF7C6810E69FE8274F2C605359E31B
-  * BE2DED372287BC4EB2213E13A0C743848A638955
-  * 0F3476E4B2404F95EC41600683D5810F7911B020
-
-Should we at any point retire a key, we will only replace it with keys signed
-by at least one of the above collection.
-
-We registered project-repo.co and added mail addresses after release `1.3.0`.
-
-We now have a mail address and its key is signed by signing keys. See Security
-Bugs for details.
-
-The full public keys can be found in `keys/` along with any revocation certificates.
-
-### GCC and -fanalyzer
-
-Cagebreak should compile with any reasonably new gcc or clang. Consider
-a gcc version of at least [10.1](https://gcc.gnu.org/gcc-10/changes.html) if
-you want to get the benefit of the brand-new
-[-fanalyzer](https://gcc.gnu.org/onlinedocs/gcc/Static-Analyzer-Options.html)
-flag. However, this new flag sometimes produces false-postives and we
-selectively disable warnings for affected code segments as described below.
-
-Meson is configured to set `CG_HAS_FANALYZE` if `-fanalyzer` is available.
-Therefore, to maintain portability, false-positive fanalyzer warnings are to be
-disabled using the following syntax:
-
-```
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "WARNING OPTION"
-#endif
-```
-and after
-
-```
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic pop
-#endif
-```
-
-### Fuzzing
-
-Along with the project source code, a fuzzing framework based on `libfuzzer` is
-supplied. This allows for the testing of the parsing code responsible for reading
-the `cagebreak` configuration file. When `libfuzzer` is available (please
-use the `clang` compiler to enable it), building the fuzz-testing software can
-be enabled by passing `-Dfuzz=true` to meson. This generates a `build/fuzz/fuzz-parse`
-binary according to the `libfuzzer` specifications. Further documentation on
-how to run this binary can be found [here](https://llvm.org/docs/LibFuzzer.html).
-
-Here is an example workflow:
-
-```
-rm -rf build
-CC=clang meson build -Dfuzz=true -Db_sanitize=address,undefined -Db_lundef=false
-ninja -C build/
-mkdir build/fuzz_corpus
-cp examples/config build/fuzz_corpus/
-WLR_BACKENDS=headless ./build/fuzz/fuzz-parse -jobs=12 -max_len=50000 -close_fd_mask=3 build/fuzz_corpus/
-```
-
-You may want to tweak `-jobs` or add other options depending on your own setup.
-We have found code path discovery to increase rapidly when the fuzzer is supplied
-with an initial config file. We are working on improving our fuzzing coverage to
-find bugs in other areas of the code.
-
-#### Caveat
-
-Currently, there are memory leaks which do not seem to stem from our code but rather
-the code of wl-roots or some other library we depend on. We are working on the problem.
-In the meantime, add `-Db_detect-leaks=0` to the meson command to exclude memory leaks.
 
 ## Roadmap
 
