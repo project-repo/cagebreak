@@ -171,6 +171,24 @@ support for a desktop background image for example.
 Nonetheless, don't be intimidated by any other part of this file.
 Do your best and we will collaborate toward a solution.
 
+## Development
+
+### Compatibility & Development Distribution
+
+Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the libraries
+(and software versions) as they are obtained through [pacman](https://wiki.archlinux.org/title/Pacman)
+at the time of release. Any other use is out of scope.
+
+However, Cagebreak may also work on other distributions given the
+proper library versions (Some package maintainers have done this and it
+seems to work (To date, we dealt with a few Issues and never felt the
+need to ask for the distribution the user was having the issue on.)).
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/cagebreak.svg)](https://repology.org/project/cagebreak/versions)
+
+You should use Arch Linux if you want to modify Cagebreak
+for yourself.
+
 ### Versioning & Branching Strategy
 
 Cagebreak uses [semantic versioning](https://semver.org).
@@ -455,22 +473,6 @@ aspects of Cagebreak.
 Anyone can use the information in [SECURITY.md](SECURITY.md) to
 contact the members of project-repo and bring governance
 issues to their attention.
-
-## Compatibility & Development Distribution
-
-Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the libraries
-(and software versions) as they are obtained through [pacman](https://wiki.archlinux.org/title/Pacman)
-at the time of release. Any other use is out of scope.
-
-However, Cagebreak may also work on other distributions given the
-proper library versions (Some package maintainers have done this and it
-seems to work (To date, we dealt with a few Issues and never felt the
-need to ask for the distribution the user was having the issue on.)).
-
-[![Packaging status](https://repology.org/badge/vertical-allrepos/cagebreak.svg)](https://repology.org/project/cagebreak/versions)
-
-You should use Arch Linux if you want to modify Cagebreak
-for yourself.
 
 ## Bugs
 
