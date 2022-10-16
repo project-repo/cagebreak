@@ -52,7 +52,7 @@ details on getting started and the documentation for everything else.
 
 #### What's new?
 
-See the [Changelog](Changelog.md)
+See the [Changelog](Changelog.md).
 
 ### Uninstallation
 
