@@ -49,6 +49,14 @@ All user software can execute arbitrary code while cagebreak is running.
 
 See GitHub Issues: <https://github.com/project-repo/cagebreak/issues>
 
+Mail contact: `cagebreak @ project-repo . co`
+
+GPG Fingerprints:
+
+- B15B92642760E11FE002DE168708D42451A94AB5
+- F8DD9F8DD12B85A28F5827C4678E34D2E753AA3C
+- 3ACEA46CCECD59E4C8222F791CBEB493681E8693
+
 # LICENSE
 
 Copyright (c) 2022 The Cagebreak authors
