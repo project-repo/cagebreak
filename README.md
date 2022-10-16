@@ -60,7 +60,7 @@ See the [Changelog](Changelog.md).
 
 ### Contributing
 
-  * Just [open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your feature request.
+  * Just [open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your idea.
     We will consider the proposal and get back to you.
   * Don't open a pull request. We might not accept your code and
     it would be sad to waste the effort.
