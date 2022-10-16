@@ -50,7 +50,7 @@ details on getting started and the documentation for everything else.
   * the [FAQ](FAQ.md)
   * [SECURITY.md](SECURITY.md)
 
-### What's new?
+#### What's new?
 
 See the [Changelog](Changelog.md)
 
