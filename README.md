@@ -49,7 +49,10 @@ details on getting started and the documentation for everything else.
     * [socket](man/cagebreak-socket.7.md)
   * the [FAQ](FAQ.md)
   * [SECURITY.md](SECURITY.md)
-  * the [Changelog](Changelog.md)
+
+### What's new?
+
+See the [Changelog](Changelog.md)
 
 ### Uninstallation
 
@@ -63,10 +66,6 @@ details on getting started and the documentation for everything else.
     it would be sad to waste the effort.
   * Respect the Code of Conduct (TODO link) (To date, we never
     had to intervene - Keep it that way!)
-
-### What's New?
-
-See [Changelog.md](Changelog.md)
 
 ### Name
 
