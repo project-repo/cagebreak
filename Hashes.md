@@ -1,5 +1,25 @@
 # Hashes
 
+2.0.0 cagebreak
+
+  * sha 256: TODO
+  * sha 512: TODO
+
+2.0.0 cagebreak.1
+
+  * sha 256: TODO
+  * sha 512: TODO
+
+2.0.0 cagebreak-config.5
+
+  * sha 256: TODO
+  * sha 512: TODO
+
+2.0.0 cagebreak-socket.7
+
+  * sha 256: TODO
+  * sha 512: TODO
+
 1.9.1 cagebreak
 
   * sha 256: 262c67170eb2a39174d40f97d940707029dca0b2b613b514a1cca29152a12665
