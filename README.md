@@ -64,7 +64,7 @@ See the [Changelog](Changelog.md).
     We will consider the proposal and get back to you.
   * Don't open a pull request. We might not accept your code and
     it would be sad to waste the effort.
-  * Respect the Code of Conduct (TODO link) (To date, we never
+  * Respect the [Code of Conduct](CODE_OF_CONDUCT.md) (To date, we never
     had to intervene - Keep it that way!)
 
 ### Name
@@ -145,7 +145,7 @@ KMS+DRM backend. For more configuration options, see the man pages.
     We will consider the proposal and get back to you.
   * Don't open a pull request. We might not accept your code and
     it would be sad to waste the effort.
-  * Respect the Code of Conduct (TODO link) (To date, we never
+  * Respect the [Code of Conduct](CODE_OF_CONDUCT.md) (To date, we never
     had to intervene - Keep it that way!)
 
 ### Good First Contributions
