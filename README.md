@@ -158,6 +158,8 @@ KMS+DRM backend. For more configuration options, see the man pages.
     * Compile the code.
   * Ideas on improving the testing and quality assurance are particularly
     welcome.
+  * Iff you are happy with Cagebreak and use Arch Linux, you may vote for
+    [Cagebreak in the AUR](https://aur.archlinux.org/packages/cagebreak).
   * The points above still apply.
 
 ### Philosophy
