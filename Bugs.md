@@ -652,3 +652,351 @@ This issue was not present in earlier releases.
 Cagebreak 1.9.0 broke the screen/movetoscreen functionality.
 This issue was not present in earlier releases.
 
+## Issue 38
+
+  * github issue number: #31
+  * Fixed: 2.0.0
+
+Cagebreak terminology was unclear up to and including 1.9.1.
+
+The following are extracts from the github issue discussion:
+
+kinleyd:
+```
+This isn't an issue per se, but concerns cagebreak terminology.
+I won't try to cover the entire range of terms used but stick
+to the ones that concern me at the moment:
+
+OK, so I get the use of the terms 'output', 'workspace' and 'tile'.
+
+So my question: In cagebreak, what exactly is a 'screen'? At the
+moment, the use of nextscreen, prevscreen, movetoscreen,
+movetonextscreen, movetoprevscreen all seem to suggest that
+'screen' is the same as 'output'. If so, shouldn't all the
+aforementioned commands have screen replaced with output?
+eg. nextoutput, prevoutput, etc.
+```
+
+project-repo
+```
+You make an interesting point.
+
+We have considered this and the tricky bit is that both output and *screen are
+defined cagebreak commands. It would be difficult to merge these two
+commands in a reasonable way (even with the freedom of breaking changes).
+
+Additionally, there is a sort of informal symmetry between output and input
+we would like to maintain.
+
+Our current conclusion is that we will leave the commands unmodified.
+The now ex-post defined distinction between output and *screen is that
+the *screen stuff works with the natural number uniquely identifying the
+output within a given cagebreak session (but not across sessions, "nextscreen"
+and "prevscreen" do so internally by in-/decrementing this number), whereas
+output always deals with an output name as does input with an input name.
+
+Please feel free to point out any other inconsistencies in cagebreak or better
+solutions than outlined above in this issue.
+
+You can post your suggestions here.
+
+We will close this issue once 2.0.0 is released where the points mentioned above
+will be outlined in the documentation. Please leave it open in
+the mean time. Afterwards, you may open a new issue.
+
+cheers
+project-repo
+```
+
+kinleyd:
+```
+> Our current conclusion is that we will leave the commands unmodified.
+> The now ex-post defined distinction between output and *screen is
+> that the *screen stuff works with the natural number uniquely
+> identifying the output within a given cagebreak session (but not
+> across sessions, "nextscreen" and "prevscreen" do so internally
+> by in-/decrementing this number), whereas output always deals
+> with an output name as does input with an input name.
+
+That makes perfect sense. Additionally, I also realize that there
+is the virtual display for which the concept of 'screen' as
+distinct from 'output' is necessary as a screen could then be
+a fraction of an output, or combine multiple outputs.
+
+> We will close this issue once 2.0.0 is released where the points
+> mentioned above will be outlined in the documentation. Please
+> leave it open in the mean time. Afterwards, you may open a new issue.
+
+Hey, I look forward to version 2.0.0!
+```
+
+project-repo:
+```
+We have now modified the cagebreak-config man page on the development
+branch to clarify the relationship of output and the screen family of
+commands.
+
+Please let us know if anything can be improved in that regard.
+
+cheers
+project-repo
+```
+
+## Issue 39
+
+  * github issue number: #30
+  * Fixed: 2.0.0
+
+Cagebreak 1.9.1 had an issue where clicks did not evoke
+any response under some very specific circumstances.
+
+This was remediated by switching Cagebreak to `wlr_scene`.
+
+There was extensive discussion inside the github issue
+but this is omitted here due to irrelevance.
+
+## Issue 40
+
+  * github issue number: #20
+  * Fixed: 2.0.0
+
+nor-0 proposed a more intuitive way to switch focus. This
+is a breaking change and as such is introduced on a major
+release.
+
+Details are described in the github issue discussion, which
+is reproduced here:
+
+nor-0:
+```
+Hello,
+
+I think switching focus is a bit confusing in some situations.
+When focus is switched in a direction, it can end up diagonally
+instead of the frame next to the previously focused one.
+The minimal example for this is with four frames, but it
+also applies in layouts with more than four of them.
+
+Let´s say I press the keybindings for these actions:
+`vsplit`, `hsplit`, `focusright`, `hsplit`.
+This leaves me with a layout of four simple quarters:
+
+> +-----+-----+
+> |  1  |  2  |
+> +-----+-----+
+> |  3  |  4  |
+> +-----+-----+
+
+Now, using `focuslefton` frame 2 brings me to frame 3 instead
+of one. Likewise, `focusright` on frame 3 brings me to frame
+2 instead of frame 4.
+
+As soon as I resize a width, switching works as expected and
+desired. The oddness however reappears whenever the vertical
+frame edges are realigned.
+
+The same trouble happens when creating the layout with the
+keybindings for `hsplit`, `vsplit`, `focusdown`, `vsplit`.
+Now, focusing up from frame 3 brings me two frame 2 instead
+of 1, and same with the symmetrical opposite again
+(2 downwards is 3 instead of 4). Now resizing heights is what
+helps until the horizontal edges are realigned.
+
+As said before, similar things occur with more complex layouts.
+I use those much less frequently of course, but intuitive
+navigation is even more important then. In these two minimal
+examples, reaching the frames 1 and 4 is also often more
+tedious then necessary.
+
+I understand this is due to the way the frames were created
+and makes some sense in this regard. However, unless there
+is some reason to keep this behavior (which disappears by
+some resize options anyways), I´d suggest to change it to
+be more intuitive.
+
+I imagine an approach for this could be to determine the
+frames center point and then looking for an adjacent frame
+in horizontal (vertical) direction from there when
+`focusright` or `focusleft` (`focusdown` or `focusup`) is used.
+
+(Everything said about `focus[direction]` also applies to
+`exchange[direction]`.)
+```
+
+project-repo:
+```
+Thanks for the suggestion! Yes, I agree that the current implementation
+is not a very satisfying solution... The reason it is handled like this
+is simply because it was easiest to implement. Fortunately however,
+changing this should not require too much coding since the
+determination of the tile to jump to is handled globally by a single
+function for each direction.
+
+I like your idea with considering the center of the frame and then
+looking for the one adjacent to it which is at the height of the center,
+since such a frame is always guaranteed to exist (unless we are at the
+edge of the screen in which case there is nothing to jump to).
+Of course, this would have to involve some kind of tie-breaking when
+two adjacent frames share a border at the height of the center (which is
+bound to occur often if you never resize the tiles). I'm currently
+leaning towards simply taking the top/left one in this case (or some
+similar scheme) but if anyone else has thoughts on this, we'd be glad to
+hear!
+
+Some notes:
+
+  * This would be a breaking change, so the version number would jump to 2.0.0.
+  * Also, due to limited developer capacity at the moment and
+    the ongoing porting of cagebreak to the wlr_scene API it may be a
+    while until we are able to implement this, so bear with us!
+
+cheers
+project-repo
+```
+
+project-repo:
+```
+We pushed some code to development implementing this in `ed5cca9`.
+Sorry for not writing this much sooner.
+
+To anyone who reads this: This feature will remain on the development
+branch for some time, partially due to some unresolved xwayland and
+wlr_scene bugs and partially to allow breaking changes. So if anyone
+would like to see something changed, please feel free to let us know!
+
+cheers
+project-repo
+```
+
+## Issue 41
+
+  * github issue number: #12
+  * Fixed: 2.0.0
+
+kinleyd raised the issue of changing the focussed screen
+on mouse hover. The Cagebreak philosophy is completely
+keyboard-oriented and this feature request was denied.
+However, this line of inquiry led to the idea of implementing
+an ipc socket which would report key events and an information
+dump functionality which would enable almost arbitrary scripting.
+
+Related Material:
+- [cagebreak-config man page](man/cagebreak-config.md)
+- [cagebreak-socket man page](man/cagebreak-socket.md)
+- scripting examples TODO
+
+The github issue discussion is partially reproduced below:
+
+kinleyd:
+```
+While fully recognizing - and appreciating - Cagebreak's keyboard orientation, would it be possible to accommodate support for screen change on mouse over? This would help avoid a series of key presses on multi-screen setups and improve overall ergonomics.
+
+Thanks.
+```
+
+project-repo:
+```
+As you correctly recognised, cagebreak is designed to be completely
+keyboard-oriented. However, I understand that for the multi-monitor
+setup you describe it may be useful to have some kind of
+mouse-compositor interaction. To accommodate this, we are considering
+implementing a command which allows to obtain the current cagebreak
+state from the ipc socket, including the current cursor position.
+That way, by implementing a script which listens for cursor events
+and acts accordingly, it should be possible to implement the behaviour
+you describe externally (provided #11 is implemented as intended).
+What do you think?
+
+If you have any other ideas, don't hesitate to let us know!
+
+cheers
+project-repo
+```
+
+project-repo
+```
+There has been much talk about #12 and how it would improve all sorts of
+use cases, once implemented. While much remains to be determined, we would
+like to give an update.
+
+First, #12 is secondary in priority to #11, which is presumably easier
+to implement and much clearer in its scope.
+
+Once implemented, cagebreak will communicate the state of at least the
+following internal properties:
+
+  * [ ] Current cursor position (allowing setting of the current screen
+        as per navigating screens question and suggestion #11
+  * [ ] IDs for graphical programs along with position on screen
+  * [ ] IDs for tiles on particular screens
+  * [ ] Currently focussed tile, screen, etc.
+  * [ ] Events such as "new window", "screen split", etc.
+
+In which format this information will be provided is yet to be
+determined, but we are considering at least the following:
+
+  * full blob of data upon request via ipc socket
+  * partial information on events
+
+To improve user experience, the release of #12 will include examples of
+how to use the new API over the socket for real world use cases,
+analogous to the current example config.
+
+  * [ ] Example script "Current screen follows cursor on click"
+  * [ ] Example script "Setup multi screen environment with graphical programs on
+        specific tiles"
+
+Note that this is just the current state of planning,
+the final properties of cagebreak are specified in the man pages upon
+release and cagebreak is provided as is, as specified in the LICENSE.
+
+cheers
+project-repo
+```
+
+project-repo:
+```
+Some but not all features mentioned in our previous comment have now been implemented on
+the development branch.
+
+Information on current events is provided through the ipc socket
+now. The types of events which are reported are still subject to change and the
+feature is not yet documented but you may check it out nonetheless. Let
+us know if there is any additional information you would like to obtain
+for the different events.
+
+Current format displayed on the socket is as follows:
+
+'cg-ipc<4 bytes denoting message length><keyword denoting the type of the event>(<property1>:<value1>,<property2>:<value2>,...,<propertyn>:<valuen>)'
+
+Consider it a proof of concept.
+
+A full dump of the current cagebreak state is not yet possible.
+
+Happy new year to you too!
+cheers
+project-repo
+```
+
+project-repo:
+```
+We pushed some code to development implementing the dump
+functionality. This should contain the information you require since it
+gives you the view currently focussed by the pointer from which you can
+deduce the output the cursor is currently hovering over by looking up
+the output on which the view is placed. Note that this only works when
+the cursor is actually hovering over a view (i.e. not when it is on an
+empty tile). Alternatively, you could read the cursor coordinates and
+compare these with the coordinates of the different outputs, though atm
+the coordinates of the outputs are not dumped (we aim to add this later).
+
+To anyone who reads this: This feature will remain on the development
+branch for some time, partially due to some unresolved xwayland and
+wlr_scene bugs and partially to allow breaking changes
+(removing/changing data outputted by dump and other information sent by
+IPC). So if anyone would like to see something changed, please feel free
+to let us know (either by posting here or opening a new issue)!
+
+cheers
+project-repo
+```
