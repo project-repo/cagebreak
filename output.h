@@ -40,6 +40,7 @@ struct cg_output_config {
 	struct wlr_box pos;
 	char *output_name;
 	float refresh_rate;
+	float *scale;
 	int priority;
 	struct wl_list link; // cg_server::output_config
 };

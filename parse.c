@@ -532,6 +532,7 @@ parse_output_config(char **saveptr, char **errstr) {
 	cfg->output_name = NULL;
 	cfg->refresh_rate = 0;
 	cfg->priority = -1;
+	cfg->scale = NULL;
 	char *name = strtok_r(NULL, " ", saveptr);
 	if(name == NULL) {
 		*errstr =
@@ -617,6 +618,19 @@ parse_output_config(char **saveptr, char **errstr) {
 		              "output %s, expected positive float",
 		              name);
 		goto error;
+	}
+
+	char *scale_str = strtok_r(NULL, " ", saveptr);
+	if(scale_str != NULL && strcmp(scale_str, "scale") == 0) {
+		cfg->scale = malloc(sizeof(float));
+		*cfg->scale = parse_float(saveptr, " ");		
+		if(*cfg->scale <= 0.0) {
+			*errstr =
+				log_error("Error parsing scale of output configuration for "
+						"output %s, expected positive float",
+						name);
+			goto error;
+		}
 	}
 
 	cfg->output_name = strdup(name);
