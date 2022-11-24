@@ -242,12 +242,13 @@ message <text>
 *only*
 	Remove all splits and make current window fill the entire screen
 
-*output <name> [[pos <xpos> <ypos> res <width>x<height> rate <rate>] | enable | disable | prio <n> ]*
+*output <name> [[pos <xpos> <ypos> res <width>x<height> rate <rate> [scale <scale>]] | enable | disable | prio <n> ]*
 	Configure output "<name>" -
 	- <xpos> and <ypos> are the position of the
 	  monitor in pixels. The top-left monitor should have the coordinates 0 0.
 	- <width> and <height> specify the resolution in pixels.
 	- <rate> sets the refresh rate of the monitor (often this is 50 or 60).
+	- <scale> sets the output scale (deafult is 1.0)
 	- enable and disable enable or disable <name>. Note that if
 	  <output> is the only enabled output, *output <output> disable* has
 	  no effect.
