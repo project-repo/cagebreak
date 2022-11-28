@@ -140,7 +140,6 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	float *bg_col = output->server->message_config.bg_color;
 	cairo_set_source_rgba(cairo, bg_col[0], bg_col[1], bg_col[2], bg_col[3]);
 	cairo_paint(cairo);
-	PangoContext *pango = pango_cairo_create_context(cairo);
 	float *fg_col = output->server->message_config.fg_color;
 	cairo_set_source_rgba(cairo, fg_col[0], fg_col[1], fg_col[2], fg_col[3]);
 	cairo_set_line_width(cairo, 2);
@@ -168,7 +167,6 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	wlr_buffer_end_data_ptr_access(&buf->base);
 
 	cairo_surface_destroy(surface);
-	g_object_unref(pango);
 	cairo_destroy(cairo);
 	return buf;
 }
@@ -196,8 +194,9 @@ message_set_output(struct cg_output *output, const char *string,
 	message->position = box;
 	wl_list_insert(&output->messages, &message->link);
 
-	int width = buf->base.width;
-	int height = buf->base.height;
+	double scale = output->wlr_output->scale;
+	int width = buf->base.width/scale;
+	int height = buf->base.height/scale;
 	message->position->width = width;
 	message->position->height = height;
 	switch(align) {
@@ -235,6 +234,7 @@ message_set_output(struct cg_output *output, const char *string,
 	wlr_scene_node_set_enabled(&message->message->node, true);
 	struct wlr_box *outp_box = wlr_output_layout_get_box(
 	    output->server->output_layout, output->wlr_output);
+	wlr_scene_buffer_set_dest_size(message->message,width,height);
 	wlr_scene_node_set_position(&message->message->node,
 	                            message->position->x + outp_box->x,
 	                            message->position->y + outp_box->y);

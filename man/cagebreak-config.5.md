@@ -248,7 +248,7 @@ message <text>
 	  monitor in pixels. The top-left monitor should have the coordinates 0 0.
 	- <width> and <height> specify the resolution in pixels.
 	- <rate> sets the refresh rate of the monitor (often this is 50 or 60).
-	- <scale> sets the output scale (deafult is 1.0)
+	- <scale> sets the output scale (default is 1.0)
 	- enable and disable enable or disable <name>. Note that if
 	  <output> is the only enabled output, *output <output> disable* has
 	  no effect.
