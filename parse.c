@@ -623,12 +623,12 @@ parse_output_config(char **saveptr, char **errstr) {
 	char *scale_str = strtok_r(NULL, " ", saveptr);
 	if(scale_str != NULL && strcmp(scale_str, "scale") == 0) {
 		cfg->scale = malloc(sizeof(float));
-		*cfg->scale = parse_float(saveptr, " ");		
+		*cfg->scale = parse_float(saveptr, " ");
 		if(*cfg->scale <= 0.0) {
 			*errstr =
-				log_error("Error parsing scale of output configuration for "
-						"output %s, expected positive float",
-						name);
+			    log_error("Error parsing scale of output configuration for "
+			              "output %s, expected positive float",
+			              name);
 			goto error;
 		}
 	}

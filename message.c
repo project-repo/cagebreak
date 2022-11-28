@@ -195,8 +195,8 @@ message_set_output(struct cg_output *output, const char *string,
 	wl_list_insert(&output->messages, &message->link);
 
 	double scale = output->wlr_output->scale;
-	int width = buf->base.width/scale;
-	int height = buf->base.height/scale;
+	int width = buf->base.width / scale;
+	int height = buf->base.height / scale;
 	message->position->width = width;
 	message->position->height = height;
 	switch(align) {
@@ -234,7 +234,7 @@ message_set_output(struct cg_output *output, const char *string,
 	wlr_scene_node_set_enabled(&message->message->node, true);
 	struct wlr_box *outp_box = wlr_output_layout_get_box(
 	    output->server->output_layout, output->wlr_output);
-	wlr_scene_buffer_set_dest_size(message->message,width,height);
+	wlr_scene_buffer_set_dest_size(message->message, width, height);
 	wlr_scene_node_set_position(&message->message->node,
 	                            message->position->x + outp_box->x,
 	                            message->position->y + outp_box->y);

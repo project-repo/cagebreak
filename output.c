@@ -209,7 +209,7 @@ output_set_mode(struct wlr_output *output, int width, int height,
 		wlr_log(WLR_DEBUG, "Assigning configured mode to %s", output->name);
 	}
 	wlr_output_set_mode(output, best);
-	if (scale != NULL) {
+	if(scale != NULL) {
 		wlr_log(WLR_INFO, "Setting output scale to %f", *scale);
 		wlr_output_set_scale(output, *scale);
 	}
@@ -297,8 +297,8 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 			}
 			if(config->pos.x != -1) {
 				if(output_set_mode(wlr_output, config->pos.width,
-				                   config->pos.height,
-				                   config->refresh_rate, config->scale) != 0) {
+				                   config->pos.height, config->refresh_rate,
+				                   config->scale) != 0) {
 					wlr_log(WLR_ERROR,
 					        "Setting output mode failed, disabling output.");
 					output_clear(output);
