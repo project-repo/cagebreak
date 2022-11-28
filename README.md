@@ -92,14 +92,14 @@ There are different ways to obtain cagebreak source:
   * [git clone](https://github.com/project-repo/cagebreak) (for all releases)
   * [download release asset tarballs](https://github.com/project-repo/cagebreak/releases) (starting at release 1.2.1)
 
-### Verifying Source Code
+#### Verifying Source Code
 
 There are corresponding methods of verifying that you obtained the correct code:
 
   * our git history includes signed tags for releases
   * release assets starting at release 1.2.1 contain a signature for the tarball
 
-### Building Cagebreak
+## Building Cagebreak
 
 You can build Cagebreak with the [meson](https://mesonbuild.com/) build system. It
 requires wayland, wlroots and xkbcommon to be installed. Note that Cagebreak is
@@ -497,7 +497,5 @@ see [SECURITY.md](SECURITY.md).
 
 ## License
 
-MIT
-
-Please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE)
+MIT, please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE).
 
