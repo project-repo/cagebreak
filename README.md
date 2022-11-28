@@ -491,6 +491,9 @@ see [SECURITY.md](SECURITY.md).
   * Aisha Tammy
     * [make man pages optional](https://github.com/project-repo/cagebreak/pull/4), released
       in 1.6.0 with slight modifications
+  * Oliver Friedmann
+    * [Add output scaling](https://github.com/project-repo/cagebreak/pull/34), released
+      in 2.0.0
 
 ## License
 
