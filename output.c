@@ -178,7 +178,7 @@ output_find_config(struct cg_server *server, struct wlr_output *output) {
 
 static int
 output_set_mode(struct wlr_output *output, int width, int height,
-                float refresh_rate) {
+                float refresh_rate, float *scale) {
 	int mhz = (int)(refresh_rate * 1000);
 
 	if(wl_list_empty(&output->modes)) {
@@ -209,6 +209,10 @@ output_set_mode(struct wlr_output *output, int width, int height,
 		wlr_log(WLR_DEBUG, "Assigning configured mode to %s", output->name);
 	}
 	wlr_output_set_mode(output, best);
+	if (scale != NULL) {
+		wlr_log(WLR_INFO, "Setting output scale to %f", *scale);
+		wlr_output_set_scale(output, *scale);
+	}
 	wlr_output_commit(output);
 	if(!wlr_output_test(output)) {
 		wlr_log(WLR_ERROR,
@@ -294,7 +298,7 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 			if(config->pos.x != -1) {
 				if(output_set_mode(wlr_output, config->pos.width,
 				                   config->pos.height,
-				                   config->refresh_rate) != 0) {
+				                   config->refresh_rate, config->scale) != 0) {
 					wlr_log(WLR_ERROR,
 					        "Setting output mode failed, disabling output.");
 					output_clear(output);
