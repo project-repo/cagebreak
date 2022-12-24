@@ -60,6 +60,7 @@ struct cg_server {
 	float *bg_color;
 	uint32_t views_curr_id;
 	uint32_t tiles_curr_id;
+	uint32_t xcursor_size;
 };
 
 void

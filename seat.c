@@ -197,9 +197,26 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 	struct keybinding **keybinding = find_keybinding(
 	    server->keybindings,
 	    &(struct keybinding){.key = sym, .mode = mode, .modifiers = modifiers});
-	server->seat->mode =
-	    server->seat
-	        ->default_mode; // Return to mode we are currently in by default
+	if(server->seat->mode != server->seat->default_mode) {
+		server->seat->mode =
+			server->seat
+			->default_mode; // Return to mode we are currently in by default
+		double sx, sy;
+		struct wlr_seat *wlr_seat = server->seat->seat;
+		struct wlr_surface *surface = NULL;
+
+		struct wlr_scene_node *node = wlr_scene_node_at(
+				&server->scene->node, server->seat->cursor->x, server->seat->cursor->y, &sx, &sy);
+		if(node && node->type == WLR_SCENE_NODE_SURFACE) {
+			surface = wlr_scene_surface_from_node(node)->surface;
+			wlr_seat_pointer_notify_enter(wlr_seat, surface, sx, sy);
+		} else {
+			wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
+					"left_ptr", server->seat->cursor);
+
+		}
+	}
+
 	if(keybinding) {
 		wlr_log(
 		    WLR_DEBUG,
@@ -851,7 +868,7 @@ seat_create(struct cg_server *server, struct wlr_backend *backend) {
 	wlr_cursor_attach_output_layout(seat->cursor, server->output_layout);
 
 	if(!seat->xcursor_manager) {
-		seat->xcursor_manager = wlr_xcursor_manager_create(NULL, XCURSOR_SIZE);
+		seat->xcursor_manager = wlr_xcursor_manager_create(NULL, server->xcursor_size);
 		if(!seat->xcursor_manager) {
 			wlr_log(WLR_ERROR, "Cannot create XCursor manager");
 			wlr_cursor_destroy(seat->cursor);

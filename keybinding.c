@@ -11,6 +11,7 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/util/log.h>
+#include <wlr/types/wlr_xcursor_manager.h>
 
 #include "input.h"
 #include "input_manager.h"
@@ -1458,6 +1459,11 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_switch_output(server, data.u);
 		break;
 	case KEYBINDING_SWITCH_MODE:
+		if(data.u!=server->seat->default_mode) {
+			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
+			wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
+			                                     "dot_box_mask", server->seat->cursor);
+		}
 		server->seat->mode = data.u;
 		break;
 	case KEYBINDING_SWITCH_DEFAULT_MODE:
