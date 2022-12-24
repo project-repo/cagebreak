@@ -608,7 +608,7 @@ main(int argc, char *argv[]) {
 		int conf_ret = set_configuration(&server, config_file);
 
 		// Configurtion file not found
-		if(conf_ret == 1) {
+		if(conf_ret != 0) {
 			char *default_conf = "/etc/xdg/cagebreak/config";
 			wlr_log(WLR_ERROR, "Loading default configuration file: \"%s\"",
 			        default_conf);
@@ -641,9 +641,6 @@ main(int argc, char *argv[]) {
 
 	wl_display_run(server.wl_display);
 
-#if CG_HAS_XWAYLAND
-	wlr_xwayland_destroy(xwayland);
-#endif
 	wl_display_destroy_clients(server.wl_display);
 
 end:
@@ -651,10 +648,17 @@ end:
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wanalyzer-double-free"
 #endif
+	server.running=false;
 	for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
 		free(server.modes[i]);
 	}
 	free(server.modes);
+
+#if CG_HAS_XWAYLAND
+	if(xwayland!=NULL) {
+		wlr_xwayland_destroy(xwayland);
+	}
+#endif
 
 	struct cg_output_config *output_config, *output_config_tmp;
 	wl_list_for_each_safe(output_config, output_config_tmp,
