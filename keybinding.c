@@ -807,6 +807,10 @@ print_modes(struct dyn_str *str, char **modes) {
 		++nmemb;
 		++tmp;
 	}
+	if(nmemb==0) {
+		wlr_log(WLR_ERROR,"This is a bug: Cagebreak has no valid modes. This should not occur, since default modes are defined on startup.");
+		return;
+	}
 	/* We are assuming here that we have at least one mode, which is given by
 	 * the initialization of cagebreak */
 	char *modes_str = calloc(len + 3 * (nmemb - 1) + 1, sizeof(char));
