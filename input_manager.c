@@ -92,12 +92,7 @@ input_manager_handle_device_destroy(struct wl_listener *listener, void *data) {
 }
 
 static void
-handle_new_input(struct wl_listener *listener, void *data) {
-	struct cg_input_manager *input =
-	    wl_container_of(listener, input, new_input);
-	struct cg_server *server = input->server;
-	struct wlr_input_device *device = data;
-
+new_input(struct cg_input_manager *input, struct wlr_input_device *device, bool virtual) {
 	struct cg_input_device *input_device =
 	    calloc(1, sizeof(struct cg_input_device));
 	if(!input_device) {
@@ -106,9 +101,10 @@ handle_new_input(struct wl_listener *listener, void *data) {
 	}
 	device->data = input_device;
 
+	input_device->is_virtual=virtual;
 	input_device->wlr_device = device;
 	input_device->identifier = input_device_get_identifier(device);
-	input_device->server = server;
+	input_device->server = input->server;
 	input_device->pointer = NULL;
 	input_device->touch = NULL;
 
@@ -119,39 +115,28 @@ handle_new_input(struct wl_listener *listener, void *data) {
 	wl_signal_add(&device->events.destroy, &input_device->device_destroy);
 	input_device->device_destroy.notify = input_manager_handle_device_destroy;
 
-	struct cg_seat *seat = server->seat;
+	struct cg_seat *seat = input->server->seat;
 	seat_add_device(seat, input_device);
+}
+
+static void
+handle_new_input(struct wl_listener *listener, void *data) {
+	struct cg_input_manager *input =
+	    wl_container_of(listener, input, new_input);
+	struct wlr_input_device *device = data;
+
+	new_input(input,device,false);
 }
 
 void
 handle_virtual_keyboard(struct wl_listener *listener, void *data) {
-	struct cg_input_manager *input_manager =
-	    wl_container_of(listener, input_manager, virtual_keyboard_new);
+
+	struct cg_input_manager *input =
+	    wl_container_of(listener, input, virtual_keyboard_new);
 	struct wlr_virtual_keyboard_v1 *keyboard = data;
 	struct wlr_input_device *device = &keyboard->input_device;
 
-	struct cg_seat *seat = input_manager->server->seat;
-
-	struct cg_input_device *input_device =
-	    calloc(1, sizeof(struct cg_input_device));
-	if(!input_device) {
-		wlr_log(WLR_ERROR, "could not allocate input device");
-		return;
-	}
-	device->data = input_device;
-
-	input_device->is_virtual = true;
-	input_device->wlr_device = device;
-	input_device->identifier = input_device_get_identifier(device);
-	wl_list_insert(&input_manager->devices, &input_device->link);
-	input_device->server = input_manager->server;
-	input_device->pointer = NULL;
-	input_device->touch = NULL;
-
-	wl_signal_add(&device->events.destroy, &input_device->device_destroy);
-	input_device->device_destroy.notify = input_manager_handle_device_destroy;
-
-	seat_add_device(seat, input_device);
+	new_input(input,device,true);
 }
 
 void
@@ -162,31 +147,10 @@ handle_virtual_pointer(struct wl_listener *listener, void *data) {
 	struct wlr_virtual_pointer_v1 *pointer = event->new_pointer;
 	struct wlr_input_device *device = &pointer->input_device;
 
-	struct cg_seat *seat = input_manager->server->seat;
-
-	struct cg_input_device *input_device =
-	    calloc(1, sizeof(struct cg_input_device));
-	if(!input_device) {
-		wlr_log(WLR_ERROR, "could not allocate input device");
-		return;
-	}
-	device->data = input_device;
-
-	input_device->is_virtual = true;
-	input_device->wlr_device = device;
-	input_device->identifier = input_device_get_identifier(device);
-	wl_list_insert(&input_manager->devices, &input_device->link);
-	input_device->server = input_manager->server;
-	input_device->pointer = NULL;
-	input_device->touch = NULL;
-
-	wl_signal_add(&device->events.destroy, &input_device->device_destroy);
-	input_device->device_destroy.notify = input_manager_handle_device_destroy;
-
-	seat_add_device(seat, input_device);
+	new_input(input_manager,device,true);
 
 	if(event->suggested_output) {
-		wlr_cursor_map_input_to_output(seat->cursor, device,
+		wlr_cursor_map_input_to_output(input_manager->server->seat->cursor, device,
 		                               event->suggested_output);
 	}
 }

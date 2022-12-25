@@ -326,15 +326,24 @@ handle_keyboard_group_modifiers(struct wl_listener *listener, void *_data) {
 	handle_modifier_event(group->wlr_group->input_device, group->seat);
 }
 
+static bool repeat_info_match(struct wlr_keyboard *a, struct wlr_keyboard *b) {
+	return a->repeat_info.rate == b->repeat_info.rate &&
+		a->repeat_info.delay == b->repeat_info.delay;
+}
+
 static void
-cg_keyboard_group_add(struct wlr_input_device *device, struct cg_seat *seat) {
+cg_keyboard_group_add(struct cg_input_device *input_device, struct cg_seat *seat) {
+	struct wlr_input_device *device=input_device->wlr_device;
 	struct wlr_keyboard *wlr_keyboard = device->keyboard;
-	struct cg_keyboard_group *group;
-	wl_list_for_each(group, &seat->keyboard_groups, link) {
-		struct wlr_keyboard_group *wlr_group = group->wlr_group;
-		if(wlr_keyboard_group_add_keyboard(wlr_group, wlr_keyboard)) {
-			wlr_log(WLR_DEBUG, "Adding keyboard to existing group.");
-			return;
+	// Virtual devices should not be grouped
+	if(!input_device->is_virtual) {
+		struct cg_keyboard_group *group;
+		wl_list_for_each(group, &seat->keyboard_groups, link) {
+			struct wlr_keyboard_group *wlr_group = group->wlr_group;
+			if(wlr_keyboard_keymaps_match(wlr_keyboard->keymap,wlr_group->keyboard.keymap) && repeat_info_match(wlr_keyboard,&wlr_group->keyboard) && wlr_keyboard_group_add_keyboard(wlr_group, wlr_keyboard)) {
+				wlr_log(WLR_DEBUG, "Adding keyboard to existing group.");
+				return;
+			}
 		}
 	}
 	/* This is reached if and only if the keyboard could not be inserted into
@@ -406,7 +415,7 @@ new_keyboard(struct cg_seat *seat, struct cg_input_device *input_device) {
 	xkb_context_unref(context);
 	wlr_keyboard_set_repeat_info(device->keyboard, 25, 600);
 
-	cg_keyboard_group_add(device, seat);
+	cg_keyboard_group_add(input_device, seat);
 	++seat->num_keyboards;
 
 	wlr_seat_set_keyboard(seat->seat, device);
@@ -436,6 +445,10 @@ seat_add_device(struct cg_seat *seat, struct cg_input_device *device) {
 	update_capabilities(seat);
 }
 
+static void destroy_empty_wlr_keyboard_group(void *data) {
+	wlr_keyboard_group_destroy(data);
+}
+
 void
 remove_keyboard(struct cg_seat *seat, struct cg_input_device *keyboard) {
 	if(!keyboard) {
@@ -443,12 +456,31 @@ remove_keyboard(struct cg_seat *seat, struct cg_input_device *keyboard) {
 	}
 	struct wlr_seat *wlr_seat = seat->seat;
 	struct wlr_keyboard *wlr_keyboard = keyboard->wlr_device->keyboard;
-	if(keyboard->wlr_device->keyboard->group) {
-		wlr_keyboard_group_remove_keyboard(wlr_keyboard->group, wlr_keyboard);
+	struct wlr_keyboard_group *wlr_group = wlr_keyboard->group;
+	if(wlr_group) {
+		wlr_keyboard_group_remove_keyboard(wlr_group, wlr_keyboard);
+
+		if (wl_list_empty(&wlr_group->devices)) {
+			wlr_log(DEBUG, "Destroying empty keyboard group %p",
+					wlr_group);
+			struct cg_keyboard_group *group = wlr_group->data;
+			if(wlr_seat_get_keyboard(wlr_seat) == &wlr_group->keyboard) {
+				wlr_seat_set_keyboard(wlr_seat, NULL);
+			}
+			wlr_group->data = NULL;
+			wl_list_remove(&group->link);
+			wl_list_remove(&group->key.link);
+			wl_list_remove(&group->modifiers.link);
+			free(group);
+
+			// To prevent use-after-free conditions when handling key events, defer
+			// freeing the wlr_keyboard_group until idle
+			wl_event_loop_add_idle(seat->server->event_loop,
+					destroy_empty_wlr_keyboard_group, wlr_group);
+
+		}
 	}
-	if(wlr_seat_get_keyboard(wlr_seat) == wlr_keyboard) {
-		wlr_seat_set_keyboard(wlr_seat, NULL);
-	}
+
 	--seat->num_keyboards;
 }
 
