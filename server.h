@@ -50,8 +50,6 @@ struct cg_server {
 	struct wl_list input_config;
 	struct cg_message_config message_config;
 
-	enum wl_output_transform output_transform;
-
 	struct cg_ipc_handle ipc;
 
 	bool running;

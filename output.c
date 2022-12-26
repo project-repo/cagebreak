@@ -165,20 +165,9 @@ handle_output_frame(struct wl_listener *listener, void *data) {
 	wlr_scene_output_send_frame_done(scene_output, &now);
 }
 
-struct cg_output_config *
-output_find_config(struct cg_server *server, struct wlr_output *output) {
-	struct cg_output_config *config;
-	wl_list_for_each(config, &server->output_config, link) {
-		if(strcmp(config->output_name, output->name) == 0) {
-			return config;
-		}
-	}
-	return NULL;
-}
-
 static int
 output_set_mode(struct wlr_output *output, int width, int height,
-                float refresh_rate, float *scale) {
+                float refresh_rate) {
 	int mhz = (int)(refresh_rate * 1000);
 
 	if(wl_list_empty(&output->modes)) {
@@ -209,10 +198,6 @@ output_set_mode(struct wlr_output *output, int width, int height,
 		wlr_log(WLR_DEBUG, "Assigning configured mode to %s", output->name);
 	}
 	wlr_output_set_mode(output, best);
-	if(scale != NULL) {
-		wlr_log(WLR_INFO, "Setting output scale to %f", *scale);
-		wlr_output_set_scale(output, *scale);
-	}
 	wlr_output_commit(output);
 	if(!wlr_output_test(output)) {
 		wlr_log(WLR_ERROR,
@@ -261,19 +246,43 @@ output_insert(struct cg_server *server, struct cg_output *output) {
 }
 
 void
-output_configure(struct cg_server *server, struct cg_output *output) {
+output_apply_config(struct cg_server *server, struct cg_output *output, struct cg_output_config *config) {
 	struct wlr_output *wlr_output = output->wlr_output;
-	struct cg_output_config *config = output_find_config(server, wlr_output);
-	/* Refuse to disable the only output */
-	if(config != NULL && config->status == OUTPUT_DISABLE &&
-	   wl_list_length(&server->outputs) == 1) {
-		return;
-	}
+
 	if(output->wlr_output->enabled) {
 		wlr_output_layout_remove(server->output_layout, wlr_output);
 	}
 
-	if(config == NULL) {
+	if(config->priority != -1) {
+		output->priority = config->priority;
+	}
+
+	if(config->angle != -1) {
+		wlr_output_set_transform(wlr_output, config->angle);
+	}
+	if(config->scale != -1) {
+		wlr_log(WLR_INFO, "Setting output scale to %f", config->scale);
+		wlr_output_set_scale(wlr_output, config->scale);
+	}
+	if(config->pos.x != -1) {
+		if(output_set_mode(wlr_output, config->pos.width,
+					config->pos.height, config->refresh_rate) != 0) {
+			wlr_log(WLR_ERROR,
+					"Setting output mode failed, disabling output.");
+			output_clear(output);
+			wl_list_insert(&server->disabled_outputs, &output->link);
+			wlr_output_enable(wlr_output, false);
+			wlr_output_commit(wlr_output);
+			return;
+		}
+		wlr_output_layout_add(server->output_layout, wlr_output,
+				config->pos.x, config->pos.y);
+		/* Since the size of the output may have changed, we
+		 * reinitialize all workspaces with a fullscreen layout */
+		for(unsigned int i = 0; i < output->server->nws; ++i) {
+			output_make_workspace_fullscreen(output, i);
+		}
+	} else {
 		wlr_output_layout_add_auto(server->output_layout, wlr_output);
 
 		struct wlr_output_mode *preferred_mode =
@@ -281,46 +290,20 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 		if(preferred_mode) {
 			wlr_output_set_mode(wlr_output, preferred_mode);
 		}
+	}
+	/* Refuse to disable the only output */
+	if(config->status == OUTPUT_DISABLE&&wl_list_length(&server->outputs)>1) {
+		output_clear(output);
+		wl_list_insert(&server->disabled_outputs, &output->link);
+		wlr_output_enable(wlr_output, false);
+		wlr_output_commit(wlr_output);
+	} else {
 		wl_list_remove(&output->link);
 		output_insert(server, output);
 		wlr_output_enable(wlr_output, true);
 		wlr_output_commit(wlr_output);
-	} else {
-		if(config->status == OUTPUT_DISABLE) {
-			output_clear(output);
-			wl_list_insert(&server->disabled_outputs, &output->link);
-			wlr_output_enable(wlr_output, false);
-			wlr_output_commit(wlr_output);
-		} else {
-			if(config->priority != -1) {
-				output->priority = config->priority;
-			}
-			if(config->pos.x != -1) {
-				if(output_set_mode(wlr_output, config->pos.width,
-				                   config->pos.height, config->refresh_rate,
-				                   config->scale) != 0) {
-					wlr_log(WLR_ERROR,
-					        "Setting output mode failed, disabling output.");
-					output_clear(output);
-					wl_list_insert(&server->disabled_outputs, &output->link);
-					wlr_output_enable(wlr_output, false);
-					wlr_output_commit(wlr_output);
-					return;
-				}
-				wlr_output_layout_add(server->output_layout, wlr_output,
-				                      config->pos.x, config->pos.y);
-				/* Since the size of the output may have changed, we
-				 * reinitialize all workspaces with a fullscreen layout */
-				for(unsigned int i = 0; i < output->server->nws; ++i) {
-					output_make_workspace_fullscreen(output, i);
-				}
-			}
-			wl_list_remove(&output->link);
-			output_insert(server, output);
-			wlr_output_enable(wlr_output, true);
-			wlr_output_commit(wlr_output);
-		}
 	}
+
 	if(output->bg != NULL) {
 		wlr_scene_node_destroy(&output->bg->node);
 		output->bg = NULL;
@@ -337,6 +320,102 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 	    wlr_output_layout_get_box(server->output_layout, output->wlr_output);
 	wlr_scene_node_set_position(&output->bg->node, box->x, box->y);
 	wlr_scene_node_lower_to_bottom(&output->bg->node);
+}
+
+struct cg_output_config *empty_output_config() {
+	struct cg_output_config *cfg = calloc(1, sizeof(struct cg_output_config));
+	if(cfg==NULL) {
+		wlr_log(WLR_ERROR,"Could not allocate output configuration.");
+		return NULL;
+	}
+
+	cfg->status = OUTPUT_DEFAULT;
+	cfg->pos.x = -1;
+	cfg->pos.y = -1;
+	cfg->pos.width = -1;
+	cfg->pos.height = -1;
+	cfg->output_name = NULL;
+	cfg->refresh_rate = 0;
+	cfg->priority = -1;
+	cfg->scale = -1;
+	cfg->angle = -1;
+
+	return cfg;
+}
+
+/* cfg1 has precedence over cfg2 */
+struct cg_output_config *merge_output_configs(struct cg_output_config *cfg1, struct cg_output_config *cfg2) {
+	struct cg_output_config *out_cfg=empty_output_config();
+	if(cfg1->status==out_cfg->status) {
+		out_cfg->status = cfg2->status;
+	} else {
+		out_cfg->status = cfg1->status;
+	}
+	if(cfg1->pos.x==out_cfg->pos.x) {
+		out_cfg->pos.x = cfg2->pos.x;
+		out_cfg->pos.y = cfg2->pos.y;
+		out_cfg->pos.width = cfg2->pos.width;
+		out_cfg->pos.height = cfg2->pos.height;
+	} else {
+		out_cfg->pos.x = cfg1->pos.x;
+		out_cfg->pos.y = cfg1->pos.y;
+		out_cfg->pos.width = cfg1->pos.width;
+		out_cfg->pos.height = cfg1->pos.height;
+	}
+	if(cfg1->output_name == NULL) {
+		 if(cfg2->output_name == NULL) {
+			 out_cfg->output_name = NULL;
+		 } else {
+			out_cfg->output_name = strdup(cfg2->output_name);
+		 }
+	} else {
+		out_cfg->output_name = strdup(cfg1->output_name);
+	}
+	if(cfg1->refresh_rate==out_cfg->refresh_rate) {
+		out_cfg->refresh_rate = cfg2->refresh_rate;
+	} else {
+		out_cfg->refresh_rate = cfg1->refresh_rate;
+	}
+	if(cfg1->priority==out_cfg->priority) {
+		out_cfg->priority = cfg2->priority;
+	} else {
+		out_cfg->priority = cfg1->priority;
+	}
+	if(cfg1->scale==out_cfg->scale) {
+		out_cfg->scale = cfg2->scale;
+	} else {
+		out_cfg->scale = cfg1->scale;
+	}
+	if(cfg1->angle==out_cfg->angle) {
+		out_cfg->status = cfg2->angle;
+	} else {
+		out_cfg->angle = cfg1->angle;
+	}
+	return out_cfg;
+}
+
+void
+output_configure(struct cg_server *server, struct cg_output *output) {
+	struct cg_output_config *tot_config=empty_output_config();
+	struct cg_output_config *config;
+	wl_list_for_each(config, &server->output_config, link) {
+		if(strcmp(config->output_name, output->wlr_output->name) == 0) {
+			if(tot_config == NULL) {
+				return;
+			}
+			struct cg_output_config *prev_config=tot_config;
+			tot_config=merge_output_configs(config,tot_config);
+			if(prev_config->output_name != NULL) {
+				free(prev_config->output_name);
+			}
+			free(prev_config);
+		}
+	}
+	if(tot_config != NULL) {
+		output_apply_config(server,output,tot_config);
+	}
+	free(tot_config->output_name);
+	free(tot_config);
 }
 
 static void
@@ -443,7 +522,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		}
 	}
 	output->priority = prio;
-	wlr_output_set_transform(wlr_output, server->output_transform);
+	wlr_output_set_transform(wlr_output, WL_OUTPUT_TRANSFORM_NORMAL);
 	output->workspaces = NULL;
 
 	wl_list_init(&output->messages);

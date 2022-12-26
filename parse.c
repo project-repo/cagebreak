@@ -509,6 +509,10 @@ parse_output_config_keyword(char *key_str, enum output_status *status) {
 		*status = OUTPUT_DEFAULT;
 	} else if(strcmp(key_str, "prio") == 0) {
 		*status = OUTPUT_DEFAULT;
+	} else if(strcmp(key_str, "angle") == 0) {
+		*status = OUTPUT_DEFAULT;
+	} else if(strcmp(key_str, "scale") == 0) {
+		*status = OUTPUT_DEFAULT;
 	} else if(strcmp(key_str, "enable") == 0) {
 		*status = OUTPUT_ENABLE;
 	} else if(strcmp(key_str, "disable") == 0) {
@@ -532,7 +536,8 @@ parse_output_config(char **saveptr, char **errstr) {
 	cfg->output_name = NULL;
 	cfg->refresh_rate = 0;
 	cfg->priority = -1;
-	cfg->scale = NULL;
+	cfg->scale = -1;
+	cfg->angle = -1;
 	char *name = strtok_r(NULL, " ", saveptr);
 	if(name == NULL) {
 		*errstr =
@@ -551,12 +556,39 @@ parse_output_config(char **saveptr, char **errstr) {
 		return cfg;
 	}
 
+	if(strcmp(key_str, "angle") == 0) {
+		uint32_t angle = parse_uint(saveptr, " ");
+		//360 degrees is equivalent to 0 degrees
+		cfg->angle = angle%4;
+		if(cfg->angle < 0) {
+			*errstr = log_error(
+			    "Error parsing angle specification for output %s",
+			    name);
+			goto error;
+		}
+		cfg->output_name=strdup(name);
+		return cfg;
+	}
+
 	if(strcmp(key_str, "prio") == 0) {
 		cfg->priority = parse_uint(saveptr, " ");
 		if(cfg->priority < 0) {
 			*errstr = log_error(
 			    "Error parsing priority of output configuration for output %s",
 			    name);
+			goto error;
+		}
+		cfg->output_name = strdup(name);
+		return cfg;
+	}
+
+	if(strcmp(key_str, "scale") == 0) {
+		cfg->scale = parse_float(saveptr, " ");
+		if(cfg->scale <= 0.0) {
+			*errstr =
+				log_error("Error parsing scale of output configuration for "
+						"output %s, expected positive float",
+						name);
 			goto error;
 		}
 		cfg->output_name = strdup(name);
@@ -618,19 +650,6 @@ parse_output_config(char **saveptr, char **errstr) {
 		              "output %s, expected positive float",
 		              name);
 		goto error;
-	}
-
-	char *scale_str = strtok_r(NULL, " ", saveptr);
-	if(scale_str != NULL && strcmp(scale_str, "scale") == 0) {
-		cfg->scale = malloc(sizeof(float));
-		*cfg->scale = parse_float(saveptr, " ");
-		if(*cfg->scale <= 0.0) {
-			*errstr =
-			    log_error("Error parsing scale of output configuration for "
-			              "output %s, expected positive float",
-			              name);
-			goto error;
-		}
 	}
 
 	cfg->output_name = strdup(name);

@@ -40,8 +40,9 @@ struct cg_output_config {
 	struct wlr_box pos;
 	char *output_name;
 	float refresh_rate;
-	float *scale;
+	float scale;
 	int priority;
+	int angle;//enum wl_output_transform, -1 signifies "unspecified"
 	struct wl_list link; // cg_server::output_config
 };
 

@@ -128,8 +128,6 @@ usage(FILE *file, const char *const cage) {
 	fprintf(file,
 	        "Usage: %s [OPTIONS]\n"
 	        "\n"
-	        " -r\t Rotate the output 90 degrees clockwise, specify up to three "
-	        "times\n"
 	        " -h\t Display this help message\n"
 	        " -v\t Show the version number and exit\n"
 	        " -s\t Show information about the current setup and exit\n",
@@ -139,14 +137,8 @@ usage(FILE *file, const char *const cage) {
 static bool
 parse_args(struct cg_server *server, int argc, char *argv[]) {
 	int c;
-	while((c = getopt(argc, argv, "rhvs")) != -1) {
+	while((c = getopt(argc, argv, "hvs")) != -1) {
 		switch(c) {
-		case 'r':
-			server->output_transform++;
-			if(server->output_transform > WL_OUTPUT_TRANSFORM_270) {
-				server->output_transform = WL_OUTPUT_TRANSFORM_NORMAL;
-			}
-			break;
 		case 'h':
 			usage(stdout, argv[0]);
 			return false;
