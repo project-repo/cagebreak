@@ -69,7 +69,7 @@ output_clear(struct cg_output *output) {
 			    first || output->workspaces[i]->focused_tile != tile;
 			    tile = tile->next) {
 				first = false;
-				tile->view = NULL;
+				workspace_tile_update_view(tile,NULL);
 			}
 			struct cg_workspace *ws =
 			    server->curr_output

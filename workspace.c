@@ -20,6 +20,20 @@
 #include "seat.h"
 #include "server.h"
 #include "workspace.h"
+#include "view.h"
+
+void
+workspace_tile_update_view(struct cg_tile *tile, struct cg_view *view) {
+	if(tile->view!=NULL) {
+		wlr_scene_node_set_enabled(tile->view->scene_node,false);
+		tile->view->tile=NULL;
+	}
+	tile->view=view;
+	if(view!=NULL) {
+		view_maximize(view,tile);
+		wlr_scene_node_set_enabled(view->scene_node,true);
+	}
+}
 
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic push
@@ -42,7 +56,7 @@ full_screen_workspace_tiles(struct wlr_output_layout *layout,
 	struct wlr_box *output_box = wlr_output_layout_get_box(layout, output);
 	workspace->focused_tile->tile.width = output_box->width;
 	workspace->focused_tile->tile.height = output_box->height;
-	workspace->focused_tile->view = NULL;
+	workspace_tile_update_view(workspace->focused_tile,NULL);
 	workspace->focused_tile->id = *tiles_curr_id;
 	++(*tiles_curr_id);
 	return 0;

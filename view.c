@@ -142,10 +142,7 @@ view_unmap(struct cg_view *view) {
 		}
 		struct cg_tile *view_tile = view_get_tile(view);
 		if(view_tile != NULL) {
-			view_tile->view = prev;
-			if(prev != NULL) {
-				view_maximize(prev, view_tile);
-			}
+			workspace_tile_update_view(view_tile,prev);
 		}
 	}
 #if CG_HAS_XWAYLAND
@@ -196,8 +193,6 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	} else
 #endif
 	{
-		view->tile = view->workspace->focused_tile;
-		view_maximize(view, view->tile);
 		wl_list_insert(&ws->views, &view->link);
 	}
 	seat_set_focus(output->server->seat, view);

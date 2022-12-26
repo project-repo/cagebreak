@@ -220,17 +220,13 @@ swap_tile(struct cg_tile *tile,
 		return;
 	}
 	struct cg_view *tmp_view = tile->view;
-	tile->view = swap_tile->view;
-	swap_tile->view = tmp_view;
-	if(tile->view != NULL) {
-		view_maximize(tile->view, tile);
-	}
+	struct cg_view *tmp_swap_view = swap_tile->view;
+	workspace_tile_update_view(tile,NULL);
+	workspace_tile_update_view(swap_tile,tmp_view);
+	workspace_tile_update_view(tile,tmp_swap_view);
 	workspace_focus_tile(
 	    server->curr_output->workspaces[server->curr_output->curr_workspace],
 	    swap_tile);
-	if(swap_tile->view != NULL) {
-		view_maximize(swap_tile->view, swap_tile);
-	}
 	seat_set_focus(server->seat, swap_tile->view);
 	ipc_send_event(tile->workspace->output->server,
 	               "{\"event_name\":\"swap_tile\",\"tile_id\":\"%d\",\"swap_"
@@ -558,7 +554,7 @@ keybinding_split_output(struct cg_output *output, bool vertical) {
 	new_tile->tile.height = y + height - new_y;
 	new_tile->prev = curr_workspace->focused_tile;
 	new_tile->next = curr_workspace->focused_tile->next;
-	new_tile->view = next_view;
+	workspace_tile_update_view(new_tile,next_view);
 	new_tile->workspace = curr_workspace;
 	curr_workspace->focused_tile->next->prev = new_tile;
 	curr_workspace->focused_tile->next = new_tile;
@@ -657,27 +653,20 @@ keybinding_cycle_views(struct cg_server *server, bool reverse, bool ipc) {
 	    server->curr_output->workspaces[server->curr_output->curr_workspace];
 	struct cg_view *current_view = curr_workspace->focused_tile->view;
 
-	if(current_view == NULL) {
-		current_view =
-		    wl_container_of(&curr_workspace->views, current_view, link);
-	}
 	struct cg_view *it_view, *next_view = NULL;
 	if(reverse) {
-		next_view = view_get_prev_view(current_view);
-	} else {
-		struct wl_list *it;
-		it = current_view->link.next;
-		while(it != &current_view->link) {
-			if(it == &curr_workspace->views) {
-				it = it->next;
-				continue;
-			}
-			it_view = wl_container_of(it, it_view, link);
+		wl_list_for_each(it_view,&curr_workspace->views,link) {
 			if(!view_is_visible(it_view)) {
-				next_view = it_view;
+				next_view=it_view;
 				break;
 			}
-			it = it->next;
+		}
+	} else {
+		wl_list_for_each_reverse(it_view,&curr_workspace->views,link) {
+			if(!view_is_visible(it_view)) {
+				next_view=it_view;
+				break;
+			}
 		}
 	}
 
@@ -685,9 +674,6 @@ keybinding_cycle_views(struct cg_server *server, bool reverse, bool ipc) {
 		return;
 	}
 
-	/* Prevent seat_set_focus from reordering the views */
-	curr_workspace->focused_tile->view = wl_container_of(
-	    next_view->link.prev, curr_workspace->focused_tile->view, link);
 	seat_set_focus(server->seat, next_view);
 	if(ipc) {
 		ipc_send_event(curr_workspace->output->server,
@@ -1090,11 +1076,9 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 		    server->curr_output
 		        ->workspaces[server->curr_output->curr_workspace];
 		wl_list_insert(&ws->views, &view->link);
-		ws->focused_tile->view = view;
 		wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
+		workspace_tile_update_view(ws->focused_tile,view);
 		view->workspace = ws;
-		view->tile = view->workspace->focused_tile;
-		view_maximize(view, view->tile);
 		seat_set_focus(server->seat, view);
 	}
 	int id = -1;
@@ -1238,9 +1222,9 @@ keybinding_move_view_to_output(struct cg_server *server, int output_num) {
 	    server->curr_output->workspaces[server->curr_output->curr_workspace]
 	        ->focused_tile->view;
 	if(view != NULL) {
+		workspace_tile_update_view(server->curr_output->workspaces[server->curr_output->curr_workspace]
+		    ->focused_tile,NULL);
 		wl_list_remove(&view->link);
-		server->curr_output->workspaces[server->curr_output->curr_workspace]
-		    ->focused_tile->view = NULL;
 		keybinding_cycle_views(server, false, false);
 		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
 		       ->focused_tile->view == NULL) {
@@ -1255,8 +1239,7 @@ keybinding_move_view_to_output(struct cg_server *server, int output_num) {
 		view->workspace = ws;
 		wl_list_insert(&ws->views, &view->link);
 		wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
-		ws->focused_tile->view = view;
-		view_maximize(view, ws->focused_tile);
+		workspace_tile_update_view(ws->focused_tile,view);
 		seat_set_focus(server->seat, view);
 	}
 	char *view_title = "";
@@ -1297,8 +1280,7 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 		view->workspace = ws;
 		wl_list_insert(&ws->views, &view->link);
 		wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
-		ws->focused_tile->view = view;
-		view_maximize(view, ws->focused_tile);
+		workspace_tile_update_view(ws->focused_tile,view);
 		seat_set_focus(server->seat, view);
 	}
 	ipc_send_event(server,

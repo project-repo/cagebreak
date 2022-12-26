@@ -986,8 +986,7 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 
 	/* Focusing the background */
 	if(view == NULL) {
-		server->curr_output->workspaces[server->curr_output->curr_workspace]
-		    ->focused_tile->view = NULL;
+		workspace_tile_update_view(server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile,NULL);
 		seat->focused_view = NULL;
 		if(prev_view != NULL) {
 			view_activate(prev_view, false);
@@ -1000,21 +999,11 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 	if(view->type != CG_XWAYLAND_VIEW || xwayland_view_should_manage(view))
 #endif
 	{
-		/* Always resize the view, even if prev_view == view */
-		struct cg_workspace *curr_workspace =
-		    server->curr_output
+		struct cg_workspace *curr_workspace = server->curr_output
 		        ->workspaces[server->curr_output->curr_workspace];
-		view_maximize(view, curr_workspace->focused_tile);
-		if(!view_is_visible(view)) {
-			wl_list_remove(&view->link);
-			if(curr_workspace->focused_tile->view != NULL) {
-				wl_list_insert(&curr_workspace->focused_tile->view->link,
-				               &view->link);
-			} else {
-				wl_list_insert(curr_workspace->views.prev, &view->link);
-			}
-			curr_workspace->focused_tile->view = view;
-		}
+		workspace_tile_update_view(curr_workspace->focused_tile,view);
+		wl_list_remove(&curr_workspace->views);
+		wl_list_insert(&view->link,&curr_workspace->views);
 	}
 
 #if CG_HAS_XWAYLAND
