@@ -2,7 +2,7 @@
 
 #define PARSE_H
 
-#define MAX_LINE_SIZE 256
+#define MAX_LINE_SIZE 512
 
 #include <stdio.h>
 
