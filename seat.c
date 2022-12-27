@@ -461,7 +461,7 @@ remove_keyboard(struct cg_seat *seat, struct cg_input_device *keyboard) {
 		wlr_keyboard_group_remove_keyboard(wlr_group, wlr_keyboard);
 
 		if (wl_list_empty(&wlr_group->devices)) {
-			wlr_log(DEBUG, "Destroying empty keyboard group %p",
+			wlr_log(WLR_DEBUG, "Destroying empty keyboard group %p",
 					wlr_group);
 			struct cg_keyboard_group *group = wlr_group->data;
 			if(wlr_seat_get_keyboard(wlr_seat) == &wlr_group->keyboard) {
