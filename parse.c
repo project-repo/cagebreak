@@ -13,6 +13,7 @@
 #include "parse.h"
 #include "server.h"
 #include "util.h"
+#include "input_manager.h"
 
 char *
 log_error(const char *fmt, ...) {
@@ -118,7 +119,7 @@ parse_float(char **saveptr, const char *delim) {
 
 struct cg_input_config *
 parse_input_config(char **saveptr, char **errstr) {
-	struct cg_input_config *cfg = calloc(1, sizeof(struct cg_input_config));
+	struct cg_input_config *cfg=input_manager_create_empty_input_config();
 	char *value = NULL;
 	char *ident = NULL;
 	if(cfg == NULL) {
@@ -126,28 +127,6 @@ parse_input_config(char **saveptr, char **errstr) {
 		    log_error("Failed to allocate memory for input configuration");
 		goto error;
 	}
-
-	cfg->tap = INT_MIN;
-	cfg->tap_button_map = INT_MIN;
-	cfg->drag = INT_MIN;
-	cfg->drag_lock = INT_MIN;
-	cfg->dwt = INT_MIN;
-	cfg->send_events = INT_MIN;
-	cfg->click_method = INT_MIN;
-	cfg->middle_emulation = INT_MIN;
-	cfg->natural_scroll = INT_MIN;
-	cfg->accel_profile = INT_MIN;
-	cfg->pointer_accel = FLT_MIN;
-	cfg->scroll_factor = FLT_MIN;
-	cfg->scroll_button = INT_MIN;
-	cfg->scroll_method = INT_MIN;
-	cfg->left_handed = INT_MIN;
-	/*cfg->repeat_delay = INT_MIN;
-	cfg->repeat_rate = INT_MIN;
-	cfg->xkb_numlock = INT_MIN;
-	cfg->xkb_capslock = INT_MIN;
-	cfg->xkb_file_is_set = false;
-	wl_list_init(&cfg->tools);*/
 
 	ident = strtok_r(NULL, " ", saveptr);
 
@@ -339,6 +318,16 @@ parse_input_config(char **saveptr, char **errstr) {
 		} else {
 			*errstr = log_error(
 			    "Invalid option \"%s\" to setting \"tap_button_map\"", value);
+			goto error;
+		}
+	} else if(strcmp(setting, "keybindings") == 0) {
+		if(strcmp(value, "enable") == 0) {
+			cfg->enable_keybindings = true;
+		} else if(strcmp(value, "disable") == 0) {
+			cfg->enable_keybindings = false;
+		} else {
+			*errstr = log_error(
+			    "Invalid option \"%s\" to setting \"keybindings\"", value);
 			goto error;
 		}
 	} else {

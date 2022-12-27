@@ -9,6 +9,7 @@
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/util/log.h>
 #include <wlr/types/wlr_xcursor_manager.h>
@@ -1002,12 +1003,56 @@ print_outputs(struct cg_server *server) {
 	return dyn_str_to_str(&outp_str);
 }
 
+char *
+print_keyboard_group(struct cg_keyboard_group *grp) {
+	struct dyn_str outp_str;
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	uint32_t nmemb = 4;
+	outp_str.str_arr = calloc(nmemb, sizeof(char *));
+	if(grp->identifier!=NULL) {
+		print_str(&outp_str, "\"%s\": {\n", grp->identifier);
+	} else {
+		print_str(&outp_str, "\"NULL\": {\n");
+	}
+	print_str(&outp_str, "\"repeat_delay\": %d,\n", grp->wlr_group->keyboard.repeat_info.delay);
+	print_str(&outp_str, "\"repeat_rate\": %d,\n", grp->wlr_group->keyboard.repeat_info.rate);
+	print_str(&outp_str, "}");
+	return dyn_str_to_str(&outp_str);
+}
+
+char *
+print_keyboard_groups(struct cg_server *server) {
+	uint32_t ninps = wl_list_length(&server->seat->keyboard_groups);
+	struct dyn_str outp_str;
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	outp_str.str_arr = calloc((2 * ninps - 1) + 2, sizeof(char *));
+	print_str(&outp_str, "\"keyboards\": [");
+	struct cg_keyboard_group *it;
+	uint32_t count = 0;
+	wl_list_for_each(it, &server->seat->keyboard_groups, link) {
+		if(count != 0) {
+			print_str(&outp_str, ",");
+		}
+		++count;
+		char *outp = print_keyboard_group(it);
+		if(outp == NULL) {
+			continue;
+		}
+		print_str(&outp_str, "%s", outp);
+		free(outp);
+	}
+	print_str(&outp_str, "],\n");
+	return dyn_str_to_str(&outp_str);
+}
+
 void
 keybinding_dump(struct cg_server *server) {
 	struct dyn_str str;
 	str.len = 0;
 	str.cur_pos = 0;
-	uint32_t nmemb = 10;
+	uint32_t nmemb = 11;
 	str.str_arr = calloc(nmemb, sizeof(char *));
 
 	print_str(&str, "{");
@@ -1020,8 +1065,15 @@ keybinding_dump(struct cg_server *server) {
 	          server->curr_output->wlr_output->name);
 	print_modes(&str, server->modes);
 	char *outps_str = print_outputs(server);
-	print_str(&str, "%s", outps_str);
-	free(outps_str);
+	if(outps_str!=NULL) {
+		print_str(&str, "%s", outps_str);
+		free(outps_str);
+	}
+	char *keyboards_str = print_keyboard_groups(server);
+	if(keyboards_str!=NULL) {
+		print_str(&str, "%s", keyboards_str);
+		free(keyboards_str);
+	}
 	print_str(&str, "\"cursor_coords\":{\"x\":%f,\"y\":%f},\n",
 	          server->seat->cursor->x, server->seat->cursor->y);
 	print_str(&str, "}");
@@ -1360,7 +1412,19 @@ keybinding_configure_output(struct cg_server *server,
 void
 keybinding_configure_input(struct cg_server *server,
                            struct cg_input_config *cfg) {
-	cg_input_apply_config(cfg, server);
+	struct cg_input_config *tcfg=input_manager_create_empty_input_config();
+	if(tcfg==NULL) {
+		wlr_log(WLR_ERROR,"Could not allocate temporary empty input configuration.");
+		return;
+	}
+	struct cg_input_config *ocfg=input_manager_merge_input_configs(cfg,tcfg);
+	free(tcfg);
+	if(ocfg==NULL) {
+		wlr_log(WLR_ERROR,"Could not allocate input configuration for merging.");
+		return;
+	}
+	wl_list_insert(&server->input_config,&ocfg->link);
+	cg_input_manager_configure(server);
 	ipc_send_event(server,
 	               "{\"event_name\":\"configure_input\",\"input\":\"%s\"}",
 	               cfg->identifier);
@@ -1390,10 +1454,6 @@ keybinding_configure_message(struct cg_server *server,
 	}
 	ipc_send_event(server, "{\"event_name\":\"configure_message\"}");
 }
-
-void
-keybinding_configure_input_dev(struct cg_server *server,
-                               struct cg_input_config *cfg) {}
 
 /* Hint: see keybinding.h for details on "data" */
 int

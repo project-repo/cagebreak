@@ -12,6 +12,7 @@ struct wlr_seat;
 struct wlr_xcursor_manager;
 struct wlr_backend;
 struct wlr_surface;
+struct cg_input_config;
 
 #define DEFAULT_XCURSOR "left_ptr"
 #define XCURSOR_SIZE 24
@@ -62,6 +63,8 @@ struct cg_seat {
 struct cg_keyboard_group {
 	struct wlr_keyboard_group *wlr_group;
 	struct cg_seat *seat;
+	char *identifier;
+	int enable_keybindings;
 
 	struct wl_listener key;
 	struct wl_listener modifiers;
@@ -107,5 +110,4 @@ void
 seat_add_device(struct cg_seat *seat, struct cg_input_device *device);
 void
 seat_remove_device(struct cg_seat *seat, struct cg_input_device *device);
-
 #endif

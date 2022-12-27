@@ -262,89 +262,69 @@ input_device_get_type(struct cg_input_device *device) {
 void
 apply_config_to_device(struct cg_input_config *config,
                        struct cg_input_device *input_device) {
-	if(!wlr_input_device_is_libinput(input_device->wlr_device)) {
-		return;
-	}
 
-	struct libinput_device *device =
-	    wlr_libinput_get_device_handle(input_device->wlr_device);
-	if(config->mapped_to_output &&
-	   !output_by_name_or_id(config->mapped_to_output, input_device->server)) {
-		wlr_log(WLR_DEBUG,
-		        "'%s' is mapped to offline output '%s'; disabling input",
-		        config->identifier, config->mapped_to_output);
-		set_send_events(device, LIBINPUT_CONFIG_SEND_EVENTS_DISABLED);
-	} else if(config->send_events != INT_MIN) {
-		set_send_events(device, config->send_events);
-	} else {
-		// Have to reset to the default mode here, otherwise if ic->send_events
-		// is unset and a mapped output just came online after being disabled,
-		// we'd remain stuck sending no events.
-		set_send_events(
-		    device,
-		    libinput_device_config_send_events_get_default_mode(device));
-	}
-
-	if(config->tap != INT_MIN) {
-		set_tap(device, config->tap);
-	}
-	if(config->tap_button_map != INT_MIN) {
-		set_tap_button_map(device, config->tap_button_map);
-	}
-	if(config->drag != INT_MIN) {
-		set_tap_drag(device, config->drag);
-	}
-	if(config->drag_lock != INT_MIN) {
-		set_tap_drag_lock(device, config->drag_lock);
-	}
-	if(config->pointer_accel != FLT_MIN) {
-		set_accel_speed(device, config->pointer_accel);
-	}
-	if(config->accel_profile != INT_MIN) {
-		set_accel_profile(device, config->accel_profile);
-	}
-	if(config->natural_scroll != INT_MIN) {
-		set_natural_scroll(device, config->natural_scroll);
-	}
-	if(config->left_handed != INT_MIN) {
-		set_left_handed(device, config->left_handed);
-	}
-	if(config->click_method != INT_MIN) {
-		set_click_method(device, config->click_method);
-	}
-	if(config->middle_emulation != INT_MIN) {
-		set_middle_emulation(device, config->middle_emulation);
-	}
-	if(config->scroll_method != INT_MIN) {
-		set_scroll_method(device, config->scroll_method);
-	}
-	if(config->scroll_button != INT_MIN) {
-		set_scroll_button(device, config->scroll_button);
-	}
-	if(config->dwt != INT_MIN) {
-		set_dwt(device, config->dwt);
-	}
-	if(config->calibration_matrix.configured) {
-		set_calibration_matrix(device, config->calibration_matrix.matrix);
-	}
-}
-
-void
-cg_input_apply_config(struct cg_input_config *config,
-                      struct cg_server *server) {
-	struct cg_input_device *device = NULL;
-	wl_list_for_each(device, &server->input->devices, link) {
-		if(strcmp(config->identifier, device->identifier) != 0 &&
-		   strcmp(config->identifier, "*") != 0) {
-			continue;
+	if(wlr_input_device_is_libinput(input_device->wlr_device)) {
+		struct libinput_device *device =
+			wlr_libinput_get_device_handle(input_device->wlr_device);
+		if(config->mapped_to_output &&
+				!output_by_name_or_id(config->mapped_to_output, input_device->server)) {
+			wlr_log(WLR_DEBUG,
+					"'%s' is mapped to offline output '%s'; disabling input",
+					config->identifier, config->mapped_to_output);
+			set_send_events(device, LIBINPUT_CONFIG_SEND_EVENTS_DISABLED);
+		} else if(config->send_events != INT_MIN) {
+			set_send_events(device, config->send_events);
+		} else {
+			// Have to reset to the default mode here, otherwise if ic->send_events
+			// is unset and a mapped output just came online after being disabled,
+			// we'd remain stuck sending no events.
+			set_send_events(
+					device,
+					libinput_device_config_send_events_get_default_mode(device));
 		}
 
-		const char *device_type = input_device_get_type(device);
-		if(strncmp(config->identifier, "type:", 5) == 0 &&
-		   strcmp(config->identifier + 5, device_type) != 0) {
-			continue;
+		if(config->tap != INT_MIN) {
+			set_tap(device, config->tap);
 		}
-		apply_config_to_device(config, device);
+		if(config->tap_button_map != INT_MIN) {
+			set_tap_button_map(device, config->tap_button_map);
+		}
+		if(config->drag != INT_MIN) {
+			set_tap_drag(device, config->drag);
+		}
+		if(config->drag_lock != INT_MIN) {
+			set_tap_drag_lock(device, config->drag_lock);
+		}
+		if(config->pointer_accel != FLT_MIN) {
+			set_accel_speed(device, config->pointer_accel);
+		}
+		if(config->accel_profile != INT_MIN) {
+			set_accel_profile(device, config->accel_profile);
+		}
+		if(config->natural_scroll != INT_MIN) {
+			set_natural_scroll(device, config->natural_scroll);
+		}
+		if(config->left_handed != INT_MIN) {
+			set_left_handed(device, config->left_handed);
+		}
+		if(config->click_method != INT_MIN) {
+			set_click_method(device, config->click_method);
+		}
+		if(config->middle_emulation != INT_MIN) {
+			set_middle_emulation(device, config->middle_emulation);
+		}
+		if(config->scroll_method != INT_MIN) {
+			set_scroll_method(device, config->scroll_method);
+		}
+		if(config->scroll_button != INT_MIN) {
+			set_scroll_button(device, config->scroll_button);
+		}
+		if(config->dwt != INT_MIN) {
+			set_dwt(device, config->dwt);
+		}
+		if(config->calibration_matrix.configured) {
+			set_calibration_matrix(device, config->calibration_matrix.matrix);
+		}
 	}
 }
 
@@ -354,17 +334,12 @@ cg_input_configure_libinput_device(struct cg_input_device *input_device) {
 	struct cg_input_config *config = NULL;
 
 	wl_list_for_each(config, &server->input_config, link) {
-		if(strcmp(config->identifier, input_device->identifier) != 0 &&
-		   strcmp(config->identifier, "*") != 0) {
-			continue;
-		}
-
 		const char *device_type = input_device_get_type(input_device);
-		if(!(strncmp(config->identifier, "type:", 5) &&
+		if(strcmp(config->identifier, input_device->identifier) == 0 ||
+		   strcmp(config->identifier, "*") == 0||(strncmp(config->identifier, "type:", 5) == 0&&
 		     strcmp(config->identifier + 5, device_type) == 0)) {
-			continue;
+			apply_config_to_device(config, input_device);
 		}
-		apply_config_to_device(config, input_device);
 	}
 }
 

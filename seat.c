@@ -7,7 +7,7 @@
  * See the LICENSE file accompanying this file.
  */
 
-#define _POSIX_C_SOURCE 200112L
+#define _POSIX_C_SOURCE 200812L
 
 #include "config.h"
 
@@ -194,6 +194,9 @@ static bool
 handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
                             uint32_t modifiers, uint32_t mode,
                             struct cg_keyboard_group *group) {
+	if(group->enable_keybindings==false) {
+		return false;
+	}
 	struct keybinding **keybinding = find_keybinding(
 	    server->keybindings,
 	    &(struct keybinding){.key = sym, .mode = mode, .modifiers = modifiers});
@@ -367,6 +370,11 @@ cg_keyboard_group_add(struct cg_input_device *input_device, struct cg_seat *seat
 	wlr_keyboard_set_repeat_info(&cg_group->wlr_group->keyboard,
 	                             device->keyboard->repeat_info.rate,
 	                             device->keyboard->repeat_info.delay);
+	if(input_device->identifier != NULL) {
+		cg_group->identifier=strdup(input_device->identifier);
+	} else {
+		cg_group->identifier=NULL;
+	}
 	wlr_log(WLR_DEBUG, "Created keyboard group.");
 
 	wlr_keyboard_group_add_keyboard(cg_group->wlr_group, wlr_keyboard);
@@ -382,11 +390,16 @@ cg_keyboard_group_add(struct cg_input_device *input_device, struct cg_seat *seat
 	    seat->server->event_loop, handle_keyboard_repeat, cg_group);
 
 	cg_group->modifiers.notify = handle_keyboard_group_modifiers;
+	cg_group->enable_keybindings=true;
+	cg_input_manager_configure_keyboard_group(cg_group);
 	return;
 
 cleanup:
 	if(cg_group && cg_group->wlr_group) {
 		wlr_keyboard_group_destroy(cg_group->wlr_group);
+	}
+	if(cg_group&&cg_group->identifier) {
+		free(cg_group->identifier);
 	}
 	free(cg_group);
 }
@@ -471,6 +484,9 @@ remove_keyboard(struct cg_seat *seat, struct cg_input_device *keyboard) {
 			wl_list_remove(&group->link);
 			wl_list_remove(&group->key.link);
 			wl_list_remove(&group->modifiers.link);
+			if(group->identifier!=NULL) {
+				free(group->identifier);
+			}
 			free(group);
 
 			// To prevent use-after-free conditions when handling key events, defer
@@ -846,6 +862,9 @@ handle_destroy(struct wl_listener *listener, void *_data) {
 		wl_list_remove(&group->link);
 		wlr_keyboard_group_destroy(group->wlr_group);
 		wl_event_source_remove(group->key_repeat_timer);
+		if(group->identifier) {
+			free(group->identifier);
+		}
 		free(group);
 	}
 

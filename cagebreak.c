@@ -660,6 +660,16 @@ end:
 		free(output_config);
 	}
 
+	struct cg_input_config *input_config, *input_config_tmp;
+	wl_list_for_each_safe(input_config, input_config_tmp,
+	                      &server.input_config, link) {
+		wl_list_remove(&input_config->link);
+		if(input_config->identifier != NULL) {
+			free(input_config->identifier);
+		}
+		free(input_config);
+	}
+
 	keybinding_list_free(server.keybindings);
 	wl_event_source_remove(sigint_source);
 	wl_event_source_remove(sigterm_source);
