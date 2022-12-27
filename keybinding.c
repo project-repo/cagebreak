@@ -963,10 +963,16 @@ print_output(struct cg_output *outp) {
 	struct dyn_str outp_str;
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
-	uint32_t nmemb = 5;
+	uint32_t nmemb = 8;
+	struct wlr_box *outp_box=wlr_output_layout_get_box(outp->server->output_layout,outp->wlr_output);
 	outp_str.str_arr = calloc(nmemb, sizeof(char *));
 	print_str(&outp_str, "\"%s\": {\n", outp->wlr_output->name);
 	print_str(&outp_str, "\"priority\": %d,\n", outp->priority);
+	if(outp_box!=NULL) {
+		print_str(&outp_str, "\"coords\": [\"x\":%d,\"y\":%d],\n", outp_box->x,outp_box->y);
+	}
+	print_str(&outp_str, "\"size\": [\"width\":%d,\"height\":%d]\n", outp->wlr_output->width,outp->wlr_output->height);
+	print_str(&outp_str, "\"refresh_rate\": %f,\n", (float) outp->wlr_output->refresh/1000.0);
 	print_str(&outp_str, "\"curr_workspace\": %d,\n", outp->curr_workspace);
 	char *workspaces_str = print_workspaces(outp);
 	if(workspaces_str != NULL) {
