@@ -79,8 +79,6 @@ remove_touch(struct cg_seat *seat, struct cg_touch *touch) {
 	wlr_cursor_detach_input_device(seat->cursor, touch->device->wlr_device);
 	--seat->num_touch;
 	free(touch);
-
-	update_capabilities(seat);
 }
 
 static void
@@ -118,8 +116,6 @@ remove_pointer(struct cg_seat *seat, struct cg_pointer *pointer) {
 	wlr_cursor_detach_input_device(seat->cursor, pointer->device->wlr_device);
 	--seat->num_pointers;
 	free(pointer);
-
-	update_capabilities(seat);
 }
 
 static void
