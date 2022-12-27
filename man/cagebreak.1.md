@@ -35,9 +35,6 @@ are displayed in a message box at the top right of the screen.
 *-h*
 	Display help message and exit
 
-*-r*
-	Rotate the output 90 degrees clockwise, can be specified up to three times
-
 *-s*
 	Show all available inputs and outputs
 

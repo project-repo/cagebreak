@@ -498,7 +498,7 @@ parse_output_config_keyword(char *key_str, enum output_status *status) {
 		*status = OUTPUT_DEFAULT;
 	} else if(strcmp(key_str, "prio") == 0) {
 		*status = OUTPUT_DEFAULT;
-	} else if(strcmp(key_str, "angle") == 0) {
+	} else if(strcmp(key_str, "rotate") == 0) {
 		*status = OUTPUT_DEFAULT;
 	} else if(strcmp(key_str, "scale") == 0) {
 		*status = OUTPUT_DEFAULT;
@@ -545,13 +545,13 @@ parse_output_config(char **saveptr, char **errstr) {
 		return cfg;
 	}
 
-	if(strcmp(key_str, "angle") == 0) {
+	if(strcmp(key_str, "rotate") == 0) {
 		uint32_t angle = parse_uint(saveptr, " ");
 		//360 degrees is equivalent to 0 degrees
 		cfg->angle = angle%4;
 		if(cfg->angle < 0) {
 			*errstr = log_error(
-			    "Error parsing angle specification for output %s",
+			    "Error parsing option rotate for output %s",
 			    name);
 			goto error;
 		}
