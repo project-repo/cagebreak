@@ -258,7 +258,7 @@ message <text>
 	  to set priorities for outputs, where <n> >= 1. The larger <n> is,
 	  the higher the priority is, that is to say, the earlier the output
 	  will appear in the list of outputs.
-	- rotate <n> is used to rotate the output by <n> mod 4 * 90 degrees
+	- rotate <n> is used to rotate the output by `<n> mod 4 x 90` degrees
 	  counter-clockwise.
 
 ```
