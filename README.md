@@ -109,14 +109,14 @@ breaking changes as soon as they occur.
 Simply execute the following steps to build Cagebreak:
 
 ```
-$ meson build
+$ meson setup build
 $ ninja -C build
 ```
 
 #### Release Build
 
 By default, this builds a debug build. To build a release build, use `meson
-build --buildtype=release`.
+setup build --buildtype=release`.
 
 ##### Xwayland Support
 
@@ -265,7 +265,7 @@ There are reproducibility issues up to and including release `1.2.0`. See
 All hashes and signatures are provided for the following build instructions.
 
 ```
-meson build -Dxwayland=true -Dman-pages=true --buildtype=release
+meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
 ninja -C build
 ```
 
@@ -415,7 +415,7 @@ occur.
   * [ ] Checked archive
     * [ ] tar -xvf release_version.tar.gz
     * [ ] cd cagebreak
-    * [ ] meson build -Dxwayland=true -Dman-pages=true --buildtype=release
+    * [ ] meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
     * [ ] ninja -C build
     * [ ] gpg --verify ../signatures/cagebreak.sig build/cagebreak
     * [ ] cd ..
