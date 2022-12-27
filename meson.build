@@ -203,13 +203,13 @@ reproducible_build_versions = {
   'wayland_cursor': '1.21.0',
   'wlroots': '0.15.1',
   'xkbcommon': '1.4.1',
-  'fontconfig': '2.14.0',
-  'libinput': '1.21.0',
+  'fontconfig': '2.14.1',
+  'libinput': '1.22.0',
   'libevdev': '1.13.0',
-  'libudev': '251',
-  'pango': '1.50.11',
+  'libudev': '252',
+  'pango': '1.50.12',
   'cairo': '1.17.6',
-  'pangocairo': '1.50.11',
+  'pangocairo': '1.50.12',
   'math': '-1'
 }
 
