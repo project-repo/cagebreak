@@ -591,7 +591,6 @@ without xwayland has been added to the release checklist.
   * github issue number: #23
   * Fixed: 1.9.0
 
-```
 Similar to djpohly/dwl#177. Xwayland works fine elsewhere: cage, hikari, kwinft, labwc, phoc, river, sway, wayfire.
 ```
 $ cagebreak
@@ -617,7 +616,6 @@ wayland-1.20.0
 wayland-protocols-1.25
 xwayland-devel-21.0.99.1.171
 wlroots-0.15.1
-```
 ```
 
 ## Issue 34
