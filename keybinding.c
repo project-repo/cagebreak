@@ -1061,7 +1061,7 @@ keybinding_dump(struct cg_server *server) {
 	uint32_t nmemb = 11;
 	str.str_arr = calloc(nmemb, sizeof(char *));
 
-	print_str(&str, "{");
+	print_str(&str, "{\"event_name\":\"dump\",");
 	print_str(&str, "\"nws\":%d,\n", server->nws);
 	print_str(&str, "\"bg_color\":[%f,%f,%f,%f],\n", server->bg_color[0],
 	          server->bg_color[1], server->bg_color[2], server->bg_color[3]);
