@@ -242,7 +242,7 @@ message <text>
 *only*
 	Remove all splits and make current window fill the entire screen
 
-*output <name> [[pos <xpos> <ypos> res <width>x<height> rate <rate> [scale <scale>]] | enable | disable | prio <n> ]*
+*output <name> [[pos <xpos> <ypos> res <width>x<height> rate <rate> [scale <scale>]] | enable | disable | prio <n> | rotate <n>]*
 	Configure output "<name>" -
 	- <xpos> and <ypos> are the position of the
 	  monitor in pixels. The top-left monitor should have the coordinates 0 0.
@@ -258,6 +258,23 @@ message <text>
 	  to set priorities for outputs, where <n> >= 1. The larger <n> is,
 	  the higher the priority is, that is to say, the earlier the output
 	  will appear in the list of outputs.
+	- rotate <n> is used to rotate the output by <n> mod 4 * 90 degrees
+	  counter-clockwise.
+
+```
+# Don't rotate
+output DP-1 rotate 0
+
+# rotate 90 degrees counter-clockwise
+output DP-1 rotate 1
+
+# rotate 180 degrees counter-clockwise
+output DP-1 rotate 2
+
+# rotate 270 degrees counter-clockwise
+output DP-1 rotate 3
+```
+
 	*output* and the *screen* family of commands are similar in that they
 	both deal with monitors on some level.
 	- *output* addresses outputs by their name and is vaguely symmetric
