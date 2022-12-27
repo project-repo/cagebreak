@@ -1000,3 +1000,44 @@ to let us know (either by posting here or opening a new issue)!
 cheers
 project-repo
 ```
+
+## Issue 42
+
+  * github issue number: N/A
+  * Fixed: 2.0.0
+
+When Cagebreak exited due to an error on startup, it was possible for
+memory leaks to occur since `server.modes` was not freed correctly. The
+same applies to the variable `name` in `input_manager.c`.
+
+This bug was found using the scan-build utility.
+
+## Issue 43
+
+  * github issue number: N/A
+  * Fixed: 2.0.0
+
+In `keybinding_move_view_to_cycle_output`, it was previously possible for a
+null pointer dereference to occur, when no view to be moved was focussed.
+
+This bug was found using the scan-build utility.
+
+## Issue 44
+
+  * github issue number: N/A
+  * Fixed: 2.0.0
+
+`cg_input_reset_libinput_device` was removed as it was unused code.
+
+This bug was found using the scan-build utility.
+
+## Issue 45
+
+  * github issue number: N/A
+  * Fixed: 2.0.0
+
+Various memory leaks in `parse_message_config`, `full_screen_workspace`
+and `server_show_info` were fixed.
+
+This bug was found using the scan-build utility.
+
