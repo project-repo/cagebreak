@@ -26,6 +26,22 @@ Set the following environment variables
 
 to activate wayland support for firefox.
 
+## How is Cagebreak launched?
+
+The documentation says to start Cagebreak like any other binary.
+
+If you want to start Cagebreak on login, you can use your shells
+equivalent of a `.bash_profile`. In BASH appending cagebreak
+(given that it is installed in the path) to `.bash_profile`
+is fine.
+
+If you want to start Cagebreak using systemd you could use a
+service started on user login, though the development team once ran
+into some issues with permissions for the services.
+
+Please note that Cagebreak does not solve the problem of
+locking the screen or login in general.
+
 ## How are applications launched in Cagebreak?
 
 There are multiple ways to launch external programs in cagebreak.
