@@ -8,6 +8,7 @@
  */
 
 #define _POSIX_C_SOURCE 200112L
+#define _DEFAULT_SOURCE
 
 #include "ipc_server.h"
 #include "message.h"
@@ -193,8 +194,8 @@ ipc_handle_connection(int fd, uint32_t mask, void *data) {
 		close(client_fd);
 		return 0;
 	}
-	// +1 for \n and +1 for \0
-	client->read_buffer = malloc(sizeof(char) * (MAX_LINE_SIZE + 2));
+	client->read_buf_cap=64;
+	client->read_buffer = calloc(client->read_buf_cap,sizeof(char));
 	client->read_buf_len = 0;
 	client->read_discard = 0;
 	client->server = server;
@@ -241,12 +242,18 @@ ipc_client_handle_readable(int client_fd, uint32_t mask, void *data) {
 		return 0;
 	}
 
-	int read_size = read_available < MAX_LINE_SIZE + 1 - client->read_buf_len
-	                    ? read_available
-	                    : MAX_LINE_SIZE + 1 - client->read_buf_len;
+	while(read_available+client->read_buf_len>(int32_t) client->read_buf_cap-1) {
+		client->read_buf_cap*=2;
+		client->read_buffer=reallocarray(client->read_buffer,client->read_buf_cap,sizeof(char));
+		if(client->read_buffer == NULL) {
+			wlr_log(WLR_ERROR, "Unable to allocate buffer large enough to hold client read data");
+			ipc_client_disconnect(client);
+			return 0;
+		}
+	}
 	// Append to buffer
 	ssize_t received = recv(
-	    client_fd, client->read_buffer + client->read_buf_len, read_size, 0);
+	    client_fd, client->read_buffer + client->read_buf_len, read_available, 0);
 	if(received == -1) {
 		wlr_log(WLR_ERROR, "Unable to receive data from IPC client");
 		ipc_client_disconnect(client);
@@ -274,8 +281,12 @@ ipc_client_disconnect(struct cg_ipc_client *client) {
 		wl_event_source_remove(client->writable_event_source);
 	}
 	wl_list_remove(&client->link);
-	free(client->write_buffer);
-	free(client->read_buffer);
+	if(client->write_buffer != NULL) {
+		free(client->write_buffer);
+	}
+	if(client->read_buffer != NULL) {
+		free(client->read_buffer);
+	}
 	close(client->fd);
 	free(client);
 }
@@ -311,13 +322,6 @@ ipc_client_handle_command(struct cg_ipc_client *client) {
 			}
 		}
 		offset = (nl_pos - client->read_buffer) + 1;
-	}
-	if(offset == 0) {
-		wlr_log(WLR_ERROR, "Line received was longer than %d, discarding it",
-		        MAX_LINE_SIZE);
-		client->read_buf_len = 0;
-		client->read_discard = 1;
-		return;
 	}
 	if(offset < client->read_buf_len) {
 		memmove(client->read_buffer, client->read_buffer + offset,
