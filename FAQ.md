@@ -26,6 +26,32 @@ Set the following environment variables
 
 to activate wayland support for firefox.
 
+## How do I map characters which are not on the Keyboard?
+
+Suppose you want to use a command like `bind` for a character
+which is likely not on your keyboard  like "ы" - you should write
+it as "Cyrillic_yeru".
+
+These names can be obtained by running xev and pressing the respective
+key(s) (combinations).
+
+## How do I change the size of the cursor?
+
+The size and shape of the cursor is determined by the application, however,
+most applications respect the environment variables `XCURSOR_SIZE` and
+`XCURSOR_THEME`
+
+To change the cursor size, one could use:
+
+```
+export XCURSOR_SIZE=1
+```
+
+If you are using an application which inherits its environment variables
+from something outside the scope of the export (such as a daemon for
+emacs might), you can usually specify your environment variables in
+the applications respective configuration.
+
 ## How is Cagebreak launched?
 
 The documentation says to start Cagebreak like any other binary.
