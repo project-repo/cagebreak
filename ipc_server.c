@@ -336,10 +336,8 @@ ipc_send_event_client(struct cg_ipc_client *client, const char *payload,
 
 	memcpy(data, ipc_magic, sizeof(ipc_magic));
 
-	// Terminating null character
-	payload_length+=1;
-
-	while(client->write_buffer_len + IPC_HEADER_SIZE + payload_length >=
+	// +1 for terminating null character
+	while(client->write_buffer_len + IPC_HEADER_SIZE + payload_length +1 >=
 	      client->write_buffer_size) {
 		client->write_buffer_size *= 2;
 	}
