@@ -93,3 +93,18 @@ available to all user software over the socket.
 Software may gain arbitrary code execution rights if it has access to the
 Cagebreak socket. Privilege escalation to root is unlikely since privileges
 are dropped before any user input is accepted.
+
+## GPG Keys of the Cagebreak Repository
+
+All Cagebreak project keys are found under keys/ in the cagebreak
+repository (the public keys anyway).
+
+The most trusted keys of the Cagebreak project are its signing keys,
+all signing keys are signed by at least one of its predecessors and at
+least one non-expired signing key is used at the time of release to
+sign the commit tag and the release code tarball.
+
+Signing keys are also used to lend credence to other keys in the Cagebreak
+project, such as the keys for email correspondence and the key used in the
+cagebreak-pkgbuild repository.
+
