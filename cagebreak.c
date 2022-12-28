@@ -7,6 +7,7 @@
  */
 
 #define _POSIX_C_SOURCE 200812L
+#define _DEFAULT_SOURCE
 
 #include "config.h"
 
@@ -165,30 +166,47 @@ parse_args(struct cg_server *server, int argc, char *argv[]) {
 /* Parse config file. Lines longer than "max_line_size" are ignored */
 int
 set_configuration(struct cg_server *server,
-                  const char *const config_file_path) {
+		const char *const config_file_path) {
 	FILE *config_file = fopen(config_file_path, "r");
 	if(config_file == NULL) {
 		wlr_log(WLR_ERROR, "Could not open config file \"%s\"",
-		        config_file_path);
+				config_file_path);
 		return 1;
 	}
-	char line[MAX_LINE_SIZE * sizeof(char)];
-	for(unsigned int line_num = 1;
-	    fgets(line, MAX_LINE_SIZE, config_file) != NULL; ++line_num) {
+	uint32_t line_length=64;
+	char *line=calloc(line_length,sizeof(char));
+	for(unsigned int line_num = 1;; ++line_num) {
+		do {
+			line_length*=2;
+			line=reallocarray(line,line_length,sizeof(char));
+			if(line == NULL) {
+				wlr_log(WLR_ERROR, "Could not allocate buffer for reading configuration file.");
+				return 1;
+			}
+			if(fgets(line+strlen(line), line_length-strlen(line), config_file)) {
+				break;
+			}
+		} while(strcspn(line,"\n")==line_length-1);
+		if(strlen(line)==0) {
+			break;
+		}
 		line[strcspn(line, "\n")] = '\0';
 		if(*line != '\0' && *line != '#') {
 			char *errstr;
 			if(parse_rc_line(server, line, &errstr) != 0) {
 				wlr_log(WLR_ERROR, "Error in config file \"%s\", line %d\n",
-				        config_file_path, line_num);
+						config_file_path, line_num);
 				fclose(config_file);
 				if(errstr != NULL) {
 					free(errstr);
 				}
+				free(line);
 				return -1;
 			}
 		}
+		memset(line,0,line_length*sizeof(char));
 	}
+	free(line);
 	fclose(config_file);
 	return 0;
 }
