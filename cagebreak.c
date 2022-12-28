@@ -130,9 +130,9 @@ usage(FILE *file, const char *const cage) {
 	        "Usage: %s [OPTIONS]\n"
 	        "\n"
 	        " -c <path>\t Load configuration file from <path>\n"
-	        " -h\t Display this help message\n"
-	        " -v\t Show the version number and exit\n"
-	        " -s\t Show information about the current setup and exit\n",
+	        " -h\t\t Display this help message\n"
+	        " -v\t\t Show the version number and exit\n"
+	        " -s\t\t Show information about the current setup and exit\n",
 	        cage);
 }
 
