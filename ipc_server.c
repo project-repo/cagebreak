@@ -26,7 +26,7 @@
 
 static const char ipc_magic[] = {'c', 'g', '-', 'i', 'p', 'c'};
 
-#define IPC_HEADER_SIZE (sizeof(ipc_magic) + 4)
+#define IPC_HEADER_SIZE sizeof(ipc_magic)
 
 static void
 handle_display_destroy(struct wl_listener *listener, void *data) {
@@ -134,6 +134,9 @@ ipc_client_handle_writable(int client_fd, uint32_t mask, void *data) {
 		return 0;
 	}
 
+	if(fcntl(client->fd, F_GETFD) == -1) {
+		return 0;
+	}
 	ssize_t written =
 	    write(client->fd, client->write_buffer, client->write_buffer_len);
 
@@ -332,7 +335,9 @@ ipc_send_event_client(struct cg_ipc_client *client, const char *payload,
 	char data[IPC_HEADER_SIZE];
 
 	memcpy(data, ipc_magic, sizeof(ipc_magic));
-	memcpy(data + sizeof(ipc_magic), &payload_length, sizeof(payload_length));
+
+	// Terminating null character
+	payload_length+=1;
 
 	while(client->write_buffer_len + IPC_HEADER_SIZE + payload_length >=
 	      client->write_buffer_size) {
@@ -361,6 +366,8 @@ ipc_send_event_client(struct cg_ipc_client *client, const char *payload,
 	memcpy(client->write_buffer + client->write_buffer_len, payload,
 	       payload_length);
 	client->write_buffer_len += payload_length;
+	memcpy(client->write_buffer + client->write_buffer_len, "\0", 1);
+	client->write_buffer_len += 1;
 }
 
 void
