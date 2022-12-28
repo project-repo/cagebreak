@@ -129,6 +129,7 @@ usage(FILE *file, const char *const cage) {
 	fprintf(file,
 	        "Usage: %s [OPTIONS]\n"
 	        "\n"
+	        " -c <path>\t Load configuration file from <path>\n"
 	        " -h\t Display this help message\n"
 	        " -v\t Show the version number and exit\n"
 	        " -s\t Show information about the current setup and exit\n",
@@ -136,9 +137,9 @@ usage(FILE *file, const char *const cage) {
 }
 
 static bool
-parse_args(struct cg_server *server, int argc, char *argv[]) {
+parse_args(struct cg_server *server, int argc, char *argv[], char **config_path) {
 	int c;
-	while((c = getopt(argc, argv, "hvs")) != -1) {
+	while((c = getopt(argc, argv, "c:hvs")) != -1) {
 		switch(c) {
 		case 'h':
 			usage(stdout, argv[0]);
@@ -148,6 +149,9 @@ parse_args(struct cg_server *server, int argc, char *argv[]) {
 			exit(0);
 		case 's':
 			show_info = true;
+			break;
+		case 'c':
+			*config_path=strdup(optarg);
 			break;
 		default:
 			usage(stderr, argv[0]);
@@ -215,7 +219,10 @@ set_configuration(struct cg_server *server,
 }
 
 char *
-get_config_file() {
+get_config_file(char *udef_path) {
+	if(udef_path != NULL) {
+		return strdup(udef_path);
+	}
 	const char *config_home_path = getenv("XDG_CONFIG_HOME");
 	char *addition = "/cagebreak/config";
 	if(config_home_path == NULL || config_home_path[0] == '\0') {
@@ -261,7 +268,8 @@ main(int argc, char *argv[]) {
 #endif
 	int ret = 0;
 
-	if(!parse_args(&server, argc, argv)) {
+	char *config_path = NULL;
+	if(!parse_args(&server, argc, argv,&config_path)) {
 		return 1;
 	}
 
@@ -283,9 +291,7 @@ main(int argc, char *argv[]) {
 
 	/* Wayland requires XDG_RUNTIME_DIR to be set. */
 	if(!getenv("XDG_RUNTIME_DIR")) {
-		wlr_log(WLR_ERROR, "XDG_RUNTIME_DIR is not set in the environment");
-		free(server.modes);
-		return 1;
+		wlr_log(WLR_INFO, "XDG_RUNTIME_DIR is not set in the environment");
 	}
 
 	server.wl_display = wl_display_create();
@@ -614,7 +620,7 @@ main(int argc, char *argv[]) {
 	}
 
 	{ // config_file should only be visible as long as it is valid
-		char *config_file = get_config_file();
+		char *config_file = get_config_file(config_path);
 		if(config_file == NULL) {
 			wlr_log(WLR_ERROR, "Unable to get path to config file");
 			ret = 1;
@@ -624,10 +630,14 @@ main(int argc, char *argv[]) {
 
 		// Configurtion file not found
 		if(conf_ret != 0) {
-			char *default_conf = "/etc/xdg/cagebreak/config";
-			wlr_log(WLR_ERROR, "Loading default configuration file: \"%s\"",
-			        default_conf);
-			conf_ret = set_configuration(&server, default_conf);
+			if(config_file == NULL) {
+				char *default_conf = "/etc/xdg/cagebreak/config";
+				wlr_log(WLR_INFO, "Loading default configuration file: \"%s\"",
+						default_conf);
+				conf_ret = set_configuration(&server, default_conf);
+			} else {
+				conf_ret = 1;
+			}
 		}
 
 		if(conf_ret != 0) {
@@ -668,6 +678,10 @@ end:
 		free(server.modes[i]);
 	}
 	free(server.modes);
+
+	if(config_path != NULL) {
+		free(config_path);
+	}
 
 #if CG_HAS_XWAYLAND
 	if(xwayland!=NULL) {
