@@ -339,6 +339,8 @@ main(int argc, char *argv[]) {
 	    wl_event_loop_add_signal(event_loop, SIGTERM, handle_signal, &server);
 	sigalrm_source =
 	    wl_event_loop_add_signal(event_loop, SIGALRM, handle_signal, &server);
+	sigalrm_source =
+	    wl_event_loop_add_signal(event_loop, SIGPIPE, handle_signal, &server);
 	server.event_loop = event_loop;
 
 	backend = wlr_backend_autocreate(server.wl_display);

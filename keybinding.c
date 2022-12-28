@@ -827,13 +827,13 @@ print_view(struct cg_view *view) {
 	char *title_str = view->impl->get_title(view);
 	print_str(&outp_str, "\"title\": \"%s\",\n",
 	          title_str == NULL ? "" : title_str);
-	print_str(&outp_str, "\"coords\": [\"x\":%d,\"y\":%d],\n", view->ox,
+	print_str(&outp_str, "\"coords\": {\"x\":%d,\"y\":%d},\n", view->ox,
 	          view->oy);
 #if CG_HAS_XWAYLAND
-	print_str(&outp_str, "\"type\": \"%s\",\n",
+	print_str(&outp_str, "\"type\": \"%s\"\n",
 	          view->type == CG_XWAYLAND_VIEW ? "xwayland" : "xdg");
 #else
-	print_str(&outp_str, "\"type\": \"xdg\",\n");
+	print_str(&outp_str, "\"type\": \"xdg\"\n");
 #endif
 	return dyn_str_to_str(&outp_str);
 }
@@ -846,11 +846,11 @@ print_tile(struct cg_tile *tile) {
 	uint32_t nmemb = 4;
 	outp_str.str_arr = calloc(nmemb, sizeof(char *));
 	print_str(&outp_str, "\"id\": %d,\n", tile->id);
-	print_str(&outp_str, "\"coords\": [\"x\":%d,\"y\":%d],\n", tile->tile.x,
+	print_str(&outp_str, "\"coords\": {\"x\":%d,\"y\":%d},\n", tile->tile.x,
 	          tile->tile.y);
-	print_str(&outp_str, "\"size\": [\"width\":%d,\"height\":%d],\n",
+	print_str(&outp_str, "\"size\": {\"width\":%d,\"height\":%d},\n",
 	          tile->tile.width, tile->tile.height);
-	print_str(&outp_str, "\"view\": \"%d\",\n",
+	print_str(&outp_str, "\"view\": \"%d\"\n",
 	          tile->view == NULL ? -1 : (int)tile->view->id);
 	return dyn_str_to_str(&outp_str);
 }
@@ -954,7 +954,7 @@ print_workspaces(struct cg_output *outp) {
 			free(ws);
 		}
 	}
-	print_str(&outp_str, "],\n");
+	print_str(&outp_str, "]\n");
 	return dyn_str_to_str(&outp_str);
 }
 
@@ -969,9 +969,9 @@ print_output(struct cg_output *outp) {
 	print_str(&outp_str, "\"%s\": {\n", outp->wlr_output->name);
 	print_str(&outp_str, "\"priority\": %d,\n", outp->priority);
 	if(outp_box!=NULL) {
-		print_str(&outp_str, "\"coords\": [\"x\":%d,\"y\":%d],\n", outp_box->x,outp_box->y);
+		print_str(&outp_str, "\"coords\": {\"x\":%d,\"y\":%d},\n", outp_box->x,outp_box->y);
 	}
-	print_str(&outp_str, "\"size\": [\"width\":%d,\"height\":%d]\n", outp->wlr_output->width,outp->wlr_output->height);
+	print_str(&outp_str, "\"size\": {\"width\":%d,\"height\":%d},\n", outp->wlr_output->width,outp->wlr_output->height);
 	print_str(&outp_str, "\"refresh_rate\": %f,\n", (float) outp->wlr_output->refresh/1000.0);
 	print_str(&outp_str, "\"curr_workspace\": %d,\n", outp->curr_workspace);
 	char *workspaces_str = print_workspaces(outp);
@@ -990,7 +990,7 @@ print_outputs(struct cg_server *server) {
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
 	outp_str.str_arr = calloc((2 * noutps - 1) + 2, sizeof(char *));
-	print_str(&outp_str, "\"outputs\": [");
+	print_str(&outp_str, "\"outputs\": {");
 	struct cg_output *it;
 	uint32_t count = 0;
 	wl_list_for_each(it, &server->outputs, link) {
@@ -1005,7 +1005,7 @@ print_outputs(struct cg_server *server) {
 		print_str(&outp_str, "%s", outp);
 		free(outp);
 	}
-	print_str(&outp_str, "],\n");
+	print_str(&outp_str, "}\n");
 	return dyn_str_to_str(&outp_str);
 }
 
@@ -1022,7 +1022,7 @@ print_keyboard_group(struct cg_keyboard_group *grp) {
 		print_str(&outp_str, "\"NULL\": {\n");
 	}
 	print_str(&outp_str, "\"repeat_delay\": %d,\n", grp->wlr_group->keyboard.repeat_info.delay);
-	print_str(&outp_str, "\"repeat_rate\": %d,\n", grp->wlr_group->keyboard.repeat_info.rate);
+	print_str(&outp_str, "\"repeat_rate\": %d\n", grp->wlr_group->keyboard.repeat_info.rate);
 	print_str(&outp_str, "}");
 	return dyn_str_to_str(&outp_str);
 }
@@ -1034,7 +1034,7 @@ print_keyboard_groups(struct cg_server *server) {
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
 	outp_str.str_arr = calloc((2 * ninps - 1) + 2, sizeof(char *));
-	print_str(&outp_str, "\"keyboards\": [");
+	print_str(&outp_str, "\"keyboards\": {");
 	struct cg_keyboard_group *it;
 	uint32_t count = 0;
 	wl_list_for_each(it, &server->seat->keyboard_groups, link) {
@@ -1049,7 +1049,7 @@ print_keyboard_groups(struct cg_server *server) {
 		print_str(&outp_str, "%s", outp);
 		free(outp);
 	}
-	print_str(&outp_str, "],\n");
+	print_str(&outp_str, "}\n");
 	return dyn_str_to_str(&outp_str);
 }
 
@@ -1067,20 +1067,20 @@ keybinding_dump(struct cg_server *server) {
 	          server->bg_color[1], server->bg_color[2], server->bg_color[3]);
 	print_str(&str, "\"views_curr_id\":%d,\n", server->views_curr_id);
 	print_str(&str, "\"tiles_curr_id\":%d,\n", server->tiles_curr_id);
-	print_str(&str, "\"curr_output\":%s,\n",
+	print_str(&str, "\"curr_output\":\"%s\",\n",
 	          server->curr_output->wlr_output->name);
 	print_modes(&str, server->modes);
 	char *outps_str = print_outputs(server);
 	if(outps_str!=NULL) {
-		print_str(&str, "%s", outps_str);
+		print_str(&str, "%s,", outps_str);
 		free(outps_str);
 	}
 	char *keyboards_str = print_keyboard_groups(server);
 	if(keyboards_str!=NULL) {
-		print_str(&str, "%s", keyboards_str);
+		print_str(&str, "%s,", keyboards_str);
 		free(keyboards_str);
 	}
-	print_str(&str, "\"cursor_coords\":{\"x\":%f,\"y\":%f},\n",
+	print_str(&str, "\"cursor_coords\":{\"x\":%f,\"y\":%f}\n",
 	          server->seat->cursor->x, server->seat->cursor->y);
 	print_str(&str, "}");
 
