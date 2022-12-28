@@ -176,17 +176,20 @@ set_configuration(struct cg_server *server,
 	uint32_t line_length=64;
 	char *line=calloc(line_length,sizeof(char));
 	for(unsigned int line_num = 1;; ++line_num) {
-		do {
+		while(true) {
+			if(fgets(line+strlen(line), line_length-strlen(line), config_file) == NULL) {
+				break;
+			}
+			if(strcspn(line,"\n")!=line_length-1) {
+				break;
+			}
 			line_length*=2;
 			line=reallocarray(line,line_length,sizeof(char));
 			if(line == NULL) {
 				wlr_log(WLR_ERROR, "Could not allocate buffer for reading configuration file.");
 				return 1;
 			}
-			if(fgets(line+strlen(line), line_length-strlen(line), config_file)) {
-				break;
-			}
-		} while(strcspn(line,"\n")==line_length-1);
+		}
 		if(strlen(line)==0) {
 			break;
 		}
