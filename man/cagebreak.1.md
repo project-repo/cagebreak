@@ -32,6 +32,9 @@ are displayed in a message box at the top right of the screen.
 
 # OPTIONS
 
+*-c*
+	<path> Load configuration file from <path>
+
 *-h*
 	Display help message and exit
 
