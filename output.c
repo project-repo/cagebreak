@@ -576,16 +576,3 @@ handle_new_output(struct wl_listener *listener, void *data) {
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop
 #endif
-
-void
-output_set_window_title(struct cg_output *output, const char *title) {
-	struct wlr_output *wlr_output = output->wlr_output;
-
-	if(wlr_output_is_wl(wlr_output)) {
-		wlr_wl_output_set_title(wlr_output, title);
-#if WLR_HAS_X11_BACKEND
-	} else if(wlr_output_is_x11(wlr_output)) {
-		wlr_x11_output_set_title(wlr_output, title);
-#endif
-	}
-}

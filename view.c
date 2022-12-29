@@ -52,15 +52,6 @@ view_get_prev_view(struct cg_view *view) {
 	return prev;
 }
 
-char *
-view_get_title(const struct cg_view *view) {
-	const char *title = view->impl->get_title(view);
-	if(!title) {
-		return NULL;
-	}
-	return strndup(title, strlen(title));
-}
-
 bool
 view_is_primary(const struct cg_view *view) {
 	return view->impl->is_primary(view);
@@ -113,7 +104,7 @@ view_unmap(struct cg_view *view) {
 	uint32_t tile_id = 0;
 	uint32_t ws = view->workspace->num;
 	char *output_name = view->workspace->output->wlr_output->name;
-	char *title = view->impl->get_title(view);
+	pid_t pid = view->impl->get_pid(view);
 	/* If the view is not mapped, do nothing */
 	if(view->wlr_surface == NULL) {
 		return;
@@ -162,8 +153,8 @@ view_unmap(struct cg_view *view) {
 	ipc_send_event(
 	    view->workspace->server,
 	    "{\"event_name\":\"view_unmap\",\"view_id\":\"%d\",\"tile_id\":\"%d\","
-	    "\"workspace\":\"%d\",\"output\":\"%s\",\"view_title\":\"%s\"}",
-	    id, tile_id, ws + 1, output_name, title);
+	    "\"workspace\":\"%d\",\"output\":\"%s\",\"view_pid\":\"%d\"}",
+	    id, tile_id, ws + 1, output_name, pid);
 }
 
 void
@@ -205,9 +196,9 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	ipc_send_event(
 	    output->server,
 	    "{\"event_name\":\"view_map\",\"view_id\":\"%d\",\"tile_id\":\"%d\","
-	    "\"workspace\":\"%d\",\"output\":\"%s\",\"view_title\":\"%s\"}",
+	    "\"workspace\":\"%d\",\"output\":\"%s\",\"view_pid\":\"%d\"}",
 	    view->id, tile_id, view->workspace->num + 1,
-	    view->workspace->output->wlr_output->name, view->impl->get_title(view));
+	    view->workspace->output->wlr_output->name, view->impl->get_pid(view));
 }
 
 void

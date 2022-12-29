@@ -838,9 +838,7 @@ print_view(struct cg_view *view) {
 	uint32_t nmemb = 4;
 	outp_str.str_arr = calloc(nmemb, sizeof(char *));
 	print_str(&outp_str, "\"id\": %d,\n", view->id);
-	char *title_str = view->impl->get_title(view);
-	print_str(&outp_str, "\"title\": \"%s\",\n",
-	          title_str == NULL ? "" : title_str);
+	print_str(&outp_str, "\"pid\": \"%d\",\n", view->impl->get_pid(view));
 	print_str(&outp_str, "\"coords\": {\"x\":%d,\"y\":%d},\n", view->ox,
 	          view->oy);
 #if CG_HAS_XWAYLAND
@@ -1314,18 +1312,18 @@ keybinding_move_view_to_output(struct cg_server *server, int output_num) {
 		workspace_tile_update_view(ws->focused_tile,view);
 		seat_set_focus(server->seat, view);
 	}
-	char *view_title = "";
+	pid_t view_pid = -1;
 	int view_id = -1;
 	if(view != NULL) {
-		view_title = view->impl->get_title(view);
+		view_pid = view->impl->get_pid(view);
 		view_id = view->id;
 	}
 	ipc_send_event(
 	    server,
 	    "{\"event_name\":\"move_view_to_output\",\"view_id\":\"%d\",\"old_"
-	    "output\":\"%s\",\"new_output\":\"%s\",\"view_title\":\"%s\"}",
+	    "output\":\"%s\",\"new_output\":\"%s\",\"view_pid\":\"%d\"}",
 	    view_id, old_outp->wlr_output->name,
-	    server->curr_output->wlr_output->name, view_title);
+	    server->curr_output->wlr_output->name, view_pid);
 }
 
 void
@@ -1358,10 +1356,10 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 	ipc_send_event(server,
 	               "{\"event_name\":\"move_view_to_ws\",\"view_id\":\"%d\","
 	               "\"old_workspace\":\"%d\",\"new_workspace\":\"%d\","
-	               "\"output\":\"%s\",\"view_title\":\"%s\"}",
+	               "\"output\":\"%s\",\"view_pid\":\"%d\"}",
 	               view == NULL ? -1 : (int)view->id, old_ws, ws,
 	               server->curr_output->wlr_output->name,
-	               view == NULL ? "" : view->impl->get_title(view));
+	               view == NULL ? 0 : view->impl->get_pid(view));
 }
 
 void

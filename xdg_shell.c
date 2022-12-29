@@ -106,11 +106,13 @@ xdg_shell_view_from_const_view(const struct cg_view *view) {
 	return (const struct cg_xdg_shell_view *)view;
 }
 
-static char *
-get_title(const struct cg_view *view) {
-	const struct cg_xdg_shell_view *xdg_shell_view =
-	    xdg_shell_view_from_const_view(view);
-	return xdg_shell_view->xdg_surface->toplevel->title;
+static pid_t
+get_pid(const struct cg_view *view) {
+	pid_t pid;
+	struct wl_client *client =
+		wl_resource_get_client(view->wlr_surface->resource);
+	wl_client_get_credentials(client, &pid, NULL, NULL);
+	return pid;
 }
 
 static bool
@@ -198,7 +200,7 @@ handle_xdg_shell_surface_destroy(struct wl_listener *listener, void *_data) {
 	view_destroy(view);
 }
 
-static const struct cg_view_impl xdg_shell_view_impl = {.get_title = get_title,
+static const struct cg_view_impl xdg_shell_view_impl = {.get_pid = get_pid,
                                                         .is_primary =
                                                             is_primary,
                                                         .activate = activate,

@@ -35,7 +35,7 @@ struct cg_view {
 };
 
 struct cg_view_impl {
-	char *(*get_title)(const struct cg_view *view);
+	pid_t (*get_pid)(const struct cg_view *view);
 	bool (*is_primary)(const struct cg_view *view);
 	void (*activate)(struct cg_view *view, bool activate);
 	void (*close)(struct cg_view *view);
@@ -43,8 +43,6 @@ struct cg_view_impl {
 	void (*destroy)(struct cg_view *view);
 };
 
-char *
-view_get_title(const struct cg_view *view);
 struct cg_tile *
 view_get_tile(const struct cg_view *view);
 bool

@@ -1040,10 +1040,6 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 	}
 
 	view_activate(view, true);
-	char *title = view_get_title(view);
-
-	output_set_window_title(server->curr_output, title);
-	free(title);
 
 	struct wlr_keyboard *keyboard = wlr_seat_get_keyboard(wlr_seat);
 	wlr_seat_keyboard_end_grab(wlr_seat);
