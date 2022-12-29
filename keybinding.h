@@ -56,6 +56,7 @@ enum keybinding_action {
 	KEYBINDING_FOCUS_RIGHT,
 	KEYBINDING_FOCUS_TOP,
 	KEYBINDING_FOCUS_BOTTOM,
+	KEYBINDING_FOCUS_TILE,
 
 	KEYBINDING_DEFINEKEY,  // data.kb is the keybinding definition
 	KEYBINDING_BACKGROUND, // data.color is the background color

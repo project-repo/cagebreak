@@ -743,6 +743,21 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_SHOW_INFO;
 	} else if(strcmp(action, "close") == 0) {
 		keybinding->action = KEYBINDING_CLOSE_VIEW;
+	} else if(strcmp(action, "focus_tile") == 0) {
+		keybinding->action = KEYBINDING_FOCUS_TILE;
+		char *nws_str = strtok_r(NULL, " ", &saveptr);
+		if(nws_str == NULL) {
+			*errstr = log_error(
+			    "Expected argument for \"focus_tile\" action, got none.");
+			return -1;
+		}
+
+		long tile_id = strtol(nws_str, NULL, 10);
+		if(tile_id < 1) {
+			*errstr = log_error("Tile id for focus_tile must be a positive integer. Got %l\n", tile_id);
+			return -1;
+		}
+		keybinding->data.u = tile_id;
 	} else if(strcmp(action, "focus") == 0) {
 		keybinding->action = KEYBINDING_CYCLE_TILES;
 		keybinding->data.b = false;

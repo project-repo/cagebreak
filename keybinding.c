@@ -691,24 +691,38 @@ keybinding_cycle_views(struct cg_server *server, bool reverse, bool ipc) {
 }
 
 void
-keybinding_cycle_tiles(struct cg_server *server, bool reverse) {
+keybinding_focus_tile(struct cg_server *server, uint32_t tile_id) {
 	struct cg_output *output = server->curr_output;
 	struct cg_workspace *workspace = output->workspaces[output->curr_workspace];
 	struct cg_tile *old_tile = workspace->focused_tile;
-	if(reverse) {
-		workspace_focus_tile(workspace, workspace->focused_tile->prev);
-	} else {
-		workspace_focus_tile(workspace, workspace->focused_tile->next);
+	bool first = true;
+	for(struct cg_tile *tile = workspace->focused_tile;
+			first || tile != workspace->focused_tile; tile = tile->next) {
+		first = false;
+		if(tile->id==tile_id) {
+			workspace_focus_tile(workspace, tile);
+			struct cg_view *next_view = workspace->focused_tile->view;
+			seat_set_focus(server->seat, next_view);
+			ipc_send_event(
+					output->server,
+					"{\"event_name\":\"focus_tile\",\"old_tile_id\":\"%d\",\"new_tile_"
+					"id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
+					old_tile->id, workspace->focused_tile->id, workspace->num + 1,
+					output->wlr_output->name);
+			break;
+		}
 	}
-	struct cg_view *next_view = workspace->focused_tile->view;
+}
 
-	seat_set_focus(server->seat, next_view);
-	ipc_send_event(
-	    output->server,
-	    "{\"event_name\":\"cycle_tiles\",\"old_tile_id\":\"%d\",\"new_tile_"
-	    "id\":\"%d\",\"workspace\":\"%d\",\"output\":\"%s\"}",
-	    old_tile->id, workspace->focused_tile->id, workspace->num + 1,
-	    output->wlr_output->name);
+void
+keybinding_cycle_tiles(struct cg_server *server, bool reverse) {
+	struct cg_output *output = server->curr_output;
+	struct cg_workspace *workspace = output->workspaces[output->curr_workspace];
+	if(reverse) {
+		keybinding_focus_tile(server, workspace->focused_tile->prev->id);
+	} else {
+		keybinding_focus_tile(server, workspace->focused_tile->next->id);
+	}
 }
 
 int
@@ -1627,6 +1641,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_close_view(
 		    server->curr_output->workspaces[server->curr_output->curr_workspace]
 		        ->focused_tile->view);
+		break;
+	case KEYBINDING_FOCUS_TILE:
+		keybinding_focus_tile(server,data.u);
 		break;
 	default: {
 		wlr_log(WLR_ERROR,
