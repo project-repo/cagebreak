@@ -52,6 +52,7 @@ struct cg_server {
 
 	struct cg_ipc_handle ipc;
 
+	bool enable_socket;
 	bool running;
 	char **modes;
 	uint16_t nws;

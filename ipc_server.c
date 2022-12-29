@@ -50,6 +50,9 @@ handle_display_destroy(struct wl_listener *listener, void *data) {
 
 int
 ipc_init(struct cg_server *server) {
+	if(server->enable_socket == false) {
+		return 0;
+	}
 	struct cg_ipc_handle *ipc = &server->ipc;
 	ipc->socket = socket(AF_UNIX, SOCK_STREAM, 0);
 	if(ipc->socket == -1) {
@@ -374,6 +377,9 @@ ipc_send_event_client(struct cg_ipc_client *client, const char *payload,
 
 void
 ipc_send_event(struct cg_server *server, const char *fmt, ...) {
+	if(server->enable_socket == false) {
+		return;
+	}
 	if(wl_list_empty(&server->ipc.client_list)) {
 		return;
 	}
