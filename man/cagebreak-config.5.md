@@ -90,7 +90,7 @@ definekey foo C-t abort
 ```
 
 *dump*
-	Triggers the *dump" event, see *cagebreak-socket(7)* for details
+	Triggers the *dump* event, see *cagebreak-socket(7)* for details
 
 *escape <key>*
 	Set <key> to switch to root mode to execute one command
