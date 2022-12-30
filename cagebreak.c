@@ -132,8 +132,8 @@ usage(FILE *file, const char *const cage) {
 	        " -c <path>\t Load configuration file from <path>\n"
 	        " -e\t\t Enable socket\n"
 	        " -h\t\t Display this help message\n"
-	        " -v\t\t Show the version number and exit\n"
-	        " -s\t\t Show information about the current setup and exit\n",
+	        " -s\t\t Show information about the current setup and exit\n"
+	        " -v\t\t Show the version number and exit\n",
 	        cage);
 }
 
