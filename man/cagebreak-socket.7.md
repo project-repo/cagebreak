@@ -210,7 +210,7 @@ resize_tile
 
 set_nws
 
-split
+*split*
 	- Trigger: *split* command
 	- JSON
 		- event_name: "split"
@@ -252,7 +252,7 @@ cg-ipc{"event_name":"view_map","view_id":"28","tile_id":"14","workspace":"1","ou
 *view_unmap*
 	- Trigger: view is closed by a process
 	- JSON
-		- event_name: "view_unmap*
+		- event_name: "view_unmap"
 		- view_id: view id as an integer
 		- tile_id: tile id as an integer
 		- workspace: workspace number as an integer
