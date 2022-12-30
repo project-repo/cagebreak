@@ -249,7 +249,6 @@ get_config_file(char *udef_path) {
 
 int
 main(int argc, char *argv[]) {
-	printf("This is cagebreak, version %s\n", CG_VERSION);
 	struct cg_server server = {0};
 	struct wl_event_loop *event_loop = NULL;
 	struct wl_event_source *sigint_source = NULL;
@@ -604,9 +603,7 @@ main(int argc, char *argv[]) {
 		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY.",
 		              "Clients may not be able to connect");
 	} else {
-		wlr_log(WLR_DEBUG,
-		        "Cagebreak " CG_VERSION " is running on Wayland display %s",
-		        socket);
+		fprintf(stderr, "Cagebreak " CG_VERSION " is running on Wayland display %s\n", socket);
 	}
 
 #if CG_HAS_XWAYLAND
