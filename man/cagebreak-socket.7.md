@@ -234,9 +234,35 @@ switch_output
 
 switch_ws
 
-view_map
+*view_map*
+	- Trigger: view is opened by a process
+	- JSON
+		- event_name: "view_map"
+		- view_id: view id as an integer
+		- tile_id: tile id as an integer
+		- workspace: workspace number as an integer
+		- output: name of the output as a string
+		- view_pid: pid of the process
 
-view_unmap
+```
+# process opens a view
+cg-ipc{"event_name":"view_map","view_id":"28","tile_id":"14","workspace":"1","output":"eDP-1","view_pid":"39827"}
+```
+
+*view_unmap*
+	- Trigger: view is closed by a process
+	- JSON
+		- event_name: "view_unmap*
+		- view_id: view id as an integer
+		- tile_id: tile id as an integer
+		- workspace: workspace number as an integer
+		- output: name of the output as a string
+		- view_pid: pid of the process
+
+```
+# view is closed by the process
+cg-ipc{"event_name":"view_unmap","view_id":"24","tile_id":"13","workspace":"1","output":"eDP-1","view_pid":"39544"}
+```
 
 ## SECURITY
 
