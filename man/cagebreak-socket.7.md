@@ -18,6 +18,23 @@ Events are provided as output as specified in this man page.
 
 ## EVENTS
 
+Events have a general structure as follows:
+
+```
+cg-ipca json object depending on the eventNULL
+```
+
+Here is an example of how this works using only as a command over the socket
+
+```
+only
+cg-ipc{"event_name":"fullscreen","tile_id":"2","workspace":"1","output":"eDP-1"}cg-ipc{"event_name":"cycle_views","old_view_id":"6","new_view_id":"0","tile_id":"2","workspace":"1","output":"eDP-1"}
+```
+
+This documentation includes the trigger for the event, the keys and the data
+type of the values of each event.
+
+TODO
 *foo <arg>*
 	Set x of y - <[x|y|z]> are foos
 	between 0 and 1.
@@ -26,6 +43,225 @@ Events are provided as output as specified in this man page.
 ```
 # Comment
 example
+```
+
+*background*
+	- Trigger: Setting new Background via *background* command
+	- JSON
+		- event_name: "background"
+		- old_bg: list of three floating point numbers denoting the old background in rgb
+		- new_bg: list of three floating point numbers denoting the new background in rgb
+
+```
+background 0 1.0 0
+cg-ipc{"event_name":"background","old_bg":"[0.000000,1.000000,1.000000]","new_bg":"[0.000000,1.000000,0.000000]"}
+```
+
+*close*
+	- Trigger: Closure of a view via *close* command
+	- JSON
+		- event_name: "close"
+		- view_id: view id as an integer
+		- title_id: title id as an integer
+		- workspace: workspace number as an integer
+		- output: name of the output as a string
+
+```
+close
+cg-ipc{"event_name":"close","view_id":"47","tile_id":"47","workspace":"1","output":"eDP-1"}
+```
+
+*configure_input*
+
+
+*configure_message*
+
+configure_output
+
+*cursor_switch_tile*
+	- Trigger: Cursor crosses the border between tiles
+	- JSON
+		- event_name: "cursor_switch_tile"
+		- old_output: name of the old output as a string
+		- old_tile: number of the old tile as an integer
+		- new_output: name of the new output as a string
+		- new_tile: number of the new tile as an integer
+
+```
+# Cursor switches tile
+cg-ipc{"event_name":"cursor_switch_tile","old_output":"eDP-1","old_tile":"2","new_output":"eDP-1","new_tile":"3"}
+```
+
+*cycle_outputs*
+
+cycle_views
+
+definekey
+
+definemode
+
+dump
+	- Trigger: *dump* command
+	- JSON
+		- event_name: "dump"
+		- nws: number of workspaces as an integer
+		- bg_color: list of three floating point numbers denoting the new background in rgba
+		- views_curr_id: TODO
+		- tiles_curr_id: TODO
+		- curr_output: current output as a string
+		- modes: list of names of modes as strings
+		- outputs: object of objects for each output
+			- output name as string
+				- priority: priority as per *output* prio <n> in *cagebreak-config(5)* or default
+				- coords: object of x and y coordinates of output
+					- TODO
+				- size: object of width and height as integers TODO
+				- refresh_rate: refresh rate as float TODO
+				- curr_workspace: current workspace as an integer
+				- workspaces: list of objects for each workspace
+					- views: list of objects for each view
+						- id: view id as an integer
+						- pid: pid of the process which opened the view as an integer
+						- coords: object of x and y coordinates
+						- type: ["xdg"|"xwayland"]
+					- tiles: list of objects for all tiles
+						- id: tile id as an integer
+						- coords: object of x and y coordinates
+						- size: object of width and height
+						- view: view id as an integer
+		- keyboards: object of objects for each keyboard
+			- name_of_keyboard: object for a keyboard
+				- repeat_delay: repeat delay in milliseconds as an integer
+				- repeat_rate: repeat rate in hertz as an integer
+		- cursor_coords: object of x and y coordinates
+
+```
+dump
+cg-ipc{"event_name":"dump","nws":1,
+"bg_color":[0.000000,0.000000,0.000000,1.000000],
+"views_curr_id":9,
+"tiles_curr_id":3,
+"curr_output":"eDP-1",
+"modes":["top","root","resize"],
+"outputs": {"eDP-1": {
+"priority": -1,
+"coords": {"x":0,"y":0},
+"size": {"width":2560,"height":1440},
+"refresh_rate": 60.012000,
+"curr_workspace": 0,
+"workspaces": [{"views": [{
+"id": 4,
+"pid": "37878",
+"coords": {"x":0,"y":0},
+"type": "xwayland"
+
+},{
+"id": 8,
+"pid": "38279",
+"coords": {"x":1280,"y":0},
+"type": "xdg"
+
+}],"tiles": [{
+"id": 2,
+"coords": {"x":1280,"y":0},
+"size": {"width":1280,"height":1440},
+"view": "8"
+
+},{
+"id": 1,
+"coords": {"x":0,"y":0},
+"size": {"width":1280,"height":1440},
+"view": "4"
+
+}]}]
+}}
+,"keyboards": {"0:1:Power_Button": {
+"repeat_delay": 600,
+"repeat_rate": 25
+}}
+,"cursor_coords":{"x":1737.440431,"y":677.906813}
+}
+```
+
+focus_tile
+
+*fullscreen*
+	- Trigger: *only* command
+	- JSON
+		- event_name: "fullscreen"
+		- tile_id: tile id as an integer
+		- workspace: workspace number as an integer
+		- output: output as a string
+
+```
+only
+cg-ipc{"event_name":"fullscreen","tile_id":"3","workspace":"1","output":"eDP-1"}
+```
+
+move_view_cycle_output
+
+move_view_to_output
+
+move_view_to_ws
+
+new_output
+
+resize_tile
+
+set_nws
+
+*split*
+	- Trigger: *split* command
+	- JSON
+		- event_name: "split"
+		- tile_id: old tile id as an integer
+		- new_tile_id: new tile id as an integer
+		- workspace: workspace number as an integer
+		- output: output as a string
+		- vertical: "0" if horizontal split, "1" if not
+
+```
+hsplit
+cg-ipc{"event_name":"split","tile_id":"11","new_tile_id":"12","workspace":"1","output":"eDP-1","vertical":"0"}
+```
+
+*swap_tile*
+	- Trigger: 
+
+switch_default_mode
+
+switch_output
+
+switch_ws
+
+*view_map*
+	- Trigger: view is opened by a process
+	- JSON
+		- event_name: "view_map"
+		- view_id: view id as an integer
+		- tile_id: tile id as an integer
+		- workspace: workspace number as an integer
+		- output: name of the output as a string
+		- view_pid: pid of the process
+
+```
+# process opens a view
+cg-ipc{"event_name":"view_map","view_id":"28","tile_id":"14","workspace":"1","output":"eDP-1","view_pid":"39827"}
+```
+
+*view_unmap*
+	- Trigger: view is closed by a process
+	- JSON
+		- event_name: "view_unmap"
+		- view_id: view id as an integer
+		- tile_id: tile id as an integer
+		- workspace: workspace number as an integer
+		- output: name of the output as a string
+		- view_pid: pid of the process
+
+```
+# view is closed by the process
+cg-ipc{"event_name":"view_unmap","view_id":"24","tile_id":"13","workspace":"1","output":"eDP-1","view_pid":"39544"}
 ```
 
 ## SECURITY
