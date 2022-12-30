@@ -478,6 +478,19 @@ parse_escape(char **saveptr, char **errstr) {
 	return keybinding;
 }
 
+int
+parse_cursor(char **saveptr, char **errstr) {
+	if(strcmp(*saveptr,"enable")==0) {
+		return 1;
+	} else if(strcmp(*saveptr,"disable")==0) {
+		return 0;
+	} else {
+		wlr_log(WLR_ERROR,
+		        "Invalid option \"%s\" for \"cursor\". Expected \"enable\" or \"disable\".", *saveptr);
+		return -1;
+	}
+}
+
 char *
 parse_definemode(char **saveptr, char **errstr) {
 	char *mode = strtok_r(NULL, " ", saveptr);
@@ -977,6 +990,12 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_DEFINEKEY;
 		keybinding->data.kb = parse_escape(&saveptr, errstr);
 		if(keybinding->data.kb == NULL) {
+			return -1;
+		}
+	} else if(strcmp(action, "cursor") == 0) {
+		keybinding->action = KEYBINDING_CURSOR;
+		keybinding->data.i = parse_cursor(&saveptr, errstr);
+		if(keybinding->data.i < 0) {
 			return -1;
 		}
 	} else if(strcmp(action, "definemode") == 0) {

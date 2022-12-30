@@ -111,7 +111,7 @@ struct cg_input_device {
 	char *identifier;
 	struct cg_server *server;
 	struct wlr_input_device *wlr_device;
-	struct wl_list link;
+	struct wl_list link;//input_manager::devices
 	struct wl_listener device_destroy;
 	bool is_virtual;
 

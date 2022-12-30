@@ -130,7 +130,7 @@ usage(FILE *file, const char *const cage) {
 	        "Usage: %s [OPTIONS]\n"
 	        "\n"
 	        " -c <path>\t Load configuration file from <path>\n"
-	        " -d\t\t Disable socket\n"
+	        " -e\t\t Enable socket\n"
 	        " -h\t\t Display this help message\n"
 	        " -v\t\t Show the version number and exit\n"
 	        " -s\t\t Show information about the current setup and exit\n",
@@ -140,8 +140,8 @@ usage(FILE *file, const char *const cage) {
 static bool
 parse_args(struct cg_server *server, int argc, char *argv[], char **config_path) {
 	int c;
-	server->enable_socket=true;
-	while((c = getopt(argc, argv, "c:hvsd")) != -1) {
+	server->enable_socket=false;
+	while((c = getopt(argc, argv, "c:hvse")) != -1) {
 		switch(c) {
 		case 'h':
 			usage(stdout, argv[0]);
@@ -155,8 +155,8 @@ parse_args(struct cg_server *server, int argc, char *argv[], char **config_path)
 		case 'c':
 			*config_path=strdup(optarg);
 			break;
-		case 'd':
-			server->enable_socket=false;
+		case 'e':
+			server->enable_socket=true;
 			break;
 		default:
 			usage(stderr, argv[0]);

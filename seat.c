@@ -63,7 +63,7 @@ update_capabilities(const struct cg_seat *seat) {
 	wlr_seat_set_capabilities(seat->seat, caps);
 
 	/* Hide cursor if the seat doesn't have pointer capability. */
-	if((caps & WL_SEAT_CAPABILITY_POINTER) == 0) {
+	if(((caps & WL_SEAT_CAPABILITY_POINTER) == 0) || seat->enable_cursor == false) {
 		wlr_cursor_set_image(seat->cursor, NULL, 0, 0, 0, 0, 0, 0);
 	} else {
 		wlr_xcursor_manager_set_cursor_image(seat->xcursor_manager,
@@ -206,13 +206,15 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 
 		struct wlr_scene_node *node = wlr_scene_node_at(
 				&server->scene->node, server->seat->cursor->x, server->seat->cursor->y, &sx, &sy);
-		if(node && node->type == WLR_SCENE_NODE_SURFACE) {
-			surface = wlr_scene_surface_from_node(node)->surface;
-			wlr_seat_pointer_notify_enter(wlr_seat, surface, sx, sy);
-		} else {
-			wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
-					"left_ptr", server->seat->cursor);
+		if(server->seat->enable_cursor) {
+			if(node && node->type == WLR_SCENE_NODE_SURFACE) {
+				surface = wlr_scene_surface_from_node(node)->surface;
+				wlr_seat_pointer_notify_enter(wlr_seat, surface, sx, sy);
+			} else {
+				wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
+						"left_ptr", server->seat->cursor);
 
+			}
 		}
 	}
 
@@ -542,6 +544,9 @@ handle_request_set_selection(struct wl_listener *listener, void *data) {
 static void
 handle_request_set_cursor(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, request_set_cursor);
+	if(seat->enable_cursor==false) {
+		return;
+	}
 	struct wlr_seat_pointer_request_set_cursor_event *event = data;
 	struct wlr_surface *focused_surface =
 	    event->seat_client->seat->pointer_state.focused_surface;
@@ -894,6 +899,7 @@ seat_create(struct cg_server *server, struct wlr_backend *backend) {
 		return NULL;
 	}
 
+	seat->enable_cursor=true;
 	seat->seat = wlr_seat_create(server->wl_display, "seat0");
 	if(!seat->seat) {
 		wlr_log(WLR_ERROR, "Cannot allocate seat0");

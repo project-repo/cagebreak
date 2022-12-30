@@ -1066,12 +1066,56 @@ print_keyboard_groups(struct cg_server *server) {
 	return dyn_str_to_str(&outp_str);
 }
 
+char *
+print_input_device(struct cg_input_device *dev) {
+	struct dyn_str outp_str;
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	uint32_t nmemb = 4;
+	outp_str.str_arr = calloc(nmemb, sizeof(char *));
+	if(dev->identifier!=NULL) {
+		print_str(&outp_str, "\"%s\": {\n", dev->identifier);
+	} else {
+		print_str(&outp_str, "\"NULL\": {\n");
+	}
+	print_str(&outp_str, "\"is_virtual\": %d,\n", dev->is_virtual);
+	print_str(&outp_str, "\"type\": \"%s\",\n", dev->wlr_device->type==WLR_INPUT_DEVICE_POINTER?"pointer":dev->wlr_device->type==WLR_INPUT_DEVICE_SWITCH?"switch":dev->wlr_device->type==WLR_INPUT_DEVICE_TABLET_PAD?"tablet pad":dev->wlr_device->type==WLR_INPUT_DEVICE_TABLET_TOOL?"tablet tool":dev->wlr_device->type==WLR_INPUT_DEVICE_TOUCH?"touch":dev->wlr_device->type==WLR_INPUT_DEVICE_KEYBOARD?"keyboard":"unknown");
+	print_str(&outp_str, "}");
+	return dyn_str_to_str(&outp_str);
+}
+
+char *
+print_input_devices(struct cg_server *server) {
+	uint32_t ninps = wl_list_length(&server->input->devices);
+	struct dyn_str outp_str;
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	outp_str.str_arr = calloc((2 * ninps - 1) + 2, sizeof(char *));
+	print_str(&outp_str, "\"input_devices\": {");
+	struct cg_input_device *it;
+	uint32_t count = 0;
+	wl_list_for_each(it, &server->input->devices, link) {
+		if(count != 0) {
+			print_str(&outp_str, ",");
+		}
+		++count;
+		char *outp = print_input_device(it);
+		if(outp == NULL) {
+			continue;
+		}
+		print_str(&outp_str, "%s", outp);
+		free(outp);
+	}
+	print_str(&outp_str, "}\n");
+	return dyn_str_to_str(&outp_str);
+}
+
 void
 keybinding_dump(struct cg_server *server) {
 	struct dyn_str str;
 	str.len = 0;
 	str.cur_pos = 0;
-	uint32_t nmemb = 11;
+	uint32_t nmemb = 12;
 	str.str_arr = calloc(nmemb, sizeof(char *));
 
 	print_str(&str, "{\"event_name\":\"dump\",");
@@ -1092,6 +1136,11 @@ keybinding_dump(struct cg_server *server) {
 	if(keyboards_str!=NULL) {
 		print_str(&str, "%s,", keyboards_str);
 		free(keyboards_str);
+	}
+	char *input_dev_str = print_input_devices(server);
+	if(input_dev_str!=NULL) {
+		print_str(&str, "%s,", input_dev_str);
+		free(input_dev_str);
 	}
 	print_str(&str, "\"cursor_coords\":{\"x\":%f,\"y\":%f}\n",
 	          server->seat->cursor->x, server->seat->cursor->y);
@@ -1474,6 +1523,18 @@ keybinding_configure_message(struct cg_server *server,
 	ipc_send_event(server, "{\"event_name\":\"configure_message\"}");
 }
 
+void
+set_cursor(bool enabled,struct cg_seat* seat) {
+	if(enabled==true) {
+		seat->enable_cursor=true;
+		wlr_xcursor_manager_set_cursor_image(seat->xcursor_manager,
+		                                     DEFAULT_XCURSOR, seat->cursor);
+	} else {
+		seat->enable_cursor=false;
+		wlr_cursor_set_image(seat->cursor, NULL, 0, 0, 0, 0, 0, 0);
+	}
+}
+
 /* Hint: see keybinding.h for details on "data" */
 int
 run_action(enum keybinding_action action, struct cg_server *server,
@@ -1484,6 +1545,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_CHANGE_TTY:
 		return keybinding_switch_vt(server->backend, data.u);
+	case KEYBINDING_CURSOR:
+		set_cursor(data.i,server->seat);
+		break;
 	case KEYBINDING_LAYOUT_FULLSCREEN:
 		keybinding_workspace_fullscreen(server);
 		break;
@@ -1522,8 +1586,10 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	case KEYBINDING_SWITCH_MODE:
 		if(data.u!=server->seat->default_mode) {
 			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
-			wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
-			                                     "dot_box_mask", server->seat->cursor);
+			if(server->seat->enable_cursor==true) {
+				wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
+						"dot_box_mask", server->seat->cursor);
+			}
 		}
 		server->seat->mode = data.u;
 		break;
