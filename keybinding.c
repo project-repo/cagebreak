@@ -1026,13 +1026,14 @@ print_keyboard_group(struct cg_keyboard_group *grp) {
 	struct dyn_str outp_str;
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
-	uint32_t nmemb = 4;
+	uint32_t nmemb = 5;
 	outp_str.str_arr = calloc(nmemb, sizeof(char *));
 	if(grp->identifier!=NULL) {
 		print_str(&outp_str, "\"%s\": {\n", grp->identifier);
 	} else {
 		print_str(&outp_str, "\"NULL\": {\n");
 	}
+	print_str(&outp_str, "\"commands_enabled\": %d,\n", grp->enable_keybindings);
 	print_str(&outp_str, "\"repeat_delay\": %d,\n", grp->wlr_group->keyboard.repeat_info.delay);
 	print_str(&outp_str, "\"repeat_rate\": %d\n", grp->wlr_group->keyboard.repeat_info.rate);
 	print_str(&outp_str, "}");

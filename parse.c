@@ -117,6 +117,25 @@ parse_float(char **saveptr, const char *delim) {
 	}
 }
 
+int
+parse_uint(char **saveptr, const char *delim) {
+	char *uint_str = strtok_r(NULL, delim, saveptr);
+	if(uint_str == NULL) {
+		wlr_log(WLR_ERROR, "Expected a non-negative integer, got nothing");
+		return -1;
+	}
+	long uint = strtol(uint_str, NULL, 10);
+	if(uint >= 0 && uint <= INT_MAX) {
+		return uint;
+	} else {
+		wlr_log(WLR_ERROR,
+		        "Error parsing non-negative integer. Must be a number larger "
+		        "or equal to 0 and less or equal to %d",
+		        INT_MAX);
+		return -1;
+	}
+}
+
 struct cg_input_config *
 parse_input_config(char **saveptr, char **errstr) {
 	struct cg_input_config *cfg=input_manager_create_empty_input_config();
@@ -330,6 +349,22 @@ parse_input_config(char **saveptr, char **errstr) {
 			    "Invalid option \"%s\" to setting \"keybindings\"", value);
 			goto error;
 		}
+	} else if(strcmp(setting, "repeat_delay") == 0) {
+		cfg->repeat_delay = parse_uint(saveptr, " ");
+		if(cfg->repeat_delay < 0 ) {
+			*errstr = log_error("Invalid option \"%s\" to setting "
+			                    "\"repeat_delay\", expected positive integer",
+			                    value);
+			goto error;
+		}
+	} else if(strcmp(setting, "repeat_rate") == 0) {
+		cfg->repeat_rate = parse_uint(saveptr, " ");
+		if(cfg->repeat_rate < 0 ) {
+			*errstr = log_error("Invalid option \"%s\" to setting "
+			                    "\"repeat_rate\", expected positive integer",
+			                    value);
+			goto error;
+		}
 	} else {
 		*errstr = log_error("Invalid option to command \"input\"");
 		goto error;
@@ -468,25 +503,6 @@ parse_workspaces(char **saveptr, char **errstr) {
 		return -1;
 	}
 	return nws;
-}
-
-int
-parse_uint(char **saveptr, const char *delim) {
-	char *uint_str = strtok_r(NULL, delim, saveptr);
-	if(uint_str == NULL) {
-		wlr_log(WLR_ERROR, "Expected a non-negative integer, got nothing");
-		return -1;
-	}
-	long uint = strtol(uint_str, NULL, 10);
-	if(uint >= 0 && uint <= INT_MAX) {
-		return uint;
-	} else {
-		wlr_log(WLR_ERROR,
-		        "Error parsing non-negative integer. Must be a number larger "
-		        "or equal to 0 and less or equal to %d",
-		        INT_MAX);
-		return -1;
-	}
 }
 
 int

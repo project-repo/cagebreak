@@ -103,6 +103,8 @@ struct cg_input_config {
 
 	/* Keyboards */
 	int enable_keybindings;
+	int repeat_delay;
+	int repeat_rate;
 };
 
 struct cg_input_device {

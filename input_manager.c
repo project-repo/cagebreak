@@ -29,6 +29,7 @@
 #include <wlr/types/wlr_input_inhibitor.h>
 #include <wlr/types/wlr_virtual_keyboard_v1.h>
 #include <wlr/types/wlr_virtual_pointer_v1.h>
+#include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/util/log.h>
 
 void
@@ -124,6 +125,8 @@ input_manager_create_empty_input_config() {
 
 	/* Keyboards */
 	cfg->enable_keybindings=-1;
+	cfg->repeat_delay=-1;
+	cfg->repeat_rate=-1;
 	return cfg;
 }
 
@@ -221,15 +224,33 @@ input_manager_merge_input_configs(struct cg_input_config* cfg1, struct cg_input_
 	} else {
 		out_cfg->enable_keybindings=cfg1->enable_keybindings;
 	}
+	if(cfg1->repeat_delay == -1) {
+		out_cfg->repeat_delay=cfg2->repeat_delay;
+	} else {
+		out_cfg->repeat_delay=cfg1->repeat_delay;
+	}
+	if(cfg1->repeat_rate == -1) {
+		out_cfg->repeat_rate=cfg2->repeat_rate;
+	} else {
+		out_cfg->repeat_rate=cfg1->repeat_rate;
+	}
 	return out_cfg;
 }
 
 void
 apply_keyboard_group_config(struct cg_input_config *config,
                        struct cg_keyboard_group *group) {
-	if(group->enable_keybindings!=-1) {
+	if(config->enable_keybindings!=-1) {
 		group->enable_keybindings=config->enable_keybindings;
 	}
+	int repeat_delay=600,repeat_rate=25;
+	if(config->repeat_delay != -1) {
+		repeat_delay=config->repeat_delay;
+	}
+	if(config->repeat_rate != -1) {
+		repeat_rate=config->repeat_rate;
+	}
+	wlr_keyboard_set_repeat_info(&group->wlr_group->keyboard, repeat_rate, repeat_delay);
 }
 
 void

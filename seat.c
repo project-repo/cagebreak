@@ -422,7 +422,6 @@ new_keyboard(struct cg_seat *seat, struct cg_input_device *input_device) {
 
 	xkb_keymap_unref(keymap);
 	xkb_context_unref(context);
-	wlr_keyboard_set_repeat_info(device->keyboard, 25, 600);
 
 	cg_keyboard_group_add(input_device, seat);
 	++seat->num_keyboards;
