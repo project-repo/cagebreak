@@ -21,29 +21,18 @@ Events are provided as output as specified in this man page.
 Events have a general structure as follows:
 
 ```
-cg-ipca json object depending on the eventNULL
+"cg-ipc"json object depending on the eventNULL
 ```
 
 Here is an example of how this works using only as a command over the socket
 
 ```
 only
-cg-ipc{"event_name":"fullscreen","tile_id":"2","workspace":"1","output":"eDP-1"}cg-ipc{"event_name":"cycle_views","old_view_id":"6","new_view_id":"0","tile_id":"2","workspace":"1","output":"eDP-1"}
+cg-ipc{"event_name":"fullscreen","tile_id":"2","workspace":"1","output":"eDP-1"}
 ```
 
 This documentation includes the trigger for the event, the keys and the data
 type of the values of each event.
-
-TODO
-*foo <arg>*
-	Set x of y - <[x|y|z]> are foos
-	between 0 and 1.
-	This is a full sentence.
-
-```
-# Comment
-example
-```
 
 *background*
 	- Trigger: Setting new Background via *background* command
