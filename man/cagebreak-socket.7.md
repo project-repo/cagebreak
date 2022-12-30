@@ -35,7 +35,7 @@ This documentation includes the trigger for the event, the keys and the data
 type of the values of each event.
 
 *background*
-	- Trigger: Setting new Background via *background* command
+	- Trigger: *background* command
 	- JSON
 		- event_name: "background"
 		- old_bg: list of three floating point numbers denoting the old background in rgb
@@ -47,7 +47,7 @@ cg-ipc{"event_name":"background","old_bg":"[0.000000,1.000000,1.000000]","new_bg
 ```
 
 *close*
-	- Trigger: Closure of a view via *close* command
+	- Trigger: *close* command
 	- JSON
 		- event_name: "close"
 		- view_id: view id as an integer
@@ -107,14 +107,60 @@ cg-ipc{"event_name":"cursor_switch_tile","old_output":"eDP-1","old_tile":"2","ne
 ```
 
 *cycle_outputs*
+	- Trigger: *nextscreen* and *prevscreen* commands
+	- JSON
+		- event_name: "cycle_outputs"
+		- old_output: old output name as string
+		- new_output: new output name as string
+		- reverse: "0" if *nextscreen* or "1" if *prevscreen*
+
+```
+nextscreen
+cg-ipc{"event_name":"cycle_outputs","old_output":"eDP-1","new_output":"HDMI-A-1","reverse":"0"}
+```
 
 cycle_views
+	- Trigger: *next* and *prev* commands
+	- JSON
+		- event_name: "cycle_views"
+		- old_view_id: old view id as an integer
+		- new_view_id: new view id as an interger
+		- tile_id: new tile is as an integer
+		- workspace: workspace number as an integer
+		- output: name of the output as a string
 
-definekey
+```
+next
+cg-ipc{"event_name":"cycle_views","old_view_id":"11","new_view_id":"4","tile_id":"13","workspace":"1","output":"eDP-1"}
+```
 
-definemode
+*definekey*
+	- Trigger: *definekey* command
+	- JSON
+		- event_name: "definekey"
+		- modifiers: TODO
+		- key: key as a number
+		- command: command as a number TODO
 
-dump
+```
+definemode foo
+cg-ipc{"event_name":"definemode","mode":"foo"}
+definekey foo e only
+cg-ipc{"event_name":"definekey","modifiers":"0","key":"101","command":"5"}
+```
+
+*definemode*
+	- Trigger: *definemode* command
+	- JSON
+		- event_name: "definemode"
+		- mode: name of mode as string
+
+```
+definemode foo
+cg-ipc{"event_name":"definemode","mode":"foo"}
+```
+
+*dump*
 	- Trigger: *dump* command
 	- JSON
 		- event_name: "dump"
