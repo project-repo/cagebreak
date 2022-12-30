@@ -32,10 +32,10 @@ are displayed in a message box at the top right of the screen.
 
 # OPTIONS
 
-*-c* <path>
+*-c <path>*
 	Load configuration file from <path>
 
--e
+*-e*
 	Enable socket
 
 *-h*
