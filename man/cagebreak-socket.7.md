@@ -71,10 +71,26 @@ input * accel_profile flat
 cg-ipc{"event_name":"configure_input","input":"*"}
 ```
 
-
 *configure_message*
+	- Trigger: *configure_message* command
+	- JSON
+		- event_name: "configure_message"
 
-configure_output
+```
+configure_message fg_color 1.0 1.0 0 0
+[cg ipc](cg-ipc){"event_name":"configure_message"}
+```
+
+*configure_output*
+	- Trigger: *output* command
+	- JSON
+		- event_name: "configure_output"
+		- output: name of the output as a string
+
+```
+output eDP-1 rotate 0
+cg-ipc{"event_name":"configure_output","output":"eDP-1"}
+```
 
 *cursor_switch_tile*
 	- Trigger: Cursor crosses the border between tiles
