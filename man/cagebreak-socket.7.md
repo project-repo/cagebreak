@@ -61,6 +61,15 @@ cg-ipc{"event_name":"close","view_id":"47","tile_id":"47","workspace":"1","outpu
 ```
 
 *configure_input*
+	- Trigger: *input* command
+	- JSON
+		- event_name: "configure_input"
+		- input: the input as a string as per cagebreak-config(5)
+
+```
+input * accel_profile flat
+cg-ipc{"event_name":"configure_input","input":"*"}
+```
 
 
 *configure_message*
@@ -95,17 +104,16 @@ dump
 		- event_name: "dump"
 		- nws: number of workspaces as an integer
 		- bg_color: list of three floating point numbers denoting the new background in rgba
-		- views_curr_id: TODO
-		- tiles_curr_id: TODO
+		- views_curr_id: id of the currently focussed view as an integer
+		- tiles_curr_id: id of the currently focussed tile as in integer
 		- curr_output: current output as a string
 		- modes: list of names of modes as strings
 		- outputs: object of objects for each output
 			- output name as string
 				- priority: priority as per *output* prio <n> in *cagebreak-config(5)* or default
 				- coords: object of x and y coordinates of output
-					- TODO
-				- size: object of width and height as integers TODO
-				- refresh_rate: refresh rate as float TODO
+				- size: object of width and height as integers
+				- refresh_rate: refresh rate as float
 				- curr_workspace: current workspace as an integer
 				- workspaces: list of objects for each workspace
 					- views: list of objects for each view
@@ -121,8 +129,9 @@ dump
 		- keyboards: object of objects for each keyboard
 			- name_of_keyboard: object for a keyboard
 				- repeat_delay: repeat delay in milliseconds as an integer
-				- repeat_rate: repeat rate in hertz as an integer
+				- repeat_rate: repeat rate in 1/sec as an integer
 		- cursor_coords: object of x and y coordinates
+		- TODO
 
 ```
 dump
@@ -172,7 +181,16 @@ cg-ipc{"event_name":"dump","nws":1,
 }
 ```
 
-focus_tile
+*focus_tile*
+	- Trigger: *focus* command
+	- JSON
+		- event_name: "focus_tile"
+		- old_tile_id
+
+```
+focus
+cg-ipc{"event_name":"focus_tile","old_tile_id":"14","new_tile_id":"13","workspace":"1","output":"eDP-1"}
+```
 
 *fullscreen*
 	- Trigger: *only* command
