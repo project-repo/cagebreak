@@ -28,6 +28,7 @@ struct cg_seat {
 	uint16_t num_pointers;
 	uint16_t num_touch;
 
+	bool enable_cursor;
 	struct wlr_cursor *cursor;
 	struct cg_tile *cursor_tile;
 	struct wlr_xcursor_manager *xcursor_manager;

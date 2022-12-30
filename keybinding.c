@@ -1523,6 +1523,18 @@ keybinding_configure_message(struct cg_server *server,
 	ipc_send_event(server, "{\"event_name\":\"configure_message\"}");
 }
 
+void
+set_cursor(bool enabled,struct cg_seat* seat) {
+	if(enabled==true) {
+		seat->enable_cursor=true;
+		wlr_xcursor_manager_set_cursor_image(seat->xcursor_manager,
+		                                     DEFAULT_XCURSOR, seat->cursor);
+	} else {
+		seat->enable_cursor=false;
+		wlr_cursor_set_image(seat->cursor, NULL, 0, 0, 0, 0, 0, 0);
+	}
+}
+
 /* Hint: see keybinding.h for details on "data" */
 int
 run_action(enum keybinding_action action, struct cg_server *server,
@@ -1533,6 +1545,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_CHANGE_TTY:
 		return keybinding_switch_vt(server->backend, data.u);
+	case KEYBINDING_CURSOR:
+		set_cursor(data.i,server->seat);
+		break;
 	case KEYBINDING_LAYOUT_FULLSCREEN:
 		keybinding_workspace_fullscreen(server);
 		break;
@@ -1571,8 +1586,10 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	case KEYBINDING_SWITCH_MODE:
 		if(data.u!=server->seat->default_mode) {
 			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
-			wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
-			                                     "dot_box_mask", server->seat->cursor);
+			if(server->seat->enable_cursor==true) {
+				wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
+						"dot_box_mask", server->seat->cursor);
+			}
 		}
 		server->seat->mode = data.u;
 		break;
