@@ -12,6 +12,8 @@ cagebreak-socket(7) "Version 2.0.0" "Cagebreak Manual"
 
 The cagebreak socket is an ipc socket.
 
+The socket is enabled if cagebreak is invoked with the `-e` flag.
+
 The socket accepts cagebreak commands as input (see *cagebreak-config(5)* for more information).
 
 Events are provided as output as specified in this man page.
@@ -267,17 +269,37 @@ only
 cg-ipc{"event_name":"fullscreen","tile_id":"3","workspace":"1","output":"eDP-1"}
 ```
 
-move_view_cycle_output
+*move_view_cycle_output*
+	- Trigger: *movetonextscreen* and similar commands
 
-move_view_to_output
+```
+movetonextscreen
+cg-ipc{"event_name":"cycle_outputs","old_output":"eDP-1","new_output":"HDMI-A-1","reverse":"0"}
+g-ipc{"event_name":"move_view_cycle_output","view_id":"11","old_output":"eDP-1","new_output":"HDMI-A-1"}
+```
 
-move_view_to_ws
+*move_view_to_output*
+	- Trigger: *movetoscreen* command
+	- JSON
+		- event_name: "move_view_to_output"
+		- view_id: view id as an integer
+		- old_output: old output name as string
+		- new_output: new output name as string
+		- view_pid: pid of the process
 
-new_output
+```
+movetoscreen 2
+cg-ipc{"event_name":"switch_output","old_output":"eDP-1","new_output":"HDMI-A-1"}
+cg-ipc{"event_name":"move_view_to_output","view_id":"113","old_output":"eDP-1","new_output":"HDMI-A-1","view_pid":"50526"}
+```
 
-resize_tile
+*move_view_to_ws*
 
-set_nws
+*new_output*
+
+*resize_tile*
+
+*set_nws*
 
 *split*
 	- Trigger: *split* command
@@ -295,7 +317,7 @@ cg-ipc{"event_name":"split","tile_id":"11","new_tile_id":"12","workspace":"1","o
 ```
 
 *swap_tile*
-	- Trigger: 
+	- Trigger
 
 switch_default_mode
 
