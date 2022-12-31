@@ -121,7 +121,7 @@ nextscreen
 cg-ipc{"event_name":"cycle_outputs","old_output":"eDP-1","new_output":"HDMI-A-1","reverse":"0"}
 ```
 
-cycle_views
+*cycle_views*
 	- Trigger: *next* and *prev* commands
 	- JSON
 		- event_name: "cycle_views"
@@ -249,7 +249,10 @@ cg-ipc{"event_name":"dump","nws":1,
 	- Trigger: *focus* command
 	- JSON
 		- event_name: "focus_tile"
-		- old_tile_id
+		- old_tile_id: old tile id as an integer
+		- new_tile_id: new tile id as an integer
+		- workspace: workspace number as an integer
+		- output: name of the output as a string
 
 ```
 focus
@@ -271,11 +274,17 @@ cg-ipc{"event_name":"fullscreen","tile_id":"3","workspace":"1","output":"eDP-1"}
 
 *move_view_cycle_output*
 	- Trigger: *movetonextscreen* and similar commands
+	- JSON
+		- event_name: "move_view_cycle_output"
+		- view_id: view id as an integer
+		- old_output: name of the old output as a string
+		- new_output: name of the new output as a string
+		- TODO tile id?
 
 ```
 movetonextscreen
 cg-ipc{"event_name":"cycle_outputs","old_output":"eDP-1","new_output":"HDMI-A-1","reverse":"0"}
-g-ipc{"event_name":"move_view_cycle_output","view_id":"11","old_output":"eDP-1","new_output":"HDMI-A-1"}
+cg-ipc{"event_name":"move_view_cycle_output","view_id":"11","old_output":"eDP-1","new_output":"HDMI-A-1"}
 ```
 
 *move_view_to_output*
@@ -298,8 +307,32 @@ cg-ipc{"event_name":"move_view_to_output","view_id":"113","old_output":"eDP-1","
 *new_output*
 
 *resize_tile*
+	- Trigger: the *resize* family of commands
+	- JSON
+		- event_name: "resize_tile"
+		- tile_id: tile id as an integer
+		- old_dims: TODO
+		- new_dimes: TODO
+		- workspace: workspace number as an integer
+		- output: name of the output as a string
+
+```
+resizeleft
+cg-ipc{"event_name":"resize_tile","tile_id":"14","old_dims":"[1280;0;1440;1280]","new_dims":"[1270;0;1440;1290]","workspace":"1","output":"eDP-1"}
+cg-ipc{"event_name":"resize_tile","tile_id":"13","old_dims":"[0;0;1440;1280]","new_dims":"[0;0;1440;1270]","workspace":"1","output":"eDP-1"}
+```
 
 *set_nws*
+	- Trigger: *workspaces* command
+	- JSON
+		- event_name: "set_nws"
+		- old_nws: old number of workspaces as an integer
+		- new_nws: new number of workspaces as an integer
+
+```
+workspaces 2
+cg-ipc{"event_name":"set_nws","old_nws":"1","new_nws":"2"}
+```
 
 *split*
 	- Trigger: *split* command
@@ -322,8 +355,29 @@ cg-ipc{"event_name":"split","tile_id":"11","new_tile_id":"12","workspace":"1","o
 switch_default_mode
 
 switch_output
+	- Trigger. *screen* command
+	- JSON
+		- event_name: "switch_output"
+		- old_output: name of the old output as a string
+		- new_output: name of the new output as a string
+
+```
+screen 2
+cg-ipc{"event_name":"switch_output","old_output":"eDP-1","new_output":"HDMI-A-1"}
+```
 
 switch_ws
+	- Trigger: *workspace* command
+	- JSON
+		- event_name: "switch_ws"
+		- old_workspace: old workspace number as an integer
+		- new_workspace: new workspace number as an integer
+		- output: name of the output as a string
+
+```
+workspace 2
+cg-ipc{"event_name":"switch_ws","old_workspace":"1","new_workspace":"2","output":"eDP-1"}
+```
 
 *view_map*
 	- Trigger: view is opened by a process
@@ -357,9 +411,11 @@ cg-ipc{"event_name":"view_unmap","view_id":"24","tile_id":"13","workspace":"1","
 
 ## SECURITY
 
+The socket has to be explicitly enabled using the `-e` flag.
+
 The socket is restricted to the user for reading, writing and execution (700).
 
-All user software can execute arbitrary code while cagebreak is running.
+All user software can execute arbitrary code while the cagebreak socket is running.
 
 ## EXAMPLES
 
