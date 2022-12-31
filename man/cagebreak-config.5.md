@@ -208,6 +208,12 @@ definekey top <key> mode root
 	*scroll_method none|two_finger|edge|on_button_down*
 		Change scroll method for specified input device
 
+	*repeat_delay <n>*
+		Repeat delay in ms for keyboards only
+
+	*repeat_rate <n>*
+		Repeat rate in 1/s for keyboards only
+
 	*tap enabled|disabled*
 		Enable or disable tap for specified input device
 
