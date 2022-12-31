@@ -350,9 +350,30 @@ cg-ipc{"event_name":"split","tile_id":"11","new_tile_id":"12","workspace":"1","o
 ```
 
 *swap_tile*
-	- Trigger
+	- Trigger: the *exchange* family of commands
+	- JSON
+		- event_name: "swap_tile"
+		- tile_id: previous tile id as an integer
+		- swap_tile_id: swap tile id as an integer
+		- workspace: workspace number as an integer
+		- output: name of the output as a string
 
-switch_default_mode
+```
+exchangeright
+cg-ipc{"event_name":"swap_tile","tile_id":"1","swap_tile_id":"3","workspace":"1","output":"eDP-1"}
+```
+
+*switch_default_mode*
+	- Trigger: *setmode* command
+	- JSON
+		- event_name: "switch_default_mode"
+		- old_mode: old mode number
+		- mode: new mode numer
+
+```
+setmode top
+cg-ipc{"event_name":"switch_default_mode","old_mode":"0","mode":"0"}
+```
 
 switch_output
 	- Trigger. *screen* command
