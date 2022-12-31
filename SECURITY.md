@@ -5,6 +5,9 @@ escalation through the socket. Any program with access to the socket
 immediately gains arbitrary code execution rights. The socket
 is restricted to the user of the cagebreak process (700).
 
+The socket has to be explicitely enabled by invoking Cagebreak with
+the `-e` flag.
+
 If you disagree with this threat model, you may contact us via email (See
 section Email Contact below.) or [open an issue on github](https://github.com/project-repo/cagebreak/issues/new).
 
@@ -76,7 +79,7 @@ Not applicable - Cagebreak must allow system manipulation for user software.
 Not applicable - There are no prohibited operations (See Tampering above.).
 While cagebreak does send events over documented channels there is no logging
 activated by default, though, of course, this can be changed by the user
-by logging socket output for example.
+by logging socket output (if enabled) for example.
 
 #### Information Disclosure
 
@@ -86,7 +89,7 @@ and any software run by the user may exfiltrate any data the user has access to.
 #### Denial of Service
 
 Not applicable - Cagebreak offers functionality to terminate itself, which is
-available to all user software over the socket.
+available to all user software over the socket if the socket is enabled.
 
 #### Elevation of Privilege
 
