@@ -48,7 +48,7 @@ definekey root <key> <command>
 	Close current window - This may be useful for windows of
 	applications which do not offer any method of closing them.
 
-configure_message [font <font description>|[f|b]g_color <r> <g> b> <a>|display_time <n>]
+*configure_message [font <font description>|[f|b]g_color <r> <g> b> <a>|display_time <n>]*
 	Configure message characteristics -
 	- font <font description> sets
 	  - <font description> is
@@ -74,6 +74,11 @@ configure_message bg_color 1.0 0.0 0.0 1.0
 # Set duration for message display to four seconds
 configure_message display_time 4
 ```
+
+*cursor [enable|disable]*
+	Enable or disable cursor
+	This simply hides the cursor. Pointing and clicking is
+	still possible.
 
 *definekey <mode> <key> <command>*
 	Bind <key> to execute <command> if pressed in <mode> -
