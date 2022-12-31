@@ -1206,10 +1206,12 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 		id = view->id;
 	}
 	ipc_send_event(server,
-	               "{\"event_name\":\"move_view_cycle_output\",\"view_id\":\"%"
-	               "d\",\"old_output\":\"%s\",\"new_output\":\"%s\"}",
-	               id, old_outp->wlr_output->name,
-	               server->curr_output->wlr_output->name);
+			"{\"event_name\":\"move_view_cycle_output\",\"view_id\":%d,\"old_output\":\"%s\",\"new_output\":\"%s\",\"old_tile_id\":%d,\"new_tile_id\":%d}",
+			id, old_outp->wlr_output->name,
+			old_outp->wlr_output->name,server->curr_output
+			->workspaces[old_outp->curr_workspace]->focused_tile->id,
+			server->curr_output->wlr_output->name,server->curr_output
+			->workspaces[server->curr_output->curr_workspace]->focused_tile->id);
 }
 
 void
