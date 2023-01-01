@@ -1039,3 +1039,28 @@ and `server_show_info` were fixed.
 
 This bug was found using the scan-build utility.
 
+## Issue 46
+
+  * github issue number: #33
+  * Fixed: 2.0.0
+
+Cagebrak did not state in its FAQ how to use letters not found
+on the current keyboards alphabet.
+
+## Issue 47
+
+  * github issue number: #32
+  * Fixed: 2.0.0
+
+Cagebreak did not state in its FAQ how programs can be launched.
+
+## Issue 48
+
+  * github issue number: #16
+  * Fixed: 2.0.0
+
+Cagebreak cursor sizes varied under some environmental circumstances.
+Investigations showed that the cursor is set by the respective application
+but environment variables are usually respected. This is now documented in
+the FAQ.
+
