@@ -729,7 +729,7 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 		ipc_send_event(
 		    seat->server,
 		    "{\"event_name\":\"cursor_switch_tile\",\"old_output\":\"%s\","
-		    "\"old_tile\":\"%d\",\"new_output\":\"%s\",\"new_tile\":\"%d\"}",
+		    "\"old_tile\":%d,\"new_output\":\"%s\",\"new_tile\":%d}",
 		    seat->cursor_tile->workspace->output->wlr_output->name,
 		    seat->cursor_tile->id, c_outp->name, c_tile->id);
 	}

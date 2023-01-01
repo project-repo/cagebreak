@@ -152,8 +152,8 @@ view_unmap(struct cg_view *view) {
 	view->wlr_surface = NULL;
 	ipc_send_event(
 	    view->workspace->server,
-	    "{\"event_name\":\"view_unmap\",\"view_id\":\"%d\",\"tile_id\":\"%d\","
-	    "\"workspace\":\"%d\",\"output\":\"%s\",\"view_pid\":\"%d\"}",
+	    "{\"event_name\":\"view_unmap\",\"view_id\":%d,\"tile_id\":%d,"
+	    "\"workspace\":%d,\"output\":\"%s\",\"view_pid\":%d}",
 	    id, tile_id, ws + 1, output_name, pid);
 }
 
@@ -195,8 +195,8 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	}
 	ipc_send_event(
 	    output->server,
-	    "{\"event_name\":\"view_map\",\"view_id\":\"%d\",\"tile_id\":\"%d\","
-	    "\"workspace\":\"%d\",\"output\":\"%s\",\"view_pid\":\"%d\"}",
+	    "{\"event_name\":\"view_map\",\"view_id\":%d,\"tile_id\":%d,"
+	    "\"workspace\":%d,\"output\":\"%s\",\"view_pid\":%d}",
 	    view->id, tile_id, view->workspace->num + 1,
 	    view->workspace->output->wlr_output->name, view->impl->get_pid(view));
 }
