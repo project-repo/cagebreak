@@ -182,6 +182,9 @@ definekey top <key> mode root
 		Enable or disable send_events for specified input device -
 		Disabling send_events disables the input device.
 
+	*keybindings [enable|disable]*
+		Enable or disable keybinding interpretation for a specific keyboard.
+
 	*left_handed enabled|disabled*
 		Enable or disable left handed mode for specified input device
 
