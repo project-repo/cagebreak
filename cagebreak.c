@@ -153,7 +153,10 @@ parse_args(struct cg_server *server, int argc, char *argv[], char **config_path)
 			show_info = true;
 			break;
 		case 'c':
-			*config_path=strdup(optarg);
+			if(optarg != NULL) {
+				*config_path=strdup(optarg);
+				optarg=NULL;
+			}
 			break;
 		case 'e':
 			server->enable_socket=true;
@@ -254,6 +257,7 @@ main(int argc, char *argv[]) {
 	struct wl_event_source *sigint_source = NULL;
 	struct wl_event_source *sigterm_source = NULL;
 	struct wl_event_source *sigalrm_source = NULL;
+	struct wl_event_source *sigpipe_source = NULL;
 	struct wlr_backend *backend = NULL;
 	struct wlr_compositor *compositor = NULL;
 	struct wlr_data_device_manager *data_device_manager = NULL;
@@ -270,11 +274,15 @@ main(int argc, char *argv[]) {
 #if CG_HAS_XWAYLAND
 	struct wlr_xwayland *xwayland = NULL;
 #endif
+	wl_list_init(&server.input_config);
+	wl_list_init(&server.output_config);
+	wl_list_init(&server.output_priorities);
+
 	int ret = 0;
 
 	char *config_path = NULL;
 	if(!parse_args(&server, argc, argv,&config_path)) {
-		return 1;
+		goto end;
 	}
 
 #ifdef DEBUG
@@ -283,14 +291,10 @@ main(int argc, char *argv[]) {
 	wlr_log_init(WLR_ERROR, NULL);
 #endif
 
-	wl_list_init(&server.input_config);
-	wl_list_init(&server.output_config);
-	wl_list_init(&server.output_priorities);
-
 	server.modes = malloc(4 * sizeof(char *));
 	if(!server.modes) {
 		wlr_log(WLR_ERROR, "Error allocating mode array");
-		return -1;
+		goto end;
 	}
 
 	/* Wayland requires XDG_RUNTIME_DIR to be set. */
@@ -302,7 +306,8 @@ main(int argc, char *argv[]) {
 	if(!server.wl_display) {
 		wlr_log(WLR_ERROR, "Cannot allocate a Wayland display");
 		free(server.modes);
-		return 1;
+		server.modes=NULL;
+		goto end;
 	}
 
 	server.xcursor_size=XCURSOR_SIZE;
@@ -325,8 +330,7 @@ main(int argc, char *argv[]) {
 	if(server.modes[0] == NULL || server.modes[1] == NULL ||
 	   server.modes[2] == NULL) {
 		wlr_log(WLR_ERROR, "Error allocating default modes");
-		free(server.modes);
-		return 1;
+		goto end;
 	}
 
 	server.nws = 1;
@@ -352,7 +356,7 @@ main(int argc, char *argv[]) {
 	    wl_event_loop_add_signal(event_loop, SIGTERM, handle_signal, &server);
 	sigalrm_source =
 	    wl_event_loop_add_signal(event_loop, SIGALRM, handle_signal, &server);
-	sigalrm_source =
+	sigpipe_source =
 	    wl_event_loop_add_signal(event_loop, SIGPIPE, handle_signal, &server);
 	server.event_loop = event_loop;
 
@@ -671,29 +675,24 @@ main(int argc, char *argv[]) {
 	wl_display_destroy_clients(server.wl_display);
 
 end:
+	if(server.modes != NULL) {
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wanalyzer-double-free"
 #endif
-	server.running=false;
-	for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
-		free(server.modes[i]);
+		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
+			free(server.modes[i]);
+		}
+		free(server.modes);
 	}
-	free(server.modes);
 
 	if(config_path != NULL) {
 		free(config_path);
 	}
 
-#if CG_HAS_XWAYLAND
-	if(xwayland!=NULL) {
-		wlr_xwayland_destroy(xwayland);
-	}
-#endif
-
 	struct cg_output_config *output_config, *output_config_tmp;
 	wl_list_for_each_safe(output_config, output_config_tmp,
-	                      &server.output_config, link) {
+			&server.output_config, link) {
 		wl_list_remove(&output_config->link);
 		free(output_config->output_name);
 		free(output_config);
@@ -701,7 +700,7 @@ end:
 
 	struct cg_input_config *input_config, *input_config_tmp;
 	wl_list_for_each_safe(input_config, input_config_tmp,
-	                      &server.input_config, link) {
+			&server.input_config, link) {
 		wl_list_remove(&input_config->link);
 		if(input_config->identifier != NULL) {
 			free(input_config->identifier);
@@ -709,24 +708,37 @@ end:
 		free(input_config);
 	}
 
-	keybinding_list_free(server.keybindings);
-	wl_event_source_remove(sigint_source);
-	wl_event_source_remove(sigterm_source);
-	wl_event_source_remove(sigalrm_source);
+	if(server.keybindings != NULL) {
+		keybinding_list_free(server.keybindings);
+	}
 
-	seat_destroy(server.seat);
-	/* This function is not null-safe, but we only ever get here
-	   with a proper wl_display. */
-	wl_display_destroy(server.wl_display);
-	wlr_output_layout_destroy(server.output_layout);
+	if(server.running == true) {
+		server.running=false;
+#if CG_HAS_XWAYLAND
+		if(xwayland!=NULL) {
+			wlr_xwayland_destroy(xwayland);
+		}
+#endif
 
-	free(server.input);
-	free(server.message_config.font);
-	pango_cairo_font_map_set_default(NULL);
-	cairo_debug_reset_static_data();
-	FcFini();
+		wl_event_source_remove(sigint_source);
+		wl_event_source_remove(sigterm_source);
+		wl_event_source_remove(sigalrm_source);
+		wl_event_source_remove(sigpipe_source);
 
-	return ret;
+		seat_destroy(server.seat);
+		/* This function is not null-safe, but we only ever get here
+		   with a proper wl_display. */
+		wl_display_destroy(server.wl_display);
+		wlr_output_layout_destroy(server.output_layout);
+
+		free(server.input);
+		free(server.message_config.font);
+		pango_cairo_font_map_set_default(NULL);
+		cairo_debug_reset_static_data();
+		FcFini();
+
+		return ret;
+	}
 }
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop

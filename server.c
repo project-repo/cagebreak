@@ -25,7 +25,6 @@ display_terminate(struct cg_server *server) {
 	if(server == NULL) {
 		return;
 	}
-	server->running = false;
 	wl_display_terminate(server->wl_display);
 }
 
