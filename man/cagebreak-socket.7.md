@@ -303,8 +303,31 @@ cg-ipc{"event_name":"move_view_to_output","view_id":"113","old_output":"eDP-1","
 ```
 
 *move_view_to_ws*
+	- Trigger: *movetoworkspace* command
+	- JSON
+		- event_name: "move_view_to_ws"
+		- view_id: view id as an integer
+		- old_workspace: old workspace number as an integer
+		- output: name of the output as a string
+		- view_pid: pid of the process
+
+```
+movetoworkspace 1
+cg-ipc{"event_name":"switch_ws","old_workspace":"1","new_workspace":"1","output":"eDP-1"}
+cg-ipc{"event_name":"move_view_to_ws","view_id":"43","old_workspace":"0","new_workspace":"0","output":"eDP-1","view_pid":"64908"}
+```
 
 *new_output*
+	- Trigger: a new output is physically attached
+	- JSON
+		- event_name: "new_output"
+		- output: new output name as a string
+		- priority: priority as per *output* prio <n> in *cagebreak-config(5)* or default
+
+```
+# a new output is attached
+cg-ipc{"event_name":"new_output","output":"HDMI-A-1","priority":"-1"}
+```
 
 *resize_tile*
 	- Trigger: the *resize* family of commands
