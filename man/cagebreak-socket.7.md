@@ -142,7 +142,7 @@ cg-ipc{"event_name":"cycle_views","old_view_id":11,"new_view_id":4,"tile_id":13,
 		- event_name: "definekey"
 		- modifiers: TODO
 		- key: key as a number
-		- command: command as a number TODO
+		- command: command as a number TODO maybe will be changed to string, remove otherwise
 
 ```
 definemode foo
@@ -162,7 +162,16 @@ definemode foo
 cg-ipc{"event_name":"definemode","mode":"foo"}
 ```
 
-destroy_output TODO
+*destroy_output*
+	- Trigger: removal of an output
+	- JSON
+		- event_name: "destroy_output"
+		- output: name of the output as a string
+
+```
+# remove output from the device
+cg-ipc{"event_name":"destroy_output","output":"HDMI-A-1"}
+```
 
 *dump*
 	- Trigger: *dump* command
@@ -194,10 +203,11 @@ destroy_output TODO
 						- view: view id as an integer
 		- keyboards: object of objects for each keyboard
 			- name_of_keyboard: object for a keyboard
+				- commands_enabled: 0 if keybindings are disabled for the keyboard, 1 otherwise
 				- repeat_delay: repeat delay in milliseconds as an integer
 				- repeat_rate: repeat rate in 1/sec as an integer
+		- input_devices: TODO
 		- cursor_coords: object of x and y coordinates
-		- TODO
 
 ```
 dump
@@ -240,6 +250,7 @@ cg-ipc{"event_name":"dump","nws":1,
 }]}]
 }}
 ,"keyboards": {"0:1:Power_Button": {
+"commands_enabled": 1,
 "repeat_delay": 600,
 "repeat_rate": 25
 }}
