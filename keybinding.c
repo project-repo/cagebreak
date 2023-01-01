@@ -862,7 +862,7 @@ print_tile(struct cg_tile *tile) {
 	          tile->tile.y);
 	print_str(&outp_str, "\"size\": {\"width\":%d,\"height\":%d},\n",
 	          tile->tile.width, tile->tile.height);
-	print_str(&outp_str, "\"view\": \"%d\"\n",
+	print_str(&outp_str, "\"view\": %d\n",
 	          tile->view == NULL ? -1 : (int)tile->view->id);
 	return dyn_str_to_str(&outp_str);
 }
@@ -1079,7 +1079,7 @@ print_input_device(struct cg_input_device *dev) {
 		print_str(&outp_str, "\"NULL\": {\n");
 	}
 	print_str(&outp_str, "\"is_virtual\": %d,\n", dev->is_virtual);
-	print_str(&outp_str, "\"type\": \"%s\",\n", dev->wlr_device->type==WLR_INPUT_DEVICE_POINTER?"pointer":dev->wlr_device->type==WLR_INPUT_DEVICE_SWITCH?"switch":dev->wlr_device->type==WLR_INPUT_DEVICE_TABLET_PAD?"tablet pad":dev->wlr_device->type==WLR_INPUT_DEVICE_TABLET_TOOL?"tablet tool":dev->wlr_device->type==WLR_INPUT_DEVICE_TOUCH?"touch":dev->wlr_device->type==WLR_INPUT_DEVICE_KEYBOARD?"keyboard":"unknown");
+	print_str(&outp_str, "\"type\": \"%s\"\n", dev->wlr_device->type==WLR_INPUT_DEVICE_POINTER?"pointer":dev->wlr_device->type==WLR_INPUT_DEVICE_SWITCH?"switch":dev->wlr_device->type==WLR_INPUT_DEVICE_TABLET_PAD?"tablet pad":dev->wlr_device->type==WLR_INPUT_DEVICE_TABLET_TOOL?"tablet tool":dev->wlr_device->type==WLR_INPUT_DEVICE_TOUCH?"touch":dev->wlr_device->type==WLR_INPUT_DEVICE_KEYBOARD?"keyboard":"unknown");
 	print_str(&outp_str, "}");
 	return dyn_str_to_str(&outp_str);
 }
