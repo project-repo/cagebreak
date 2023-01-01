@@ -1064,3 +1064,12 @@ Investigations showed that the cursor is set by the respective application
 but environment variables are usually respected. This is now documented in
 the FAQ.
 
+## Issue 49
+
+  * github issue number: #3
+  * Fixed: 2.0.0
+
+Cagebreak used to have no way to disable the interpretation of keybindings
+for a specific keyboard, which was cumbersome for some applications. This
+feature is now available
+
