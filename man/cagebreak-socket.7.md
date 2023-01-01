@@ -162,6 +162,8 @@ definemode foo
 cg-ipc{"event_name":"definemode","mode":"foo"}
 ```
 
+destroy_output TODO
+
 *dump*
 	- Trigger: *dump* command
 	- JSON
