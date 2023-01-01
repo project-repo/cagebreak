@@ -1404,9 +1404,9 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 		seat_set_focus(server->seat, view);
 	}
 	ipc_send_event(server,
-	               "{\"event_name\":\"move_view_to_ws\",\"view_id\":\"%d\","
-	               "\"old_workspace\":\"%d\",\"new_workspace\":\"%d\","
-	               "\"output\":\"%s\",\"view_pid\":\"%d\"}",
+	               "{\"event_name\":\"move_view_to_ws\",\"view_id\":%d,"
+	               "\"old_workspace\":%d,\"new_workspace\":%d,"
+	               "\"output\":\"%s\",\"view_pid\":%d}",
 	               view == NULL ? -1 : (int)view->id, old_ws, ws,
 	               server->curr_output->wlr_output->name,
 	               view == NULL ? 0 : view->impl->get_pid(view));

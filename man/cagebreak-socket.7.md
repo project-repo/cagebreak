@@ -312,8 +312,8 @@ cg-ipc{"event_name":"move_view_to_output","view_id":113,"old_output":"eDP-1","ne
 
 ```
 movetoworkspace 1
-cg-ipc{"event_name":"switch_ws","old_workspace":"1","new_workspace":"1","output":"eDP-1"}
-cg-ipc{"event_name":"move_view_to_ws","view_id":"43","old_workspace":"0","new_workspace":"0","output":"eDP-1","view_pid":"64908"}
+cg-ipc{"event_name":"switch_ws","old_workspace":1,"new_workspace":1,"output":"eDP-1"}
+cg-ipc{"event_name":"move_view_to_ws","view_id":43,"old_workspace":0,"new_workspace":0,"output":"eDP-1","view_pid":64908}
 ```
 
 *new_output*
@@ -325,7 +325,7 @@ cg-ipc{"event_name":"move_view_to_ws","view_id":"43","old_workspace":"0","new_wo
 
 ```
 # a new output is attached
-cg-ipc{"event_name":"new_output","output":"HDMI-A-1","priority":"-1"}
+cg-ipc{"event_name":"new_output","output":"HDMI-A-1","priority":-1}
 ```
 
 *resize_tile*
