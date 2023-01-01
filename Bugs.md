@@ -1080,3 +1080,11 @@ feature is now available
 
 Cagebreak used to have no way to hide the cursor. This is now possible.
 
+## Issue 51
+
+  * github issue number: #7
+  * Fixed: 2.0.0
+
+Cagebreak used to not change the cursor while waiting for a key. The cursor
+is now a square in this state.
+
