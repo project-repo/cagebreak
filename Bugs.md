@@ -1073,3 +1073,10 @@ Cagebreak used to have no way to disable the interpretation of keybindings
 for a specific keyboard, which was cumbersome for some applications. This
 feature is now available
 
+## Issue 50
+
+  * github issue number: #26
+  * Fixed: 2.0.0
+
+Cagebreak used to have no way to hide the cursor. This is now possible.
+
