@@ -190,6 +190,7 @@ cg-ipc{"event_name":"destroy_output","output":"HDMI-A-1"}
 		- views_curr_id: id of the currently focussed view as an integer
 		- tiles_curr_id: id of the currently focussed tile as in integer
 		- curr_output: current output as a string
+		- default_mode: name of the default mode as a string
 		- modes: list of names of modes as strings
 		- outputs: object of objects for each output
 			- output name as string
@@ -227,6 +228,7 @@ cg-ipc{"event_name":"dump","nws":1,
 "views_curr_id":80,
 "tiles_curr_id":8,
 "curr_output":"eDP-1",
+"default_mode":"top",
 "modes":["top","root","resize"],
 "outputs": {"eDP-1": {
 "priority": -1,
