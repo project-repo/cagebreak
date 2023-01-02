@@ -150,13 +150,20 @@ cg-ipc{"event_name":"cycle_views","old_view_id":11,"new_view_id":4,"tile_id":13,
 			- 6: modifier 3
 			- 7: modifier 5
 		- key: key as a number
-		- command: command as a number TODO maybe will be changed to string, remove otherwise
+		- command: command as a string - CAVEAT: This is an internal representation of
+		  commands without arguments some commands are not isomorphically represented,
+		  they are listed below:
+			- "cycle_tiles": represents *exchange* commands
+			- "cycle_views": represents *next* and *prev* commands
+			- "cycle_outputs": represents *nextscreen", *movetoprevscreen* and *prevscreen* commands
+			- "resize_tile_vertical": represents *resizedown* and *resizeup* commands
+			- "resize_tile_horizontal": represents *resizeleft* and *resizeright* commands
 
 ```
 definemode foo
 cg-ipc{"event_name":"definemode","mode":"foo"}
 definekey foo e only
-cg-ipc{"event_name":"definekey","modifiers":0,"key":101,"command":5}
+cg-ipc{"event_name":"definekey","modifiers":0,"key":101,"command":"only"}
 ```
 
 *definemode*
