@@ -155,7 +155,7 @@ cg-ipc{"event_name":"cycle_views","old_view_id":11,"new_view_id":4,"tile_id":13,
 		  they are listed below:
 			- "cycle_tiles": represents *exchange* commands
 			- "cycle_views": represents *next* and *prev* commands
-			- "cycle_outputs": represents *nextscreen", *movetoprevscreen* and *prevscreen* commands
+			- "cycle_outputs": represents *nextscreen*, *movetoprevscreen* and *prevscreen* commands
 			- "resize_tile_vertical": represents *resizedown* and *resizeup* commands
 			- "resize_tile_horizontal": represents *resizeleft* and *resizeright* commands
 
