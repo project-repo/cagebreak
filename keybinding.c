@@ -25,6 +25,10 @@
 #include "view.h"
 #include "workspace.h"
 
+char *keybinding_action_string[] = {
+    FOREACH_KEYBINDING(GENERATE_STRING)
+};
+
 int
 keybinding_resize(struct keybinding_list *list) {
 	if(list->length == list->capacity) {

@@ -72,9 +72,7 @@ enum keybinding_action {
     FOREACH_KEYBINDING(GENERATE_ENUM)
 };
 
-static const char *keybinding_action_string[] = {
-    FOREACH_KEYBINDING(GENERATE_STRING)
-};
+extern char *keybinding_action_string[];
 
 union keybinding_params {
 	char *c;
