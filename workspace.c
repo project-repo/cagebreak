@@ -126,6 +126,10 @@ workspace_free(struct cg_workspace *workspace) {
 
 void
 workspace_focus(struct cg_output *outp, int ws) {
+	if(ws>=outp->server->nws) {
+		wlr_log(WLR_ERROR,"Attempt to focus workspace %d, but only %d workspaces are available.",ws,outp->server->nws);
+		return;
+	}
 	wlr_scene_node_place_above(
 	    &outp->bg->node, &outp->workspaces[outp->curr_workspace]->scene->node);
 	wlr_scene_node_place_above(&outp->workspaces[ws]->scene->node,

@@ -87,6 +87,10 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 			free(keybinding->data.m_cfg->font);
 		}
 		break;
+	case KEYBINDING_DISPLAY_MESSAGE:
+		if(keybinding->data.c != NULL) {
+			free(keybinding->data.c);
+		}
 	default:
 		break;
 	}
@@ -1046,7 +1050,7 @@ print_keyboard_groups(struct cg_server *server) {
 	struct dyn_str outp_str;
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
-	outp_str.str_arr = calloc((2 * ninps - 1) + 2, sizeof(char *));
+	outp_str.str_arr = calloc((2 * ninps - 1) + 3, sizeof(char *));
 	print_str(&outp_str, "\"keyboards\": {");
 	struct cg_keyboard_group *it;
 	uint32_t count = 0;
@@ -1090,7 +1094,7 @@ print_input_devices(struct cg_server *server) {
 	struct dyn_str outp_str;
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
-	outp_str.str_arr = calloc((2 * ninps - 1) + 2, sizeof(char *));
+	outp_str.str_arr = calloc((2 * ninps - 1) + 3, sizeof(char *));
 	print_str(&outp_str, "\"input_devices\": {");
 	struct cg_input_device *it;
 	uint32_t count = 0;
@@ -1217,9 +1221,10 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 void
 keybinding_set_nws(struct cg_server *server, int nws) {
 	struct cg_output *output;
-	int old_nws = server->nws;
+	unsigned int old_nws = server->nws;
+	server->nws = nws;
 	wl_list_for_each(output, &server->outputs, link) {
-		for(unsigned int i = nws; i < server->nws; ++i) {
+		for(unsigned int i = nws; i < old_nws; ++i) {
 			struct cg_view *view, *tmp;
 			wl_list_for_each_safe(view, tmp, &output->workspaces[i]->views,
 			                      link) {
@@ -1244,7 +1249,7 @@ keybinding_set_nws(struct cg_server *server, int nws) {
 			return;
 		}
 		output->workspaces = new_workspaces;
-		for(int i = server->nws; i < nws; ++i) {
+		for(int i = old_nws; i < nws; ++i) {
 			output->workspaces[i] = full_screen_workspace(output);
 			output->workspaces[i]->num = i;
 			if(!output->workspaces[i]) {
@@ -1257,10 +1262,10 @@ keybinding_set_nws(struct cg_server *server, int nws) {
 		}
 
 		if(output->curr_workspace >= nws) {
+			output->curr_workspace=0;
 			workspace_focus(output, nws - 1);
 		}
 	}
-	server->nws = nws;
 	seat_set_focus(
 	    server->seat,
 	    server->curr_output->workspaces[server->curr_output->curr_workspace]

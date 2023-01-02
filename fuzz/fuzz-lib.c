@@ -20,8 +20,12 @@
 
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
+#include <wlr/types/wlr_scene.h>
+#include <wlr/types/wlr_presentation_time.h>
+#include <wlr/types/wlr_primary_selection_v1.h>
 #include <wlr/backend/headless.h>
 #include <wlr/backend/multi.h>
+#include <wlr/types/wlr_viewporter.h>
 #include <wlr/render/allocator.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_compositor.h>
@@ -88,15 +92,6 @@ drop_permissions(void) {
 	return true;
 }
 
-static bool
-parse_args(struct cg_server *server, int argc, char *argv[]) {
-	server->output_transform = WL_OUTPUT_TRANSFORM_NORMAL;
-#ifdef DEBUG
-	server->debug_damage_tracking = false;
-#endif
-	return true;
-}
-
 void
 cleanup() {
 	server.running = false;
@@ -120,13 +115,11 @@ cleanup() {
 	seat_destroy(server.seat);
 	/* This function is not null-safe, but we only ever get here
 	   with a proper wl_display. */
-	wl_display_destroy(server.wl_display);
 	wlr_output_layout_destroy(server.output_layout);
 }
 
 int
 LLVMFuzzerInitialize(int *argc, char ***argv) {
-	struct wl_event_loop *event_loop = NULL;
 	struct wlr_backend *backend = NULL;
 	struct wlr_compositor *compositor = NULL;
 	struct wlr_data_device_manager *data_device_manager = NULL;
@@ -135,13 +128,22 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	struct wlr_export_dmabuf_manager_v1 *export_dmabuf_manager = NULL;
 	struct wlr_screencopy_manager_v1 *screencopy_manager = NULL;
 	struct wlr_data_control_manager_v1 *data_control_manager = NULL;
+	struct wlr_viewporter *viewporter = NULL;
+	struct wlr_presentation *presentation = NULL;
 	struct wlr_xdg_output_manager_v1 *output_manager = NULL;
 	struct wlr_gamma_control_manager_v1 *gamma_control_manager = NULL;
-	int ret = 0;
+	struct wlr_xdg_shell *xdg_shell = NULL;
+#if CG_HAS_XWAYLAND
+	struct wlr_xwayland *xwayland = NULL;
+#endif
+	wl_list_init(&server.input_config);
+	wl_list_init(&server.output_config);
+	wl_list_init(&server.output_priorities);
+	wl_list_init(&server.outputs);
+	wl_list_init(&server.disabled_outputs);
 
-	if(!parse_args(&server, *argc, *argv)) {
-		return 1;
-	}
+
+	int ret = 0;
 
 #ifdef DEBUG
 	wlr_log_init(WLR_DEBUG, NULL);
@@ -149,33 +151,63 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	wlr_log_init(WLR_ERROR, NULL);
 #endif
 
-	wl_list_init(&server.input_config);
+	server.modes = malloc(4 * sizeof(char *));
+	if(!server.modes) {
+		wlr_log(WLR_ERROR, "Error allocating mode array");
+		goto end;
+	}
 
 	/* Wayland requires XDG_RUNTIME_DIR to be set. */
 	if(!getenv("XDG_RUNTIME_DIR")) {
-		wlr_log(WLR_ERROR, "XDG_RUNTIME_DIR is not set in the environment");
-		return 1;
+		wlr_log(WLR_INFO, "XDG_RUNTIME_DIR is not set in the environment");
 	}
 
 	server.wl_display = wl_display_create();
 	if(!server.wl_display) {
 		wlr_log(WLR_ERROR, "Cannot allocate a Wayland display");
-		return 1;
+		free(server.modes);
+		server.modes=NULL;
+		goto end;
+	}
+
+	server.xcursor_size=XCURSOR_SIZE;
+	const char *env_cursor_size = getenv("XCURSOR_SIZE");
+	if (env_cursor_size && strlen(env_cursor_size) > 0) {
+		errno = 0;
+		char *end;
+		unsigned size = strtoul(env_cursor_size, &end, 10);
+		if (!*end && errno == 0) {
+			server.xcursor_size = size;
+		}
 	}
 
 	server.running = true;
 
-	server.modes = malloc(4 * sizeof(char *));
 	server.modes[0] = strdup("top");
 	server.modes[1] = strdup("root");
 	server.modes[2] = strdup("resize");
 	server.modes[3] = NULL;
+	if(server.modes[0] == NULL || server.modes[1] == NULL ||
+	   server.modes[2] == NULL) {
+		wlr_log(WLR_ERROR, "Error allocating default modes");
+		goto end;
+	}
 
 	server.nws = 1;
-	server.message_timeout = 2;
+	server.views_curr_id = 1;
+	server.tiles_curr_id = 1;
+	server.message_config.fg_color[0] = 0.0;
+	server.message_config.fg_color[1] = 0.0;
+	server.message_config.fg_color[2] = 0.0;
+	server.message_config.fg_color[3] = 1.0;
 
-	event_loop = wl_display_get_event_loop(server.wl_display);
-	server.event_loop = event_loop;
+	server.message_config.bg_color[0] = 0.9;
+	server.message_config.bg_color[1] = 0.85;
+	server.message_config.bg_color[2] = 0.85;
+	server.message_config.bg_color[3] = 1.0;
+
+	server.message_config.display_time = 2;
+	server.message_config.font = strdup("pango:Monospace 10");
 
 	backend = wlr_multi_backend_create(server.wl_display);
 	if(!backend) {
@@ -201,10 +233,6 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		goto end;
 	};
 
-	if(!drop_permissions()) {
-		ret = 1;
-		goto end;
-	}
 
 	server.keybindings = keybinding_list_init();
 	if(server.keybindings == NULL || server.keybindings->keybindings == NULL) {
@@ -213,14 +241,13 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		goto end;
 	}
 
-	wl_list_init(&server.output_config);
-
 	server.renderer = wlr_renderer_autocreate(backend);
 	if(!server.renderer) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots renderer");
 		ret = 1;
 		goto end;
 	}
+
 	server.allocator =
 	    wlr_allocator_autocreate(server.backend, server.renderer);
 	if(!server.allocator) {
@@ -228,19 +255,34 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		ret = 1;
 		goto end;
 	}
+
 	wlr_renderer_init_wl_display(server.renderer, server.wl_display);
 
-	server.bg_color = malloc(4 * sizeof(float));
-	server.bg_color[0] = 0;
-	server.bg_color[1] = 0;
-	server.bg_color[2] = 0;
-	server.bg_color[3] = 1;
-	wl_list_init(&server.outputs);
-	wl_list_init(&server.disabled_outputs);
-
+	server.bg_color = (float[4]){0, 0, 0, 1};
 	server.output_layout = wlr_output_layout_create();
 	if(!server.output_layout) {
 		wlr_log(WLR_ERROR, "Unable to create output layout");
+		ret = 1;
+		goto end;
+	}
+
+	if(ipc_init(&server) != 0) {
+		wlr_log(WLR_ERROR, "Failed to initialize IPC");
+		ret = 1;
+		goto end;
+	}
+
+	server.scene = wlr_scene_create();
+	if(!server.scene) {
+		wlr_log(WLR_ERROR, "Unable to create scene");
+		ret = 1;
+		goto end;
+	}
+	wlr_scene_attach_output_layout(server.scene, server.output_layout);
+
+	compositor = wlr_compositor_create(server.wl_display, server.renderer);
+	if(!compositor) {
+		wlr_log(WLR_ERROR, "Unable to create the wlroots compositor");
 		ret = 1;
 		goto end;
 	}
@@ -324,6 +366,21 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	wlr_server_decoration_manager_set_default_mode(
 	    server_decoration_manager, WLR_SERVER_DECORATION_MANAGER_MODE_SERVER);
 
+	viewporter = wlr_viewporter_create(server.wl_display);
+	if(!viewporter) {
+		wlr_log(WLR_ERROR, "Unable to create the viewporter interface");
+		ret = 1;
+		goto end;
+	}
+
+	presentation = wlr_presentation_create(server.wl_display, server.backend);
+	if(!presentation) {
+		wlr_log(WLR_ERROR, "Unable to create the presentation interface");
+		ret = 1;
+		goto end;
+	}
+	wlr_scene_set_presentation(server.scene, presentation);
+
 	export_dmabuf_manager =
 	    wlr_export_dmabuf_manager_v1_create(server.wl_display);
 	if(!export_dmabuf_manager) {
@@ -347,17 +404,17 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		goto end;
 	}
 
-	gamma_control_manager =
-	    wlr_gamma_control_manager_v1_create(server.wl_display);
-	if(!gamma_control_manager) {
-		wlr_log(WLR_ERROR, "Unable to create the gamma control manager");
+	if(!wlr_primary_selection_v1_device_manager_create(server.wl_display)) {
+		wlr_log(WLR_ERROR,
+		        "Unable to create the primary selection device manager");
 		ret = 1;
 		goto end;
 	}
 
-	compositor = wlr_compositor_create(server.wl_display, server.renderer);
-	if(!compositor) {
-		wlr_log(WLR_ERROR, "Unable to create the wlroots compositor");
+	gamma_control_manager =
+	    wlr_gamma_control_manager_v1_create(server.wl_display);
+	if(!gamma_control_manager) {
+		wlr_log(WLR_ERROR, "Unable to create the gamma control manager");
 		ret = 1;
 		goto end;
 	}
@@ -372,13 +429,6 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	server.new_xwayland_surface.notify = handle_xwayland_surface_new;
 	wl_signal_add(&xwayland->events.new_surface, &server.new_xwayland_surface);
 
-	xcursor_manager = wlr_xcursor_manager_create(DEFAULT_XCURSOR, XCURSOR_SIZE);
-	if(!xcursor_manager) {
-		wlr_log(WLR_ERROR, "Cannot create XWayland XCursor manager");
-		ret = 1;
-		goto end;
-	}
-
 	if(setenv("DISPLAY", xwayland->display_name, true) < 0) {
 		wlr_log_errno(WLR_ERROR, "Unable to set DISPLAY for XWayland.",
 		              "Clients may not be able to connect");
@@ -387,18 +437,15 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		        xwayland->display_name);
 	}
 
-	if(wlr_xcursor_manager_load(xcursor_manager, 1)) {
-		wlr_log(WLR_ERROR, "Cannot load XWayland XCursor theme");
-	}
 	struct wlr_xcursor *xcursor =
-	    wlr_xcursor_manager_get_xcursor(xcursor_manager, DEFAULT_XCURSOR, 1);
+	    wlr_xcursor_manager_get_xcursor(server.seat->xcursor_manager, DEFAULT_XCURSOR, 1);
+
 	if(xcursor) {
 		struct wlr_xcursor_image *image = xcursor->images[0];
 		wlr_xwayland_set_cursor(xwayland, image->buffer, image->width * 4,
 		                        image->width, image->height, image->hotspot_x,
 		                        image->hotspot_y);
 	}
-
 #endif
 
 	const char *socket = wl_display_add_socket_auto(server.wl_display);
@@ -418,15 +465,25 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY.",
 		              "Clients may not be able to connect");
 	} else {
-		wlr_log(WLR_DEBUG,
-		        "Cagebreak " CG_VERSION " is running on Wayland display %s",
-		        socket);
+		fprintf(stderr, "Cagebreak " CG_VERSION " is running on Wayland display %s\n", socket);
+	}
+
+#if CG_HAS_XWAYLAND
+	wlr_xwayland_set_seat(xwayland, server.seat->seat);
+#endif
+
+	/* Place the cursor to the top left of the output layout. */
+	wlr_cursor_warp(server.seat->cursor, NULL, 0, 0);
+
+
+	if(!drop_permissions()) {
+		ret = 1;
+		goto end;
 	}
 
 	/* Place the cursor to the topl left of the output layout. */
 	wlr_cursor_warp(server.seat->cursor, NULL, 0, 0);
 	atexit(cleanup);
-	// server.wl_display->run = 1;
 	return 0;
 end:
 	cleanup();
@@ -571,5 +628,4 @@ destroy_output(char *line, struct cg_server *server) {
 			--outpn;
 		}
 	}
-	it->damage_destroy.notify(&it->damage_destroy, NULL);
 }

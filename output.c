@@ -540,11 +540,11 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	output->workspaces = malloc(server->nws * sizeof(struct cg_workspace *));
 	for(unsigned int i = 0; i < server->nws; ++i) {
 		output->workspaces[i] = full_screen_workspace(output);
-		output->workspaces[i]->num = i;
 		if(!output->workspaces[i]) {
 			wlr_log(WLR_ERROR, "Failed to allocate workspaces for output");
 			return;
 		}
+		output->workspaces[i]->num = i;
 		wl_list_init(&output->workspaces[i]->views);
 		wl_list_init(&output->workspaces[i]->unmanaged_views);
 	}
