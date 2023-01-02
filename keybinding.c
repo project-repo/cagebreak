@@ -1118,12 +1118,23 @@ print_input_devices(struct cg_server *server) {
 	return dyn_str_to_str(&outp_str);
 }
 
+char *
+get_mode_name(char **modes,unsigned int mode_nr) {
+	unsigned int i;
+	for(i=0;i<mode_nr&&modes[i]!=NULL;++i) {}
+	if(modes[i]!=NULL) {
+		return modes[i];
+	} else {
+		return "NULL";
+	}
+}
+
 void
 keybinding_dump(struct cg_server *server) {
 	struct dyn_str str;
 	str.len = 0;
 	str.cur_pos = 0;
-	uint32_t nmemb = 12;
+	uint32_t nmemb = 13;
 	str.str_arr = calloc(nmemb, sizeof(char *));
 
 	print_str(&str, "{\"event_name\":\"dump\",");
@@ -1134,6 +1145,8 @@ keybinding_dump(struct cg_server *server) {
 	print_str(&str, "\"tiles_curr_id\":%d,\n", server->tiles_curr_id);
 	print_str(&str, "\"curr_output\":\"%s\",\n",
 	          server->curr_output->wlr_output->name);
+	print_str(&str, "\"default_mode\":\"%s\",\n",
+	          get_mode_name(server->modes,server->seat->default_mode));
 	print_modes(&str, server->modes);
 	char *outps_str = print_outputs(server);
 	if(outps_str!=NULL) {
@@ -1605,8 +1618,8 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	case KEYBINDING_SWITCH_DEFAULT_MODE:
 		ipc_send_event(server,
 		               "{\"event_name\":\"switch_default_mode\",\"old_mode\":"
-		               "%d,\"mode\":%d}",
-		               server->seat->default_mode, data.u);
+		               "\"%s\",\"mode\":\"%s\"}",
+		               get_mode_name(server->modes,server->seat->default_mode), get_mode_name(server->modes,data.u));
 		server->seat->mode = data.u;
 		server->seat->default_mode = data.u;
 		break;
