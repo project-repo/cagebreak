@@ -1294,8 +1294,8 @@ keybinding_definekey(struct cg_server *server, struct keybinding *kb) {
 	keybinding_list_push(server->keybindings, kb);
 	ipc_send_event(server,
 	               "{\"event_name\":\"definekey\",\"modifiers\":%d,\"key\":"
-	               "%d,\"command\":%d}",
-	               kb->modifiers, kb->key, kb->action);
+	               "%d,\"command\":\"%s\"}",
+	               kb->modifiers, kb->key, keybinding_action_string[kb->action]);
 }
 
 void
