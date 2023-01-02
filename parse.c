@@ -76,12 +76,12 @@ parse_key(struct keybinding *keybinding, const char *key_def, char **errstr) {
 
 int
 parse_command(struct cg_server *server, struct keybinding *keybinding,
-              char *saveptr, char **errstr);
+              char *saveptr, char **errstr, int nesting_level);
 
 /* Parse a keybinding definition and return it if successful, else return NULL
  */
 struct keybinding *
-parse_keybinding(struct cg_server *server, char **saveptr, char **errstr) {
+parse_keybinding(struct cg_server *server, char **saveptr, char **errstr,int nesting_level) {
 	struct keybinding *keybinding = malloc(sizeof(struct keybinding));
 	if(keybinding == NULL) {
 		*errstr = log_error(
@@ -94,7 +94,7 @@ parse_keybinding(struct cg_server *server, char **saveptr, char **errstr) {
 		free(keybinding);
 		return NULL;
 	}
-	if(parse_command(server, keybinding, *saveptr, errstr) != 0) {
+	if(parse_command(server, keybinding, *saveptr, errstr,nesting_level+1) != 0) {
 		free(keybinding);
 		return NULL;
 	}
@@ -389,8 +389,8 @@ error:
 }
 
 struct keybinding *
-parse_bind(struct cg_server *server, char **saveptr, char **errstr) {
-	struct keybinding *keybinding = parse_keybinding(server, saveptr, errstr);
+parse_bind(struct cg_server *server, char **saveptr, char **errstr, int nesting_level) {
+	struct keybinding *keybinding = parse_keybinding(server, saveptr, errstr,nesting_level);
 	if(keybinding == NULL) {
 		wlr_log(WLR_ERROR, "Could not parse keybinding for \"bind\".");
 		return NULL;
@@ -400,7 +400,7 @@ parse_bind(struct cg_server *server, char **saveptr, char **errstr) {
 }
 
 struct keybinding *
-parse_definekey(struct cg_server *server, char **saveptr, char **errstr) {
+parse_definekey(struct cg_server *server, char **saveptr, char **errstr, int nesting_level) {
 	char *mode = strtok_r(NULL, " ", saveptr);
 	if(mode == NULL) {
 		*errstr =
@@ -412,7 +412,7 @@ parse_definekey(struct cg_server *server, char **saveptr, char **errstr) {
 		*errstr = log_error("Unknown mode \"%s\"", mode);
 		return NULL;
 	}
-	struct keybinding *keybinding = parse_keybinding(server, saveptr, errstr);
+	struct keybinding *keybinding = parse_keybinding(server, saveptr, errstr, nesting_level);
 	if(keybinding == NULL) {
 		wlr_log(WLR_ERROR, "Could not parse keybinding for \"definekey\"");
 		return NULL;
@@ -753,8 +753,12 @@ error:
 
 int
 parse_command(struct cg_server *server, struct keybinding *keybinding,
-              char *saveptr, char **errstr) {
+              char *saveptr, char **errstr,int nesting_level) {
 	char *action = strtok_r(NULL, " ", &saveptr);
+	if(nesting_level>=MAX_NESTING_LEVEL) {
+		*errstr = log_error("Nesting level of commands is too deep. Giving up.");
+		return -1;
+	}
 	if(action == NULL) {
 		*errstr = log_error("Expexted an action to parse, got none.");
 		return -1;
@@ -970,13 +974,13 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->data.u = (unsigned int)mode_idx;
 	} else if(strcmp(action, "bind") == 0) {
 		keybinding->action = KEYBINDING_DEFINEKEY;
-		keybinding->data.kb = parse_bind(server, &saveptr, errstr);
+		keybinding->data.kb = parse_bind(server, &saveptr, errstr,nesting_level);
 		if(keybinding->data.kb == NULL) {
 			return -1;
 		}
 	} else if(strcmp(action, "definekey") == 0) {
 		keybinding->action = KEYBINDING_DEFINEKEY;
-		keybinding->data.kb = parse_definekey(server, &saveptr, errstr);
+		keybinding->data.kb = parse_definekey(server, &saveptr, errstr,nesting_level);
 		if(keybinding->data.kb == NULL) {
 			return -1;
 		}
@@ -1047,7 +1051,7 @@ parse_rc_line(struct cg_server *server, char *line, char **errstr) {
 		free(saveptr);
 		return -1;
 	}
-	if(parse_command(server, keybinding, saveptr, errstr) != 0) {
+	if(parse_command(server, keybinding, saveptr, errstr,1) != 0) {
 		wlr_log(WLR_ERROR, "Error parsing command.");
 		free(keybinding);
 		free(saveptr);

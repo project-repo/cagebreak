@@ -6,4 +6,6 @@
 
 #mesondefine CG_VERSION
 
+#define MAX_NESTING_LEVEL 50
+
 #endif
