@@ -140,7 +140,15 @@ cg-ipc{"event_name":"cycle_views","old_view_id":11,"new_view_id":4,"tile_id":13,
 	- Trigger: *definekey* command
 	- JSON
 		- event_name: "definekey"
-		- modifiers: TODO
+		- modifiers: number denoting the modifier as described below
+			- 0: no modifier
+			- 1: shift
+			- 2: alt
+			- 3: ctrl
+			- 4: logo key
+			- 5: modifier 2
+			- 6: modifier 3
+			- 7: modifier 5
 		- key: key as a number
 		- command: command as a number TODO maybe will be changed to string, remove otherwise
 
@@ -201,20 +209,23 @@ cg-ipc{"event_name":"destroy_output","output":"HDMI-A-1"}
 						- coords: object of x and y coordinates
 						- size: object of width and height
 						- view: view id as an integer
-		- keyboards: object of objects for each keyboard
+		- keyboards: object of objects for each keyboard group
 			- name_of_keyboard: object for a keyboard
 				- commands_enabled: 0 if keybindings are disabled for the keyboard, 1 otherwise
 				- repeat_delay: repeat delay in milliseconds as an integer
 				- repeat_rate: repeat rate in 1/sec as an integer
-		- input_devices: TODO
+		- input_devices: object of objects for each keyboard
+			- identifier for a keyboard: object
+				- is_virtual: 0 if physical, 1 otherwise
+				- type: [keyboard|pointer|switch]
 		- cursor_coords: object of x and y coordinates
 
 ```
 dump
 cg-ipc{"event_name":"dump","nws":1,
 "bg_color":[0.000000,0.000000,0.000000,1.000000],
-"views_curr_id":9,
-"tiles_curr_id":3,
+"views_curr_id":80,
+"tiles_curr_id":8,
 "curr_output":"eDP-1",
 "modes":["top","root","resize"],
 "outputs": {"eDP-1": {
@@ -224,28 +235,64 @@ cg-ipc{"event_name":"dump","nws":1,
 "refresh_rate": 60.012000,
 "curr_workspace": 0,
 "workspaces": [{"views": [{
-"id": 4,
-"pid": 37878,
+"id": 16,
+"pid": 2505,
 "coords": {"x":0,"y":0},
 "type": "xwayland"
 
 },{
-"id": 8,
-"pid": "38279",
+"id": 51,
+"pid": 6667,
+"coords": {"x":0,"y":0},
+"type": "xdg"
+
+},{
+"id": 72,
+"pid": 11243,
+"coords": {"x":0,"y":0},
+"type": "xdg"
+
+},{
+"id": 56,
+"pid": 6700,
 "coords": {"x":1280,"y":0},
 "type": "xdg"
 
-}],"tiles": [{
-"id": 2,
+},{
+"id": 20,
+"pid": 3044,
 "coords": {"x":1280,"y":0},
-"size": {"width":1280,"height":1440},
-"view": "8"
+"type": "xdg"
 
 },{
-"id": 1,
+"id": 42,
+"pid": 6397,
+"coords": {"x":1280,"y":0},
+"type": "xdg"
+
+},{
+"id": 65,
+"pid": 8453,
+"coords": {"x":0,"y":0},
+"type": "xdg"
+
+},{
+"id": 78,
+"pid": 12631,
+"coords": {"x":0,"y":0},
+"type": "xdg"
+
+}],"tiles": [{
+"id": 6,
 "coords": {"x":0,"y":0},
 "size": {"width":1280,"height":1440},
-"view": "4"
+"view": "78"
+
+},{
+"id": 7,
+"coords": {"x":1280,"y":0},
+"size": {"width":1280,"height":1440},
+"view": "42"
 
 }]}]
 }}
@@ -254,7 +301,41 @@ cg-ipc{"event_name":"dump","nws":1,
 "repeat_delay": 600,
 "repeat_rate": 25
 }}
-,"cursor_coords":{"x":1737.440431,"y":677.906813}
+,"input_devices": {"6058:20564:ThinkPad_Extra_Buttons": {
+"is_virtual": 0,
+"type": "switch",
+},"6058:20564:ThinkPad_Extra_Buttons": {
+"is_virtual": 0,
+"type": "keyboard",
+},"2:10:TPPS/2_Elan_TrackPoint": {
+"is_virtual": 0,
+"type": "pointer",
+},"1:1:AT_Translated_Set_2_keyboard": {
+"is_virtual": 0,
+"type": "keyboard",
+},"0:0:sof-hda-dsp_Headphone": {
+"is_virtual": 0,
+"type": "keyboard",
+},"1739:52619:SYNA8004:00_06CB:CD8B_Touchpad": {
+"is_virtual": 0,
+"type": "pointer",
+},"1739:52619:SYNA8004:00_06CB:CD8B_Mouse": {
+"is_virtual": 0,
+"type": "pointer",
+},"0:3:Sleep_Button": {
+"is_virtual": 0,
+"type": "keyboard",
+},"0:5:Lid_Switch": {
+"is_virtual": 0,
+"type": "switch",
+},"0:6:Video_Bus": {
+"is_virtual": 0,
+"type": "keyboard",
+},"0:1:Power_Button": {
+"is_virtual": 0,
+"type": "keyboard",
+}}
+,"cursor_coords":{"x":972.821761,"y":670.836215}
 }
 ```
 
@@ -292,7 +373,6 @@ cg-ipc{"event_name":"fullscreen","tile_id":3,"workspace":1,"output":"eDP-1"}
 		- view_id: view id as an integer
 		- old_output: name of the old output as a string
 		- new_output: name of the new output as a string
-		- TODO tile id?
 
 ```
 movetonextscreen
@@ -311,7 +391,7 @@ cg-ipc{"event_name":"move_view_to_cycle_output","view_id":11,"old_output":"eDP-1
 ```
 movetoscreen 2
 cg-ipc{"event_name":"switch_output","old_output":"eDP-1","new_output":"HDMI-A-1"}
-cg-ipc{"event_name":"move_view_to_output","view_id":113,"old_output":"eDP-1","new_output":"HDMI-A-1"}
+cg-ipc{"event_name":"move_view_to_output","view_id":78,"old_output":"eDP-1","new_output":"HDMI-A-1"}
 ```
 
 *move_view_to_ws*
@@ -346,8 +426,8 @@ cg-ipc{"event_name":"new_output","output":"HDMI-A-1","priority":-1}
 	- JSON
 		- event_name: "resize_tile"
 		- tile_id: tile id as an integer
-		- old_dims: TODO
-		- new_dimes: TODO
+		- old_dims: list of pixels [x pixels of lower left corner, y pixels of lower left corner, x pixels of upper right corner, y pixels of upper right corner
+		- new_dims: list of pixels [x pixels of lower left corner, y pixels of lower left corner, x pixels of upper right corner, y pixels of upper right corner
 		- workspace: workspace number as an integer
 		- output: name of the output as a string
 
