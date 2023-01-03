@@ -106,7 +106,7 @@ keybinding_list_push(struct keybinding_list *list,
 void
 keybinding_list_free(struct keybinding_list *list);
 void
-keybinding_cycle_outputs(struct cg_server *server, bool reverse);
+keybinding_cycle_outputs(struct cg_server *server, bool reverse, bool trigger_event);
 struct keybinding **
 find_keybinding(const struct keybinding_list *list,
                 const struct keybinding *keybinding);

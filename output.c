@@ -53,7 +53,7 @@ output_clear(struct cg_output *output) {
 
 	if(server->running && server->curr_output == output &&
 	   wl_list_length(&server->outputs) > 1) {
-		keybinding_cycle_outputs(server, false);
+		keybinding_cycle_outputs(server, false, true);
 	}
 
 	wl_list_remove(&output->link);

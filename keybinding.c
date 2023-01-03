@@ -630,7 +630,7 @@ set_output(struct cg_server *server, struct cg_output *output) {
 }
 
 void
-keybinding_cycle_outputs(struct cg_server *server, bool reverse) {
+keybinding_cycle_outputs(struct cg_server *server, bool reverse, bool trigger_event) {
 	struct cg_output *output = NULL;
 	struct cg_output *old_output = server->curr_output;
 	if(reverse) {
@@ -648,11 +648,13 @@ keybinding_cycle_outputs(struct cg_server *server, bool reverse) {
 		}
 	}
 	set_output(server, output);
-	ipc_send_event(output->server,
-	               "{\"event_name\":\"cycle_outputs\",\"old_output\":\"%s\","
-	               "\"new_output\":\"%s\",\"reverse\":%d}",
-	               old_output->wlr_output->name, output->wlr_output->name,
-	               reverse);
+	if(trigger_event) {
+		ipc_send_event(output->server,
+				"{\"event_name\":\"cycle_outputs\",\"old_output\":\"%s\","
+				"\"new_output\":\"%s\",\"reverse\":%d}",
+				old_output->wlr_output->name, output->wlr_output->name,
+				reverse);
+	}
 }
 
 /* Cycle through views, whereby the workspace does not change */
@@ -1211,7 +1213,7 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 			seat_set_focus(server->seat, NULL);
 		}
 	}
-	keybinding_cycle_outputs(server, reverse);
+	keybinding_cycle_outputs(server, reverse,false);
 	if(view != NULL) {
 		struct cg_workspace *ws =
 		    server->curr_output
@@ -1597,7 +1599,7 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_cycle_tiles(server, data.b);
 		break;
 	case KEYBINDING_CYCLE_OUTPUT:
-		keybinding_cycle_outputs(server, data.b);
+		keybinding_cycle_outputs(server, data.b, true);
 		break;
 	case KEYBINDING_SWITCH_WORKSPACE:
 		keybinding_switch_ws(server, data.u);
