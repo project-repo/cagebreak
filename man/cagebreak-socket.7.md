@@ -192,7 +192,7 @@ cg-ipc{"event_name":"destroy_output","output":"HDMI-A-1"}
 	- JSON
 		- event_name: "dump"
 		- nws: number of workspaces as an integer
-		- bg_color: list of three floating point numbers denoting the new background in rgba
+		- bg_color: list of three floating point numbers denoting the new background in rgb
 		- views_curr_id: id of the currently focussed view as an integer
 		- tiles_curr_id: id of the currently focussed tile as in integer
 		- curr_output: current output as a string
@@ -217,20 +217,20 @@ cg-ipc{"event_name":"destroy_output","output":"HDMI-A-1"}
 						- size: object of width and height
 						- view: view id as an integer
 		- keyboards: object of objects for each keyboard group
-			- name_of_keyboard: object for a keyboard
+			- keyboard name as a string
 				- commands_enabled: 0 if keybindings are disabled for the keyboard, 1 otherwise
 				- repeat_delay: repeat delay in milliseconds as an integer
 				- repeat_rate: repeat rate in 1/sec as an integer
 		- input_devices: object of objects for each keyboard
-			- identifier for a keyboard: object
-				- is_virtual: 0 if physical, 1 otherwise
+			- identifier for a keyboard as a string
+				- is_virtual: 1 if virtual, 0 otherwise
 				- type: [keyboard|pointer|switch]
 		- cursor_coords: object of x and y coordinates
 
 ```
 dump
 cg-ipc{"event_name":"dump","nws":1,
-"bg_color":[0.000000,0.000000,0.000000,1.000000],
+"bg_color":[0.000000,0.000000,0.000000],
 "views_curr_id":80,
 "tiles_curr_id":8,
 "curr_output":"eDP-1",
@@ -249,12 +249,6 @@ cg-ipc{"event_name":"dump","nws":1,
 "type": "xwayland"
 
 },{
-"id": 51,
-"pid": 6667,
-"coords": {"x":0,"y":0},
-"type": "xdg"
-
-},{
 "id": 72,
 "pid": 11243,
 "coords": {"x":0,"y":0},
@@ -266,41 +260,17 @@ cg-ipc{"event_name":"dump","nws":1,
 "coords": {"x":1280,"y":0},
 "type": "xdg"
 
-},{
-"id": 20,
-"pid": 3044,
-"coords": {"x":1280,"y":0},
-"type": "xdg"
-
-},{
-"id": 42,
-"pid": 6397,
-"coords": {"x":1280,"y":0},
-"type": "xdg"
-
-},{
-"id": 65,
-"pid": 8453,
-"coords": {"x":0,"y":0},
-"type": "xdg"
-
-},{
-"id": 78,
-"pid": 12631,
-"coords": {"x":0,"y":0},
-"type": "xdg"
-
 }],"tiles": [{
 "id": 6,
 "coords": {"x":0,"y":0},
 "size": {"width":1280,"height":1440},
-"view": "78"
+"view": 78
 
 },{
 "id": 7,
 "coords": {"x":1280,"y":0},
 "size": {"width":1280,"height":1440},
-"view": "42"
+"view": 42
 
 }]}]
 }}
@@ -408,6 +378,7 @@ cg-ipc{"event_name":"move_view_to_output","view_id":78,"old_output":"eDP-1","new
 		- event_name: "move_view_to_ws"
 		- view_id: view id as an integer
 		- old_workspace: old workspace number as an integer
+		- new_workspace: new workspace number as an integer
 		- output: name of the output as a string
 		- view_pid: pid of the process
 
@@ -434,8 +405,8 @@ cg-ipc{"event_name":"new_output","output":"HDMI-A-1","priority":-1}
 	- JSON
 		- event_name: "resize_tile"
 		- tile_id: tile id as an integer
-		- old_dims: list of pixels [x pixels of lower left corner, y pixels of lower left corner, x pixels of upper right corner, y pixels of upper right corner
-		- new_dims: list of pixels [x pixels of lower left corner, y pixels of lower left corner, x pixels of upper right corner, y pixels of upper right corner
+		- old_dims: list of coordinates [x coordinate of lower left corner, y coordinate of lower left corner, x coordinate of upper right corner, y coordinate of upper right corner]
+		- new_dims: list of coordinate [x coordinate of lower left corner, y coordinate of lower left corner, x coordinate of upper right corner, y coordinate of upper right corner]
 		- workspace: workspace number as an integer
 		- output: name of the output as a string
 
@@ -465,7 +436,7 @@ cg-ipc{"event_name":"set_nws","old_nws":1,"new_nws":2}
 		- new_tile_id: new tile id as an integer
 		- workspace: workspace number as an integer
 		- output: output as a string
-		- vertical: "0" if horizontal split, "1" if not
+		- vertical: 0 if horizontal split, 1 if not
 
 ```
 hsplit
@@ -490,12 +461,12 @@ cg-ipc{"event_name":"swap_tile","tile_id":1,"swap_tile_id":3,"workspace":1,"outp
 	- Trigger: *setmode* command
 	- JSON
 		- event_name: "switch_default_mode"
-		- old_mode: old mode number
-		- mode: new mode numer
+		- old_mode: old mode name
+		- mode: new mode name
 
 ```
 setmode top
-cg-ipc{"event_name":"switch_default_mode","old_mode":0,"mode":0}
+cg-ipc{"event_name":"switch_default_mode","old_mode":"top","mode":"root"}
 ```
 
 switch_output
