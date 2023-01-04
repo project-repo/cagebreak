@@ -26,14 +26,14 @@ Events have a general structure as follows:
 "cg-ipc"json object depending on the eventNULL
 ```
 
-Here is an example of how this works using only as a command over the socket
+Here is an example of how this works using *only* as a command sent over the socket.
 
 ```
 only
 cg-ipc{"event_name":"fullscreen","tile_id":2,"workspace":1,"output":"eDP-1"}
 ```
 
-This documentation includes the trigger for the event, the keys and the data
+This documentation describes the trigger for the events, the keys and the data
 type of the values of each event.
 
 *background*
@@ -53,7 +53,7 @@ cg-ipc{"event_name":"background","old_bg":[0.000000,1.000000,1.000000],"new_bg":
 	- JSON
 		- event_name: "close"
 		- view_id: view id as an integer
-		- title_id: title id as an integer
+		- tile_id: tile id as an integer
 		- workspace: workspace number as an integer
 		- output: name of the output as a string
 
@@ -66,7 +66,7 @@ cg-ipc{"event_name":"close","view_id":47,"tile_id":47,"workspace":1,"output":"eD
 	- Trigger: *input* command
 	- JSON
 		- event_name: "configure_input"
-		- input: the input as a string as per cagebreak-config(5)
+		- input: the input as a string, as per cagebreak-config(5)
 
 ```
 input * accel_profile flat
@@ -127,7 +127,7 @@ cg-ipc{"event_name":"cycle_outputs","old_output":"eDP-1","new_output":"HDMI-A-1"
 		- event_name: "cycle_views"
 		- old_view_id: old view id as an integer
 		- new_view_id: new view id as an interger
-		- tile_id: new tile is as an integer
+		- tile_id: tile id as an integer
 		- workspace: workspace number as an integer
 		- output: name of the output as a string
 
@@ -151,11 +151,10 @@ cg-ipc{"event_name":"cycle_views","old_view_id":11,"new_view_id":4,"tile_id":13,
 			- 7: modifier 5
 		- key: key as a number
 		- command: command as a string - CAVEAT: This is an internal representation of
-		  commands without arguments some commands are not isomorphically represented,
-		  they are listed below:
-			- "cycle_tiles": represents *exchange* commands
-			- "cycle_views": represents *next* and *prev* commands
-			- "cycle_outputs": represents *nextscreen", *movetoprevscreen* and *prevscreen* commands
+		  commands which is not in one-to-one correspondance with the commands available in the config file. The differences are as follows:
+			- "cycle_tiles": represents any *exchange* command (e.g. *exchangeright*)
+			- "cycle_views": represents both the *next* and the *prev* command
+			- "cycle_outputs": represents *nextscreen*, *movetoprevscreen* and *prevscreen* commands
 			- "resize_tile_vertical": represents *resizedown* and *resizeup* commands
 			- "resize_tile_horizontal": represents *resizeleft* and *resizeright* commands
 
