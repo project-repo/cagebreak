@@ -77,21 +77,22 @@ xdg_decoration_handle_request_mode(struct wl_listener *listener, void *_data) {
 
 static void
 popup_unconstrain(struct cg_view *view, struct wlr_xdg_popup *popup) {
-	struct wlr_box *popup_box = &popup->geometry;
+	struct wlr_box *popup_box = &popup->current.geometry;
 
 	struct wlr_output_layout *output_layout = view->server->output_layout;
-	struct wlr_box *view_output_box = wlr_output_layout_get_box(
-	    output_layout, view->workspace->output->wlr_output);
+	struct wlr_box view_output_box;
+	wlr_output_layout_get_box(
+	    output_layout, view->workspace->output->wlr_output,&view_output_box);
 	struct wlr_output *wlr_output = wlr_output_layout_output_at(
-	    output_layout, view_output_box->x + view->ox + popup_box->x,
-	    view_output_box->y + view->oy + popup_box->y);
-	struct wlr_box *output_box =
-	    wlr_output_layout_get_box(output_layout, wlr_output);
+	    output_layout, view_output_box.x + view->ox + popup_box->x,
+	    view_output_box.y + view->oy + popup_box->y);
+	struct wlr_box output_box;
+	    wlr_output_layout_get_box(output_layout, wlr_output,&output_box);
 
 	struct wlr_box output_toplevel_box = {.x = -view->ox,
 	                                      .y = -view->oy,
-	                                      .width = output_box->width,
-	                                      .height = output_box->height};
+	                                      .width = output_box.width,
+	                                      .height = output_box.height};
 
 	wlr_xdg_popup_unconstrain_from_box(popup, &output_toplevel_box);
 }
@@ -119,16 +120,15 @@ static bool
 is_primary(const struct cg_view *view) {
 	const struct cg_xdg_shell_view *xdg_shell_view =
 	    xdg_shell_view_from_const_view(view);
-	struct wlr_xdg_surface *parent =
+	struct wlr_xdg_toplevel *parent =
 	    xdg_shell_view->xdg_surface->toplevel->parent;
-	/* FIXME: role is 0? */
-	return parent == NULL; /*&& role == WLR_XDG_SURFACE_ROLE_TOPLEVEL */
+	return parent == NULL;
 }
 
 static void
 activate(struct cg_view *view, bool activate) {
 	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
-	wlr_xdg_toplevel_set_activated(xdg_shell_view->xdg_surface, activate);
+	wlr_xdg_toplevel_set_activated(xdg_shell_view->xdg_surface->toplevel, activate);
 }
 
 static void
@@ -136,17 +136,17 @@ close(struct cg_view *view) {
 	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
 	struct wlr_xdg_surface *surface = xdg_shell_view->xdg_surface;
 	if(surface->role == WLR_XDG_SURFACE_ROLE_TOPLEVEL) {
-		wlr_xdg_toplevel_send_close(surface);
+		wlr_xdg_toplevel_send_close(surface->toplevel);
 	}
 }
 
 static void
 maximize(struct cg_view *view, int width, int height) {
 	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
-	wlr_xdg_toplevel_set_size(xdg_shell_view->xdg_surface, width, height);
+	wlr_xdg_toplevel_set_size(xdg_shell_view->xdg_surface->toplevel, width, height);
 	enum wlr_edges edges =
 	    WLR_EDGE_LEFT | WLR_EDGE_RIGHT | WLR_EDGE_TOP | WLR_EDGE_BOTTOM;
-	wlr_xdg_toplevel_set_tiled(xdg_shell_view->xdg_surface, edges);
+	wlr_xdg_toplevel_set_tiled(xdg_shell_view->xdg_surface->toplevel, edges);
 }
 
 static void
@@ -158,11 +158,18 @@ destroy(struct cg_view *view) {
 static void
 handle_xdg_shell_surface_request_fullscreen(struct wl_listener *listener,
                                             void *data) {
-	struct cg_xdg_shell_view *xdg_shell_view =
-	    wl_container_of(listener, xdg_shell_view, request_fullscreen);
-	struct wlr_xdg_toplevel_set_fullscreen_event *event = data;
-	wlr_xdg_toplevel_set_fullscreen(xdg_shell_view->xdg_surface,
-	                                event->fullscreen);
+	struct cg_xdg_shell_view *xdg_shell_view = wl_container_of(listener, xdg_shell_view, request_fullscreen);
+
+	/**
+	 * Certain clients do not like figuring out their own window geometry if they
+	 * display in fullscreen mode, so we set it here.
+	 */
+	struct wlr_box layout_box;
+	wlr_output_layout_get_box(xdg_shell_view->view.server->output_layout, NULL, &layout_box);
+	wlr_xdg_toplevel_set_size(xdg_shell_view->xdg_surface->toplevel, layout_box.width, layout_box.height);
+
+	wlr_xdg_toplevel_set_fullscreen(xdg_shell_view->xdg_surface->toplevel,
+					xdg_shell_view->xdg_surface->toplevel->requested.fullscreen);
 }
 
 static void
@@ -248,26 +255,26 @@ handle_xdg_shell_surface_new(struct wl_listener *listener, void *data) {
 			return;
 		}
 
-		struct wlr_scene_node *parent_scene_node = NULL;
+		struct wlr_scene_tree *parent_scene_tree = NULL;
 		struct wlr_xdg_surface *parent =
 		    wlr_xdg_surface_from_wlr_surface(popup->parent);
 		switch(parent->role) {
 		case WLR_XDG_SURFACE_ROLE_TOPLEVEL:;
-			parent_scene_node = view->scene_node;
+			parent_scene_tree = view->scene_tree;
 			break;
 		case WLR_XDG_SURFACE_ROLE_POPUP:
-			parent_scene_node = parent->data;
+			parent_scene_tree = parent->data;
 			break;
 		case WLR_XDG_SURFACE_ROLE_NONE:
 			break;
 		}
-		if(parent_scene_node == NULL) {
+		if(parent_scene_tree == NULL) {
 			return;
 		}
 
-		struct wlr_scene_node *popup_scene_node =
-		    wlr_scene_xdg_surface_create(parent_scene_node, xdg_surface);
-		if(popup_scene_node == NULL) {
+		struct wlr_scene_tree *popup_scene_tree =
+		    wlr_scene_xdg_surface_create(parent_scene_tree, xdg_surface);
+		if(popup_scene_tree == NULL) {
 			wlr_log(WLR_ERROR,
 			        "Failed to allocate scene-graph node for XDG popup");
 			return;
@@ -275,7 +282,7 @@ handle_xdg_shell_surface_new(struct wl_listener *listener, void *data) {
 
 		popup_unconstrain(view, popup);
 
-		xdg_surface->data = popup_scene_node;
+		xdg_surface->data = popup_scene_tree;
 		break;
 	case WLR_XDG_SURFACE_ROLE_NONE:
 		assert(false); // unreachable

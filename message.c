@@ -11,6 +11,7 @@
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_scene.h>
+#include <wlr/interfaces/wlr_buffer.h>
 #include <wlr/util/log.h>
 
 #include "message.h"
@@ -229,15 +230,15 @@ message_set_output(struct cg_output *output, const char *string,
 		return;
 	}
 	message->message =
-	    wlr_scene_buffer_create(&scene_output->scene->node, &buf->base);
+	    wlr_scene_buffer_create(&scene_output->scene->tree, &buf->base);
 	wlr_scene_node_raise_to_top(&message->message->node);
 	wlr_scene_node_set_enabled(&message->message->node, true);
-	struct wlr_box *outp_box = wlr_output_layout_get_box(
-	    output->server->output_layout, output->wlr_output);
+	struct wlr_box outp_box;
+	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,&outp_box);
 	wlr_scene_buffer_set_dest_size(message->message, width, height);
 	wlr_scene_node_set_position(&message->message->node,
-	                            message->position->x + outp_box->x,
-	                            message->position->y + outp_box->y);
+	                            message->position->x + outp_box.x,
+	                            message->position->y + outp_box.y);
 }
 
 void
@@ -257,10 +258,10 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 		free(buffer);
 		return;
 	}
-	struct wlr_box *output_box = wlr_output_layout_get_box(
-	    output->server->output_layout, output->wlr_output);
+	struct wlr_box output_box;
+	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,&output_box);
 
-	box->x = output_box->width;
+	box->x = output_box.width;
 	box->y = 0;
 	box->width = 0;
 	box->height = 0;

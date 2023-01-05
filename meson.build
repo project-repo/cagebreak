@@ -52,7 +52,7 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots', version: ['>=0.14.1', '< 0.16.0'])
+wlroots        = dependency('wlroots', version: ['>=0.16.1', '< 0.17.0'])
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')

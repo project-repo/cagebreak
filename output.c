@@ -26,7 +26,7 @@
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_scene.h>
-#include <wlr/types/wlr_surface.h>
+#include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/util/log.h>
 #include <wlr/util/region.h>
@@ -81,7 +81,7 @@ output_clear(struct cg_output *output) {
 					view->impl->destroy(view);
 				} else {
 					wl_list_insert(&ws->views, &view->link);
-					wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
+					wlr_scene_node_reparent(&view->scene_tree->node, ws->scene);
 					view->workspace = ws;
 					view->tile = ws->focused_tile;
 					if(server->seat->focused_view == NULL) {
@@ -96,7 +96,7 @@ output_clear(struct cg_output *output) {
 					view->impl->destroy(view);
 				} else {
 					wl_list_insert(&ws->unmanaged_views, &view->link);
-					wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
+					wlr_scene_node_reparent(&view->scene_tree->node, ws->scene);
 					view->workspace = ws;
 					view->tile = ws->focused_tile;
 				}
@@ -314,11 +314,11 @@ output_apply_config(struct cg_server *server, struct cg_output *output, struct c
 		return;
 	}
 	output->bg = wlr_scene_rect_create(
-	    &scene_output->scene->node, output->wlr_output->width,
+	    &scene_output->scene->tree, output->wlr_output->width,
 	    output->wlr_output->height, server->bg_color);
-	struct wlr_box *box =
-	    wlr_output_layout_get_box(server->output_layout, output->wlr_output);
-	wlr_scene_node_set_position(&output->bg->node, box->x, box->y);
+	struct wlr_box box;
+	wlr_output_layout_get_box(server->output_layout, output->wlr_output,&box);
+	wlr_scene_node_set_position(&output->bg->node, box.x, box.y);
 	wlr_scene_node_lower_to_bottom(&output->bg->node);
 }
 

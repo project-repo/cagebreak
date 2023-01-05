@@ -17,7 +17,7 @@
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_scene.h>
-#include <wlr/types/wlr_surface.h>
+#include <wlr/types/wlr_compositor.h>
 #include <wlr/util/box.h>
 
 #include "ipc_server.h"
@@ -88,13 +88,14 @@ void
 view_maximize(struct cg_view *view, struct cg_tile *tile) {
 	view->ox = tile->tile.x;
 	view->oy = tile->tile.y;
-	struct wlr_box *box = wlr_output_layout_get_box(
-	    view->server->output_layout, view->workspace->output->wlr_output);
-	wlr_scene_node_set_position(view->scene_node, view->ox + box->x,
-	                            view->oy + box->y);
+	struct wlr_box box;
+	wlr_output_layout_get_box(
+	    view->server->output_layout, view->workspace->output->wlr_output,&box);
+	wlr_scene_node_set_position(&view->scene_tree->node, view->ox + box.x,
+	                            view->oy + box.y);
 	view->impl->maximize(view, tile->tile.width, tile->tile.height);
 	view->tile = tile;
-	wlr_scene_node_raise_to_top(view->scene_node);
+	wlr_scene_node_raise_to_top(&view->scene_tree->node);
 }
 
 void
@@ -116,7 +117,7 @@ view_unmap(struct cg_view *view) {
 		tile_id = view->tile->id;
 	}
 
-	wlr_scene_node_destroy(view->scene_node);
+	wlr_scene_node_destroy(&view->scene_tree->node);
 
 #if CG_HAS_XWAYLAND
 	if((view->type != CG_XWAYLAND_VIEW || xwayland_view_should_manage(view)))
@@ -163,13 +164,13 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	struct cg_output *output = ws->output;
 	view->wlr_surface = surface;
 
-	view->scene_node =
-	    wlr_scene_subsurface_tree_create(&ws->scene->node, surface);
-	if(!view->scene_node) {
+	view->scene_tree =
+	    wlr_scene_subsurface_tree_create(ws->scene, surface);
+	if(!view->scene_tree) {
 		wl_resource_post_no_memory(surface->resource);
 		return;
 	}
-	view->scene_node->data = view;
+	view->scene_tree->node.data = view;
 	view->workspace = ws;
 
 #if CG_HAS_XWAYLAND
@@ -177,10 +178,10 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	   their own (x,y) coordinates in handle_wayland_surface_map. */
 	if(view->type == CG_XWAYLAND_VIEW && !xwayland_view_should_manage(view)) {
 		wl_list_insert(&ws->unmanaged_views, &view->link);
-		struct wlr_box *box = wlr_output_layout_get_box(
-		    view->server->output_layout, view->workspace->output->wlr_output);
-		wlr_scene_node_set_position(view->scene_node, view->ox + box->x,
-		                            view->oy + box->y);
+		struct wlr_box box;
+		wlr_output_layout_get_box(view->server->output_layout, view->workspace->output->wlr_output,&box);
+		wlr_scene_node_set_position(&view->scene_tree->node, view->ox + box.x,
+		                            view->oy + box.y);
 	} else
 #endif
 	{

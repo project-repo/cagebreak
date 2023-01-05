@@ -335,7 +335,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	              &server.new_idle_inhibitor_v1);
 	wl_list_init(&server.inhibitors);
 
-	xdg_shell = wlr_xdg_shell_create(server.wl_display);
+	xdg_shell = wlr_xdg_shell_create(server.wl_display,3);
 	if(!xdg_shell) {
 		wlr_log(WLR_ERROR, "Unable to create the XDG shell interface");
 		ret = 1;
@@ -491,27 +491,6 @@ end:
 }
 
 void
-move_cursor(char *line, struct cg_server *server) {
-	return; // TODO
-	long del = 0;
-	char *delstr = strtok_r(NULL, ";", &line);
-	enum wlr_axis_orientation orientation =
-	    (*(line++) == '0') ? WLR_AXIS_ORIENTATION_VERTICAL
-	                       : WLR_AXIS_ORIENTATION_HORIZONTAL;
-	if(delstr == NULL) {
-		return;
-	}
-	del = strtol(delstr, NULL, 10);
-	struct wlr_event_pointer_axis event = {.device = NULL,
-	                                       .time_msec = 0,
-	                                       .source = WLR_AXIS_SOURCE_WHEEL,
-	                                       .orientation = orientation,
-	                                       .delta = del * 15,
-	                                       .delta_discrete = del};
-	// TODO dispatch_cursor_axis(server->seat->cursor, &event);
-}
-
-void
 add_output_callback(struct wlr_backend *backend, void *data) {
 	long *dims = data;
 	wlr_headless_add_output(backend, dims[0], dims[1]);
@@ -540,73 +519,6 @@ create_output(char *line, struct cg_server *server) {
 		return;
 	}
 	wlr_multi_for_each_backend(server->backend, add_output_callback, dims);
-}
-
-void
-add_input_device_callback(struct wlr_backend *backend, void *data) {
-	enum wlr_input_device_type *type = data;
-	wlr_headless_add_input_device(backend, *type);
-}
-
-void
-create_input_device(char *line, struct cg_server *server) {
-	enum wlr_input_device_type type;
-	if(*line != '\0') {
-		if(strncmp(line, "kbd", 3) == 0) {
-			type = WLR_INPUT_DEVICE_KEYBOARD;
-			wlr_multi_for_each_backend(server->backend,
-			                           add_input_device_callback, &type);
-		} else if(strncmp(line, "ptr", 3) == 0) {
-			type = WLR_INPUT_DEVICE_POINTER;
-			wlr_multi_for_each_backend(server->backend,
-			                           add_input_device_callback, &type);
-		} else if(strncmp(line, "tch", 3) == 0) {
-			type = WLR_INPUT_DEVICE_TOUCH;
-			wlr_multi_for_each_backend(server->backend,
-			                           add_input_device_callback, &type);
-		}
-	}
-}
-
-void
-destroy_input_device(char *line, struct cg_server *server) {
-	long devn = 0;
-	if(line[0] != '\0') {
-		devn = strtol(line + 1, NULL, 10);
-	}
-	if(line != NULL) {
-		if(strncmp(line, "k", 1) == 0) {
-			if(wl_list_empty(&server->seat->keyboard_groups)) {
-				return;
-			}
-			devn = devn % wl_list_length(&server->seat->keyboard_groups);
-			struct cg_keyboard_group *group, *group_tmp;
-			wl_list_for_each_safe(group, group_tmp,
-			                      &server->seat->keyboard_groups, link) {
-				if(devn == 0) {
-					wl_list_remove(&group->link);
-					wlr_keyboard_group_destroy(group->wlr_group);
-					wl_event_source_remove(group->key_repeat_timer);
-					free(group);
-					break;
-				}
-				--devn;
-			}
-		} else if(strncmp(line, "p", 1) == 0) {
-			if(wl_list_empty(&server->input->devices)) {
-				return;
-			}
-			devn = devn % wl_list_length(&server->input->devices);
-			struct cg_input_device *dev, *dev_tmp;
-			wl_list_for_each_safe(dev, dev_tmp, &server->input->devices, link) {
-				if(devn == 0) {
-					dev->device_destroy.notify(&dev->device_destroy, NULL);
-					break;
-				}
-				--devn;
-			}
-		}
-	}
 }
 
 void

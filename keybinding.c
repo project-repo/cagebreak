@@ -446,17 +446,17 @@ resize_vertical(struct cg_tile *tile, struct cg_tile *parent, int y_offset,
 void
 resize_tile(struct cg_server *server, int hpixs, int vpixs) {
 	struct cg_output *output = server->curr_output;
-	struct wlr_box *output_box = wlr_output_layout_get_box(
-	    output->server->output_layout, output->wlr_output);
+	struct wlr_box output_box;
+	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,&output_box);
 
 	struct cg_tile *focused =
 	    output->workspaces[output->curr_workspace]->focused_tile;
 	/* First do the horizontal adjustment */
-	if(hpixs != 0 && focused->tile.width < output_box->width &&
-	   is_between_strict(0, output_box->width, focused->tile.width + hpixs)) {
+	if(hpixs != 0 && focused->tile.width < output_box.width &&
+	   is_between_strict(0, output_box.width, focused->tile.width + hpixs)) {
 		int x_offset = 0;
 		/* In case we are on the total right, move the left edge of the tile */
-		if(focused->tile.x + focused->tile.width == output_box->width) {
+		if(focused->tile.x + focused->tile.width == output_box.width) {
 			x_offset = -hpixs;
 		}
 		bool resize_allowed =
@@ -466,10 +466,10 @@ resize_tile(struct cg_server *server, int hpixs, int vpixs) {
 		}
 	}
 	/* Repeat for vertical */
-	if(vpixs != 0 && focused->tile.height < output_box->height &&
-	   is_between_strict(0, output_box->height, focused->tile.height + vpixs)) {
+	if(vpixs != 0 && focused->tile.height < output_box.height &&
+	   is_between_strict(0, output_box.height, focused->tile.height + vpixs)) {
 		int y_offset = 0;
-		if(focused->tile.y + focused->tile.height == output_box->height) {
+		if(focused->tile.y + focused->tile.height == output_box.height) {
 			y_offset = -vpixs;
 		}
 		bool resize_allowed =
@@ -986,13 +986,12 @@ print_output(struct cg_output *outp) {
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
 	uint32_t nmemb = 8;
-	struct wlr_box *outp_box=wlr_output_layout_get_box(outp->server->output_layout,outp->wlr_output);
+	struct wlr_box outp_box;
+	wlr_output_layout_get_box(outp->server->output_layout,outp->wlr_output,&outp_box);
 	outp_str.str_arr = calloc(nmemb, sizeof(char *));
 	print_str(&outp_str, "\"%s\": {\n", outp->wlr_output->name);
 	print_str(&outp_str, "\"priority\": %d,\n", outp->priority);
-	if(outp_box!=NULL) {
-		print_str(&outp_str, "\"coords\": {\"x\":%d,\"y\":%d},\n", outp_box->x,outp_box->y);
-	}
+	print_str(&outp_str, "\"coords\": {\"x\":%d,\"y\":%d},\n", outp_box.x,outp_box.y);
 	print_str(&outp_str, "\"size\": {\"width\":%d,\"height\":%d},\n", outp->wlr_output->width,outp->wlr_output->height);
 	print_str(&outp_str, "\"refresh_rate\": %f,\n", (float) outp->wlr_output->refresh/1000.0);
 	print_str(&outp_str, "\"curr_workspace\": %d,\n", outp->curr_workspace);
@@ -1219,7 +1218,7 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 		    server->curr_output
 		        ->workspaces[server->curr_output->curr_workspace];
 		wl_list_insert(&ws->views, &view->link);
-		wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
+		wlr_scene_node_reparent(&view->scene_tree->node, ws->scene);
 		workspace_tile_update_view(ws->focused_tile,view);
 		view->workspace = ws;
 		seat_set_focus(server->seat, view);
@@ -1384,7 +1383,7 @@ keybinding_move_view_to_output(struct cg_server *server, int output_num) {
 		        ->workspaces[server->curr_output->curr_workspace];
 		view->workspace = ws;
 		wl_list_insert(&ws->views, &view->link);
-		wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
+		wlr_scene_node_reparent(&view->scene_tree->node, ws->scene);
 		workspace_tile_update_view(ws->focused_tile,view);
 		seat_set_focus(server->seat, view);
 	}
@@ -1423,7 +1422,7 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 		        ->workspaces[server->curr_output->curr_workspace];
 		view->workspace = ws;
 		wl_list_insert(&ws->views, &view->link);
-		wlr_scene_node_reparent(view->scene_node, &ws->scene->node);
+		wlr_scene_node_reparent(&view->scene_tree->node, ws->scene);
 		workspace_tile_update_view(ws->focused_tile,view);
 		seat_set_focus(server->seat, view);
 	}

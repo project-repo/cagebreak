@@ -5,7 +5,7 @@
 
 #include <stdbool.h>
 #include <wayland-server-core.h>
-#include <wlr/types/wlr_surface.h>
+#include <wlr/types/wlr_compositor.h>
 
 struct cg_server;
 struct wlr_box;
@@ -23,7 +23,7 @@ struct cg_view {
 	struct wl_list link; // server::views
 	struct wlr_surface *wlr_surface;
 	struct cg_tile *tile;
-	struct wlr_scene_node *scene_node;
+	struct wlr_scene_tree *scene_tree;
 
 	/* The view has a position in output coordinates. */
 	int ox, oy;

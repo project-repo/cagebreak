@@ -24,7 +24,7 @@
 #include <wlr/types/wlr_primary_selection.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_seat.h>
-#include <wlr/types/wlr_surface.h>
+#include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_touch.h>
 #include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/util/log.h>
@@ -84,6 +84,7 @@ remove_touch(struct cg_seat *seat, struct cg_touch *touch) {
 static void
 new_touch(struct cg_seat *seat, struct cg_input_device *input_device) {
 	struct wlr_input_device *device = input_device->wlr_device;
+	struct wlr_touch *wlr_touch = wlr_touch_from_input_device(device);
 	struct cg_touch *touch = calloc(1, sizeof(struct cg_touch));
 	if(!touch) {
 		wlr_log(WLR_ERROR, "Cannot allocate touch");
@@ -96,10 +97,10 @@ new_touch(struct cg_seat *seat, struct cg_input_device *input_device) {
 	input_device->touch = touch;
 	++seat->num_touch;
 
-	if(device->output_name != NULL) {
+	if(wlr_touch->output_name != NULL) {
 		struct cg_output *output;
 		wl_list_for_each(output, &seat->server->outputs, link) {
-			if(strcmp(device->output_name, output->wlr_output->name) == 0) {
+			if(strcmp(wlr_touch->output_name, output->wlr_output->name) == 0) {
 				wlr_cursor_map_input_to_output(seat->cursor, device,
 				                               output->wlr_output);
 				break;
@@ -121,6 +122,7 @@ remove_pointer(struct cg_seat *seat, struct cg_pointer *pointer) {
 static void
 new_pointer(struct cg_seat *seat, struct cg_input_device *input_device) {
 	struct wlr_input_device *device = input_device->wlr_device;
+	struct wlr_pointer *wlr_pointer = wlr_pointer_from_input_device(device);
 	struct cg_pointer *pointer = calloc(1, sizeof(struct cg_pointer));
 	if(!pointer) {
 		wlr_log(WLR_ERROR, "Cannot allocate pointer");
@@ -133,10 +135,10 @@ new_pointer(struct cg_seat *seat, struct cg_input_device *input_device) {
 	input_device->pointer = pointer;
 	++seat->num_pointers;
 
-	if(device->output_name != NULL) {
+	if(wlr_pointer->output_name != NULL) {
 		struct cg_output *output;
 		wl_list_for_each(output, &seat->server->outputs, link) {
-			if(strcmp(device->output_name, output->wlr_output->name) == 0) {
+			if(strcmp(wlr_pointer->output_name, output->wlr_output->name) == 0) {
 				wlr_cursor_map_input_to_output(seat->cursor, device,
 				                               output->wlr_output);
 				break;
@@ -149,7 +151,7 @@ static int
 handle_keyboard_repeat(void *data) {
 	struct cg_keyboard_group *cg_group = data;
 	struct wlr_keyboard *wlr_device =
-	    cg_group->wlr_group->input_device->keyboard;
+	    &cg_group->wlr_group->keyboard;
 	if(cg_group->repeat_keybinding != NULL) {
 		if(wlr_device->repeat_info.rate > 0) {
 			if(wl_event_source_timer_update(
@@ -168,9 +170,10 @@ handle_keyboard_repeat(void *data) {
 
 static void
 handle_modifier_event(struct wlr_input_device *device, struct cg_seat *seat) {
-	wlr_seat_set_keyboard(seat->seat, device);
+	struct wlr_keyboard *keyboard=wlr_keyboard_from_input_device(device);
+	wlr_seat_set_keyboard(seat->seat, keyboard);
 	wlr_seat_keyboard_notify_modifiers(seat->seat,
-	                                   &device->keyboard->modifiers);
+	                                   &keyboard->modifiers);
 
 	wlr_idle_notify_activity(seat->server->idle, seat->seat);
 }
@@ -205,10 +208,10 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 		struct wlr_surface *surface = NULL;
 
 		struct wlr_scene_node *node = wlr_scene_node_at(
-				&server->scene->node, server->seat->cursor->x, server->seat->cursor->y, &sx, &sy);
+				&server->scene->tree.node, server->seat->cursor->x, server->seat->cursor->y, &sx, &sy);
 		if(server->seat->enable_cursor) {
-			if(node && node->type == WLR_SCENE_NODE_SURFACE) {
-				surface = wlr_scene_surface_from_node(node)->surface;
+			if(node && node->type == WLR_SCENE_NODE_BUFFER) {
+				surface = wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node))->surface;
 				wlr_seat_pointer_notify_enter(wlr_seat, surface, sx, sy);
 			} else {
 				wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
@@ -224,11 +227,10 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 		    "Recognized keybinding pressed (key: %d, mode: %d, modifiers: %d)",
 		    sym, mode, modifiers);
 
-		if(group->wlr_group->input_device->keyboard->repeat_info.delay > 0) {
+		if(group->wlr_group->keyboard.repeat_info.delay > 0) {
 			group->repeat_keybinding = keybinding;
 			if(wl_event_source_timer_update(group->key_repeat_timer,
-			                                group->wlr_group->input_device
-			                                    ->keyboard->repeat_info.delay) <
+			                                group->wlr_group->keyboard.repeat_info.delay) <
 			   0) {
 				wlr_log(WLR_DEBUG, "failed to set key repeat timer");
 			}
@@ -271,26 +273,26 @@ key_is_modifier(const xkb_keysym_t key) {
 static void
 handle_key_event(struct cg_keyboard_group *group, struct cg_seat *seat,
                  void *data) {
-	struct wlr_event_keyboard_key *event = data;
-	struct wlr_input_device *device = group->wlr_group->input_device;
+	struct wlr_keyboard_key_event *event = data;
+	struct wlr_keyboard *keyboard = &group->wlr_group->keyboard;
 
 	/* Translate from libinput keycode to an xkbcommon keycode. */
 	xkb_keycode_t keycode = event->keycode + 8;
 
 	const xkb_keysym_t *syms;
 	int nsyms =
-	    xkb_state_key_get_syms(device->keyboard->xkb_state, keycode, &syms);
+	    xkb_state_key_get_syms(keyboard->xkb_state, keycode, &syms);
 
 	bool handled = false;
 
 	for(int i = 0; i < nsyms; ++i) {
 		if(event->state == WL_KEYBOARD_KEY_STATE_PRESSED &&
 		   !key_is_modifier(syms[i])) {
-			uint32_t modifiers = wlr_keyboard_get_modifiers(device->keyboard);
+			uint32_t modifiers = wlr_keyboard_get_modifiers(keyboard);
 			/* Get the consumed_modifiers and remove them from the modifier list
 			 */
 			xkb_mod_mask_t consumed_modifiers =
-			    xkb_state_key_get_consumed_mods2(device->keyboard->xkb_state,
+			    xkb_state_key_get_consumed_mods2(keyboard->xkb_state,
 			                                     keycode,
 			                                     XKB_CONSUMED_MODE_GTK);
 			if(handle_command_key_bindings(seat->server, syms[i],
@@ -305,7 +307,7 @@ handle_key_event(struct cg_keyboard_group *group, struct cg_seat *seat,
 
 	if(!handled) {
 		/* Otherwise, we pass it along to the client. */
-		wlr_seat_set_keyboard(seat->seat, device);
+		wlr_seat_set_keyboard(seat->seat, keyboard);
 		wlr_seat_keyboard_notify_key(seat->seat, event->time_msec,
 		                             event->keycode, event->state);
 	}
@@ -324,7 +326,7 @@ static void
 handle_keyboard_group_modifiers(struct wl_listener *listener, void *_data) {
 	struct cg_keyboard_group *group =
 	    wl_container_of(listener, group, modifiers);
-	handle_modifier_event(group->wlr_group->input_device, group->seat);
+	handle_modifier_event(&group->wlr_group->keyboard.base, group->seat);
 }
 
 static bool repeat_info_match(struct wlr_keyboard *a, struct wlr_keyboard *b) {
@@ -335,7 +337,7 @@ static bool repeat_info_match(struct wlr_keyboard *a, struct wlr_keyboard *b) {
 static void
 cg_keyboard_group_add(struct cg_input_device *input_device, struct cg_seat *seat) {
 	struct wlr_input_device *device=input_device->wlr_device;
-	struct wlr_keyboard *wlr_keyboard = device->keyboard;
+	struct wlr_keyboard *wlr_keyboard = wlr_keyboard_from_input_device(device);
 	// Virtual devices should not be grouped
 	if(!input_device->is_virtual) {
 		struct cg_keyboard_group *group;
@@ -364,10 +366,10 @@ cg_keyboard_group_add(struct cg_input_device *input_device, struct cg_seat *seat
 
 	cg_group->wlr_group->data = cg_group;
 	wlr_keyboard_set_keymap(&cg_group->wlr_group->keyboard,
-	                        device->keyboard->keymap);
+	                        wlr_keyboard->keymap);
 	wlr_keyboard_set_repeat_info(&cg_group->wlr_group->keyboard,
-	                             device->keyboard->repeat_info.rate,
-	                             device->keyboard->repeat_info.delay);
+	                             wlr_keyboard->repeat_info.rate,
+	                             wlr_keyboard->repeat_info.delay);
 	if(input_device->identifier != NULL) {
 		cg_group->identifier=strdup(input_device->identifier);
 	} else {
@@ -420,7 +422,7 @@ new_keyboard(struct cg_seat *seat, struct cg_input_device *input_device) {
 		return;
 	}
 
-	wlr_keyboard_set_keymap(device->keyboard, keymap);
+	wlr_keyboard_set_keymap(wlr_keyboard_from_input_device(device), keymap);
 
 	xkb_keymap_unref(keymap);
 	xkb_context_unref(context);
@@ -428,7 +430,7 @@ new_keyboard(struct cg_seat *seat, struct cg_input_device *input_device) {
 	cg_keyboard_group_add(input_device, seat);
 	++seat->num_keyboards;
 
-	wlr_seat_set_keyboard(seat->seat, device);
+	wlr_seat_set_keyboard(seat->seat, wlr_keyboard_from_input_device(device));
 }
 
 void
@@ -465,14 +467,14 @@ remove_keyboard(struct cg_seat *seat, struct cg_input_device *keyboard) {
 		return;
 	}
 	struct wlr_seat *wlr_seat = seat->seat;
-	struct wlr_keyboard *wlr_keyboard = keyboard->wlr_device->keyboard;
+	struct wlr_keyboard *wlr_keyboard = wlr_keyboard_from_input_device(keyboard->wlr_device);
 	struct wlr_keyboard_group *wlr_group = wlr_keyboard->group;
 	if(wlr_group) {
 		wlr_keyboard_group_remove_keyboard(wlr_group, wlr_keyboard);
 
 		if (wl_list_empty(&wlr_group->devices)) {
 			wlr_log(WLR_DEBUG, "Destroying empty keyboard group %p",
-					wlr_group);
+					(void *)wlr_group);
 			struct cg_keyboard_group *group = wlr_group->data;
 			if(wlr_seat_get_keyboard(wlr_seat) == &wlr_group->keyboard) {
 				wlr_seat_set_keyboard(wlr_seat, NULL);
@@ -568,20 +570,20 @@ handle_request_set_cursor(struct wl_listener *listener, void *data) {
 static void
 handle_touch_down(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, touch_down);
-	struct wlr_event_touch_down *event = data;
+	struct wlr_touch_down_event *event = data;
 
 	double lx, ly;
-	wlr_cursor_absolute_to_layout_coords(seat->cursor, event->device, event->x,
+	wlr_cursor_absolute_to_layout_coords(seat->cursor, &event->touch->base, event->x,
 	                                     event->y, &lx, &ly);
 
 	double sx, sy;
 	struct wlr_scene_node *node =
-	    wlr_scene_node_at(&seat->server->scene->node, lx, ly, &sx, &sy);
+	    wlr_scene_node_at(&seat->server->scene->tree.node, lx, ly, &sx, &sy);
 
 	uint32_t serial = 0;
-	if(node && node->type == WLR_SCENE_NODE_SURFACE) {
+	if(node && node->type == WLR_SCENE_NODE_BUFFER) {
 		serial = wlr_seat_touch_notify_down(
-		    seat->seat, wlr_scene_surface_from_node(node)->surface,
+		    seat->seat, wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node))->surface,
 		    event->time_msec, event->touch_id, sx, sy);
 	}
 
@@ -597,7 +599,7 @@ handle_touch_down(struct wl_listener *listener, void *data) {
 static void
 handle_touch_up(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, touch_up);
-	struct wlr_event_touch_up *event = data;
+	struct wlr_touch_up_event *event = data;
 
 	if(!wlr_seat_touch_get_point(seat->seat, event->touch_id)) {
 		return;
@@ -610,23 +612,23 @@ handle_touch_up(struct wl_listener *listener, void *data) {
 static void
 handle_touch_motion(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, touch_motion);
-	struct wlr_event_touch_motion *event = data;
+	struct wlr_touch_motion_event *event = data;
 
 	if(!wlr_seat_touch_get_point(seat->seat, event->touch_id)) {
 		return;
 	}
 
 	double lx, ly;
-	wlr_cursor_absolute_to_layout_coords(seat->cursor, event->device, event->x,
+	wlr_cursor_absolute_to_layout_coords(seat->cursor, &event->touch->base, event->x,
 	                                     event->y, &lx, &ly);
 
 	double sx, sy;
 	struct wlr_scene_node *node =
-	    wlr_scene_node_at(&seat->server->scene->node, lx, ly, &sx, &sy);
+	    wlr_scene_node_at(&seat->server->scene->tree.node, lx, ly, &sx, &sy);
 
-	if(node && node->type == WLR_SCENE_NODE_SURFACE) {
+	if(node && node->type == WLR_SCENE_NODE_BUFFER) {
 		wlr_seat_touch_point_focus(seat->seat,
-		                           wlr_scene_surface_from_node(node)->surface,
+		                           wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node))->surface,
 		                           event->time_msec, event->touch_id, sx, sy);
 		wlr_seat_touch_notify_motion(seat->seat, event->time_msec,
 		                             event->touch_id, sx, sy);
@@ -654,7 +656,7 @@ handle_cursor_frame(struct wl_listener *listener, void *_data) {
 static void
 handle_cursor_axis(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, cursor_axis);
-	struct wlr_event_pointer_axis *event = data;
+	struct wlr_pointer_axis_event *event = data;
 
 	wlr_seat_pointer_notify_axis(seat->seat, event->time_msec,
 	                             event->orientation, event->delta,
@@ -665,7 +667,7 @@ handle_cursor_axis(struct wl_listener *listener, void *data) {
 static void
 handle_cursor_button(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, cursor_button);
-	struct wlr_event_pointer_button *event = data;
+	struct wlr_pointer_button_event *event = data;
 
 	wlr_seat_pointer_notify_button(seat->seat, event->time_msec, event->button,
 	                               event->state);
@@ -679,10 +681,10 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 	struct wlr_surface *surface = NULL;
 
 	struct wlr_scene_node *node = wlr_scene_node_at(
-	    &seat->server->scene->node, seat->cursor->x, seat->cursor->y, &sx, &sy);
+	    &seat->server->scene->tree.node, seat->cursor->x, seat->cursor->y, &sx, &sy);
 
-	if(node && node->type == WLR_SCENE_NODE_SURFACE) {
-		surface = wlr_scene_surface_from_node(node)->surface;
+	if(node && node->type == WLR_SCENE_NODE_BUFFER) {
+		surface = wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node))->surface;
 		wlr_seat_pointer_notify_enter(wlr_seat, surface, sx, sy);
 
 		bool focus_changed = wlr_seat->pointer_state.focused_surface != surface;
@@ -740,9 +742,9 @@ static void
 handle_cursor_motion_absolute(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat =
 	    wl_container_of(listener, seat, cursor_motion_absolute);
-	struct wlr_event_pointer_motion_absolute *event = data;
+	struct wlr_pointer_motion_absolute_event *event = data;
 
-	wlr_cursor_warp_absolute(seat->cursor, event->device, event->x, event->y);
+	wlr_cursor_warp_absolute(seat->cursor, &event->pointer->base, event->x, event->y);
 	process_cursor_motion(seat, event->time_msec);
 	wlr_idle_notify_activity(seat->server->idle, seat->seat);
 }
@@ -750,9 +752,9 @@ handle_cursor_motion_absolute(struct wl_listener *listener, void *data) {
 static void
 handle_cursor_motion(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, cursor_motion);
-	struct wlr_event_pointer_motion *event = data;
+	struct wlr_pointer_motion_event *event = data;
 
-	wlr_cursor_move(seat->cursor, event->device, event->delta_x,
+	wlr_cursor_move(seat->cursor, &event->pointer->base, event->delta_x,
 	                event->delta_y);
 	process_cursor_motion(seat, event->time_msec);
 	wlr_idle_notify_activity(seat->server->idle, seat->seat);
@@ -780,7 +782,7 @@ drag_icon_update_position(struct cg_drag_icon *drag_icon) {
 		drag_icon->ly = seat->touch_ly;
 		break;
 	}
-	wlr_scene_node_set_position(drag_icon->scene_node, drag_icon->lx,
+	wlr_scene_node_set_position(&drag_icon->scene_tree->node, drag_icon->lx,
 	                            drag_icon->ly);
 }
 
@@ -791,7 +793,7 @@ handle_drag_icon_destroy(struct wl_listener *listener, void *_data) {
 
 	wl_list_remove(&drag_icon->link);
 	wl_list_remove(&drag_icon->destroy.link);
-	wlr_scene_node_destroy(drag_icon->scene_node);
+	wlr_scene_node_destroy(&drag_icon->scene_tree->node);
 	free(drag_icon);
 }
 
@@ -837,9 +839,9 @@ handle_start_drag(struct wl_listener *listener, void *data) {
 	}
 	drag_icon->seat = seat;
 	drag_icon->wlr_drag_icon = wlr_drag_icon;
-	drag_icon->scene_node = wlr_scene_subsurface_tree_create(
-	    &seat->server->scene->node, wlr_drag_icon->surface);
-	if(!drag_icon->scene_node) {
+	drag_icon->scene_tree = wlr_scene_subsurface_tree_create(
+	    &seat->server->scene->tree, wlr_drag_icon->surface);
+	if(!drag_icon->scene_tree) {
 		free(drag_icon);
 		return;
 	}
@@ -1057,10 +1059,11 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 		                               NULL);
 	}
 
-	wlr_scene_node_raise_to_top(view->scene_node);
+	wlr_scene_node_raise_to_top(&view->scene_tree->node);
 	process_cursor_motion(seat, -1);
-	struct wlr_box *box = wlr_output_layout_get_box(
-	    server->output_layout, view->workspace->output->wlr_output);
-	wlr_scene_node_set_position(&view->workspace->output->bg->node, box->x,
-	                            box->y);
+	struct wlr_box box;
+	wlr_output_layout_get_box(
+	    server->output_layout, view->workspace->output->wlr_output,&box);
+	wlr_scene_node_set_position(&view->workspace->output->bg->node, box.x,
+	                            box.y);
 }

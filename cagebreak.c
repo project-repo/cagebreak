@@ -39,6 +39,7 @@
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_screencopy_v1.h>
 #include <wlr/types/wlr_server_decoration.h>
+#include <wlr/types/wlr_subcompositor.h>
 #include <wlr/types/wlr_viewporter.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
 #include <wlr/types/wlr_xdg_output_v1.h>
@@ -260,6 +261,7 @@ main(int argc, char *argv[]) {
 	struct wl_event_source *sigpipe_source = NULL;
 	struct wlr_backend *backend = NULL;
 	struct wlr_compositor *compositor = NULL;
+	struct wlr_subcompositor *subcompositor = NULL;
 	struct wlr_data_device_manager *data_device_manager = NULL;
 	struct wlr_server_decoration_manager *server_decoration_manager = NULL;
 	struct wlr_xdg_decoration_manager_v1 *xdg_decoration_manager = NULL;
@@ -429,6 +431,13 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 
+	subcompositor = wlr_subcompositor_create(server.wl_display);
+	if (!subcompositor) {
+		wlr_log(WLR_ERROR, "Unable to create the wlroots subcompositor");
+		ret = 1;
+		goto end;
+	}
+
 	data_device_manager = wlr_data_device_manager_create(server.wl_display);
 	if(!data_device_manager) {
 		wlr_log(WLR_ERROR, "Unable to create the data device manager");
@@ -477,7 +486,7 @@ main(int argc, char *argv[]) {
 	              &server.new_idle_inhibitor_v1);
 	wl_list_init(&server.inhibitors);
 
-	xdg_shell = wlr_xdg_shell_create(server.wl_display);
+	xdg_shell = wlr_xdg_shell_create(server.wl_display,3);
 	if(!xdg_shell) {
 		wlr_log(WLR_ERROR, "Unable to create the XDG shell interface");
 		ret = 1;
