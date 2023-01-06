@@ -43,6 +43,7 @@ struct cg_server {
 	struct wl_listener new_xdg_shell_surface;
 #if CG_HAS_XWAYLAND
 	struct wl_listener new_xwayland_surface;
+	struct wlr_xwayland *xwayland;
 #endif
 
 	struct keybinding_list *keybindings;

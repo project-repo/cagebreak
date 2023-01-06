@@ -273,9 +273,6 @@ main(int argc, char *argv[]) {
 	struct wlr_xdg_output_manager_v1 *output_manager = NULL;
 	struct wlr_gamma_control_manager_v1 *gamma_control_manager = NULL;
 	struct wlr_xdg_shell *xdg_shell = NULL;
-#if CG_HAS_XWAYLAND
-	struct wlr_xwayland *xwayland = NULL;
-#endif
 	wl_list_init(&server.input_config);
 	wl_list_init(&server.output_config);
 	wl_list_init(&server.output_priorities);
@@ -571,21 +568,21 @@ main(int argc, char *argv[]) {
 	}
 
 #if CG_HAS_XWAYLAND
-	xwayland = wlr_xwayland_create(server.wl_display, compositor, true);
-	if(!xwayland) {
+	server.xwayland = wlr_xwayland_create(server.wl_display, compositor, true);
+	if(!server.xwayland) {
 		wlr_log(WLR_ERROR, "Cannot create XWayland server");
 		ret = 1;
 		goto end;
 	}
 	server.new_xwayland_surface.notify = handle_xwayland_surface_new;
-	wl_signal_add(&xwayland->events.new_surface, &server.new_xwayland_surface);
+	wl_signal_add(&server.xwayland->events.new_surface, &server.new_xwayland_surface);
 
-	if(setenv("DISPLAY", xwayland->display_name, true) < 0) {
+	if(setenv("DISPLAY", server.xwayland->display_name, true) < 0) {
 		wlr_log_errno(WLR_ERROR, "Unable to set DISPLAY for XWayland.",
 		              "Clients may not be able to connect");
 	} else {
 		wlr_log(WLR_DEBUG, "XWayland is running on display %s",
-		        xwayland->display_name);
+		        server.xwayland->display_name);
 	}
 
 	struct wlr_xcursor *xcursor =
@@ -593,7 +590,7 @@ main(int argc, char *argv[]) {
 
 	if(xcursor) {
 		struct wlr_xcursor_image *image = xcursor->images[0];
-		wlr_xwayland_set_cursor(xwayland, image->buffer, image->width * 4,
+		wlr_xwayland_set_cursor(server.xwayland, image->buffer, image->width * 4,
 		                        image->width, image->height, image->hotspot_x,
 		                        image->hotspot_y);
 	}
@@ -620,7 +617,7 @@ main(int argc, char *argv[]) {
 	}
 
 #if CG_HAS_XWAYLAND
-	wlr_xwayland_set_seat(xwayland, server.seat->seat);
+	wlr_xwayland_set_seat(server.xwayland, server.seat->seat);
 #endif
 
 	if(show_info) {
@@ -724,8 +721,8 @@ end:
 	if(server.running == true) {
 		server.running=false;
 #if CG_HAS_XWAYLAND
-		if(xwayland!=NULL) {
-			wlr_xwayland_destroy(xwayland);
+		if(server.xwayland!=NULL) {
+			wlr_xwayland_destroy(server.xwayland);
 		}
 #endif
 
