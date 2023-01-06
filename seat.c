@@ -210,13 +210,11 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 		struct wlr_scene_node *node = wlr_scene_node_at(
 				&server->scene->tree.node, server->seat->cursor->x, server->seat->cursor->y, &sx, &sy);
 		if(server->seat->enable_cursor) {
+			wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
+					"left_ptr", server->seat->cursor);
 			if(node && node->type == WLR_SCENE_NODE_BUFFER) {
 				surface = wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node))->surface;
 				wlr_seat_pointer_notify_enter(wlr_seat, surface, sx, sy);
-			} else {
-				wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
-						"left_ptr", server->seat->cursor);
-
 			}
 		}
 	}
@@ -546,7 +544,7 @@ handle_request_set_selection(struct wl_listener *listener, void *data) {
 static void
 handle_request_set_cursor(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, request_set_cursor);
-	if(seat->enable_cursor==false) {
+	if(seat->enable_cursor==false||seat->mode!=seat->default_mode) {
 		return;
 	}
 	struct wlr_seat_pointer_request_set_cursor_event *event = data;
