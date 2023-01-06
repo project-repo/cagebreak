@@ -182,7 +182,7 @@ definekey top <key> mode root
 		Enable or disable disable-while-typing for specified input
 		device
 
-	*event enabled|disabled|disabled_on_external_mouse*
+	*events enabled|disabled|disabled_on_external_mouse*
 		Enable or disable send_events for specified input device -
 		Disabling send_events disables the input device.
 
