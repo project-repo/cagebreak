@@ -354,6 +354,7 @@ occur.
         * [ ] cagebreak
         * [ ] cagebreak-config
         * [ ] cagebreak-socket
+        * [ ] example config
         * [ ] Set EPOCH to release day in man generation in meson.build
       * [ ] FAQ.md
       * [ ] Changelog.md for major and minor releases but not patches
@@ -367,6 +368,7 @@ occur.
     * [ ] Libfuzzer testing
     * [ ] Build version without xwayland support
   * [ ] meson.build reproducible build versions are current archlinux libraries and gcc
+  * [ ] wlr_xdg_shell version check
   * [ ] `ninja -C build clang-format` makes no changes
   * [ ] `ninja -C build scan-build` shows no issues
   * [ ] Cagebreak is reproducible on multiple machines
