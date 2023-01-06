@@ -213,7 +213,10 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 			wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
 					"left_ptr", server->seat->cursor);
 			if(node && node->type == WLR_SCENE_NODE_BUFFER) {
-				surface = wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node))->surface;
+				struct wlr_scene_surface *scene_surface=wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node));
+				if(scene_surface != NULL) {
+					surface = scene_surface->surface;
+				}
 				wlr_seat_pointer_notify_enter(wlr_seat, surface, sx, sy);
 			}
 		}
@@ -580,9 +583,12 @@ handle_touch_down(struct wl_listener *listener, void *data) {
 
 	uint32_t serial = 0;
 	if(node && node->type == WLR_SCENE_NODE_BUFFER) {
-		serial = wlr_seat_touch_notify_down(
-		    seat->seat, wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node))->surface,
-		    event->time_msec, event->touch_id, sx, sy);
+		struct wlr_scene_surface *scene_surface=wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node));
+		if(scene_surface != NULL) {
+			serial = wlr_seat_touch_notify_down(
+					seat->seat, scene_surface->surface,
+					event->time_msec, event->touch_id, sx, sy);
+		}
 	}
 
 	if(serial && wlr_seat_touch_num_points(seat->seat) == 1) {
@@ -625,9 +631,13 @@ handle_touch_motion(struct wl_listener *listener, void *data) {
 	    wlr_scene_node_at(&seat->server->scene->tree.node, lx, ly, &sx, &sy);
 
 	if(node && node->type == WLR_SCENE_NODE_BUFFER) {
-		wlr_seat_touch_point_focus(seat->seat,
-		                           wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node))->surface,
-		                           event->time_msec, event->touch_id, sx, sy);
+		struct wlr_scene_surface *scene_surface=wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node));
+		if(scene_surface != NULL) {
+
+			wlr_seat_touch_point_focus(seat->seat,
+					scene_surface->surface,
+					event->time_msec, event->touch_id, sx, sy);
+		}
 		wlr_seat_touch_notify_motion(seat->seat, event->time_msec,
 		                             event->touch_id, sx, sy);
 	} else {
@@ -682,7 +692,10 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 	    &seat->server->scene->tree.node, seat->cursor->x, seat->cursor->y, &sx, &sy);
 
 	if(node && node->type == WLR_SCENE_NODE_BUFFER) {
-		surface = wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node))->surface;
+		struct wlr_scene_surface *scene_surface=wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node));
+		if(scene_surface != NULL) {
+			surface = scene_surface->surface;
+		}
 		wlr_seat_pointer_notify_enter(wlr_seat, surface, sx, sy);
 
 		bool focus_changed = wlr_seat->pointer_state.focused_surface != surface;
