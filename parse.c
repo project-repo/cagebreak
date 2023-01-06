@@ -341,9 +341,9 @@ parse_input_config(char **saveptr, char **errstr) {
 			goto error;
 		}
 	} else if(strcmp(setting, "keybindings") == 0) {
-		if(strcmp(value, "enable") == 0) {
+		if(strcmp(value, "enabled") == 0) {
 			cfg->enable_keybindings = true;
-		} else if(strcmp(value, "disable") == 0) {
+		} else if(strcmp(value, "disabled") == 0) {
 			cfg->enable_keybindings = false;
 		} else {
 			*errstr = log_error(
