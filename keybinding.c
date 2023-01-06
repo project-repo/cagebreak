@@ -1573,6 +1573,7 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	switch(action) {
 	case KEYBINDING_QUIT:
 		display_terminate(server);
+		server->running=false;
 		break;
 	case KEYBINDING_CHANGE_TTY:
 		return keybinding_switch_vt(server->backend, data.u);

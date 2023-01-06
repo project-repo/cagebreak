@@ -652,12 +652,11 @@ main(int argc, char *argv[]) {
 			}
 		}
 
-		if(conf_ret != 0) {
-			free(config_file);
+		free(config_file);
+		if(conf_ret != 0||!server.running) {
 			ret = 1;
 			goto end;
 		}
-		free(config_file);
 	}
 
 	{
@@ -718,33 +717,43 @@ end:
 		keybinding_list_free(server.keybindings);
 	}
 
-	if(server.running == true) {
-		server.running=false;
+	if(server.message_config.font!=NULL) {
+		free(server.message_config.font);
+	}
+	server.running=false;
+	if(server.seat!=NULL) {
+		seat_destroy(server.seat);
+	}
 #if CG_HAS_XWAYLAND
-		if(server.xwayland!=NULL) {
-			wlr_xwayland_destroy(server.xwayland);
-		}
+	if(server.xwayland!=NULL) {
+		wlr_xwayland_destroy(server.xwayland);
+	}
 #endif
 
+	if(sigint_source!=NULL) {
 		wl_event_source_remove(sigint_source);
 		wl_event_source_remove(sigterm_source);
 		wl_event_source_remove(sigalrm_source);
 		wl_event_source_remove(sigpipe_source);
-
-		seat_destroy(server.seat);
-		/* This function is not null-safe, but we only ever get here
-		   with a proper wl_display. */
-		wl_display_destroy(server.wl_display);
-		wlr_output_layout_destroy(server.output_layout);
-
-		free(server.input);
-		free(server.message_config.font);
-		pango_cairo_font_map_set_default(NULL);
-		cairo_debug_reset_static_data();
-		FcFini();
-
-		return ret;
 	}
+
+	/* This function is not null-safe, but we only ever get here
+	   with a proper wl_display. */
+	if(server.wl_display!=NULL) {
+		wl_display_destroy(server.wl_display);
+	}
+	if(server.output_layout!=NULL) {
+		wlr_output_layout_destroy(server.output_layout);
+	}
+
+	if(server.input!=NULL) {
+		free(server.input);
+	}
+	pango_cairo_font_map_set_default(NULL);
+	cairo_debug_reset_static_data();
+	FcFini();
+
+	return ret;
 }
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop
