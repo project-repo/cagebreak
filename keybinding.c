@@ -239,9 +239,9 @@ swap_tile(struct cg_tile *tile,
 	seat_set_focus(server->seat, swap_tile->view);
 	ipc_send_event(tile->workspace->output->server,
 	               "{\"event_name\":\"swap_tile\",\"tile_id\":%d,\"swap_"
-	               "tile_id\":%d,\"workspace\":%d,\"output\":\"%s\"}",
+	               "tile_id\":%d,\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 	               tile->id, swap_tile->id, tile->workspace->num + 1,
-	               tile->workspace->output->wlr_output->name);
+	               tile->workspace->output->wlr_output->name,output_get_num(tile->workspace->output));
 }
 
 void
@@ -388,11 +388,11 @@ resize(struct cg_tile *tile, const struct cg_tile *parent, int coord_offset,
 	ipc_send_event(tile->workspace->output->server,
 	               "{\"event_name\":\"resize_tile\",\"tile_id\":%d,\"old_"
 	               "dims\":\"[%d,%d,%d,%d]\",\"new_dims\":\"[%d,%d,%d,%d]\","
-	               "\"workspace\":%d,\"output\":\"%s\"}",
+	               "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 	               tile->id, old_x, old_y, old_height, old_width, tile->tile.x,
 	               tile->tile.y, tile->tile.height, tile->tile.width,
 	               tile->workspace->num + 1,
-	               tile->workspace->output->wlr_output->name);
+	               tile->workspace->output->wlr_output->name,output_get_num(tile->workspace->output));
 }
 
 int *
@@ -487,10 +487,10 @@ keybinding_workspace_fullscreen(struct cg_server *server) {
 	struct cg_output *output = server->curr_output;
 	ipc_send_event(server,
 	               "{\"event_name\":\"fullscreen\",\"tile_id\":%d,"
-	               "\"workspace\":%d,\"output\":\"%s\"}",
+	               "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 	               output->workspaces[output->curr_workspace]->focused_tile->id,
 	               output->workspaces[output->curr_workspace]->num + 1,
-	               output->wlr_output->name);
+	               output->wlr_output->name,output_get_num(output));
 }
 
 // Switch to a differerent virtual terminal
@@ -582,9 +582,9 @@ keybinding_split_output(struct cg_output *output, bool vertical) {
 	ipc_send_event(
 	    output->server,
 	    "{\"event_name\":\"split\",\"tile_id\":%d,\"new_tile_id\":%d,"
-	    "\"workspace\":%d,\"output\":\"%s\",\"vertical\":%d}",
+	    "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d,\"vertical\":%d}",
 	    curr_workspace->focused_tile->id, new_tile->id, curr_workspace->num + 1,
-	    curr_workspace->output->wlr_output->name, vertical);
+	    curr_workspace->output->wlr_output->name, output_get_num(curr_workspace->output),vertical);
 }
 
 static void
@@ -594,13 +594,14 @@ keybinding_close_view(struct cg_view *view) {
 	}
 	struct cg_output *outp = view->workspace->output;
 	uint32_t view_id = view->id;
+	uint32_t view_pid = view->impl->get_pid(view);
 	uint32_t tile_id = view->id;
 	uint32_t ws = view->workspace->num;
 	view->impl->close(view);
 	ipc_send_event(outp->server,
-	               "{\"event_name\":\"close\",\"view_id\":%d,\"tile_id\":"
-	               "%d,\"workspace\":%d,\"output\":\"%s\"}",
-	               view_id, tile_id, ws + 1, outp->wlr_output->name);
+	               "{\"event_name\":\"close\",\"view_id\":%d,\"view_pid\":%d,\"tile_id\":"
+	               "%d,\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
+	               view_id, view_pid, tile_id, ws + 1, outp->wlr_output->name,output_get_num(outp));
 }
 
 static void
@@ -650,9 +651,9 @@ keybinding_cycle_outputs(struct cg_server *server, bool reverse, bool trigger_ev
 	set_output(server, output);
 	if(trigger_event) {
 		ipc_send_event(output->server,
-				"{\"event_name\":\"cycle_outputs\",\"old_output\":\"%s\","
-				"\"new_output\":\"%s\",\"reverse\":%d}",
-				old_output->wlr_output->name, output->wlr_output->name,
+				"{\"event_name\":\"cycle_outputs\",\"old_output\":\"%s\",\"old_output_id\":%d,"
+				"\"new_output\":\"%s\",\"new_output_id\":%d,\"reverse\":%d}",
+				old_output->wlr_output->name, output_get_num(old_output),output->wlr_output->name, output_get_num(output),
 				reverse);
 	}
 }
@@ -688,15 +689,19 @@ keybinding_cycle_views(struct cg_server *server, bool reverse, bool ipc) {
 	seat_set_focus(server->seat, next_view);
 	if(ipc) {
 		ipc_send_event(curr_workspace->output->server,
-		               "{\"event_name\":\"cycle_views\",\"old_view_id\":%d,"
-		               "\"new_view_id\":%d,\"tile_id\":%d,"
-		               "\"workspace\":%d,\"output\":\"%s\"}",
+		               "{\"event_name\":\"cycle_views\",\"old_view_id\":%d,\"old_view_pid\":%d,"
+		               "\"new_view_id\":%d,\"new_view_pid\":%d,\"tile_id\":%d,"
+		               "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 		               current_view->link.next == curr_workspace->views.next
 		                   ? -1
 		                   : (int)current_view->id,
+						   current_view->link.next == curr_workspace->views.next
+		                   ? -1
+		                   : (int)current_view->impl->get_pid(current_view),
 		               next_view == NULL ? -1 : (int)next_view->id,
+		               next_view == NULL ? -1 : (int)next_view->impl->get_pid(next_view),
 		               next_view->tile->id, curr_workspace->num + 1,
-		               curr_workspace->output->wlr_output->name);
+		               curr_workspace->output->wlr_output->name,output_get_num(curr_workspace->output));
 	}
 }
 
@@ -716,9 +721,9 @@ keybinding_focus_tile(struct cg_server *server, uint32_t tile_id) {
 			ipc_send_event(
 					output->server,
 					"{\"event_name\":\"focus_tile\",\"old_tile_id\":%d,\"new_tile_"
-					"id\":%d,\"workspace\":%d,\"output\":\"%s\"}",
+					"id\":%d,\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 					old_tile->id, workspace->focused_tile->id, workspace->num + 1,
-					output->wlr_output->name);
+					output->wlr_output->name,output_get_num(output));
 			break;
 		}
 	}
@@ -751,8 +756,8 @@ keybinding_switch_ws(struct cg_server *server, uint32_t ws) {
 	message_printf(server->curr_output, "Workspace %d", ws + 1);
 	ipc_send_event(output->server,
 	               "{\"event_name\":\"switch_ws\",\"old_workspace\":%d,"
-	               "\"new_workspace\":%d,\"output\":\"%s\"}",
-	               old_ws + 1, ws + 1, output->wlr_output->name);
+	               "\"new_workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
+	               old_ws + 1, ws + 1, output->wlr_output->name,output_get_num(output));
 	return 0;
 }
 
@@ -872,7 +877,7 @@ print_tile(struct cg_tile *tile) {
 	          tile->tile.y);
 	print_str(&outp_str, "\"size\": {\"width\":%d,\"height\":%d},\n",
 	          tile->tile.width, tile->tile.height);
-	print_str(&outp_str, "\"view\": %d\n",
+	print_str(&outp_str, "\"view_id\": %d\n",
 	          tile->view == NULL ? -1 : (int)tile->view->id);
 	return dyn_str_to_str(&outp_str);
 }
@@ -1224,15 +1229,17 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 		seat_set_focus(server->seat, view);
 	}
 	int id = -1;
+	int pid = -1;
 	if(view != NULL) {
 		id = view->id;
+		pid = view->impl->get_pid(view);
 	}
 	ipc_send_event(server,
-			"{\"event_name\":\"move_view_to_cycle_output\",\"view_id\":%d,\"old_output\":\"%s\",\"new_output\":\"%s\",\"old_tile_id\":%d,\"new_tile_id\":%d}",
-			id, old_outp->wlr_output->name,
-			old_outp->wlr_output->name,server->curr_output
-			->workspaces[old_outp->curr_workspace]->focused_tile->id,
-			server->curr_output->wlr_output->name,server->curr_output
+			"{\"event_name\":\"move_view_to_cycle_output\",\"view_id\":%d,\"view_pid\":%d,\"old_output\":\"%s\",\"old_output_id\":%d,\"new_output\":\"%s\",\"new_output_id\":%d,\"old_tile_id\":%d,\"new_tile_id\":%d}",
+			id,pid,old_outp->wlr_output->name,output_get_num(old_outp),
+			server->curr_output->wlr_output->name,output_get_num(server->curr_output),
+			old_outp->workspaces[old_outp->curr_workspace]->focused_tile->id,
+			server->curr_output
 			->workspaces[server->curr_output->curr_workspace]->focused_tile->id);
 }
 
@@ -1350,8 +1357,8 @@ keybinding_switch_output(struct cg_server *server, int output) {
 			set_output(server, it);
 			ipc_send_event(server,
 			               "{\"event_name\":\"switch_output\",\"old_output\":"
-			               "\"%s\",\"new_output\":\"%s\"}",
-			               old_outp->wlr_output->name, it->wlr_output->name);
+			               "\"%s\",\"old_output_id\":%d,\"new_output\":\"%s\",\"new_output_id\":%d}",
+			               old_outp->wlr_output->name,output_get_num(old_outp), it->wlr_output->name,output_get_num(it));
 			return;
 		}
 		++count;
@@ -1429,9 +1436,10 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 	ipc_send_event(server,
 	               "{\"event_name\":\"move_view_to_ws\",\"view_id\":%d,"
 	               "\"old_workspace\":%d,\"new_workspace\":%d,"
-	               "\"output\":\"%s\",\"view_pid\":%d}",
+	               "\"output\":\"%s\",\"output_id\":%d,\"view_pid\":%d}",
 	               view == NULL ? -1 : (int)view->id, old_ws+1, ws+1,
 	               server->curr_output->wlr_output->name,
+				   output_get_num(server->curr_output),
 	               view == NULL ? 0 : view->impl->get_pid(view));
 }
 
@@ -1483,8 +1491,8 @@ keybinding_configure_output(struct cg_server *server,
 			output_configure(server, output);
 			ipc_send_event(
 			    output->server,
-			    "{\"event_name\":\"configure_output\",\"output\":\"%s\"}",
-			    cfg->output_name);
+			    "{\"event_name\":\"configure_output\",\"output\":\"%s\",\"output_id\":%d}",
+			    cfg->output_name,output_get_num(output));
 			return;
 		}
 	}

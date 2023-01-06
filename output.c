@@ -105,10 +105,24 @@ output_clear(struct cg_output *output) {
 	}
 }
 
+int
+output_get_num(const struct cg_output* output) {
+	struct cg_output *it;
+	int count = 1;
+	wl_list_for_each(it, &output->server->outputs, link) {
+		if(strcmp(output->wlr_output->name,it->wlr_output->name)==0) {
+			return count;
+		}
+		++count;
+	}
+	return -1;
+}
+
 static void
 output_destroy(struct cg_output *output) {
 	struct cg_server *server = output->server;
 	char *outp_name = strdup(output->wlr_output->name);
+	int outp_num = output_get_num(output);
 
 	wl_list_remove(&output->destroy.link);
 	wl_list_remove(&output->mode.link);
@@ -129,8 +143,8 @@ output_destroy(struct cg_output *output) {
 
 	if(outp_name != NULL) {
 		ipc_send_event(server,
-		               "{\"event_name\":\"destroy_output\",\"output\":\"%s\"}",
-		               outp_name);
+		               "{\"event_name\":\"destroy_output\",\"output\":\"%s\",\"output_id\":%d}",
+		               outp_name,outp_num);
 		free(outp_name);
 	} else {
 		wlr_log(WLR_ERROR,
@@ -570,8 +584,8 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	wl_signal_add(&wlr_output->events.mode, &output->mode);
 	ipc_send_event(
 	    server,
-	    "{\"event_name\":\"new_output\",\"output\":\"%s\",\"priority\":%d}",
-	    output->wlr_output->name, output->priority);
+	    "{\"event_name\":\"new_output\",\"output\":\"%s\",\"output_id\":%d,\"priority\":%d}",
+	    output->wlr_output->name, output_get_num(output),output->priority);
 }
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop

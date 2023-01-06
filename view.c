@@ -105,6 +105,7 @@ view_unmap(struct cg_view *view) {
 	uint32_t tile_id = 0;
 	uint32_t ws = view->workspace->num;
 	char *output_name = view->workspace->output->wlr_output->name;
+	int output_id = output_get_num(view->workspace->output);
 	pid_t pid = view->impl->get_pid(view);
 	/* If the view is not mapped, do nothing */
 	if(view->wlr_surface == NULL) {
@@ -154,8 +155,8 @@ view_unmap(struct cg_view *view) {
 	ipc_send_event(
 	    view->workspace->server,
 	    "{\"event_name\":\"view_unmap\",\"view_id\":%d,\"tile_id\":%d,"
-	    "\"workspace\":%d,\"output\":\"%s\",\"view_pid\":%d}",
-	    id, tile_id, ws + 1, output_name, pid);
+	    "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d,\"view_pid\":%d}",
+	    id, tile_id, ws + 1, output_name, output_id,pid);
 }
 
 void
@@ -197,9 +198,9 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	ipc_send_event(
 	    output->server,
 	    "{\"event_name\":\"view_map\",\"view_id\":%d,\"tile_id\":%d,"
-	    "\"workspace\":%d,\"output\":\"%s\",\"view_pid\":%d}",
+	    "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d,\"view_pid\":%d}",
 	    view->id, tile_id, view->workspace->num + 1,
-	    view->workspace->output->wlr_output->name, view->impl->get_pid(view));
+	    view->workspace->output->wlr_output->name, output_get_num(view->workspace->output),view->impl->get_pid(view));
 }
 
 void
