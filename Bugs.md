@@ -1088,3 +1088,18 @@ Cagebreak used to have no way to hide the cursor. This is now possible.
 Cagebreak used to not change the cursor while waiting for a key. The cursor
 is now a square in this state.
 
+## Issue 52
+
+  * github issue number: N/A
+  * Fixed 2.0.0
+
+Cagebreak did not correctly apply some simple commands if they were simply
+written in the configuration file.
+
+Consider the example config file:
+
+```
+quit
+```
+
+Under these circumstances Cagebreak did not quit right after startup.
