@@ -5,13 +5,13 @@
 #include <unistd.h>
 #include <wayland-client.h>
 #include <wlr/backend.h>
+#include <wlr/interfaces/wlr_buffer.h>
 #include <wlr/render/allocator.h>
 #include <wlr/render/drm_format_set.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_scene.h>
-#include <wlr/interfaces/wlr_buffer.h>
 #include <wlr/util/log.h>
 
 #include "message.h"
@@ -234,7 +234,8 @@ message_set_output(struct cg_output *output, const char *string,
 	wlr_scene_node_raise_to_top(&message->message->node);
 	wlr_scene_node_set_enabled(&message->message->node, true);
 	struct wlr_box outp_box;
-	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,&outp_box);
+	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,
+	                          &outp_box);
 	wlr_scene_buffer_set_dest_size(message->message, width, height);
 	wlr_scene_node_set_position(&message->message->node,
 	                            message->position->x + outp_box.x,
@@ -259,7 +260,8 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 		return;
 	}
 	struct wlr_box output_box;
-	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,&output_box);
+	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,
+	                          &output_box);
 
 	box->x = output_box.width;
 	box->y = 0;

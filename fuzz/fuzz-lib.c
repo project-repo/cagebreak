@@ -20,12 +20,8 @@
 
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
-#include <wlr/types/wlr_scene.h>
-#include <wlr/types/wlr_presentation_time.h>
-#include <wlr/types/wlr_primary_selection_v1.h>
 #include <wlr/backend/headless.h>
 #include <wlr/backend/multi.h>
-#include <wlr/types/wlr_viewporter.h>
 #include <wlr/render/allocator.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_compositor.h>
@@ -39,8 +35,12 @@
 #include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_presentation_time.h>
+#include <wlr/types/wlr_primary_selection_v1.h>
+#include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_screencopy_v1.h>
 #include <wlr/types/wlr_server_decoration.h>
+#include <wlr/types/wlr_viewporter.h>
 #if CG_HAS_XWAYLAND
 #include <wlr/types/wlr_xcursor_manager.h>
 #endif
@@ -142,7 +142,6 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	wl_list_init(&server.outputs);
 	wl_list_init(&server.disabled_outputs);
 
-
 	int ret = 0;
 
 #ifdef DEBUG
@@ -166,17 +165,17 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	if(!server.wl_display) {
 		wlr_log(WLR_ERROR, "Cannot allocate a Wayland display");
 		free(server.modes);
-		server.modes=NULL;
+		server.modes = NULL;
 		goto end;
 	}
 
-	server.xcursor_size=XCURSOR_SIZE;
+	server.xcursor_size = XCURSOR_SIZE;
 	const char *env_cursor_size = getenv("XCURSOR_SIZE");
-	if (env_cursor_size && strlen(env_cursor_size) > 0) {
+	if(env_cursor_size && strlen(env_cursor_size) > 0) {
 		errno = 0;
 		char *end;
 		unsigned size = strtoul(env_cursor_size, &end, 10);
-		if (!*end && errno == 0) {
+		if(!*end && errno == 0) {
 			server.xcursor_size = size;
 		}
 	}
@@ -232,7 +231,6 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		ret = 1;
 		goto end;
 	};
-
 
 	server.keybindings = keybinding_list_init();
 	if(server.keybindings == NULL || server.keybindings->keybindings == NULL) {
@@ -335,7 +333,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	              &server.new_idle_inhibitor_v1);
 	wl_list_init(&server.inhibitors);
 
-	xdg_shell = wlr_xdg_shell_create(server.wl_display,3);
+	xdg_shell = wlr_xdg_shell_create(server.wl_display, 3);
 	if(!xdg_shell) {
 		wlr_log(WLR_ERROR, "Unable to create the XDG shell interface");
 		ret = 1;
@@ -437,8 +435,8 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		        xwayland->display_name);
 	}
 
-	struct wlr_xcursor *xcursor =
-	    wlr_xcursor_manager_get_xcursor(server.seat->xcursor_manager, DEFAULT_XCURSOR, 1);
+	struct wlr_xcursor *xcursor = wlr_xcursor_manager_get_xcursor(
+	    server.seat->xcursor_manager, DEFAULT_XCURSOR, 1);
 
 	if(xcursor) {
 		struct wlr_xcursor_image *image = xcursor->images[0];
@@ -465,7 +463,9 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY.",
 		              "Clients may not be able to connect");
 	} else {
-		fprintf(stderr, "Cagebreak " CG_VERSION " is running on Wayland display %s\n", socket);
+		fprintf(stderr,
+		        "Cagebreak " CG_VERSION " is running on Wayland display %s\n",
+		        socket);
 	}
 
 #if CG_HAS_XWAYLAND
@@ -474,7 +474,6 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 
 	/* Place the cursor to the top left of the output layout. */
 	wlr_cursor_warp(server.seat->cursor, NULL, 0, 0);
-
 
 	if(!drop_permissions()) {
 		ret = 1;

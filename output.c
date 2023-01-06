@@ -21,12 +21,12 @@
 #if WLR_HAS_X11_BACKEND
 #include <wlr/backend/x11.h>
 #endif
+#include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_scene.h>
-#include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/util/log.h>
 #include <wlr/util/region.h>
@@ -69,7 +69,7 @@ output_clear(struct cg_output *output) {
 			    first || output->workspaces[i]->focused_tile != tile;
 			    tile = tile->next) {
 				first = false;
-				workspace_tile_update_view(tile,NULL);
+				workspace_tile_update_view(tile, NULL);
 			}
 			struct cg_workspace *ws =
 			    server->curr_output
@@ -106,11 +106,11 @@ output_clear(struct cg_output *output) {
 }
 
 int
-output_get_num(const struct cg_output* output) {
+output_get_num(const struct cg_output *output) {
 	struct cg_output *it;
 	int count = 1;
 	wl_list_for_each(it, &output->server->outputs, link) {
-		if(strcmp(output->wlr_output->name,it->wlr_output->name)==0) {
+		if(strcmp(output->wlr_output->name, it->wlr_output->name) == 0) {
 			return count;
 		}
 		++count;
@@ -143,8 +143,9 @@ output_destroy(struct cg_output *output) {
 
 	if(outp_name != NULL) {
 		ipc_send_event(server,
-		               "{\"event_name\":\"destroy_output\",\"output\":\"%s\",\"output_id\":%d}",
-		               outp_name,outp_num);
+		               "{\"event_name\":\"destroy_output\",\"output\":\"%s\","
+		               "\"output_id\":%d}",
+		               outp_name, outp_num);
 		free(outp_name);
 	} else {
 		wlr_log(WLR_ERROR,
@@ -260,7 +261,8 @@ output_insert(struct cg_server *server, struct cg_output *output) {
 }
 
 void
-output_apply_config(struct cg_server *server, struct cg_output *output, struct cg_output_config *config) {
+output_apply_config(struct cg_server *server, struct cg_output *output,
+                    struct cg_output_config *config) {
 	struct wlr_output *wlr_output = output->wlr_output;
 
 	if(output->wlr_output->enabled) {
@@ -279,18 +281,17 @@ output_apply_config(struct cg_server *server, struct cg_output *output, struct c
 		wlr_output_set_scale(wlr_output, config->scale);
 	}
 	if(config->pos.x != -1) {
-		if(output_set_mode(wlr_output, config->pos.width,
-					config->pos.height, config->refresh_rate) != 0) {
-			wlr_log(WLR_ERROR,
-					"Setting output mode failed, disabling output.");
+		if(output_set_mode(wlr_output, config->pos.width, config->pos.height,
+		                   config->refresh_rate) != 0) {
+			wlr_log(WLR_ERROR, "Setting output mode failed, disabling output.");
 			output_clear(output);
 			wl_list_insert(&server->disabled_outputs, &output->link);
 			wlr_output_enable(wlr_output, false);
 			wlr_output_commit(wlr_output);
 			return;
 		}
-		wlr_output_layout_add(server->output_layout, wlr_output,
-				config->pos.x, config->pos.y);
+		wlr_output_layout_add(server->output_layout, wlr_output, config->pos.x,
+		                      config->pos.y);
 		/* Since the size of the output may have changed, we
 		 * reinitialize all workspaces with a fullscreen layout */
 		for(unsigned int i = 0; i < output->server->nws; ++i) {
@@ -306,7 +307,8 @@ output_apply_config(struct cg_server *server, struct cg_output *output, struct c
 		}
 	}
 	/* Refuse to disable the only output */
-	if(config->status == OUTPUT_DISABLE&&wl_list_length(&server->outputs)>1) {
+	if(config->status == OUTPUT_DISABLE &&
+	   wl_list_length(&server->outputs) > 1) {
 		output_clear(output);
 		wl_list_insert(&server->disabled_outputs, &output->link);
 		wlr_output_enable(wlr_output, false);
@@ -331,15 +333,16 @@ output_apply_config(struct cg_server *server, struct cg_output *output, struct c
 	    &scene_output->scene->tree, output->wlr_output->width,
 	    output->wlr_output->height, server->bg_color);
 	struct wlr_box box;
-	wlr_output_layout_get_box(server->output_layout, output->wlr_output,&box);
+	wlr_output_layout_get_box(server->output_layout, output->wlr_output, &box);
 	wlr_scene_node_set_position(&output->bg->node, box.x, box.y);
 	wlr_scene_node_lower_to_bottom(&output->bg->node);
 }
 
-struct cg_output_config *empty_output_config() {
+struct cg_output_config *
+empty_output_config() {
 	struct cg_output_config *cfg = calloc(1, sizeof(struct cg_output_config));
-	if(cfg==NULL) {
-		wlr_log(WLR_ERROR,"Could not allocate output configuration.");
+	if(cfg == NULL) {
+		wlr_log(WLR_ERROR, "Could not allocate output configuration.");
 		return NULL;
 	}
 
@@ -358,14 +361,16 @@ struct cg_output_config *empty_output_config() {
 }
 
 /* cfg1 has precedence over cfg2 */
-struct cg_output_config *merge_output_configs(struct cg_output_config *cfg1, struct cg_output_config *cfg2) {
-	struct cg_output_config *out_cfg=empty_output_config();
-	if(cfg1->status==out_cfg->status) {
+struct cg_output_config *
+merge_output_configs(struct cg_output_config *cfg1,
+                     struct cg_output_config *cfg2) {
+	struct cg_output_config *out_cfg = empty_output_config();
+	if(cfg1->status == out_cfg->status) {
 		out_cfg->status = cfg2->status;
 	} else {
 		out_cfg->status = cfg1->status;
 	}
-	if(cfg1->pos.x==out_cfg->pos.x) {
+	if(cfg1->pos.x == out_cfg->pos.x) {
 		out_cfg->pos.x = cfg2->pos.x;
 		out_cfg->pos.y = cfg2->pos.y;
 		out_cfg->pos.width = cfg2->pos.width;
@@ -377,30 +382,30 @@ struct cg_output_config *merge_output_configs(struct cg_output_config *cfg1, str
 		out_cfg->pos.height = cfg1->pos.height;
 	}
 	if(cfg1->output_name == NULL) {
-		 if(cfg2->output_name == NULL) {
-			 out_cfg->output_name = NULL;
-		 } else {
+		if(cfg2->output_name == NULL) {
+			out_cfg->output_name = NULL;
+		} else {
 			out_cfg->output_name = strdup(cfg2->output_name);
-		 }
+		}
 	} else {
 		out_cfg->output_name = strdup(cfg1->output_name);
 	}
-	if(cfg1->refresh_rate==out_cfg->refresh_rate) {
+	if(cfg1->refresh_rate == out_cfg->refresh_rate) {
 		out_cfg->refresh_rate = cfg2->refresh_rate;
 	} else {
 		out_cfg->refresh_rate = cfg1->refresh_rate;
 	}
-	if(cfg1->priority==out_cfg->priority) {
+	if(cfg1->priority == out_cfg->priority) {
 		out_cfg->priority = cfg2->priority;
 	} else {
 		out_cfg->priority = cfg1->priority;
 	}
-	if(cfg1->scale==out_cfg->scale) {
+	if(cfg1->scale == out_cfg->scale) {
 		out_cfg->scale = cfg2->scale;
 	} else {
 		out_cfg->scale = cfg1->scale;
 	}
-	if(cfg1->angle==out_cfg->angle) {
+	if(cfg1->angle == out_cfg->angle) {
 		out_cfg->status = cfg2->angle;
 	} else {
 		out_cfg->angle = cfg1->angle;
@@ -410,15 +415,15 @@ struct cg_output_config *merge_output_configs(struct cg_output_config *cfg1, str
 
 void
 output_configure(struct cg_server *server, struct cg_output *output) {
-	struct cg_output_config *tot_config=empty_output_config();
+	struct cg_output_config *tot_config = empty_output_config();
 	struct cg_output_config *config;
 	wl_list_for_each(config, &server->output_config, link) {
 		if(strcmp(config->output_name, output->wlr_output->name) == 0) {
 			if(tot_config == NULL) {
 				return;
 			}
-			struct cg_output_config *prev_config=tot_config;
-			tot_config=merge_output_configs(config,tot_config);
+			struct cg_output_config *prev_config = tot_config;
+			tot_config = merge_output_configs(config, tot_config);
 			if(prev_config->output_name != NULL) {
 				free(prev_config->output_name);
 			}
@@ -426,7 +431,7 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 		}
 	}
 	if(tot_config != NULL) {
-		output_apply_config(server,output,tot_config);
+		output_apply_config(server, output, tot_config);
 	}
 	free(tot_config->output_name);
 	free(tot_config);
@@ -582,10 +587,11 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	wl_signal_add(&wlr_output->events.commit, &output->commit);
 	output->mode.notify = handle_output_mode;
 	wl_signal_add(&wlr_output->events.mode, &output->mode);
-	ipc_send_event(
-	    server,
-	    "{\"event_name\":\"new_output\",\"output\":\"%s\",\"output_id\":%d,\"priority\":%d}",
-	    output->wlr_output->name, output_get_num(output),output->priority);
+	ipc_send_event(server,
+	               "{\"event_name\":\"new_output\",\"output\":\"%s\",\"output_"
+	               "id\":%d,\"priority\":%d}",
+	               output->wlr_output->name, output_get_num(output),
+	               output->priority);
 }
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop

@@ -12,15 +12,15 @@ void
 input_manager_handle_device_destroy(struct wl_listener *listener, void *data);
 uint32_t
 input_manager_get_mouse_button(const char *name, char **error);
-struct cg_input_config*
+struct cg_input_config *
 input_manager_create_empty_input_config();
-struct cg_input_config*
-input_manager_merge_input_configs(struct cg_input_config* cfg1, struct cg_input_config* cfg2);
+struct cg_input_config *
+input_manager_merge_input_configs(struct cg_input_config *cfg1,
+                                  struct cg_input_config *cfg2);
 void
 cg_input_manager_configure(struct cg_server *server);
 void
 cg_input_manager_configure_keyboard_group(struct cg_keyboard_group *group);
-
 
 struct cg_input_manager {
 	struct wl_list devices;
@@ -111,7 +111,7 @@ struct cg_input_device {
 	char *identifier;
 	struct cg_server *server;
 	struct wlr_input_device *wlr_device;
-	struct wl_list link;//input_manager::devices
+	struct wl_list link; // input_manager::devices
 	struct wl_listener device_destroy;
 	bool is_virtual;
 

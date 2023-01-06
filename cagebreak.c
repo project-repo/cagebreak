@@ -139,9 +139,10 @@ usage(FILE *file, const char *const cage) {
 }
 
 static bool
-parse_args(struct cg_server *server, int argc, char *argv[], char **config_path) {
+parse_args(struct cg_server *server, int argc, char *argv[],
+           char **config_path) {
 	int c;
-	server->enable_socket=false;
+	server->enable_socket = false;
 	while((c = getopt(argc, argv, "c:hvse")) != -1) {
 		switch(c) {
 		case 'h':
@@ -155,12 +156,12 @@ parse_args(struct cg_server *server, int argc, char *argv[], char **config_path)
 			break;
 		case 'c':
 			if(optarg != NULL) {
-				*config_path=strdup(optarg);
-				optarg=NULL;
+				*config_path = strdup(optarg);
+				optarg = NULL;
 			}
 			break;
 		case 'e':
-			server->enable_socket=true;
+			server->enable_socket = true;
 			break;
 		default:
 			usage(stderr, argv[0]);
@@ -179,31 +180,33 @@ parse_args(struct cg_server *server, int argc, char *argv[], char **config_path)
 /* Parse config file. Lines longer than "max_line_size" are ignored */
 int
 set_configuration(struct cg_server *server,
-		const char *const config_file_path) {
+                  const char *const config_file_path) {
 	FILE *config_file = fopen(config_file_path, "r");
 	if(config_file == NULL) {
 		wlr_log(WLR_ERROR, "Could not open config file \"%s\"",
-				config_file_path);
+		        config_file_path);
 		return 1;
 	}
-	uint32_t line_length=64;
-	char *line=calloc(line_length,sizeof(char));
+	uint32_t line_length = 64;
+	char *line = calloc(line_length, sizeof(char));
 	for(unsigned int line_num = 1;; ++line_num) {
 		while(true) {
-			if(fgets(line+strlen(line), line_length-strlen(line), config_file) == NULL) {
+			if(fgets(line + strlen(line), line_length - strlen(line),
+			         config_file) == NULL) {
 				break;
 			}
-			if(strcspn(line,"\n")!=line_length-1) {
+			if(strcspn(line, "\n") != line_length - 1) {
 				break;
 			}
-			line_length*=2;
-			line=reallocarray(line,line_length,sizeof(char));
+			line_length *= 2;
+			line = reallocarray(line, line_length, sizeof(char));
 			if(line == NULL) {
-				wlr_log(WLR_ERROR, "Could not allocate buffer for reading configuration file.");
+				wlr_log(WLR_ERROR, "Could not allocate buffer for reading "
+				                   "configuration file.");
 				return 1;
 			}
 		}
-		if(strlen(line)==0) {
+		if(strlen(line) == 0) {
 			break;
 		}
 		line[strcspn(line, "\n")] = '\0';
@@ -211,7 +214,7 @@ set_configuration(struct cg_server *server,
 			char *errstr;
 			if(parse_rc_line(server, line, &errstr) != 0) {
 				wlr_log(WLR_ERROR, "Error in config file \"%s\", line %d\n",
-						config_file_path, line_num);
+				        config_file_path, line_num);
 				fclose(config_file);
 				if(errstr != NULL) {
 					free(errstr);
@@ -220,7 +223,7 @@ set_configuration(struct cg_server *server,
 				return -1;
 			}
 		}
-		memset(line,0,line_length*sizeof(char));
+		memset(line, 0, line_length * sizeof(char));
 	}
 	free(line);
 	fclose(config_file);
@@ -280,7 +283,7 @@ main(int argc, char *argv[]) {
 	int ret = 0;
 
 	char *config_path = NULL;
-	if(!parse_args(&server, argc, argv,&config_path)) {
+	if(!parse_args(&server, argc, argv, &config_path)) {
 		goto end;
 	}
 
@@ -305,17 +308,17 @@ main(int argc, char *argv[]) {
 	if(!server.wl_display) {
 		wlr_log(WLR_ERROR, "Cannot allocate a Wayland display");
 		free(server.modes);
-		server.modes=NULL;
+		server.modes = NULL;
 		goto end;
 	}
 
-	server.xcursor_size=XCURSOR_SIZE;
+	server.xcursor_size = XCURSOR_SIZE;
 	const char *env_cursor_size = getenv("XCURSOR_SIZE");
-	if (env_cursor_size && strlen(env_cursor_size) > 0) {
+	if(env_cursor_size && strlen(env_cursor_size) > 0) {
 		errno = 0;
 		char *end;
 		unsigned size = strtoul(env_cursor_size, &end, 10);
-		if (!*end && errno == 0) {
+		if(!*end && errno == 0) {
 			server.xcursor_size = size;
 		}
 	}
@@ -429,7 +432,7 @@ main(int argc, char *argv[]) {
 	}
 
 	subcompositor = wlr_subcompositor_create(server.wl_display);
-	if (!subcompositor) {
+	if(!subcompositor) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots subcompositor");
 		ret = 1;
 		goto end;
@@ -483,7 +486,7 @@ main(int argc, char *argv[]) {
 	              &server.new_idle_inhibitor_v1);
 	wl_list_init(&server.inhibitors);
 
-	xdg_shell = wlr_xdg_shell_create(server.wl_display,3);
+	xdg_shell = wlr_xdg_shell_create(server.wl_display, 3);
 	if(!xdg_shell) {
 		wlr_log(WLR_ERROR, "Unable to create the XDG shell interface");
 		ret = 1;
@@ -575,7 +578,8 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 	server.new_xwayland_surface.notify = handle_xwayland_surface_new;
-	wl_signal_add(&server.xwayland->events.new_surface, &server.new_xwayland_surface);
+	wl_signal_add(&server.xwayland->events.new_surface,
+	              &server.new_xwayland_surface);
 
 	if(setenv("DISPLAY", server.xwayland->display_name, true) < 0) {
 		wlr_log_errno(WLR_ERROR, "Unable to set DISPLAY for XWayland.",
@@ -585,14 +589,14 @@ main(int argc, char *argv[]) {
 		        server.xwayland->display_name);
 	}
 
-	struct wlr_xcursor *xcursor =
-	    wlr_xcursor_manager_get_xcursor(server.seat->xcursor_manager, DEFAULT_XCURSOR, 1);
+	struct wlr_xcursor *xcursor = wlr_xcursor_manager_get_xcursor(
+	    server.seat->xcursor_manager, DEFAULT_XCURSOR, 1);
 
 	if(xcursor) {
 		struct wlr_xcursor_image *image = xcursor->images[0];
-		wlr_xwayland_set_cursor(server.xwayland, image->buffer, image->width * 4,
-		                        image->width, image->height, image->hotspot_x,
-		                        image->hotspot_y);
+		wlr_xwayland_set_cursor(server.xwayland, image->buffer,
+		                        image->width * 4, image->width, image->height,
+		                        image->hotspot_x, image->hotspot_y);
 	}
 #endif
 
@@ -613,7 +617,9 @@ main(int argc, char *argv[]) {
 		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY.",
 		              "Clients may not be able to connect");
 	} else {
-		fprintf(stderr, "Cagebreak " CG_VERSION " is running on Wayland display %s\n", socket);
+		fprintf(stderr,
+		        "Cagebreak " CG_VERSION " is running on Wayland display %s\n",
+		        socket);
 	}
 
 #if CG_HAS_XWAYLAND
@@ -645,7 +651,7 @@ main(int argc, char *argv[]) {
 			if(config_file == NULL) {
 				char *default_conf = "/etc/xdg/cagebreak/config";
 				wlr_log(WLR_INFO, "Loading default configuration file: \"%s\"",
-						default_conf);
+				        default_conf);
 				conf_ret = set_configuration(&server, default_conf);
 			} else {
 				conf_ret = 1;
@@ -653,7 +659,7 @@ main(int argc, char *argv[]) {
 		}
 
 		free(config_file);
-		if(conf_ret != 0||!server.running) {
+		if(conf_ret != 0 || !server.running) {
 			ret = 1;
 			goto end;
 		}
@@ -697,15 +703,15 @@ end:
 
 	struct cg_output_config *output_config, *output_config_tmp;
 	wl_list_for_each_safe(output_config, output_config_tmp,
-			&server.output_config, link) {
+	                      &server.output_config, link) {
 		wl_list_remove(&output_config->link);
 		free(output_config->output_name);
 		free(output_config);
 	}
 
 	struct cg_input_config *input_config, *input_config_tmp;
-	wl_list_for_each_safe(input_config, input_config_tmp,
-			&server.input_config, link) {
+	wl_list_for_each_safe(input_config, input_config_tmp, &server.input_config,
+	                      link) {
 		wl_list_remove(&input_config->link);
 		if(input_config->identifier != NULL) {
 			free(input_config->identifier);
@@ -717,20 +723,20 @@ end:
 		keybinding_list_free(server.keybindings);
 	}
 
-	if(server.message_config.font!=NULL) {
+	if(server.message_config.font != NULL) {
 		free(server.message_config.font);
 	}
-	server.running=false;
-	if(server.seat!=NULL) {
+	server.running = false;
+	if(server.seat != NULL) {
 		seat_destroy(server.seat);
 	}
 #if CG_HAS_XWAYLAND
-	if(server.xwayland!=NULL) {
+	if(server.xwayland != NULL) {
 		wlr_xwayland_destroy(server.xwayland);
 	}
 #endif
 
-	if(sigint_source!=NULL) {
+	if(sigint_source != NULL) {
 		wl_event_source_remove(sigint_source);
 		wl_event_source_remove(sigterm_source);
 		wl_event_source_remove(sigalrm_source);
@@ -739,14 +745,14 @@ end:
 
 	/* This function is not null-safe, but we only ever get here
 	   with a proper wl_display. */
-	if(server.wl_display!=NULL) {
+	if(server.wl_display != NULL) {
 		wl_display_destroy(server.wl_display);
 	}
-	if(server.output_layout!=NULL) {
+	if(server.output_layout != NULL) {
 		wlr_output_layout_destroy(server.output_layout);
 	}
 
-	if(server.input!=NULL) {
+	if(server.input != NULL) {
 		free(server.input);
 	}
 	pango_cairo_font_map_set_default(NULL);

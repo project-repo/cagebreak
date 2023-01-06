@@ -42,7 +42,7 @@ struct cg_output_config {
 	float refresh_rate;
 	float scale;
 	int priority;
-	int angle;//enum wl_output_transform, -1 signifies "unspecified"
+	int angle;           // enum wl_output_transform, -1 signifies "unspecified"
 	struct wl_list link; // cg_server::output_config
 };
 
@@ -60,5 +60,5 @@ output_set_window_title(struct cg_output *output, const char *title);
 void
 output_make_workspace_fullscreen(struct cg_output *output, int ws);
 int
-output_get_num(const struct cg_output* output);
+output_get_num(const struct cg_output *output);
 #endif

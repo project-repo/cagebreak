@@ -265,22 +265,23 @@ apply_config_to_device(struct cg_input_config *config,
 
 	if(wlr_input_device_is_libinput(input_device->wlr_device)) {
 		struct libinput_device *device =
-			wlr_libinput_get_device_handle(input_device->wlr_device);
+		    wlr_libinput_get_device_handle(input_device->wlr_device);
 		if(config->mapped_to_output &&
-				!output_by_name_or_id(config->mapped_to_output, input_device->server)) {
+		   !output_by_name_or_id(config->mapped_to_output,
+		                         input_device->server)) {
 			wlr_log(WLR_DEBUG,
-					"'%s' is mapped to offline output '%s'; disabling input",
-					config->identifier, config->mapped_to_output);
+			        "'%s' is mapped to offline output '%s'; disabling input",
+			        config->identifier, config->mapped_to_output);
 			set_send_events(device, LIBINPUT_CONFIG_SEND_EVENTS_DISABLED);
 		} else if(config->send_events != INT_MIN) {
 			set_send_events(device, config->send_events);
 		} else {
-			// Have to reset to the default mode here, otherwise if ic->send_events
-			// is unset and a mapped output just came online after being disabled,
-			// we'd remain stuck sending no events.
+			// Have to reset to the default mode here, otherwise if
+			// ic->send_events is unset and a mapped output just came online
+			// after being disabled, we'd remain stuck sending no events.
 			set_send_events(
-					device,
-					libinput_device_config_send_events_get_default_mode(device));
+			    device,
+			    libinput_device_config_send_events_get_default_mode(device));
 		}
 
 		if(config->tap != INT_MIN) {
@@ -336,8 +337,9 @@ cg_input_configure_libinput_device(struct cg_input_device *input_device) {
 	wl_list_for_each(config, &server->input_config, link) {
 		const char *device_type = input_device_get_type(input_device);
 		if(strcmp(config->identifier, input_device->identifier) == 0 ||
-		   strcmp(config->identifier, "*") == 0||(strncmp(config->identifier, "type:", 5) == 0&&
-		     strcmp(config->identifier + 5, device_type) == 0)) {
+		   strcmp(config->identifier, "*") == 0 ||
+		   (strncmp(config->identifier, "type:", 5) == 0 &&
+		    strcmp(config->identifier + 5, device_type) == 0)) {
 			apply_config_to_device(config, input_device);
 		}
 	}

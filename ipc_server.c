@@ -200,8 +200,8 @@ ipc_handle_connection(int fd, uint32_t mask, void *data) {
 		close(client_fd);
 		return 0;
 	}
-	client->read_buf_cap=64;
-	client->read_buffer = calloc(client->read_buf_cap,sizeof(char));
+	client->read_buf_cap = 64;
+	client->read_buffer = calloc(client->read_buf_cap, sizeof(char));
 	client->read_buf_len = 0;
 	client->read_discard = 0;
 	client->server = server;
@@ -248,18 +248,22 @@ ipc_client_handle_readable(int client_fd, uint32_t mask, void *data) {
 		return 0;
 	}
 
-	while(read_available+client->read_buf_len>(int32_t) client->read_buf_cap-1) {
-		client->read_buf_cap*=2;
-		client->read_buffer=reallocarray(client->read_buffer,client->read_buf_cap,sizeof(char));
+	while(read_available + client->read_buf_len >
+	      (int32_t)client->read_buf_cap - 1) {
+		client->read_buf_cap *= 2;
+		client->read_buffer = reallocarray(client->read_buffer,
+		                                   client->read_buf_cap, sizeof(char));
 		if(client->read_buffer == NULL) {
-			wlr_log(WLR_ERROR, "Unable to allocate buffer large enough to hold client read data");
+			wlr_log(WLR_ERROR, "Unable to allocate buffer large enough to hold "
+			                   "client read data");
 			ipc_client_disconnect(client);
 			return 0;
 		}
 	}
 	// Append to buffer
-	ssize_t received = recv(
-	    client_fd, client->read_buffer + client->read_buf_len, read_available, 0);
+	ssize_t received =
+	    recv(client_fd, client->read_buffer + client->read_buf_len,
+	         read_available, 0);
 	if(received == -1) {
 		wlr_log(WLR_ERROR, "Unable to receive data from IPC client");
 		ipc_client_disconnect(client);
@@ -344,7 +348,7 @@ ipc_send_event_client(struct cg_ipc_client *client, const char *payload,
 	memcpy(data, ipc_magic, sizeof(ipc_magic));
 
 	// +1 for terminating null character
-	while(client->write_buffer_len + IPC_HEADER_SIZE + payload_length +1 >=
+	while(client->write_buffer_len + IPC_HEADER_SIZE + payload_length + 1 >=
 	      client->write_buffer_size) {
 		client->write_buffer_size *= 2;
 	}

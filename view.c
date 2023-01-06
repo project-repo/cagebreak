@@ -17,7 +17,6 @@
 #include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_scene.h>
-#include <wlr/types/wlr_compositor.h>
 #include <wlr/util/box.h>
 
 #include "ipc_server.h"
@@ -89,8 +88,8 @@ view_maximize(struct cg_view *view, struct cg_tile *tile) {
 	view->ox = tile->tile.x;
 	view->oy = tile->tile.y;
 	struct wlr_box box;
-	wlr_output_layout_get_box(
-	    view->server->output_layout, view->workspace->output->wlr_output,&box);
+	wlr_output_layout_get_box(view->server->output_layout,
+	                          view->workspace->output->wlr_output, &box);
 	wlr_scene_node_set_position(&view->scene_tree->node, view->ox + box.x,
 	                            view->oy + box.y);
 	view->impl->maximize(view, tile->tile.width, tile->tile.height);
@@ -135,7 +134,7 @@ view_unmap(struct cg_view *view) {
 		}
 		struct cg_tile *view_tile = view_get_tile(view);
 		if(view_tile != NULL) {
-			workspace_tile_update_view(view_tile,prev);
+			workspace_tile_update_view(view_tile, prev);
 		}
 	}
 #if CG_HAS_XWAYLAND
@@ -156,7 +155,7 @@ view_unmap(struct cg_view *view) {
 	    view->workspace->server,
 	    "{\"event_name\":\"view_unmap\",\"view_id\":%d,\"tile_id\":%d,"
 	    "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d,\"view_pid\":%d}",
-	    id, tile_id, ws + 1, output_name, output_id,pid);
+	    id, tile_id, ws + 1, output_name, output_id, pid);
 }
 
 void
@@ -165,8 +164,7 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	struct cg_output *output = ws->output;
 	view->wlr_surface = surface;
 
-	view->scene_tree =
-	    wlr_scene_subsurface_tree_create(ws->scene, surface);
+	view->scene_tree = wlr_scene_subsurface_tree_create(ws->scene, surface);
 	if(!view->scene_tree) {
 		wl_resource_post_no_memory(surface->resource);
 		return;
@@ -180,7 +178,8 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	if(view->type == CG_XWAYLAND_VIEW && !xwayland_view_should_manage(view)) {
 		wl_list_insert(&ws->unmanaged_views, &view->link);
 		struct wlr_box box;
-		wlr_output_layout_get_box(view->server->output_layout, view->workspace->output->wlr_output,&box);
+		wlr_output_layout_get_box(view->server->output_layout,
+		                          view->workspace->output->wlr_output, &box);
 		wlr_scene_node_set_position(&view->scene_tree->node, view->ox + box.x,
 		                            view->oy + box.y);
 	} else
@@ -200,7 +199,8 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	    "{\"event_name\":\"view_map\",\"view_id\":%d,\"tile_id\":%d,"
 	    "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d,\"view_pid\":%d}",
 	    view->id, tile_id, view->workspace->num + 1,
-	    view->workspace->output->wlr_output->name, output_get_num(view->workspace->output),view->impl->get_pid(view));
+	    view->workspace->output->wlr_output->name,
+	    output_get_num(view->workspace->output), view->impl->get_pid(view));
 }
 
 void
