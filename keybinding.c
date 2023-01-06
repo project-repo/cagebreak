@@ -994,7 +994,7 @@ print_output(struct cg_output *outp) {
 	print_str(&outp_str, "\"coords\": {\"x\":%d,\"y\":%d},\n", outp_box.x,outp_box.y);
 	print_str(&outp_str, "\"size\": {\"width\":%d,\"height\":%d},\n", outp->wlr_output->width,outp->wlr_output->height);
 	print_str(&outp_str, "\"refresh_rate\": %f,\n", (float) outp->wlr_output->refresh/1000.0);
-	print_str(&outp_str, "\"curr_workspace\": %d,\n", outp->curr_workspace);
+	print_str(&outp_str, "\"curr_workspace\": %d,\n", outp->curr_workspace+1);
 	char *workspaces_str = print_workspaces(outp);
 	if(workspaces_str != NULL) {
 		print_str(&outp_str, "%s", workspaces_str);
@@ -1430,7 +1430,7 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 	               "{\"event_name\":\"move_view_to_ws\",\"view_id\":%d,"
 	               "\"old_workspace\":%d,\"new_workspace\":%d,"
 	               "\"output\":\"%s\",\"view_pid\":%d}",
-	               view == NULL ? -1 : (int)view->id, old_ws, ws,
+	               view == NULL ? -1 : (int)view->id, old_ws+1, ws+1,
 	               server->curr_output->wlr_output->name,
 	               view == NULL ? 0 : view->impl->get_pid(view));
 }
