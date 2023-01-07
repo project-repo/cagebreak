@@ -1,5 +1,7 @@
-/* This file is used by the fuzzer in order to prevent executing shell commands.
- */
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
+// This file is used by the fuzzer in order to prevent executing shell commands.
+
 #define _GNU_SOURCE
 #include "../output.h"
 #include <cairo.h>

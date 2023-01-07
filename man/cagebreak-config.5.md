@@ -423,7 +423,7 @@ GPG Fingerprints:
 
 # LICENSE
 
-Copyright (c) 2020-2022 The Cagebreak authors
+Copyright (c) 2020-2023 The Cagebreak authors
 
 Copyright (c) 2018-2020 Jente Hidskes
 

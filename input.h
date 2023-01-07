@@ -1,3 +1,6 @@
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
+
 #ifndef _CG_INPUT_H
 #define _CG_INPUT_H
 

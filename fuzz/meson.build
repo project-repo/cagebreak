@@ -1,3 +1,6 @@
+# Copyright 2020 - 2023, project-repo and the cagebreak contributors
+# SPDX -License-Identifier: MIT
+
 fuzz_sources = [
   'fuzz-parse.c', 
   'fuzz-lib.c',

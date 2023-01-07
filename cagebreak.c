@@ -1,10 +1,5 @@
-/*
- * Cagebreak: A Wayland tiling compositor.
- *
- * Copyright (C) 2018-2020 Jente Hidskes
- *
- * See the LICENSE file accompanying this file.
- */
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200812L
 #define _DEFAULT_SOURCE
