@@ -163,8 +163,8 @@ if it works for you in some different way that's ok too.
 
 > Combining 2. and 3. might look like this in practice:
 
-> Task 1: Edit introduction section for paper on X
-> Task 2: Coordinate event with person Y
+>  * Task 1: Edit introduction section for paper on X
+>  * Task 2: Coordinate event with person Y
 
 >  * split screen vertically
 >  * open web browser or pdf viewer to read literature
