@@ -221,6 +221,9 @@ if it works for you in some different way that's ok too.
     * Compile the code.
   * Ideas on improving the testing and quality assurance are particularly
     welcome.
+  * If you want, you can share your cagebreak scripts and we might include them
+    in the repository provided you agree to release them under MIT and we agree
+    with the use case and coding style.
   * Iff you are happy with Cagebreak and use Arch Linux, you may vote for
     [Cagebreak in the AUR](https://aur.archlinux.org/packages/cagebreak).
   * The points above still apply.
