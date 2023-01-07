@@ -41,6 +41,9 @@ definekey resize j resizedown
 definekey resize k resizeup
 definekey resize Escape setmode top
 
+#unhide cursor (default)
+cursor enable
+
 ######################
 #Workspaces
 ######################
