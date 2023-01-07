@@ -38,7 +38,7 @@ set_configuration(struct cg_server *server, char *content) {
 	    (line = strtok_r(NULL, "\n", &content)) != NULL; ++line_num) {
 		line[strcspn(line, "\n")] = '\0';
 		if(*line != '\0' && *line != '#') {
-			char *errstr=NULL;
+			char *errstr = NULL;
 			server->running = true;
 			if(parse_rc_line(server, line, &errstr) != 0) {
 				if(errstr != NULL) {

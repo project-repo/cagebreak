@@ -13,7 +13,6 @@
 #include "parse.h"
 #include "server.h"
 #include "util.h"
-#include "input_manager.h"
 
 char *
 log_error(const char *fmt, ...) {
@@ -81,7 +80,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 /* Parse a keybinding definition and return it if successful, else return NULL
  */
 struct keybinding *
-parse_keybinding(struct cg_server *server, char **saveptr, char **errstr,int nesting_level) {
+parse_keybinding(struct cg_server *server, char **saveptr, char **errstr,
+                 int nesting_level) {
 	struct keybinding *keybinding = malloc(sizeof(struct keybinding));
 	if(keybinding == NULL) {
 		*errstr = log_error(
@@ -94,7 +94,8 @@ parse_keybinding(struct cg_server *server, char **saveptr, char **errstr,int nes
 		free(keybinding);
 		return NULL;
 	}
-	if(parse_command(server, keybinding, *saveptr, errstr,nesting_level+1) != 0) {
+	if(parse_command(server, keybinding, *saveptr, errstr, nesting_level + 1) !=
+	   0) {
 		free(keybinding);
 		return NULL;
 	}
@@ -138,7 +139,7 @@ parse_uint(char **saveptr, const char *delim) {
 
 struct cg_input_config *
 parse_input_config(char **saveptr, char **errstr) {
-	struct cg_input_config *cfg=input_manager_create_empty_input_config();
+	struct cg_input_config *cfg = input_manager_create_empty_input_config();
 	char *value = NULL;
 	char *ident = NULL;
 	if(cfg == NULL) {
@@ -340,9 +341,9 @@ parse_input_config(char **saveptr, char **errstr) {
 			goto error;
 		}
 	} else if(strcmp(setting, "keybindings") == 0) {
-		if(strcmp(value, "enable") == 0) {
+		if(strcmp(value, "enabled") == 0) {
 			cfg->enable_keybindings = true;
-		} else if(strcmp(value, "disable") == 0) {
+		} else if(strcmp(value, "disabled") == 0) {
 			cfg->enable_keybindings = false;
 		} else {
 			*errstr = log_error(
@@ -351,7 +352,7 @@ parse_input_config(char **saveptr, char **errstr) {
 		}
 	} else if(strcmp(setting, "repeat_delay") == 0) {
 		cfg->repeat_delay = parse_uint(saveptr, " ");
-		if(cfg->repeat_delay < 0 ) {
+		if(cfg->repeat_delay < 0) {
 			*errstr = log_error("Invalid option \"%s\" to setting "
 			                    "\"repeat_delay\", expected positive integer",
 			                    value);
@@ -359,7 +360,7 @@ parse_input_config(char **saveptr, char **errstr) {
 		}
 	} else if(strcmp(setting, "repeat_rate") == 0) {
 		cfg->repeat_rate = parse_uint(saveptr, " ");
-		if(cfg->repeat_rate < 0 ) {
+		if(cfg->repeat_rate < 0) {
 			*errstr = log_error("Invalid option \"%s\" to setting "
 			                    "\"repeat_rate\", expected positive integer",
 			                    value);
@@ -389,8 +390,10 @@ error:
 }
 
 struct keybinding *
-parse_bind(struct cg_server *server, char **saveptr, char **errstr, int nesting_level) {
-	struct keybinding *keybinding = parse_keybinding(server, saveptr, errstr,nesting_level);
+parse_bind(struct cg_server *server, char **saveptr, char **errstr,
+           int nesting_level) {
+	struct keybinding *keybinding =
+	    parse_keybinding(server, saveptr, errstr, nesting_level);
 	if(keybinding == NULL) {
 		wlr_log(WLR_ERROR, "Could not parse keybinding for \"bind\".");
 		return NULL;
@@ -400,7 +403,8 @@ parse_bind(struct cg_server *server, char **saveptr, char **errstr, int nesting_
 }
 
 struct keybinding *
-parse_definekey(struct cg_server *server, char **saveptr, char **errstr, int nesting_level) {
+parse_definekey(struct cg_server *server, char **saveptr, char **errstr,
+                int nesting_level) {
 	char *mode = strtok_r(NULL, " ", saveptr);
 	if(mode == NULL) {
 		*errstr =
@@ -412,7 +416,8 @@ parse_definekey(struct cg_server *server, char **saveptr, char **errstr, int nes
 		*errstr = log_error("Unknown mode \"%s\"", mode);
 		return NULL;
 	}
-	struct keybinding *keybinding = parse_keybinding(server, saveptr, errstr, nesting_level);
+	struct keybinding *keybinding =
+	    parse_keybinding(server, saveptr, errstr, nesting_level);
 	if(keybinding == NULL) {
 		wlr_log(WLR_ERROR, "Could not parse keybinding for \"definekey\"");
 		return NULL;
@@ -480,13 +485,15 @@ parse_escape(char **saveptr, char **errstr) {
 
 int
 parse_cursor(char **saveptr, char **errstr) {
-	if(strcmp(*saveptr,"enable")==0) {
+	if(strcmp(*saveptr, "enable") == 0) {
 		return 1;
-	} else if(strcmp(*saveptr,"disable")==0) {
+	} else if(strcmp(*saveptr, "disable") == 0) {
 		return 0;
 	} else {
 		wlr_log(WLR_ERROR,
-		        "Invalid option \"%s\" for \"cursor\". Expected \"enable\" or \"disable\".", *saveptr);
+		        "Invalid option \"%s\" for \"cursor\". Expected \"enable\" or "
+		        "\"disable\".",
+		        *saveptr);
 		return -1;
 	}
 }
@@ -576,15 +583,14 @@ parse_output_config(char **saveptr, char **errstr) {
 
 	if(strcmp(key_str, "rotate") == 0) {
 		uint32_t angle = parse_uint(saveptr, " ");
-		//360 degrees is equivalent to 0 degrees
-		cfg->angle = angle%4;
+		// 360 degrees is equivalent to 0 degrees
+		cfg->angle = angle % 4;
 		if(cfg->angle < 0) {
-			*errstr = log_error(
-			    "Error parsing option rotate for output %s",
-			    name);
+			*errstr =
+			    log_error("Error parsing option rotate for output %s", name);
 			goto error;
 		}
-		cfg->output_name=strdup(name);
+		cfg->output_name = strdup(name);
 		return cfg;
 	}
 
@@ -604,9 +610,9 @@ parse_output_config(char **saveptr, char **errstr) {
 		cfg->scale = parse_float(saveptr, " ");
 		if(cfg->scale <= 0.0) {
 			*errstr =
-				log_error("Error parsing scale of output configuration for "
-						"output %s, expected positive float",
-						name);
+			    log_error("Error parsing scale of output configuration for "
+			              "output %s, expected positive float",
+			              name);
 			goto error;
 		}
 		cfg->output_name = strdup(name);
@@ -753,10 +759,11 @@ error:
 
 int
 parse_command(struct cg_server *server, struct keybinding *keybinding,
-              char *saveptr, char **errstr,int nesting_level) {
+              char *saveptr, char **errstr, int nesting_level) {
 	char *action = strtok_r(NULL, " ", &saveptr);
-	if(nesting_level>=MAX_NESTING_LEVEL) {
-		*errstr = log_error("Nesting level of commands is too deep. Giving up.");
+	if(nesting_level >= MAX_NESTING_LEVEL) {
+		*errstr =
+		    log_error("Nesting level of commands is too deep. Giving up.");
 		return -1;
 	}
 	if(action == NULL) {
@@ -787,7 +794,9 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 
 		long tile_id = strtol(nws_str, NULL, 10);
 		if(tile_id < 1) {
-			*errstr = log_error("Tile id for focus_tile must be a positive integer. Got %l\n", tile_id);
+			*errstr = log_error(
+			    "Tile id for focus_tile must be a positive integer. Got %l\n",
+			    tile_id);
 			return -1;
 		}
 		keybinding->data.u = tile_id;
@@ -974,13 +983,15 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->data.u = (unsigned int)mode_idx;
 	} else if(strcmp(action, "bind") == 0) {
 		keybinding->action = KEYBINDING_DEFINEKEY;
-		keybinding->data.kb = parse_bind(server, &saveptr, errstr,nesting_level);
+		keybinding->data.kb =
+		    parse_bind(server, &saveptr, errstr, nesting_level);
 		if(keybinding->data.kb == NULL) {
 			return -1;
 		}
 	} else if(strcmp(action, "definekey") == 0) {
 		keybinding->action = KEYBINDING_DEFINEKEY;
-		keybinding->data.kb = parse_definekey(server, &saveptr, errstr,nesting_level);
+		keybinding->data.kb =
+		    parse_definekey(server, &saveptr, errstr, nesting_level);
 		if(keybinding->data.kb == NULL) {
 			return -1;
 		}
@@ -1051,7 +1062,7 @@ parse_rc_line(struct cg_server *server, char *line, char **errstr) {
 		free(saveptr);
 		return -1;
 	}
-	if(parse_command(server, keybinding, saveptr, errstr,1) != 0) {
+	if(parse_command(server, keybinding, saveptr, errstr, 1) != 0) {
 		wlr_log(WLR_ERROR, "Error parsing command.");
 		free(keybinding);
 		free(saveptr);
