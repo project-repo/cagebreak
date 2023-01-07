@@ -1091,7 +1091,7 @@ is now a square in this state.
 ## Issue 52
 
   * github issue number: N/A
-  * Fixed 2.0.0
+  * Fixed: 2.0.0
 
 Cagebreak did not correctly apply some simple commands if they were simply
 written in the configuration file.
@@ -1103,3 +1103,10 @@ quit
 ```
 
 Under these circumstances Cagebreak did not quit right after startup.
+
+## Issue 53
+
+  * github issue number: #35
+  * Fixed: 2.0.0
+
+Cagebreak did not build with wlroots 0.16.1 and this was adjusted.
