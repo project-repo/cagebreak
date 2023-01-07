@@ -405,8 +405,7 @@ In the past, our git history did not perfectly reflect this scheme.
 
 ### Release Procedure
 
-The release procedure outlines the process for a release to
-occur.
+The release procedure outlines the process for a release to occur.
 
   * [ ] `git checkout development`
   * [ ] `git pull origin development`
@@ -564,7 +563,7 @@ see [SECURITY.md](SECURITY.md).
       in 1.6.0 with slight modifications
   * Oliver Friedmann
     * [Add output scaling](https://github.com/project-repo/cagebreak/pull/34), released
-      in 2.0.0
+      in 2.0.0 with slight modifications
 
 ## License
 
