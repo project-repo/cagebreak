@@ -3,10 +3,8 @@
 The main possibility for security bugs in cagebreak is by privilege
 escalation through the socket. Any program with access to the socket
 immediately gains arbitrary code execution rights. The socket
-is restricted to the user of the cagebreak process (700).
-
-The socket has to be explicitely enabled by invoking Cagebreak with
-the `-e` flag.
+is restricted to the user of the cagebreak process (700) and has to
+be explicitely enabled using the `-e` flag on invocation.
 
 If you disagree with this threat model, you may contact us via email (See
 section Email Contact below.) or [open an issue on github](https://github.com/project-repo/cagebreak/issues/new).
