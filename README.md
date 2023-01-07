@@ -136,7 +136,70 @@ installed. Then, add `-Dman-pages=true` to the `meson` command.
 You can start Cagebreak by running `./build/cagebreak`. If you run it from
 within an existing X11 or Wayland session, it will open in a virtual output as
 a window in your existing session. If you run it in a TTY, it'll run with the
-KMS+DRM backend. For more configuration options, see the man pages.
+KMS+DRM backend. Note that a configuration file is required. For more
+configuration options, see the man pages.
+
+#### Usage Philosophy
+
+Cagebreak is built to suit the needs of its creators. This section outlines
+how we intended some parts of cagebreak and might ease the learning curve a
+little bit. Please note that this does not replace the man pages or the FAQ.
+Also, cagebreak is a few bits that modify some other bits and pixels,
+if it works for you in some different way that's ok too.
+
+1. Cagebreak is keyboard-based. Everything regarding cagebreak can be done
+   through the keyboard and it is our view that it should be. This does not mean
+   that pointers, touchpads and such are not available for the few applications
+   that do require them.
+
+2. Cagebreak is a tiling compositor. Every view takes up as much screen space
+   as possible. We believe this is useful as only very few programs are typically
+   necessary to complete a task. To manage multiple tasks concurrently, we use
+   workspaces.
+
+3. Each task deserves its own workspace. Any given task (the sort of thing you
+   might find in your calendar or on your todo list) probably requires very few
+   views and ideally those take up as much of the screen as possible.
+
+> Combining 2. and 3. might look like this in practice:
+
+> Task 1: Edit introduction section for paper on X
+> Task 2: Coordinate event with person Y
+
+>  * split screen vertically
+>  * open web browser or pdf viewer to read literature
+>  * focus next
+>  * open editor
+>  * change to a different workspace
+>  * split screen vertically
+>  * open calendar application
+>  * focus next
+>  * open chat application
+
+> Now each task has its own workspace and switching between tasks is possible
+> by switching between workspaces. 
+
+> Note that using the socket more advanced setups are possible. But the user
+> is warned that excessive tweaking eats into the work to be done.
+
+4. Use keybindings and terminal emulators for the right purpose. Given the
+   philosophy outlined above you probably launch the same few programs very
+   often and others are very rarely used. We believe that commonly
+   used programs should have their own keybindings together with the most
+   important cagebreak commands. All the rarely used programs should be launched
+   from a terminal emulator as they probably require special flags, environment
+   variables and file paths anyway.
+
+> In practice this means thinking about the applications and cagebreak commands
+> you use and take your keyboard layout into account when defining keybindings for
+> your individual needs.
+
+5. Cagebreak can't do everything but with scripting you can do most things.
+   Through the socket and with a bit of scripting you can use the internal state
+   of cagebreak in combination with cagebreak commands and the full power of
+   a scripting language of your choice to do almost whatever you want.
+
+> Example scripts can be found in the repository.
 
 ## Contributing
 
