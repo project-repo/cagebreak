@@ -70,8 +70,8 @@ See the [Changelog](Changelog.md).
 ### Name
 
 Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
-compositor. Since it breaks the
-kiosk into tiles the name Cagebreak seemed appropriate.
+compositor. Since it breaks the kiosk into tiles the name
+Cagebreak seemed appropriate.
 
 ## Installation
 
@@ -139,6 +139,9 @@ a window in your existing session. If you run it in a TTY, it'll run with the
 KMS+DRM backend. Note that a configuration file is required. For more
 configuration options, see the man pages.
 
+Please see `example_scripts/` for example scripts and a basis to customize
+from.
+
 #### Usage Philosophy
 
 Cagebreak is built to suit the needs of its creators. This section outlines
@@ -199,7 +202,7 @@ if it works for you in some different way that's ok too.
    of cagebreak in combination with cagebreak commands and the full power of
    a scripting language of your choice to do almost whatever you want.
 
-> Example scripts can be found in the repository.
+> Example scripts can be found in the repository under `example_scripts/`.
 
 ## Contributing
 
