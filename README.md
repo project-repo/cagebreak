@@ -144,11 +144,11 @@ from.
 
 #### Usage Philosophy
 
-Cagebreak is built to suit the needs of its creators. This section outlines
-how we intended some parts of cagebreak and might ease the learning curve a
+Cagebreak was originally built to suit the needs of its creators. This section outlines
+how we intended some parts of cagebreak and might ease learning how to use cagebreak a
 little bit. Please note that this does not replace the man pages or the FAQ.
-Also, cagebreak is a few bits that modify some other bits and pixels,
-if it works for you in some different way that's ok too.
+Also, this is in no way intended as a guide on how cagebreak must be used but rather
+as a source of inspiration and of explanations for why certain particularities.
 
 1. Cagebreak is keyboard-based. Everything regarding cagebreak can be done
    through the keyboard and it is our view that it should be. This does not mean
@@ -156,13 +156,13 @@ if it works for you in some different way that's ok too.
    that do require them.
 
 2. Cagebreak is a tiling compositor. Every view takes up as much screen space
-   as possible. We believe this is useful as only very few programs are typically
+   as possible. We believe this is useful, as only very few programs are typically
    necessary to complete a task. To manage multiple tasks concurrently, we use
    workspaces.
 
 3. Each task deserves its own workspace. Any given task (the sort of thing you
    might find in your calendar or on your todo list) probably requires very few
-   views and ideally those take up as much of the screen as possible.
+   views and ideally, these take up as much of the screen as possible.
 
 > Combining 2. and 3. might look like this in practice:
 
@@ -180,10 +180,11 @@ if it works for you in some different way that's ok too.
 >  * open chat application
 
 > Now each task has its own workspace and switching between tasks is possible
-> by switching between workspaces. 
+> by switching between workspaces.
 
-> Note that using the socket more advanced setups are possible. But the user
-> is warned that excessive tweaking eats into the work to be done.
+> Note that, for example by using the socket, more advanced setups are
+> possible. But the user is warned that excessive tweaking eats into the work
+> to be done.
 
 4. Use keybindings and terminal emulators for the right purpose. Given the
    philosophy outlined above you probably launch the same few programs very
@@ -194,11 +195,11 @@ if it works for you in some different way that's ok too.
    variables and file paths anyway.
 
 > In practice this means thinking about the applications and cagebreak commands
-> you use and take your keyboard layout into account when defining keybindings for
+> you use and taking your keyboard layout into account when defining keybindings for
 > your individual needs.
 
-5. Cagebreak can't do everything but with scripting you can do most things.
-   Through the socket and with a bit of scripting you can use the internal state
+5. Cagebreak can't do everything, but with scripting you can do most things.
+   Through the socket and with a bit of scripting, you can use the internal state
    of cagebreak in combination with cagebreak commands and the full power of
    a scripting language of your choice to do almost whatever you want.
 
@@ -209,10 +210,10 @@ if it works for you in some different way that's ok too.
   * Read this document.
   * Just [open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your feature request.
     We will consider the proposal and get back to you.
-  * Don't open a pull request. We might not accept your code and
-    it would be sad to waste the effort.
+  * Don't open a pull request without asking first. We might not accept your
+    code and it would be sad to waste the effort.
   * Respect the [Code of Conduct](CODE_OF_CONDUCT.md) (To date, we never
-    had to intervene - Keep it that way!)
+    had to intervene - Please keep it that way!)
 
 ### Good First Contributions
 
