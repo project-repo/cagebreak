@@ -837,7 +837,6 @@ handle_request_start_drag(struct wl_listener *listener, void *data) {
 		return;
 	}
 
-	// TODO: tablet grabs
 	wlr_log(WLR_DEBUG,
 	        "Ignoring start_drag request: "
 	        "could not validate pointer/touch serial %" PRIu32,
