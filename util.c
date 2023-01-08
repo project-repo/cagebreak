@@ -1,15 +1,10 @@
-/*
- * Cagebreak: A Wayland tiling compositor.
- *
- * Copyright (C) 2020-2022 The Cagebreak Authors
- * Copyright (C) 2019 The Sway authors
- *
- * See the LICENSE file accompanying this file.
- */
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
 
 #include <wlr/util/box.h>
 
 #include "util.h"
+#include <math.h>
 #include <stdlib.h>
 
 int

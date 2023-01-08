@@ -1,12 +1,8 @@
-/*
- * Cagebreak: A Wayland tiling compositor.
- *
- * Copyright (C) 2018-2020 Jente Hidskes
- *
- * See the LICENSE file accompanying this file.
- */
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200812L
+#define _DEFAULT_SOURCE
 
 #include "config.h"
 
@@ -16,8 +12,10 @@
 #include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <wayland-client.h>
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
 #include <wlr/render/allocator.h>
@@ -31,16 +29,19 @@
 #include <wlr/types/wlr_idle.h>
 #include <wlr/types/wlr_idle_inhibit_v1.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_presentation_time.h>
+#include <wlr/types/wlr_primary_selection_v1.h>
+#include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_screencopy_v1.h>
 #include <wlr/types/wlr_server_decoration.h>
-#if CG_HAS_XWAYLAND
-#include <wlr/types/wlr_xcursor_manager.h>
-#endif
+#include <wlr/types/wlr_subcompositor.h>
+#include <wlr/types/wlr_viewporter.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
 #include <wlr/types/wlr_xdg_output_v1.h>
 #include <wlr/types/wlr_xdg_shell.h>
 #include <wlr/util/log.h>
 #if CG_HAS_XWAYLAND
+#include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/xwayland.h>
 #endif
 
@@ -53,6 +54,7 @@
 #include "parse.h"
 #include "seat.h"
 #include "server.h"
+#include "workspace.h"
 #include "xdg_shell.h"
 #if CG_HAS_XWAYLAND
 #include "xwayland.h"
@@ -123,37 +125,21 @@ usage(FILE *file, const char *const cage) {
 	fprintf(file,
 	        "Usage: %s [OPTIONS]\n"
 	        "\n"
-	        " -r\t Rotate the output 90 degrees clockwise, specify up to three "
-	        "times\n"
-#ifdef DEBUG
-	        " -D\t Turn on damage tracking debugging\n"
-#endif
-	        " -h\t Display this help message\n"
-	        " -v\t Show the version number and exit\n"
-	        " -s\t Show information about the current setup and exit\n",
+	        " -c <path>\t Load configuration file from <path>\n"
+	        " -e\t\t Enable socket\n"
+	        " -h\t\t Display this help message\n"
+	        " -s\t\t Show information about the current setup and exit\n"
+	        " -v\t\t Show the version number and exit\n",
 	        cage);
 }
 
 static bool
-parse_args(struct cg_server *server, int argc, char *argv[]) {
+parse_args(struct cg_server *server, int argc, char *argv[],
+           char **config_path) {
 	int c;
-#ifdef DEBUG
-	while((c = getopt(argc, argv, "rDhvs")) != -1) {
-#else
-	while((c = getopt(argc, argv, "rhvs")) != -1) {
-#endif
+	server->enable_socket = false;
+	while((c = getopt(argc, argv, "c:hvse")) != -1) {
 		switch(c) {
-		case 'r':
-			server->output_transform++;
-			if(server->output_transform > WL_OUTPUT_TRANSFORM_270) {
-				server->output_transform = WL_OUTPUT_TRANSFORM_NORMAL;
-			}
-			break;
-#ifdef DEBUG
-		case 'D':
-			server->debug_damage_tracking = true;
-			break;
-#endif
 		case 'h':
 			usage(stdout, argv[0]);
 			return false;
@@ -162,6 +148,15 @@ parse_args(struct cg_server *server, int argc, char *argv[]) {
 			exit(0);
 		case 's':
 			show_info = true;
+			break;
+		case 'c':
+			if(optarg != NULL) {
+				*config_path = strdup(optarg);
+				optarg = NULL;
+			}
+			break;
+		case 'e':
+			server->enable_socket = true;
 			break;
 		default:
 			usage(stderr, argv[0]);
@@ -187,9 +182,28 @@ set_configuration(struct cg_server *server,
 		        config_file_path);
 		return 1;
 	}
-	char line[MAX_LINE_SIZE * sizeof(char)];
-	for(unsigned int line_num = 1;
-	    fgets(line, MAX_LINE_SIZE, config_file) != NULL; ++line_num) {
+	uint32_t line_length = 64;
+	char *line = calloc(line_length, sizeof(char));
+	for(unsigned int line_num = 1;; ++line_num) {
+		while(true) {
+			if(fgets(line + strlen(line), line_length - strlen(line),
+			         config_file) == NULL) {
+				break;
+			}
+			if(strcspn(line, "\n") != line_length - 1) {
+				break;
+			}
+			line_length *= 2;
+			line = reallocarray(line, line_length, sizeof(char));
+			if(line == NULL) {
+				wlr_log(WLR_ERROR, "Could not allocate buffer for reading "
+				                   "configuration file.");
+				return 1;
+			}
+		}
+		if(strlen(line) == 0) {
+			break;
+		}
 		line[strcspn(line, "\n")] = '\0';
 		if(*line != '\0' && *line != '#') {
 			char *errstr;
@@ -200,16 +214,22 @@ set_configuration(struct cg_server *server,
 				if(errstr != NULL) {
 					free(errstr);
 				}
+				free(line);
 				return -1;
 			}
 		}
+		memset(line, 0, line_length * sizeof(char));
 	}
+	free(line);
 	fclose(config_file);
 	return 0;
 }
 
 char *
-get_config_file() {
+get_config_file(char *udef_path) {
+	if(udef_path != NULL) {
+		return strdup(udef_path);
+	}
 	const char *config_home_path = getenv("XDG_CONFIG_HOME");
 	char *addition = "/cagebreak/config";
 	if(config_home_path == NULL || config_home_path[0] == '\0') {
@@ -236,25 +256,30 @@ main(int argc, char *argv[]) {
 	struct wl_event_source *sigint_source = NULL;
 	struct wl_event_source *sigterm_source = NULL;
 	struct wl_event_source *sigalrm_source = NULL;
+	struct wl_event_source *sigpipe_source = NULL;
 	struct wlr_backend *backend = NULL;
 	struct wlr_compositor *compositor = NULL;
+	struct wlr_subcompositor *subcompositor = NULL;
 	struct wlr_data_device_manager *data_device_manager = NULL;
 	struct wlr_server_decoration_manager *server_decoration_manager = NULL;
 	struct wlr_xdg_decoration_manager_v1 *xdg_decoration_manager = NULL;
 	struct wlr_export_dmabuf_manager_v1 *export_dmabuf_manager = NULL;
 	struct wlr_screencopy_manager_v1 *screencopy_manager = NULL;
 	struct wlr_data_control_manager_v1 *data_control_manager = NULL;
+	struct wlr_viewporter *viewporter = NULL;
+	struct wlr_presentation *presentation = NULL;
 	struct wlr_xdg_output_manager_v1 *output_manager = NULL;
 	struct wlr_gamma_control_manager_v1 *gamma_control_manager = NULL;
 	struct wlr_xdg_shell *xdg_shell = NULL;
-#if CG_HAS_XWAYLAND
-	struct wlr_xwayland *xwayland = NULL;
-	struct wlr_xcursor_manager *xcursor_manager = NULL;
-#endif
+	wl_list_init(&server.input_config);
+	wl_list_init(&server.output_config);
+	wl_list_init(&server.output_priorities);
+
 	int ret = 0;
 
-	if(!parse_args(&server, argc, argv)) {
-		return 1;
+	char *config_path = NULL;
+	if(!parse_args(&server, argc, argv, &config_path)) {
+		goto end;
 	}
 
 #ifdef DEBUG
@@ -263,25 +288,34 @@ main(int argc, char *argv[]) {
 	wlr_log_init(WLR_ERROR, NULL);
 #endif
 
-	wl_list_init(&server.input_config);
-	wl_list_init(&server.output_config);
-
 	server.modes = malloc(4 * sizeof(char *));
 	if(!server.modes) {
 		wlr_log(WLR_ERROR, "Error allocating mode array");
-		return -1;
+		goto end;
 	}
 
 	/* Wayland requires XDG_RUNTIME_DIR to be set. */
 	if(!getenv("XDG_RUNTIME_DIR")) {
-		wlr_log(WLR_ERROR, "XDG_RUNTIME_DIR is not set in the environment");
-		return 1;
+		wlr_log(WLR_INFO, "XDG_RUNTIME_DIR is not set in the environment");
 	}
 
 	server.wl_display = wl_display_create();
 	if(!server.wl_display) {
 		wlr_log(WLR_ERROR, "Cannot allocate a Wayland display");
-		return 1;
+		free(server.modes);
+		server.modes = NULL;
+		goto end;
+	}
+
+	server.xcursor_size = XCURSOR_SIZE;
+	const char *env_cursor_size = getenv("XCURSOR_SIZE");
+	if(env_cursor_size && strlen(env_cursor_size) > 0) {
+		errno = 0;
+		char *end;
+		unsigned size = strtoul(env_cursor_size, &end, 10);
+		if(!*end && errno == 0) {
+			server.xcursor_size = size;
+		}
 	}
 
 	server.running = true;
@@ -293,10 +327,12 @@ main(int argc, char *argv[]) {
 	if(server.modes[0] == NULL || server.modes[1] == NULL ||
 	   server.modes[2] == NULL) {
 		wlr_log(WLR_ERROR, "Error allocating default modes");
-		return 1;
+		goto end;
 	}
 
 	server.nws = 1;
+	server.views_curr_id = 1;
+	server.tiles_curr_id = 1;
 	server.message_config.fg_color[0] = 0.0;
 	server.message_config.fg_color[1] = 0.0;
 	server.message_config.fg_color[2] = 0.0;
@@ -317,6 +353,8 @@ main(int argc, char *argv[]) {
 	    wl_event_loop_add_signal(event_loop, SIGTERM, handle_signal, &server);
 	sigalrm_source =
 	    wl_event_loop_add_signal(event_loop, SIGALRM, handle_signal, &server);
+	sigpipe_source =
+	    wl_event_loop_add_signal(event_loop, SIGPIPE, handle_signal, &server);
 	server.event_loop = event_loop;
 
 	backend = wlr_backend_autocreate(server.wl_display);
@@ -345,6 +383,7 @@ main(int argc, char *argv[]) {
 		ret = 1;
 		goto end;
 	}
+
 	server.allocator =
 	    wlr_allocator_autocreate(server.backend, server.renderer);
 	if(!server.allocator) {
@@ -352,6 +391,7 @@ main(int argc, char *argv[]) {
 		ret = 1;
 		goto end;
 	}
+
 	wlr_renderer_init_wl_display(server.renderer, server.wl_display);
 
 	server.bg_color = (float[4]){0, 0, 0, 1};
@@ -365,9 +405,30 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 
+	if(ipc_init(&server) != 0) {
+		wlr_log(WLR_ERROR, "Failed to initialize IPC");
+		ret = 1;
+		goto end;
+	}
+
+	server.scene = wlr_scene_create();
+	if(!server.scene) {
+		wlr_log(WLR_ERROR, "Unable to create scene");
+		ret = 1;
+		goto end;
+	}
+	wlr_scene_attach_output_layout(server.scene, server.output_layout);
+
 	compositor = wlr_compositor_create(server.wl_display, server.renderer);
 	if(!compositor) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots compositor");
+		ret = 1;
+		goto end;
+	}
+
+	subcompositor = wlr_subcompositor_create(server.wl_display);
+	if(!subcompositor) {
+		wlr_log(WLR_ERROR, "Unable to create the wlroots subcompositor");
 		ret = 1;
 		goto end;
 	}
@@ -420,7 +481,7 @@ main(int argc, char *argv[]) {
 	              &server.new_idle_inhibitor_v1);
 	wl_list_init(&server.inhibitors);
 
-	xdg_shell = wlr_xdg_shell_create(server.wl_display);
+	xdg_shell = wlr_xdg_shell_create(server.wl_display, 3);
 	if(!xdg_shell) {
 		wlr_log(WLR_ERROR, "Unable to create the XDG shell interface");
 		ret = 1;
@@ -451,6 +512,21 @@ main(int argc, char *argv[]) {
 	wlr_server_decoration_manager_set_default_mode(
 	    server_decoration_manager, WLR_SERVER_DECORATION_MANAGER_MODE_SERVER);
 
+	viewporter = wlr_viewporter_create(server.wl_display);
+	if(!viewporter) {
+		wlr_log(WLR_ERROR, "Unable to create the viewporter interface");
+		ret = 1;
+		goto end;
+	}
+
+	presentation = wlr_presentation_create(server.wl_display, server.backend);
+	if(!presentation) {
+		wlr_log(WLR_ERROR, "Unable to create the presentation interface");
+		ret = 1;
+		goto end;
+	}
+	wlr_scene_set_presentation(server.scene, presentation);
+
 	export_dmabuf_manager =
 	    wlr_export_dmabuf_manager_v1_create(server.wl_display);
 	if(!export_dmabuf_manager) {
@@ -474,6 +550,13 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 
+	if(!wlr_primary_selection_v1_device_manager_create(server.wl_display)) {
+		wlr_log(WLR_ERROR,
+		        "Unable to create the primary selection device manager");
+		ret = 1;
+		goto end;
+	}
+
 	gamma_control_manager =
 	    wlr_gamma_control_manager_v1_create(server.wl_display);
 	if(!gamma_control_manager) {
@@ -483,40 +566,32 @@ main(int argc, char *argv[]) {
 	}
 
 #if CG_HAS_XWAYLAND
-	xwayland = wlr_xwayland_create(server.wl_display, compositor, true);
-	if(!xwayland) {
+	server.xwayland = wlr_xwayland_create(server.wl_display, compositor, true);
+	if(!server.xwayland) {
 		wlr_log(WLR_ERROR, "Cannot create XWayland server");
 		ret = 1;
 		goto end;
 	}
 	server.new_xwayland_surface.notify = handle_xwayland_surface_new;
-	wl_signal_add(&xwayland->events.new_surface, &server.new_xwayland_surface);
+	wl_signal_add(&server.xwayland->events.new_surface,
+	              &server.new_xwayland_surface);
 
-	xcursor_manager = wlr_xcursor_manager_create(DEFAULT_XCURSOR, XCURSOR_SIZE);
-	if(!xcursor_manager) {
-		wlr_log(WLR_ERROR, "Cannot create XWayland XCursor manager");
-		ret = 1;
-		goto end;
-	}
-
-	if(setenv("DISPLAY", xwayland->display_name, true) < 0) {
+	if(setenv("DISPLAY", server.xwayland->display_name, true) < 0) {
 		wlr_log_errno(WLR_ERROR, "Unable to set DISPLAY for XWayland.",
 		              "Clients may not be able to connect");
 	} else {
 		wlr_log(WLR_DEBUG, "XWayland is running on display %s",
-		        xwayland->display_name);
+		        server.xwayland->display_name);
 	}
 
-	if(!wlr_xcursor_manager_load(xcursor_manager, 1)) {
-		wlr_log(WLR_ERROR, "Cannot load XWayland XCursor theme");
-	}
-	struct wlr_xcursor *xcursor =
-	    wlr_xcursor_manager_get_xcursor(xcursor_manager, DEFAULT_XCURSOR, 1);
+	struct wlr_xcursor *xcursor = wlr_xcursor_manager_get_xcursor(
+	    server.seat->xcursor_manager, DEFAULT_XCURSOR, 1);
+
 	if(xcursor) {
 		struct wlr_xcursor_image *image = xcursor->images[0];
-		wlr_xwayland_set_cursor(xwayland, image->buffer, image->width * 4,
-		                        image->width, image->height, image->hotspot_x,
-		                        image->hotspot_y);
+		wlr_xwayland_set_cursor(server.xwayland, image->buffer,
+		                        image->width * 4, image->width, image->height,
+		                        image->hotspot_x, image->hotspot_y);
 	}
 #endif
 
@@ -537,13 +612,13 @@ main(int argc, char *argv[]) {
 		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY.",
 		              "Clients may not be able to connect");
 	} else {
-		wlr_log(WLR_DEBUG,
-		        "Cagebreak " CG_VERSION " is running on Wayland display %s",
+		fprintf(stderr,
+		        "Cagebreak " CG_VERSION " is running on Wayland display %s\n",
 		        socket);
 	}
 
 #if CG_HAS_XWAYLAND
-	wlr_xwayland_set_seat(xwayland, server.seat->seat);
+	wlr_xwayland_set_seat(server.xwayland, server.seat->seat);
 #endif
 
 	if(show_info) {
@@ -557,14 +632,8 @@ main(int argc, char *argv[]) {
 		exit(0);
 	}
 
-	if(ipc_init(&server) != 0) {
-		wlr_log(WLR_ERROR, "Failed to initialize IPC");
-		ret = 1;
-		goto end;
-	}
-
 	{ // config_file should only be visible as long as it is valid
-		char *config_file = get_config_file();
+		char *config_file = get_config_file(config_path);
 		if(config_file == NULL) {
 			wlr_log(WLR_ERROR, "Unable to get path to config file");
 			ret = 1;
@@ -573,27 +642,35 @@ main(int argc, char *argv[]) {
 		int conf_ret = set_configuration(&server, config_file);
 
 		// Configurtion file not found
-		if(conf_ret == 1) {
-			char *default_conf = "/etc/xdg/cagebreak/config";
-			wlr_log(WLR_ERROR, "Loading default configuration file: \"%s\"",
-			        default_conf);
-			conf_ret = set_configuration(&server, default_conf);
+		if(conf_ret != 0) {
+			if(config_file == NULL) {
+				char *default_conf = "/etc/xdg/cagebreak/config";
+				wlr_log(WLR_INFO, "Loading default configuration file: \"%s\"",
+				        default_conf);
+				conf_ret = set_configuration(&server, default_conf);
+			} else {
+				conf_ret = 1;
+			}
 		}
 
-		if(conf_ret != 0) {
-			free(config_file);
+		free(config_file);
+		if(conf_ret != 0 || !server.running) {
 			ret = 1;
 			goto end;
 		}
-		free(config_file);
 	}
 
 	{
-
+		struct wl_list tmp_list;
+		wl_list_init(&tmp_list);
+		wl_list_insert_list(&tmp_list, &server.outputs);
+		wl_list_init(&server.outputs);
 		struct cg_output *output, *output_tmp;
-		wl_list_for_each_safe(output, output_tmp, &server.outputs, link) {
+		wl_list_for_each_safe(output, output_tmp, &tmp_list, link) {
 			output_configure(&server, output);
 		}
+		server.curr_output =
+		    wl_container_of(server.outputs.next, server.curr_output, link);
 	}
 
 	/* Place the cursor to the top left of the output layout. */
@@ -601,21 +678,23 @@ main(int argc, char *argv[]) {
 
 	wl_display_run(server.wl_display);
 
-#if CG_HAS_XWAYLAND
-	wlr_xwayland_destroy(xwayland);
-	wlr_xcursor_manager_destroy(xcursor_manager);
-#endif
 	wl_display_destroy_clients(server.wl_display);
 
 end:
+	if(server.modes != NULL) {
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wanalyzer-double-free"
 #endif
-	for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
-		free(server.modes[i]);
+		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
+			free(server.modes[i]);
+		}
+		free(server.modes);
 	}
-	free(server.modes);
+
+	if(config_path != NULL) {
+		free(config_path);
+	}
 
 	struct cg_output_config *output_config, *output_config_tmp;
 	wl_list_for_each_safe(output_config, output_config_tmp,
@@ -625,19 +704,52 @@ end:
 		free(output_config);
 	}
 
-	keybinding_list_free(server.keybindings);
-	wl_event_source_remove(sigint_source);
-	wl_event_source_remove(sigterm_source);
-	wl_event_source_remove(sigalrm_source);
+	struct cg_input_config *input_config, *input_config_tmp;
+	wl_list_for_each_safe(input_config, input_config_tmp, &server.input_config,
+	                      link) {
+		wl_list_remove(&input_config->link);
+		if(input_config->identifier != NULL) {
+			free(input_config->identifier);
+		}
+		free(input_config);
+	}
 
-	seat_destroy(server.seat);
+	if(server.keybindings != NULL) {
+		keybinding_list_free(server.keybindings);
+	}
+
+	if(server.message_config.font != NULL) {
+		free(server.message_config.font);
+	}
+	server.running = false;
+	if(server.seat != NULL) {
+		seat_destroy(server.seat);
+	}
+#if CG_HAS_XWAYLAND
+	if(server.xwayland != NULL) {
+		wlr_xwayland_destroy(server.xwayland);
+	}
+#endif
+
+	if(sigint_source != NULL) {
+		wl_event_source_remove(sigint_source);
+		wl_event_source_remove(sigterm_source);
+		wl_event_source_remove(sigalrm_source);
+		wl_event_source_remove(sigpipe_source);
+	}
+
 	/* This function is not null-safe, but we only ever get here
 	   with a proper wl_display. */
-	wl_display_destroy(server.wl_display);
-	wlr_output_layout_destroy(server.output_layout);
+	if(server.wl_display != NULL) {
+		wl_display_destroy(server.wl_display);
+	}
+	if(server.output_layout != NULL) {
+		wlr_output_layout_destroy(server.output_layout);
+	}
 
-	free(server.input);
-	free(server.message_config.font);
+	if(server.input != NULL) {
+		free(server.input);
+	}
 	pango_cairo_font_map_set_default(NULL);
 	cairo_debug_reset_static_data();
 	FcFini();

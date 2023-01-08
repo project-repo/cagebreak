@@ -1,3 +1,5 @@
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
 #ifndef CG_IDLE_INHIBIT_H
 #define CG_IDLE_INHIBIT_H
 

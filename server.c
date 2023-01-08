@@ -25,7 +25,6 @@ display_terminate(struct cg_server *server) {
 	if(server == NULL) {
 		return;
 	}
-	server->running = false;
 	wl_display_terminate(server->wl_display);
 }
 
@@ -58,14 +57,15 @@ server_show_info(struct cg_server *server) {
 	struct cg_input_device *input;
 	wl_list_for_each(input, &server->input->devices, link) {
 		if(!input_str) {
+			free(output_str);
 			return NULL;
 		}
 		input_str_tmp = input_str;
 		if(strcmp(input->identifier, "") != 0) {
 			input_str =
 			    malloc_vsprintf("%s\t * %s\n", input_str, input->identifier);
+			free(input_str_tmp);
 		}
-		free(input_str_tmp);
 	}
 	char *ret =
 	    malloc_vsprintf("Outputs:\n%sInputs:\n%s", output_str, input_str);

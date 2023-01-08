@@ -1,3 +1,6 @@
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
+
 #ifndef CG_IPC_SERVER_H
 #define CG_IPC_SERVER_H
 
@@ -21,6 +24,7 @@ struct cg_ipc_client {
 	char *write_buffer;
 	// The following is for storing data between event_loop calls
 	uint16_t read_buf_len;
+	size_t read_buf_cap;
 	uint8_t read_discard; // 1 if the current line is to be discarded
 	char *read_buffer;
 };
@@ -33,6 +37,8 @@ struct cg_ipc_handle {
 	struct sockaddr_un *sockaddr;
 };
 
+void
+ipc_send_event(struct cg_server *server, const char *fmt, ...);
 int
 ipc_init(struct cg_server *server);
 int

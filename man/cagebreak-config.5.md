@@ -1,4 +1,4 @@
-cagebreak-config(5) "Version 1.9.1" "Cagebreak Manual"
+cagebreak-config(5) "Version 2.0.0" "Cagebreak Manual"
 
 # NAME
 
@@ -16,6 +16,10 @@ Each line consists of a comment or a command and its arguments which
 are parsed sequentially but independently from the rest of the file.
 
 Each line starting with a "#" is a comment.
+
+Note that nesting of commands is limited to 50 times, though lines
+are arbitrarily long in practice, though a reasonable limit of 4Mb has
+been set.
 
 See *KEY DEFINITIONS* for details on modifier keys and *MODES* for details
 on modes.
@@ -48,7 +52,7 @@ definekey root <key> <command>
 	Close current window - This may be useful for windows of
 	applications which do not offer any method of closing them.
 
-configure_message [font <font description>|[f|b]g_color <r> <g> b> <a>|display_time <n>]
+*configure_message [font <font description>|[f|b]g_color <r> <g> b> <a>|display_time <n>]*
 	Configure message characteristics -
 	- font <font description> sets
 	  - <font description> is
@@ -75,6 +79,11 @@ configure_message bg_color 1.0 0.0 0.0 1.0
 configure_message display_time 4
 ```
 
+*cursor [enable|disable]*
+	Enable or disable cursor
+	This simply hides the cursor. Pointing and clicking is
+	still possible.
+
 *definekey <mode> <key> <command>*
 	Bind <key> to execute <command> if pressed in <mode> -
 	*definekey* is a more general version of *bind*.
@@ -88,6 +97,9 @@ configure_message display_time 4
 definemode foo
 definekey foo C-t abort
 ```
+
+*dump*
+	Triggers the *dump* event, see *cagebreak-socket(7)* for details
 
 *escape <key>*
 	Set <key> to switch to root mode to execute one command
@@ -170,9 +182,12 @@ definekey top <key> mode root
 		Enable or disable disable-while-typing for specified input
 		device
 
-	*event enabled|disabled|disabled_on_external_mouse*
+	*events enabled|disabled|disabled_on_external_mouse*
 		Enable or disable send_events for specified input device -
 		Disabling send_events disables the input device.
+
+	*keybindings [enabled|disabled]*
+		Enable or disable keybinding interpretation for a specific keyboard.
 
 	*left_handed enabled|disabled*
 		Enable or disable left handed mode for specified input device
@@ -200,6 +215,12 @@ definekey top <key> mode root
 	*scroll_method none|two_finger|edge|on_button_down*
 		Change scroll method for specified input device
 
+	*repeat_delay <n>*
+		Repeat delay in ms for keyboards only
+
+	*repeat_rate <n>*
+		Repeat rate in 1/s for keyboards only
+
 	*tap enabled|disabled*
 		Enable or disable tap for specified input device
 
@@ -218,31 +239,37 @@ message <text>
 
 *movetonextscreen*
 	Move currently focused window to next screen
+	See *output* for differences between screen and output.
 
 *movetoprevscreen*
 	Move currently focused window to previous screen
+	See *output* for differences between screen and output.
 
 *movetoscreen <n>*
 	Move currently focused window to <n>-th screen
+	See *output* for differences between screen and output.
 
 *movetoworkspace <n>*
 	Move currently focused window to <n>-th workspace
+	See *output* for differences between screen and output.
 
 *next*
 	Focus next window in current tile
 
 *nextscreen*
 	Focus next screen
+	See *output* for differences between screen and output.
 
 *only*
 	Remove all splits and make current window fill the entire screen
 
-*output <name> [[pos <xpos> <ypos> res <width>x<height> rate <rate>] | enable | disable | prio <n> ]*
+*output <name> [[pos <xpos> <ypos> res <width>x<height> rate <rate> [scale <scale>]] | enable | disable | prio <n> | rotate <n>]*
 	Configure output "<name>" -
 	- <xpos> and <ypos> are the position of the
 	  monitor in pixels. The top-left monitor should have the coordinates 0 0.
 	- <width> and <height> specify the resolution in pixels.
 	- <rate> sets the refresh rate of the monitor (often this is 50 or 60).
+	- <scale> sets the output scale (default is 1.0)
 	- enable and disable enable or disable <name>. Note that if
 	  <output> is the only enabled output, *output <output> disable* has
 	  no effect.
@@ -252,6 +279,30 @@ message <text>
 	  to set priorities for outputs, where <n> >= 1. The larger <n> is,
 	  the higher the priority is, that is to say, the earlier the output
 	  will appear in the list of outputs.
+	- rotate <n> is used to rotate the output by `<n> mod 4 x 90` degrees
+	  counter-clockwise.
+
+```
+# Don't rotate
+output DP-1 rotate 0
+
+# rotate 90 degrees counter-clockwise
+output DP-1 rotate 1
+
+# rotate 180 degrees counter-clockwise
+output DP-1 rotate 2
+
+# rotate 270 degrees counter-clockwise
+output DP-1 rotate 3
+```
+
+	*output* and the *screen* family of commands are similar in that they
+	both deal with monitors on some level.
+	- *output* addresses outputs by their name and is vaguely symmetric
+	  to *input*.
+	- Any *screen* command deals with the number identifying a
+	  monitor within a Cagebreak session either explicitly or
+	  implicitly (i.e. the commands containing next and prev).
 
 *prev*
 	Focus previous window in current tile
@@ -276,6 +327,7 @@ message <text>
 
 *screen <n>*
 	Change to <n>-th screen
+	See *output* for differences between screen and output.
 
 *show_info*
 	Display information about the current setup - In particular, print the identifiers
@@ -355,6 +407,7 @@ is used.
 # SEE ALSO
 
 *cagebreak(1)*
+*cagebreak-socket(7)*
 
 # BUGS
 
@@ -370,7 +423,7 @@ GPG Fingerprints:
 
 # LICENSE
 
-Copyright (c) 2020-2022 The Cagebreak authors
+Copyright (c) 2020-2023 The Cagebreak authors
 
 Copyright (c) 2018-2020 Jente Hidskes
 

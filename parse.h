@@ -1,8 +1,9 @@
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
+
 #ifndef PARSE_H
 
 #define PARSE_H
-
-#define MAX_LINE_SIZE 256
 
 #include <stdio.h>
 
