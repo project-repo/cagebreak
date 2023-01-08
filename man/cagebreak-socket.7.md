@@ -102,10 +102,10 @@ cg-ipc{"event_name":"configure_output","output":"eDP-1","output_id":1}
 	- JSON
 		- event_name: "cursor_switch_tile"
 		- old_output: name of the old output as a string
-        - old_output_id: old output id as an integer
+		- old_output_id: old output id as an integer
 		- old_tile: number of the old tile as an integer
 		- new_output: name of the new output as a string
-        - new_output_id: new output id as an integer
+		- new_output_id: new output id as an integer
 		- new_tile: number of the new tile as an integer
 
 ```
@@ -118,9 +118,9 @@ cg-ipc{"event_name":"cursor_switch_tile","old_output":"eDP-1","old_output_id":1,
 	- JSON
 		- event_name: "cycle_outputs"
 		- old_output: old output name as string
-        - old_output_id: old output id as an integer
+		- old_output_id: old output id as an integer
 		- new_output: new output name as string
-        - new_output_id: new output id as an integer
+		- new_output_id: new output id as an integer
 		- reverse: "0" if *nextscreen* or "1" if *prevscreen*
 
 ```
@@ -133,13 +133,13 @@ cg-ipc{"event_name":"cycle_outputs","old_output":"eDP-1","old_output_id":1,"new_
 	- JSON
 		- event_name: "cycle_views"
 		- old_view_id: old view id as an integer
-        - old_view_pid: pid of old view
+		- old_view_pid: pid of old view
 		- new_view_id: new view id as an interger
-        - new_view_pid: pid of new view
+		- new_view_pid: pid of new view
 		- tile_id: tile id as an integer
 		- workspace: workspace number as an integer
 		- output: name of the output as a string
-        - output_id: id of the output as an integer
+		- output_id: id of the output as an integer
 
 ```
 next
@@ -191,7 +191,7 @@ cg-ipc{"event_name":"definemode","mode":"foo"}
 	- JSON
 		- event_name: "destroy_output"
 		- output: name of the output as a string
-        - output_id: id of the output as an integer
+		- output_id: id of the output as an integer
 
 ```
 # remove output from the device
