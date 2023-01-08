@@ -1,10 +1,11 @@
-project('cagebreak', 'c',
-  version: '1.9.1',
-  license: 'MIT',
-  default_options: [
-    'c_std=c11',
-    'warning_level=3',
-  ],
+# Copyright 2020 - 2023, project-repo and the cagebreak contributors
+# SPDX -License-Identifier: MIT
+project(
+  'cagebreak',
+  'c',
+version : '2.0.0',
+license : 'MIT',
+default_options : ['c_std=c11', 'warning_level=3']
 )
 
 add_project_arguments(
@@ -53,12 +54,11 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots', version: ['>=0.14.1', '< 0.16.0'])
+wlroots        = dependency('wlroots', version: ['>=0.16.1', '< 0.17.0'])
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')
 wayland_client = dependency('wayland-client')
-pixman         = dependency('pixman-1')
 xkbcommon      = dependency('xkbcommon')
 cairo          = dependency('cairo')
 pango          = dependency('pango')
@@ -132,7 +132,6 @@ cagebreak_source_strings = [
   'workspace.c',
   'output.c',
   'parse.c',
-  'render.c',
   'seat.c',
   'util.c',
   'view.c',
@@ -150,7 +149,6 @@ cagebreak_header_strings = [
   'workspace.h',
   'output.h',
   'parse.h',
-  'render.h',
   'seat.h',
   'server.h',
   'util.h',
@@ -194,7 +192,6 @@ cagebreak_dependencies_dict = {
   'libinput': [libinput,true],
   'libevdev': [libevdev,true],
   'libudev': [libudev,true],
-  'pixman': [pixman,true],
   'pango': [pango,true],
   'cairo': [cairo,true],
   'pangocairo': [pangocairo,true],
@@ -206,16 +203,15 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.21.0',
   'wayland_cursor': '1.21.0',
-  'wlroots': '0.15.1',
-  'xkbcommon': '1.4.1',
-  'fontconfig': '2.14.0',
-  'libinput': '1.21.0',
-  'libevdev': '1.12.1',
-  'libudev': '251',
-  'pixman': '0.40.0',
-  'pango': '1.50.8',
+  'wlroots': '0.16.1',
+  'xkbcommon': '1.5.0',
+  'fontconfig': '2.14.1',
+  'libinput': '1.22.0',
+  'libevdev': '1.13.0',
+  'libudev': '252',
+  'pango': '1.50.12',
   'cairo': '1.17.6',
-  'pangocairo': '1.50.8',
+  'pangocairo': '1.50.12',
   'math': '-1'
 }
 
@@ -229,11 +225,11 @@ foreach name, dep : cagebreak_dependencies_dict
   if reproducible_build_versions[name] != '-1'
     if dep[1] == false
       if dep[0].version() < reproducible_build_versions[name]
-        warning('The installed version of "' + name + '" on your machine (' + dep[0].version() + ') is older than the one used to generate the binary specified in the README section "Reproducible Builds" (' + reproducible_build_versions[name] + '). It is recommended to use an up-to-date version for compiling cagebreak.'
+        warning('The installed version of "' + name + '" on your machine (' + dep[0].version() + ') is older than the one used to generate the binary specified in Hashes.md (' + reproducible_build_versions[name] + '). It is recommended to use an up-to-date version for compiling cagebreak.'
         )
       endif
     elif reproducible_build_versions[name] != dep[0].version()
-      warning('The installed version of "' + name + '" on your machine (' + dep[0].version() + ') differs from the one used to generate the binary specified in the README section "Reproducible Builds" (' + reproducible_build_versions[name] + '). Cagebreak does not guarantee a reproducible build for this configuration.'
+      warning('The installed version of "' + name + '" on your machine (' + dep[0].version() + ') differs from the one used to generate the binary specified in Hashes.md (' + reproducible_build_versions[name] + '). Cagebreak does not guarantee a reproducible build for this configuration.'
       )
       break
     endif
@@ -241,12 +237,12 @@ foreach name, dep : cagebreak_dependencies_dict
 endforeach
 
 reproducible_build_compiler = 'gcc'
-reproducible_build_compiler_version = '12.1.0'
+reproducible_build_compiler_version = '12.2.0'
 
 if cc.get_id() != reproducible_build_compiler
-  warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in the README section "Reproducible Builds" (' + reproducible_build_compiler + ').')
+  warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in Hashes.md (' + reproducible_build_compiler + ').')
 elif cc.version() != reproducible_build_compiler_version
-  warning('The version of ' + cc.get_id() + ' (' + cc.version() + ') differs from the one used to generate the binary specified in the README section "Reproducible Builds" ' + reproducible_build_compiler_version + '.')
+  warning('The version of ' + cc.get_id() + ' (' + cc.version() + ') differs from the one used to generate the binary specified in Hashes.md ' + reproducible_build_compiler_version + '.')
 endif
 
 executable(
@@ -262,15 +258,18 @@ install_data('examples/config', install_dir : '/etc/xdg/cagebreak')
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
+  secssinceepoch = 1673193959
+  shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
   mandir5 = join_paths(get_option('mandir'), 'man5')
+  mandir7 = join_paths(get_option('mandir'), 'man7')
 
   cagebreak_man = custom_target('cagebreak_man',
     output : 'cagebreak.1',
     input : 'man/cagebreak.1.md',
-	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1658688233 ; @0@ < @INPUT@'.format(scdoc.path())],
+    capture : true,
+    command : [sh, '-c', shcommand],
     install: true,
     install_dir: mandir1
     )
@@ -278,10 +277,19 @@ if get_option('man-pages')
   cagebreak_man = custom_target('cagebreak_config_man',
     output : 'cagebreak-config.5',
     input : 'man/cagebreak-config.5.md',
-	capture : true,
-    command : [sh, '-c', 'export SOURCE_DATE_EPOCH=1658688233 ; @0@ < @INPUT@'.format(scdoc.path())],
+    capture : true,
+    command : [sh, '-c', shcommand],
     install: true,
     install_dir: mandir5
+    )
+
+  cagebreak_man = custom_target('cagebreak_socket_man',
+    output : 'cagebreak-socket.7',
+    input : 'man/cagebreak-socket.7.md',
+    capture : true,
+    command : [sh, '-c', shcommand],
+    install: true,
+    install_dir: mandir7
     )
 endif
 

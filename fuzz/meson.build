@@ -1,3 +1,6 @@
+# Copyright 2020 - 2023, project-repo and the cagebreak contributors
+# SPDX -License-Identifier: MIT
+
 fuzz_sources = [
   'fuzz-parse.c', 
   'fuzz-lib.c',
@@ -19,7 +22,7 @@ endif
 
 override_lib = shared_library('execl_override',
   [ 'execl_override.c' ],
-  dependencies: [ pixman,cairo,pango,pangocairo ],
+  dependencies: [ cairo,pango,pangocairo ],
   install: false
   )
 

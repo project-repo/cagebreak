@@ -1,3 +1,6 @@
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
+
 #ifndef CG_SEAT_H
 #define CG_SEAT_H
 
@@ -11,6 +14,8 @@ struct cg_input_device;
 struct wlr_seat;
 struct wlr_xcursor_manager;
 struct wlr_backend;
+struct wlr_surface;
+struct cg_input_config;
 
 #define DEFAULT_XCURSOR "left_ptr"
 #define XCURSOR_SIZE 24
@@ -26,7 +31,9 @@ struct cg_seat {
 	uint16_t num_pointers;
 	uint16_t num_touch;
 
+	bool enable_cursor;
 	struct wlr_cursor *cursor;
+	struct cg_tile *cursor_tile;
 	struct wlr_xcursor_manager *xcursor_manager;
 	struct wl_listener cursor_motion;
 	struct wl_listener cursor_motion_absolute;
@@ -60,6 +67,8 @@ struct cg_seat {
 struct cg_keyboard_group {
 	struct wlr_keyboard_group *wlr_group;
 	struct cg_seat *seat;
+	char *identifier;
+	int enable_keybindings;
 
 	struct wl_listener key;
 	struct wl_listener modifiers;
@@ -85,6 +94,7 @@ struct cg_drag_icon {
 	struct wl_list link; // seat::drag_icons
 	struct cg_seat *seat;
 	struct wlr_drag_icon *wlr_drag_icon;
+	struct wlr_scene_tree *scene_tree;
 
 	/* The drag icon has a position in layout coordinates. */
 	double lx, ly;
@@ -104,5 +114,4 @@ void
 seat_add_device(struct cg_seat *seat, struct cg_input_device *device);
 void
 seat_remove_device(struct cg_seat *seat, struct cg_input_device *device);
-
 #endif

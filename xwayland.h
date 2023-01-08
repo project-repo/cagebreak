@@ -1,3 +1,6 @@
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
+
 #ifndef CG_XWAYLAND_H
 #define CG_XWAYLAND_H
 
@@ -10,7 +13,6 @@ struct cg_xwayland_view {
 	struct wl_listener destroy;
 	struct wl_listener unmap;
 	struct wl_listener map;
-	struct wl_listener commit;
 	struct wl_listener request_fullscreen;
 };
 

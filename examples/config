@@ -1,3 +1,5 @@
+# Copyright 2020 - 2023, project-repo and the cagebreak contributors
+# SPDX -License-Identifier: MIT
 ######################
 # General settings an key bindings
 ######################
@@ -40,6 +42,9 @@ definekey resize l resizeright
 definekey resize j resizedown
 definekey resize k resizeup
 definekey resize Escape setmode top
+
+#unhide cursor (default)
+cursor enable
 
 ######################
 #Workspaces
@@ -95,6 +100,7 @@ definekey top XF86MonBrightnessUp exec xbacklight -inc 1
 #output eDP-1 disable
 #output eDP-1 enable
 #output eDP-1 prio 1
+#output eDP-2 pos 0 0 res 1366x768 rate 60 scale 2.0
 
 #####################
 #Input configuration

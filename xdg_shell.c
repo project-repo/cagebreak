@@ -1,17 +1,13 @@
-/*
- * Cagebreak: A Wayland tiling compositor.
- *
- * Copyright (C) 2020-2022 The Cagebreak Authors
- * Copyright (C) 2018-2019 Jente Hidskes
- *
- * See the LICENSE file accompanying this file.
- */
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
 
+#include <assert.h>
 #include <stdbool.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
 #include <wlr/types/wlr_xdg_shell.h>
 #include <wlr/util/box.h>
@@ -24,8 +20,29 @@
 #include "workspace.h"
 #include "xdg_shell.h"
 
+static struct cg_view *
+popup_get_view(struct wlr_xdg_popup *popup) {
+	while(true) {
+		if(popup->parent == NULL ||
+		   !wlr_surface_is_xdg_surface(popup->parent)) {
+			return NULL;
+		}
+		struct wlr_xdg_surface *xdg_surface =
+		    wlr_xdg_surface_from_wlr_surface(popup->parent);
+		switch(xdg_surface->role) {
+		case WLR_XDG_SURFACE_ROLE_TOPLEVEL:
+			return xdg_surface->data;
+		case WLR_XDG_SURFACE_ROLE_POPUP:
+			popup = xdg_surface->popup;
+			break;
+		case WLR_XDG_SURFACE_ROLE_NONE:
+			return NULL;
+		}
+	}
+}
+
 static void
-xdg_decoration_handle_destroy(struct wl_listener *listener, void *_data) {
+xdg_decoration_handle_destroy(struct wl_listener *listener, void *data) {
 	struct cg_xdg_decoration *xdg_decoration =
 	    wl_container_of(listener, xdg_decoration, destroy);
 
@@ -53,100 +70,25 @@ xdg_decoration_handle_request_mode(struct wl_listener *listener, void *_data) {
 #endif
 
 static void
-xdg_popup_destroy(struct cg_view_child *child) {
-	if(!child) {
-		return;
-	}
-
-	view_damage_child(child, true);
-	struct cg_xdg_popup *popup = (struct cg_xdg_popup *)child;
-	wl_list_remove(&popup->destroy.link);
-	wl_list_remove(&popup->map.link);
-	wl_list_remove(&popup->unmap.link);
-	wl_list_remove(&popup->new_popup.link);
-	view_child_finish(&popup->view_child);
-	free(popup);
-}
-
-static void
-handle_xdg_popup_map(struct wl_listener *listener, void *_data) {
-	struct cg_xdg_popup *popup = wl_container_of(listener, popup, map);
-	view_damage_whole(popup->view_child.view);
-}
-
-static void
-handle_xdg_popup_unmap(struct wl_listener *listener, void *_data) {
-	struct cg_xdg_popup *popup = wl_container_of(listener, popup, unmap);
-	view_damage_whole(popup->view_child.view);
-}
-
-static void
-handle_xdg_popup_destroy(struct wl_listener *listener, void *_data) {
-	struct cg_xdg_popup *popup = wl_container_of(listener, popup, destroy);
-	struct cg_view_child *view_child = (struct cg_view_child *)popup;
-	xdg_popup_destroy(view_child);
-}
-
-static void
-xdg_popup_create(struct cg_view *view, struct wlr_xdg_popup *wlr_popup);
-
-static void
-popup_handle_new_xdg_popup(struct wl_listener *listener, void *data) {
-	struct cg_xdg_popup *popup = wl_container_of(listener, popup, new_popup);
-	struct wlr_xdg_popup *wlr_popup = data;
-	xdg_popup_create(popup->view_child.view, wlr_popup);
-}
-
-static void
-popup_unconstrain(struct cg_xdg_popup *popup) {
-	struct cg_view *view = popup->view_child.view;
-	struct wlr_box *popup_box = &popup->wlr_popup->geometry;
+popup_unconstrain(struct cg_view *view, struct wlr_xdg_popup *popup) {
+	struct wlr_box *popup_box = &popup->current.geometry;
 
 	struct wlr_output_layout *output_layout = view->server->output_layout;
-	struct wlr_box *view_output_box = wlr_output_layout_get_box(
-	    output_layout, view->workspace->output->wlr_output);
+	struct wlr_box view_output_box;
+	wlr_output_layout_get_box(
+	    output_layout, view->workspace->output->wlr_output, &view_output_box);
 	struct wlr_output *wlr_output = wlr_output_layout_output_at(
-	    output_layout, view_output_box->x + view->ox + popup_box->x,
-	    view_output_box->y + view->oy + popup_box->y);
-	struct wlr_box *output_box =
-	    wlr_output_layout_get_box(output_layout, wlr_output);
+	    output_layout, view_output_box.x + view->ox + popup_box->x,
+	    view_output_box.y + view->oy + popup_box->y);
+	struct wlr_box output_box;
+	wlr_output_layout_get_box(output_layout, wlr_output, &output_box);
 
 	struct wlr_box output_toplevel_box = {.x = -view->ox,
 	                                      .y = -view->oy,
-	                                      .width = output_box->width,
-	                                      .height = output_box->height};
+	                                      .width = output_box.width,
+	                                      .height = output_box.height};
 
-	wlr_xdg_popup_unconstrain_from_box(popup->wlr_popup, &output_toplevel_box);
-}
-
-static void
-xdg_popup_create(struct cg_view *view, struct wlr_xdg_popup *wlr_popup) {
-	struct cg_xdg_popup *popup = calloc(1, sizeof(struct cg_xdg_popup));
-	if(!popup) {
-		return;
-	}
-
-	popup->wlr_popup = wlr_popup;
-	view_child_init(&popup->view_child, NULL, view, wlr_popup->base->surface);
-	popup->view_child.destroy = xdg_popup_destroy;
-	popup->destroy.notify = handle_xdg_popup_destroy;
-	wl_signal_add(&wlr_popup->base->events.destroy, &popup->destroy);
-	popup->map.notify = handle_xdg_popup_map;
-	wl_signal_add(&wlr_popup->base->events.map, &popup->map);
-	popup->unmap.notify = handle_xdg_popup_unmap;
-	wl_signal_add(&wlr_popup->base->events.unmap, &popup->unmap);
-	popup->new_popup.notify = popup_handle_new_xdg_popup;
-	wl_signal_add(&wlr_popup->base->events.new_popup, &popup->new_popup);
-
-	popup_unconstrain(popup);
-}
-
-static void
-handle_new_xdg_popup(struct wl_listener *listener, void *data) {
-	struct cg_xdg_shell_view *xdg_shell_view =
-	    wl_container_of(listener, xdg_shell_view, new_popup);
-	struct wlr_xdg_popup *wlr_popup = data;
-	xdg_popup_create(&xdg_shell_view->view, wlr_popup);
+	wlr_xdg_popup_unconstrain_from_box(popup, &output_toplevel_box);
 }
 
 static struct cg_xdg_shell_view *
@@ -159,27 +101,29 @@ xdg_shell_view_from_const_view(const struct cg_view *view) {
 	return (const struct cg_xdg_shell_view *)view;
 }
 
-static char *
-get_title(const struct cg_view *view) {
-	const struct cg_xdg_shell_view *xdg_shell_view =
-	    xdg_shell_view_from_const_view(view);
-	return xdg_shell_view->xdg_surface->toplevel->title;
+static pid_t
+get_pid(const struct cg_view *view) {
+	pid_t pid;
+	struct wl_client *client =
+	    wl_resource_get_client(view->wlr_surface->resource);
+	wl_client_get_credentials(client, &pid, NULL, NULL);
+	return pid;
 }
 
 static bool
 is_primary(const struct cg_view *view) {
 	const struct cg_xdg_shell_view *xdg_shell_view =
 	    xdg_shell_view_from_const_view(view);
-	struct wlr_xdg_surface *parent =
+	struct wlr_xdg_toplevel *parent =
 	    xdg_shell_view->xdg_surface->toplevel->parent;
-	/* FIXME: role is 0? */
-	return parent == NULL; /*&& role == WLR_XDG_SURFACE_ROLE_TOPLEVEL */
+	return parent == NULL;
 }
 
 static void
 activate(struct cg_view *view, bool activate) {
 	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
-	wlr_xdg_toplevel_set_activated(xdg_shell_view->xdg_surface, activate);
+	wlr_xdg_toplevel_set_activated(xdg_shell_view->xdg_surface->toplevel,
+	                               activate);
 }
 
 static void
@@ -187,17 +131,18 @@ close(struct cg_view *view) {
 	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
 	struct wlr_xdg_surface *surface = xdg_shell_view->xdg_surface;
 	if(surface->role == WLR_XDG_SURFACE_ROLE_TOPLEVEL) {
-		wlr_xdg_toplevel_send_close(surface);
+		wlr_xdg_toplevel_send_close(surface->toplevel);
 	}
 }
 
 static void
 maximize(struct cg_view *view, int width, int height) {
 	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
-	wlr_xdg_toplevel_set_size(xdg_shell_view->xdg_surface, width, height);
+	wlr_xdg_toplevel_set_size(xdg_shell_view->xdg_surface->toplevel, width,
+	                          height);
 	enum wlr_edges edges =
 	    WLR_EDGE_LEFT | WLR_EDGE_RIGHT | WLR_EDGE_TOP | WLR_EDGE_BOTTOM;
-	wlr_xdg_toplevel_set_tiled(xdg_shell_view->xdg_surface, edges);
+	wlr_xdg_toplevel_set_tiled(xdg_shell_view->xdg_surface->toplevel, edges);
 }
 
 static void
@@ -207,46 +152,24 @@ destroy(struct cg_view *view) {
 }
 
 static void
-for_each_surface(struct cg_view *view, wlr_surface_iterator_func_t iterator,
-                 void *data) {
-	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
-	wlr_xdg_surface_for_each_surface(xdg_shell_view->xdg_surface, iterator,
-	                                 data);
-}
-
-static void
-for_each_popup(struct cg_view *view, wlr_surface_iterator_func_t iterator,
-               void *data) {
-	struct cg_xdg_shell_view *xdg_shell_view = xdg_shell_view_from_view(view);
-	wlr_xdg_surface_for_each_popup_surface(xdg_shell_view->xdg_surface,
-	                                       iterator, data);
-}
-
-static struct wlr_surface *
-wlr_surface_at(const struct cg_view *view, double sx, double sy, double *sub_x,
-               double *sub_y) {
-	const struct cg_xdg_shell_view *xdg_shell_view =
-	    xdg_shell_view_from_const_view(view);
-	return wlr_xdg_surface_surface_at(xdg_shell_view->xdg_surface, sx, sy,
-	                                  sub_x, sub_y);
-}
-
-static void
 handle_xdg_shell_surface_request_fullscreen(struct wl_listener *listener,
                                             void *data) {
 	struct cg_xdg_shell_view *xdg_shell_view =
 	    wl_container_of(listener, xdg_shell_view, request_fullscreen);
-	struct wlr_xdg_toplevel_set_fullscreen_event *event = data;
-	wlr_xdg_toplevel_set_fullscreen(xdg_shell_view->xdg_surface,
-	                                event->fullscreen);
-}
 
-static void
-handle_xdg_shell_surface_commit(struct wl_listener *listener, void *_data) {
-	struct cg_xdg_shell_view *xdg_shell_view =
-	    wl_container_of(listener, xdg_shell_view, commit);
-	struct cg_view *view = &xdg_shell_view->view;
-	view_damage_part(view);
+	/**
+	 * Certain clients do not like figuring out their own window geometry if
+	 * they display in fullscreen mode, so we set it here.
+	 */
+	struct wlr_box layout_box;
+	wlr_output_layout_get_box(xdg_shell_view->view.server->output_layout, NULL,
+	                          &layout_box);
+	wlr_xdg_toplevel_set_size(xdg_shell_view->xdg_surface->toplevel,
+	                          layout_box.width, layout_box.height);
+
+	wlr_xdg_toplevel_set_fullscreen(
+	    xdg_shell_view->xdg_surface->toplevel,
+	    xdg_shell_view->xdg_surface->toplevel->requested.fullscreen);
 }
 
 static void
@@ -254,9 +177,6 @@ handle_xdg_shell_surface_unmap(struct wl_listener *listener, void *_data) {
 	struct cg_xdg_shell_view *xdg_shell_view =
 	    wl_container_of(listener, xdg_shell_view, unmap);
 	struct cg_view *view = &xdg_shell_view->view;
-
-	wl_list_remove(&xdg_shell_view->new_popup.link);
-	wl_list_remove(&xdg_shell_view->commit.link);
 
 	view_unmap(view);
 }
@@ -267,17 +187,9 @@ handle_xdg_shell_surface_map(struct wl_listener *listener, void *_data) {
 	    wl_container_of(listener, xdg_shell_view, map);
 	struct cg_view *view = &xdg_shell_view->view;
 
-	xdg_shell_view->commit.notify = handle_xdg_shell_surface_commit;
-	wl_signal_add(&xdg_shell_view->xdg_surface->surface->events.commit,
-	              &xdg_shell_view->commit);
-	xdg_shell_view->new_popup.notify = handle_new_xdg_popup;
-	wl_signal_add(&xdg_shell_view->xdg_surface->events.new_popup,
-	              &xdg_shell_view->new_popup);
-
 	view_map(view, xdg_shell_view->xdg_surface->surface,
 	         view->server->curr_output
 	             ->workspaces[view->server->curr_output->curr_workspace]);
-	view_damage_whole(view);
 }
 
 static void
@@ -295,17 +207,13 @@ handle_xdg_shell_surface_destroy(struct wl_listener *listener, void *_data) {
 	view_destroy(view);
 }
 
-static const struct cg_view_impl xdg_shell_view_impl = {
-    .get_title = get_title,
-    .is_primary = is_primary,
-    .activate = activate,
-    .close = close,
-    .maximize = maximize,
-    .destroy = destroy,
-    .for_each_surface = for_each_surface,
-    .for_each_popup = for_each_popup,
-    .wlr_surface_at = wlr_surface_at,
-};
+static const struct cg_view_impl xdg_shell_view_impl = {.get_pid = get_pid,
+                                                        .is_primary =
+                                                            is_primary,
+                                                        .activate = activate,
+                                                        .close = close,
+                                                        .maximize = maximize,
+                                                        .destroy = destroy};
 
 void
 handle_xdg_shell_surface_new(struct wl_listener *listener, void *data) {
@@ -313,31 +221,72 @@ handle_xdg_shell_surface_new(struct wl_listener *listener, void *data) {
 	    wl_container_of(listener, server, new_xdg_shell_surface);
 	struct wlr_xdg_surface *xdg_surface = data;
 
-	if(xdg_surface->role != WLR_XDG_SURFACE_ROLE_TOPLEVEL) {
-		return;
+	switch(xdg_surface->role) {
+	case WLR_XDG_SURFACE_ROLE_TOPLEVEL:;
+		struct cg_xdg_shell_view *xdg_shell_view =
+		    calloc(1, sizeof(struct cg_xdg_shell_view));
+		if(!xdg_shell_view) {
+			wlr_log(WLR_ERROR, "Failed to allocate XDG Shell view");
+			return;
+		}
+
+		view_init(&xdg_shell_view->view, CG_XDG_SHELL_VIEW,
+		          &xdg_shell_view_impl, server);
+
+		xdg_shell_view->xdg_surface = xdg_surface;
+
+		xdg_shell_view->map.notify = handle_xdg_shell_surface_map;
+		wl_signal_add(&xdg_surface->events.map, &xdg_shell_view->map);
+		xdg_shell_view->unmap.notify = handle_xdg_shell_surface_unmap;
+		wl_signal_add(&xdg_surface->events.unmap, &xdg_shell_view->unmap);
+		xdg_shell_view->destroy.notify = handle_xdg_shell_surface_destroy;
+		wl_signal_add(&xdg_surface->events.destroy, &xdg_shell_view->destroy);
+		xdg_shell_view->request_fullscreen.notify =
+		    handle_xdg_shell_surface_request_fullscreen;
+		wl_signal_add(&xdg_surface->toplevel->events.request_fullscreen,
+		              &xdg_shell_view->request_fullscreen);
+
+		xdg_surface->data = xdg_shell_view;
+		break;
+	case WLR_XDG_SURFACE_ROLE_POPUP:;
+		struct wlr_xdg_popup *popup = xdg_surface->popup;
+		struct cg_view *view = popup_get_view(popup);
+		if(view == NULL) {
+			return;
+		}
+
+		struct wlr_scene_tree *parent_scene_tree = NULL;
+		struct wlr_xdg_surface *parent =
+		    wlr_xdg_surface_from_wlr_surface(popup->parent);
+		switch(parent->role) {
+		case WLR_XDG_SURFACE_ROLE_TOPLEVEL:;
+			parent_scene_tree = view->scene_tree;
+			break;
+		case WLR_XDG_SURFACE_ROLE_POPUP:
+			parent_scene_tree = parent->data;
+			break;
+		case WLR_XDG_SURFACE_ROLE_NONE:
+			break;
+		}
+		if(parent_scene_tree == NULL) {
+			return;
+		}
+
+		struct wlr_scene_tree *popup_scene_tree =
+		    wlr_scene_xdg_surface_create(parent_scene_tree, xdg_surface);
+		if(popup_scene_tree == NULL) {
+			wlr_log(WLR_ERROR,
+			        "Failed to allocate scene-graph node for XDG popup");
+			return;
+		}
+
+		popup_unconstrain(view, popup);
+
+		xdg_surface->data = popup_scene_tree;
+		break;
+	case WLR_XDG_SURFACE_ROLE_NONE:
+		assert(false); // unreachable
 	}
-
-	struct cg_xdg_shell_view *xdg_shell_view =
-	    calloc(1, sizeof(struct cg_xdg_shell_view));
-	if(!xdg_shell_view) {
-		wlr_log(WLR_ERROR, "Failed to allocate XDG Shell view");
-		return;
-	}
-	view_init(&xdg_shell_view->view, CG_XDG_SHELL_VIEW, &xdg_shell_view_impl,
-	          server);
-
-	xdg_shell_view->xdg_surface = xdg_surface;
-
-	xdg_shell_view->map.notify = handle_xdg_shell_surface_map;
-	wl_signal_add(&xdg_surface->events.map, &xdg_shell_view->map);
-	xdg_shell_view->unmap.notify = handle_xdg_shell_surface_unmap;
-	wl_signal_add(&xdg_surface->events.unmap, &xdg_shell_view->unmap);
-	xdg_shell_view->destroy.notify = handle_xdg_shell_surface_destroy;
-	wl_signal_add(&xdg_surface->events.destroy, &xdg_shell_view->destroy);
-	xdg_shell_view->request_fullscreen.notify =
-	    handle_xdg_shell_surface_request_fullscreen;
-	wl_signal_add(&xdg_surface->toplevel->events.request_fullscreen,
-	              &xdg_shell_view->request_fullscreen);
 }
 
 void

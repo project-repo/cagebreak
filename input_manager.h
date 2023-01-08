@@ -1,3 +1,6 @@
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
+
 #ifndef CG_INPUT_MANAGER_H
 #define CG_INPUT_MANAGER_H
 
@@ -8,12 +11,19 @@
 
 struct cg_input_manager *
 input_manager_create(struct cg_server *server);
-struct cg_input_config *
-input_device_get_config(struct cg_input_device *device);
 void
 input_manager_handle_device_destroy(struct wl_listener *listener, void *data);
 uint32_t
 input_manager_get_mouse_button(const char *name, char **error);
+struct cg_input_config *
+input_manager_create_empty_input_config();
+struct cg_input_config *
+input_manager_merge_input_configs(struct cg_input_config *cfg1,
+                                  struct cg_input_config *cfg2);
+void
+cg_input_manager_configure(struct cg_server *server);
+void
+cg_input_manager_configure_keyboard_group(struct cg_keyboard_group *group);
 
 struct cg_input_manager {
 	struct wl_list devices;
@@ -50,6 +60,7 @@ enum cg_input_config_mapped_to {
 struct cg_input_config {
 	char *identifier;
 
+	/* Libinput devices */
 	int accel_profile;
 	struct calibration_matrix calibration_matrix;
 	int click_method;
@@ -92,13 +103,18 @@ struct cg_input_config {
 
 	bool capturable;
 	struct wlr_box region;
+
+	/* Keyboards */
+	int enable_keybindings;
+	int repeat_delay;
+	int repeat_rate;
 };
 
 struct cg_input_device {
 	char *identifier;
 	struct cg_server *server;
 	struct wlr_input_device *wlr_device;
-	struct wl_list link;
+	struct wl_list link; // input_manager::devices
 	struct wl_listener device_destroy;
 	bool is_virtual;
 

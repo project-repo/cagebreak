@@ -1,4 +1,4 @@
-cagebreak(1) "Version 1.9.1" "Cagebreak Manual"
+cagebreak(1) "Version 2.0.0" "Cagebreak Manual"
 
 # NAME
 
@@ -32,11 +32,14 @@ are displayed in a message box at the top right of the screen.
 
 # OPTIONS
 
+*-c <path>*
+	Load configuration file from <path>
+
+*-e*
+	Enable socket
+
 *-h*
 	Display help message and exit
-
-*-r*
-	Rotate the output 90 degrees clockwise, can be specified up to three times
 
 *-s*
 	Show all available inputs and outputs
@@ -68,6 +71,7 @@ are displayed in a message box at the top right of the screen.
 # SEE ALSO
 
 *cagebreak-config(5)*
+*cagebreak-socket(7)*
 
 # BUGS
 
@@ -83,7 +87,7 @@ GPG Fingerprints:
 
 # LICENSE
 
-Copyright (c) 2020-2022 The Cagebreak authors
+Copyright (c) 2020-2023 The Cagebreak authors
 
 Copyright (c) 2018-2020 Jente Hidskes
 

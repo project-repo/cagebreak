@@ -1,10 +1,5 @@
-/*
- * Cagebreak: A Wayland tiling compositor.
- *
- * Copyright (C) 2018-2020 Jente Hidskes
- *
- * See the LICENSE file accompanying this file.
- */
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX -License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200812L
 
@@ -38,7 +33,7 @@ set_configuration(struct cg_server *server, char *content) {
 	    (line = strtok_r(NULL, "\n", &content)) != NULL; ++line_num) {
 		line[strcspn(line, "\n")] = '\0';
 		if(*line != '\0' && *line != '#') {
-			char *errstr;
+			char *errstr = NULL;
 			server->running = true;
 			if(parse_rc_line(server, line, &errstr) != 0) {
 				if(errstr != NULL) {
@@ -56,10 +51,9 @@ LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 	if(size == 0) {
 		return 0;
 	}
-	int max_line_size = 256 > size ? size : 256;
-	char *str = malloc(sizeof(char) * max_line_size);
-	strncpy(str, (char *)data, max_line_size);
-	str[max_line_size - 1] = 0;
+	char *str = malloc(sizeof(char) * size);
+	strncpy(str, (char *)data, size);
+	str[size - 1] = 0;
 	set_configuration(&server, str);
 	free(str);
 	keybinding_list_free(server.keybindings);
