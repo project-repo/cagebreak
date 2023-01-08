@@ -258,7 +258,7 @@ install_data('examples/config', install_dir : '/etc/xdg/cagebreak')
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1664566469
+  secssinceepoch = 1673193959
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
