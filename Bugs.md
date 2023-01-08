@@ -881,7 +881,7 @@ dump functionality which would enable almost arbitrary scripting.
 Related Material:
 - [cagebreak-config man page](man/cagebreak-config.md)
 - [cagebreak-socket man page](man/cagebreak-socket.md)
-- scripting examples TODO
+- [scripting examples](https://github.com/project-repo/cagebreak/tree/development/example_scripts)
 
 The github issue discussion is partially reproduced below:
 
