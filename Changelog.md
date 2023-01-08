@@ -82,7 +82,6 @@ Changelog:
   * Move to wlr_scene
   * Add events displaying change over the socket
     * this enables scripting tools
-    * Add test suite based on socket information
   * Add support for scaling outputs (thanks to Oliver Friedmann)
   * Remove -r flag
   * Add rotation to output configuration
