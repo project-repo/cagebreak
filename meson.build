@@ -3,7 +3,7 @@
 project(
   'cagebreak',
   'c',
-version : '2.0.0',
+version : '2.0.1',
 license : 'MIT',
 default_options : ['c_std=c11', 'warning_level=3']
 )
@@ -259,7 +259,7 @@ install_data('examples/config', install_dir : '/etc/xdg/cagebreak')
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1673193959
+  secssinceepoch = 1673282376
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
