@@ -133,7 +133,7 @@ struct keybinding **
 find_keybinding(const struct keybinding_list *list,
                 const struct keybinding *keybinding);
 struct keybinding_list *
-keybinding_list_init();
+keybinding_list_init(void);
 
 int
 run_action(enum keybinding_action action, struct cg_server *server,
