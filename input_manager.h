@@ -16,7 +16,7 @@ input_manager_handle_device_destroy(struct wl_listener *listener, void *data);
 uint32_t
 input_manager_get_mouse_button(const char *name, char **error);
 struct cg_input_config *
-input_manager_create_empty_input_config();
+input_manager_create_empty_input_config(void);
 struct cg_input_config *
 input_manager_merge_input_configs(struct cg_input_config *cfg1,
                                   struct cg_input_config *cfg2);

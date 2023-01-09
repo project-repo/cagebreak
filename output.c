@@ -332,7 +332,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 }
 
 struct cg_output_config *
-empty_output_config() {
+empty_output_config(void) {
 	struct cg_output_config *cfg = calloc(1, sizeof(struct cg_output_config));
 	if(cfg == NULL) {
 		wlr_log(WLR_ERROR, "Could not allocate output configuration.");

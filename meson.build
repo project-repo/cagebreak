@@ -11,6 +11,7 @@ default_options : ['c_std=c11', 'warning_level=3']
 add_project_arguments(
   [
     '-DWLR_USE_UNSTABLE',
+    '-Werror=implicit-function-declaration',
     '-Wundef',
     '-Wno-unused-parameter',
   ],

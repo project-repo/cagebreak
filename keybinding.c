@@ -126,7 +126,7 @@ keybinding_list_push(struct keybinding_list *list,
 }
 
 struct keybinding_list *
-keybinding_list_init() {
+keybinding_list_init(void) {
 	struct keybinding_list *list = malloc(sizeof(struct keybinding_list));
 	list->keybindings = malloc(sizeof(struct keybinding *));
 	list->capacity = 1;
