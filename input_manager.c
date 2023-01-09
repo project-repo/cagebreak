@@ -89,7 +89,7 @@ input_manager_handle_device_destroy(struct wl_listener *listener, void *data) {
 }
 
 struct cg_input_config *
-input_manager_create_empty_input_config() {
+input_manager_create_empty_input_config(void) {
 	struct cg_input_config *cfg = calloc(1, sizeof(struct cg_input_config));
 	if(cfg == NULL) {
 		return NULL;

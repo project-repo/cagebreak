@@ -1,4 +1,4 @@
-cagebreak-config(5) "Version 2.0.0" "Cagebreak Manual"
+cagebreak-config(5) "Version 2.0.1" "Cagebreak Manual"
 
 # NAME
 

@@ -1110,3 +1110,13 @@ Under these circumstances Cagebreak did not quit right after startup.
   * Fixed: 2.0.0
 
 Cagebreak did not build with wlroots 0.16.1 and this was adjusted.
+
+## Issue 54
+
+  * github issue numer: #36
+  * Fixed: 2.0.1
+
+Cagebreak was not compatible with clang 15 and POSIX which was causing issues
+with building under FreeBSD.
+
+Thanks to Jan Beich for pointing this out and providing a PR.
