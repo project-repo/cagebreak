@@ -611,7 +611,7 @@ main(int argc, char *argv[]) {
 		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY.",
 		              "Clients may not be able to connect");
 	} else {
-		fprintf(stderr,
+		fprintf(stdout,
 		        "Cagebreak " CG_VERSION " is running on Wayland display %s\n",
 		        socket);
 	}
@@ -623,7 +623,7 @@ main(int argc, char *argv[]) {
 	if(show_info) {
 		char *msg = server_show_info(&server);
 		if(msg != NULL) {
-			fprintf(stderr, "%s", msg);
+			fprintf(stdout, "%s", msg);
 			free(msg);
 		} else {
 			wlr_log(WLR_ERROR, "Failed to get info on cagebreak setup\n");
