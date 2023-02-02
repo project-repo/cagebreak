@@ -206,8 +206,8 @@ reproducible_build_versions = {
   'wayland_cursor': '1.21.0',
   'wlroots': '0.16.1',
   'xkbcommon': '1.5.0',
-  'fontconfig': '2.14.1',
-  'libinput': '1.22.0',
+  'fontconfig': '2.14.2',
+  'libinput': '1.22.1',
   'libevdev': '1.13.0',
   'libudev': '252',
   'pango': '1.50.12',
@@ -238,7 +238,7 @@ foreach name, dep : cagebreak_dependencies_dict
 endforeach
 
 reproducible_build_compiler = 'gcc'
-reproducible_build_compiler_version = '12.2.0'
+reproducible_build_compiler_version = '12.2.1'
 
 if cc.get_id() != reproducible_build_compiler
   warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in Hashes.md (' + reproducible_build_compiler + ').')
