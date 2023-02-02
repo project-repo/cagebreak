@@ -214,8 +214,9 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 				        wlr_scene_buffer_from_node(node));
 				if(scene_surface != NULL) {
 					surface = scene_surface->surface;
-					if(surface!=NULL) {
-						wlr_seat_pointer_notify_enter(wlr_seat, surface, sx, sy);
+					if(surface != NULL) {
+						wlr_seat_pointer_notify_enter(wlr_seat, surface, sx,
+						                              sy);
 					}
 				}
 			}
@@ -703,7 +704,7 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 		    wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node));
 		if(scene_surface != NULL) {
 			surface = scene_surface->surface;
-			if(surface!=NULL) {
+			if(surface != NULL) {
 				wlr_seat_pointer_notify_enter(wlr_seat, surface, sx, sy);
 			}
 		}

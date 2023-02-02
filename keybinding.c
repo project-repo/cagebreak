@@ -699,11 +699,12 @@ keybinding_cycle_views(struct cg_server *server, bool reverse, bool ipc) {
 
 	seat_set_focus(server->seat, next_view);
 	if(ipc) {
-		int curr_id=-1;
-		int curr_pid=-1;
-		if(current_view!=NULL && current_view->link.next != curr_workspace->views.next) {
-			curr_id=current_view->id;
-			curr_pid=current_view->impl->get_pid(current_view);
+		int curr_id = -1;
+		int curr_pid = -1;
+		if(current_view != NULL &&
+		   current_view->link.next != curr_workspace->views.next) {
+			curr_id = current_view->id;
+			curr_pid = current_view->impl->get_pid(current_view);
 		}
 		ipc_send_event(
 		    curr_workspace->output->server,
@@ -711,9 +712,7 @@ keybinding_cycle_views(struct cg_server *server, bool reverse, bool ipc) {
 		    "pid\":%d,"
 		    "\"new_view_id\":%d,\"new_view_pid\":%d,\"tile_id\":%d,"
 		    "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
-			curr_id,
-			curr_pid,
-		    next_view == NULL ? -1 : (int)next_view->id,
+		    curr_id, curr_pid, next_view == NULL ? -1 : (int)next_view->id,
 		    next_view == NULL ? -1 : (int)next_view->impl->get_pid(next_view),
 		    next_view->tile->id, curr_workspace->num + 1,
 		    curr_workspace->output->wlr_output->name,
