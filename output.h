@@ -1,5 +1,5 @@
 // Copyright 2020 - 2023, project-repo and the cagebreak contributors
-// SPDX -License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 #ifndef CG_OUTPUT_H
 #define CG_OUTPUT_H
