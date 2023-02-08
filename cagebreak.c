@@ -197,7 +197,7 @@ set_configuration(struct cg_server *server,
 			if(line == NULL) {
 				wlr_log(WLR_ERROR, "Could not allocate buffer for reading "
 				                   "configuration file.");
-				return 1;
+				return 2;
 			}
 		}
 		if(strlen(line) == 0) {
@@ -632,27 +632,25 @@ main(int argc, char *argv[]) {
 	}
 
 	{ // config_file should only be visible as long as it is valid
+	    int conf_ret=1;
 		char *config_file = get_config_file(config_path);
 		if(config_file == NULL) {
 			wlr_log(WLR_ERROR, "Unable to get path to config file");
 			ret = 1;
 			goto end;
+		} else {
+			conf_ret=set_configuration(&server, config_file);
+			free(config_file);
 		}
-		int conf_ret = set_configuration(&server, config_file);
 
-		// Configurtion file not found
-		if(conf_ret != 0) {
-			if(config_file == NULL) {
+		// Configuration file not found
+		if(conf_ret == 1) {
 				char *default_conf = "/etc/xdg/cagebreak/config";
 				wlr_log(WLR_INFO, "Loading default configuration file: \"%s\"",
 				        default_conf);
 				conf_ret = set_configuration(&server, default_conf);
-			} else {
-				conf_ret = 1;
-			}
 		}
 
-		free(config_file);
 		if(conf_ret != 0 || !server.running) {
 			ret = 1;
 			goto end;
