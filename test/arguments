@@ -1,0 +1,53 @@
+#!/bin/bash
+
+testdir=$(mktemp -d)
+
+readonly helptext="Usage: ./cagebreak [OPTIONS]
+
+ -c <path>	 Load configuration file from <path>
+ -e		 Enable socket
+ -h		 Display this help message
+ -s		 Show information about the current setup and exit
+ -v		 Show the version number and exit"
+
+readonly basicheadless="Cagebreak $1 is running on Wayland display wayland-1
+Outputs:
+	 * HEADLESS-1
+Inputs:"
+
+RESULT=0
+
+# check -c option
+## Check without config file
+[[ $(2>&1 ./cagebreak -c | head -1 ) = "./cagebreak: option requires an argument -- 'c'" ]] || RESULT=1
+[[ $(2>&1 ./cagebreak -c | tail -n +2 ) = "$helptext" ]] || RESULT=1
+## Check with config file
+cp $MESONCURRENTCONFIGDIR/test/testing-configurations/-c-config $testdir
+sed -i "s|CONFIGPATH|$testdir\/result|g" $testdir/-c-config
+WLR_BACKENDS=headless ./cagebreak -c $testdir/-c-config
+[[ $(cat $testdir/result) = "SUCCESS" ]] || RESULT=1
+
+# check -e option
+## Check without socket
+cp $MESONCURRENTCONFIGDIR/test/testing-configurations/config $testdir
+readonly oldsocket=$CAGEBREAK_SOCKET
+sed -i "s|CONFIGPATH|$testdir\/socket|g" $testdir/config
+$(WLR_BACKENDS=headless ./cagebreak -c $testdir/config)
+[[ $(cat $testdir/socket) = $oldsocket ]] || RESULT=1
+## Check with socket
+cp $MESONCURRENTCONFIGDIR/test/testing-configurations/config $testdir
+sed -i "s|CONFIGPATH|$testdir\/socket|g" $testdir/config
+$(WLR_BACKENDS=headless ./cagebreak -e -c $testdir/config)
+[[ ! $(cat $testdir/socket) = $oldsocket ]] || RESULT=1
+
+# check -h option
+[[ $(./cagebreak -h) = "$helptext" ]] || RESULT=1
+
+# check -s option
+[[ $(WLR_BACKENDS=headless ./cagebreak -s) = "$basicheadless" ]] || RESULT=1
+
+
+# check -v option
+[[ $(./cagebreak -v) = "Cagebreak version $1" ]] || RESULT=1
+
+exit $RESULT

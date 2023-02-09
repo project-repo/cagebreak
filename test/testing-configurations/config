@@ -1,0 +1,2 @@
+exec (echo $CAGEBREAK_SOCKET > CONFIGPATH)
+quit

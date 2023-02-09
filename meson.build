@@ -307,3 +307,7 @@ summary = [
 	''
 ]
 message('\n'.join(summary))
+
+# Test Suite
+
+test('Arguments', find_program('test/arguments'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
