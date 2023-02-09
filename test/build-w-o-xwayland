@@ -1,0 +1,12 @@
+#! /bin/sh
+
+RESULT=0
+
+cd $MESONCURRENTCONFIGDIR
+echo "Build without xwayland"
+rm -rf test/test-w-o-xwayland
+meson setup test/test-w-o-xwayland -Dxwayland=false -Dman-pages=false --buildtype=release --fatal-meson-warnings || RESULT=1
+ninja -C test/test-w-o-xwayland || RESULT=1
+rm -rf test/test-w-o-xwayland
+
+exit "${RESULT}"

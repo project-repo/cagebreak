@@ -1,0 +1,12 @@
+#! /bin/sh
+
+RESULT=0
+
+cd $MESONCURRENTCONFIGDIR
+echo "Build standard release build"
+rm -rf test/test-w-o-warnings
+meson setup test/test-w-o-warnings -Dxwayland=true -Dman-pages=true --buildtype=release --fatal-meson-warnings || RESULT=1
+ninja -C test/test-w-o-warnings || RESULT=1
+rm -rf test/test-w-o-warnings
+
+exit "${RESULT}"
