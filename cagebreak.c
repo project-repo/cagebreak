@@ -632,23 +632,23 @@ main(int argc, char *argv[]) {
 	}
 
 	{ // config_file should only be visible as long as it is valid
-	    int conf_ret=1;
+		int conf_ret = 1;
 		char *config_file = get_config_file(config_path);
 		if(config_file == NULL) {
 			wlr_log(WLR_ERROR, "Unable to get path to config file");
 			ret = 1;
 			goto end;
 		} else {
-			conf_ret=set_configuration(&server, config_file);
+			conf_ret = set_configuration(&server, config_file);
 			free(config_file);
 		}
 
 		// Configuration file not found
 		if(conf_ret == 1) {
-				char *default_conf = "/etc/xdg/cagebreak/config";
-				wlr_log(WLR_INFO, "Loading default configuration file: \"%s\"",
-				        default_conf);
-				conf_ret = set_configuration(&server, default_conf);
+			char *default_conf = "/etc/xdg/cagebreak/config";
+			wlr_log(WLR_INFO, "Loading default configuration file: \"%s\"",
+			        default_conf);
+			conf_ret = set_configuration(&server, default_conf);
 		}
 
 		if(conf_ret != 0 || !server.running) {
