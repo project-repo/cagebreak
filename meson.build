@@ -256,6 +256,7 @@ executable(
 )
 
 install_data('examples/config', install_dir : '/etc/xdg/cagebreak')
+install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_name() + '/')
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
