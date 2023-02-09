@@ -1153,3 +1153,14 @@ focussing the background correctly when cycling.
 
 maxhbr pointed out that there was a spelling mistake in the
 SPDX-License-Identifier.
+
+## Issue 58
+
+  * github issue number: #40
+  * Fixed: 2.0.2
+
+Prior to version 2.0.2, the logic behind configuration file loading was
+broken. This had the effect, that the default configuration file was not
+loaded when the user-specific config file was not present, instead
+leading to a termination of cagebreak.
+
