@@ -1,0 +1,25 @@
+#! /bin/sh
+
+readonly declared_deps="${@}"
+readonly hardcoded_deps="fuzz/execl_override.c fuzz/fuzz-lib.c fuzz/fuzz-lib.h fuzz/fuzz-parse.c"
+readonly deps="${declared_deps} ${hardcoded_deps}"
+
+RESULT=0
+
+set -x
+
+echo $MESONCURRENTCONFIGDIR
+
+for file in ${deps}
+do
+	echo "${file}"
+	if $(clang-format -Werror --dry-run "$MESONCURRENTCONFIGDIR/${file}")
+	then
+		echo "	[x] clang-format"
+	else
+		RESULT=1
+		echo "	[ ] clang-format"
+	fi
+done
+
+exit "${RESULT}"
