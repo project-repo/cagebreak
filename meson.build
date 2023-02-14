@@ -295,8 +295,44 @@ if get_option('man-pages')
     )
 endif
 
+fuzz_sources = [
+  'fuzz/fuzz-parse.c', 
+  'fuzz/fuzz-lib.c',
+  ]
+
+fuzz_headers = [
+  'parse.h',
+  'fuzz/fuzz-lib.h',
+  ]
+
+fuzz_override_lib = [ 'fuzz/execl_override.c' ]
+
 if get_option('fuzz')
-  subdir('fuzz')
+  inc = include_directories(['.','build/'])
+
+  fuzz_dependencies = cagebreak_dependencies
+  if fuzzing_engine.found()
+    fuzz_dependencies += fuzzing_engine
+  else
+    link_args = [ '-fsanitize=fuzzer', ]
+  endif
+
+override_lib = shared_library('execl_override',
+  [ fuzz_override_lib ],
+  dependencies: [ cairo,pango,pangocairo ],
+  install: false
+  )
+
+  executable(
+    'fuzz-parse',
+    fuzz_sources + fuzz_headers + cagebreak_headers + cagebreak_sources,
+    dependencies: fuzz_dependencies,
+    install: false,
+    include_directories: inc,
+    link_args: link_args + fuzz_link_args,
+    c_args: fuzz_compile_args,
+    link_with: override_lib,
+    )
 endif
 
 summary = [
@@ -312,7 +348,7 @@ message('\n'.join(summary))
 
 test('Build without warnings', find_program('test/build-w-o-warnings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
 test('Build without xwayland', find_program('test/build-w-o-xwayland'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
-test('Clang-format formatting check', find_program('test/clang-format'), args : [ cagebreak_main_file + cagebreak_source_strings + cagebreak_header_strings ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
+test('Clang-format (formatting check)', find_program('test/clang-format'), args : [ cagebreak_main_file + cagebreak_source_strings + cagebreak_header_strings + fuzz_sources + fuzz_headers + fuzz_override_lib ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
 test('Arguments', find_program('test/arguments'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
 test('Scan-build static analysis', find_program('test/scan-build'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
 test('Environment Variables', find_program('test/environment-variables'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')

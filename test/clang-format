@@ -1,8 +1,7 @@
 #! /bin/sh
 
 readonly declared_deps="${@}"
-readonly hardcoded_deps="fuzz/execl_override.c fuzz/fuzz-lib.c fuzz/fuzz-lib.h fuzz/fuzz-parse.c"
-readonly deps="${declared_deps} ${hardcoded_deps}"
+readonly deps="${declared_deps}"
 
 RESULT=0
 
