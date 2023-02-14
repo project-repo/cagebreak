@@ -1,0 +1,42 @@
+#! /bin/sh
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+readonly declared_deps="${@}"
+readonly hardcoded_deps="meson_options.txt meson.build"
+readonly test_deps=$(cd "${MESONCURRENTCONFIGDIR}" ; find . -type f | grep test/)
+readonly examples_deps=$(cd "${MESONCURRENTCONFIGDIR}" ; find . -type f | grep examples/)
+readonly example_scripts_deps=$(cd "${MESONCURRENTCONFIGDIR}" ; find . -type f | grep example_scripts/)
+readonly deps="${declared_deps} ${hardcoded_deps} ${test_deps} ${examples_deps} ${example_scripts_deps}"
+readonly curryear=$(date +%Y)
+
+RESULT=0
+
+for file in ${deps}
+do
+	echo "${file}"
+	if $(grep -q "Copyright.*${curryear}, project-repo and the cagebreak contributors" "$MESONCURRENTCONFIGDIR/${file}")
+	then
+		echo "	[x] Copyright Notice"
+	else
+		RESULT=1
+		echo "	[ ] Copyright Notice"
+	fi
+	if $(grep -q "SPDX-License-Identifier: MIT" "$MESONCURRENTCONFIGDIR/${file}")
+	then
+		echo "	[x] SPDX-License-Identifier"
+	else
+		RESULT=1
+		echo "	[ ] SPDX-License-Identifier"
+	fi
+done
+
+[[ "${MESONLICENSE}" = "MIT" ]] || RESULT=1
+
+cd "${MESONCURRENTCONFIGDIR}"
+
+[[ $(cat LICENSE) = $(cat README.md | tail -$(wc -l LICENSE)) ]] || RESULT=1
+
+[[ "Copyright (c) 2020-${curryear} The Cagebreak authors" = $(cat LICENSE | head -1) ]] || RESULT=1
+
+exit "${RESULT}"

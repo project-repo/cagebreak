@@ -1,0 +1,30 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+testdir=$(mktemp -d)
+
+RESULT=0
+
+cd "${MESONCURRENTCONFIGDIR}"
+
+# Check that no TODO statements remain in the release directory
+if ! grep -Rq "TODO" .
+then
+	echo "[x] TODO"
+else
+	echo "[ ] TODO"
+	RESULT=1
+fi
+
+# Check that Cagebreak does not falsely claim to be POSIX compliant
+if ! grep -Rq "_POSIX_C_SOURCE" .
+then
+	echo "[x] _POSIX_C_SOURCE"
+else
+	echo "[ ] _POSIX_C_SOURCE"
+	RESULT=1
+fi
+
+
+exit "${RESULT}"
