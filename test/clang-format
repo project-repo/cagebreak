@@ -8,12 +8,12 @@ RESULT=0
 
 set -x
 
-echo $MESONCURRENTCONFIGDIR
+echo "${MESONCURRENTCONFIGDIR}"
 
 for file in ${deps}
 do
 	echo "${file}"
-	if $(clang-format -Werror --dry-run "$MESONCURRENTCONFIGDIR/${file}")
+	if $(clang-format -Werror --dry-run "${MESONCURRENTCONFIGDIR}/${file}")
 	then
 		echo "	[x] clang-format"
 	else
