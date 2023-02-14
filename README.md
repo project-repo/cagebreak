@@ -305,7 +305,7 @@ CC=clang meson setup build -Dfuzz=true -Db_sanitize=address,undefined -Db_lundef
 ninja -C build/
 mkdir build/fuzz_corpus
 cp examples/config build/fuzz_corpus/
-WLR_BACKENDS=headless ./build/fuzz/fuzz-parse -jobs=12 -max_len=50000 -close_fd_mask=3 build/fuzz_corpus/
+WLR_BACKENDS=headless ./build/fuzz-parse -jobs=12 -max_len=50000 -close_fd_mask=3 build/fuzz_corpus/
 ```
 
 You may want to tweak `-jobs` or add other options depending on your own setup.
