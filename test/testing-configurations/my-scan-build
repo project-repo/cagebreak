@@ -1,3 +1,5 @@
 #!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
 
 scan-build --status-bugs "$@"
