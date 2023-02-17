@@ -88,7 +88,7 @@ drop_permissions(void) {
 }
 
 void
-cleanup() {
+cleanup(void) {
 	server.running = false;
 #if CG_HAS_XWAYLAND
 	if(xwayland != NULL) {

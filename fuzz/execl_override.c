@@ -10,7 +10,7 @@
 #include <wlr/render/wlr_renderer.h>
 
 int
-fork() {
+fork(void) {
 	return 1;
 }
 

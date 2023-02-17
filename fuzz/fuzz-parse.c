@@ -29,8 +29,7 @@
 int
 set_configuration(struct cg_server *server, char *content) {
 	char *line;
-	for(unsigned int line_num = 1;
-	    (line = strtok_r(NULL, "\n", &content)) != NULL; ++line_num) {
+	    while((line = strtok_r(NULL, "\n", &content)) != NULL) {
 		line[strcspn(line, "\n")] = '\0';
 		if(*line != '\0' && *line != '#') {
 			char *errstr = NULL;

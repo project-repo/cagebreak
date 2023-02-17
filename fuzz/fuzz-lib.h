@@ -21,7 +21,7 @@ extern struct wlr_xcursor_manager *xcursor_manager;
 #endif
 
 void
-cleanup();
+cleanup(void);
 
 int
 LLVMFuzzerInitialize(int *argc, char ***argv);
