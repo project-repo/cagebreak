@@ -27,6 +27,7 @@ RESULT=0
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/-c-config" "${testdir}"
 sed -i "s|CONFIGPATH|${testdir}\/result|g" "${testdir}/-c-config"
 WLR_BACKENDS=headless ./cagebreak -c "${testdir}/-c-config"
+sync
 [[ $(cat "${testdir}/result") = "SUCCESS" ]] || RESULT=1
 
 # check -e option
@@ -35,11 +36,13 @@ cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}"
 readonly oldsocket=$CAGEBREAK_SOCKET
 sed -i "s|CONFIGPATH|${testdir}\/socket|g" "${testdir}/config"
 (WLR_BACKENDS=headless ./cagebreak -c "${testdir}/config")
+sync
 [[ $(cat "${testdir}/socket") = "${oldsocket}" ]] || RESULT=1
 ## Check with socket
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}"
 sed -i "s|CONFIGPATH|$testdir\/socket|g" "${testdir}/config"
 (WLR_BACKENDS=headless ./cagebreak -e -c "${testdir}/config")
+sync
 [[ ! $(cat "${testdir}/socket") = "${oldsocket}" ]] || RESULT=1
 
 # check -h option
