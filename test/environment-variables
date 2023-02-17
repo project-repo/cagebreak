@@ -9,16 +9,16 @@ RESULT=0
 
 # CAGEBREAK_SOCKET (duplicate of arguments test)
 ## Check without socket
-cp $MESONCURRENTCONFIGDIR/test/testing-configurations/config $testdir
+cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}"
 readonly oldsocket=$CAGEBREAK_SOCKET
-sed -i "s|CONFIGPATH|$testdir\/socket|g" $testdir/config
-$(WLR_BACKENDS=headless ./cagebreak -c $testdir/config)
-[[ $(cat $testdir/socket) = $oldsocket ]] || RESULT=1
+sed -i "s|CONFIGPATH|$testdir\/socket|g" "${testdir}/config"
+(WLR_BACKENDS=headless ./cagebreak -c "${testdir}/config")
+[[ $(cat "${testdir}/socket") = "${oldsocket}" ]] || RESULT=1
 ## Check with socket
-cp $MESONCURRENTCONFIGDIR/test/testing-configurations/config $testdir
-sed -i "s|CONFIGPATH|$testdir\/socket|g" $testdir/config
-$(WLR_BACKENDS=headless ./cagebreak -e -c $testdir/config)
-[[ ! $(cat $testdir/socket) = $oldsocket ]] || RESULT=1
+cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}"
+sed -i "s|CONFIGPATH|$testdir\/socket|g" "${testdir}/config"
+(WLR_BACKENDS=headless ./cagebreak -e -c "${testdir}/config")
+[[ ! $(cat "${testdir}/socket") = "${oldsocket}" ]] || RESULT=1
 
 # XDG_CONFIG_HOME
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/env-var-config" "${testdir}/cagebreak/config"

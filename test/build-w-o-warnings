@@ -4,7 +4,8 @@
 
 RESULT=0
 
-cd $MESONCURRENTCONFIGDIR
+# shellcheck disable=SC2164
+cd "${MESONCURRENTCONFIGDIR}"
 echo "Build standard release build"
 rm -rf test/test-w-o-warnings
 meson setup test/test-w-o-warnings -Dxwayland=true -Dman-pages=true --buildtype=release --fatal-meson-warnings || RESULT=1

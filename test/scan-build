@@ -4,6 +4,7 @@
 
 RESULT=0
 
+# shellcheck disable=2164
 cd "${MESONCURRENTCONFIGDIR}"
 rm -rf test/test-scan-build
 meson setup test/test-scan-build -Dxwayland=true -Dman-pages=true --buildtype=release || RESULT=1

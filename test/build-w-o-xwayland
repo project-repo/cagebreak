@@ -4,7 +4,8 @@
 
 RESULT=0
 
-cd $MESONCURRENTCONFIGDIR
+# shellcheck disable=2164
+cd "${MESONCURRENTCONFIGDIR}"
 echo "Build without xwayland"
 rm -rf test/test-w-o-xwayland
 meson setup test/test-w-o-xwayland -Dxwayland=false -Dman-pages=false --buildtype=release --fatal-meson-warnings || RESULT=1
