@@ -7,9 +7,9 @@ RESULT=0
 # shellcheck disable=2164
 cd "${MESONCURRENTCONFIGDIR}"
 echo "Build without xwayland"
-rm -rf test/test-w-o-xwayland
-meson setup test/test-w-o-xwayland -Dxwayland=false -Dman-pages=false --buildtype=release --fatal-meson-warnings || RESULT=1
-ninja -C test/test-w-o-xwayland || RESULT=1
-rm -rf test/test-w-o-xwayland
+rm -rf _build-w-o-xwayland
+meson setup _build-w-o-xwayland -Dxwayland=false -Dman-pages=false --buildtype=release --fatal-meson-warnings || RESULT=1
+ninja -C _build-w-o-xwayland || RESULT=1
+rm -rf _build-w-o-xwayland
 
 exit "${RESULT}"

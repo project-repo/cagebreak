@@ -6,9 +6,9 @@ RESULT=0
 
 # shellcheck disable=2164
 cd "${MESONCURRENTCONFIGDIR}"
-rm -rf test/test-scan-build
-meson setup test/test-scan-build -Dxwayland=true -Dman-pages=true --buildtype=release || RESULT=1
-SCANBUILD="$(pwd)/test/testing-configurations/my-scan-build" ninja -C test/test-scan-build scan-build || RESULT=1
-rm -rf test/test-scan-build
+rm -rf _build-scan-build
+meson setup _build-scan-build -Dxwayland=true -Dman-pages=true --buildtype=release || RESULT=1
+SCANBUILD="$(pwd)/test/testing-configurations/my-scan-build" ninja -C _build-scan-build scan-build || RESULT=1
+rm -rf _build-scan-build
 
 exit "${RESULT}"
