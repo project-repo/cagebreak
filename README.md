@@ -287,6 +287,51 @@ and after
 #endif
 ```
 
+### Test Suite
+
+```
+meson test -C build
+```
+
+invokes the all tests. This is required for a release to occur.
+
+There are four test suites:
+
+  * basic: tests actual outward-facing functionality
+    * Note optional dependencies for efficient socket interaction
+      * nc (openbsd-netcat)
+      * jq
+  * devel: tests internal properties of the repository
+    * Note potentially heavier dependencies such as
+      * shellcheck
+      * clang-format
+  * devel-long: applies more costly testing
+    * Note potentially heavier dependencies such as
+      * scan-build (static analysis (including security-relevant issues))
+  * release: tests release specific considerations
+    * Note that this is only expected to pass just before
+      a release. This checks mostly administrative things
+      to check that a release is ready.
+
+Every commit should pass at least the basic and devel suites.
+
+It is expected that cagebreak passes at least the
+basic, devel and devel-long suites when commits are pushed:
+
+```
+meson test -C build --suite basic --suite devel
+```
+
+The basic suite can be used to test a binary. This is
+useful for PKGBUILDs and their equivalents in other
+systems.
+
+```
+meson test -C build --suite basic
+```
+
+TODO CI with Dockerfile on Github
+
 ### Fuzzing
 
 Along with the project source code, a fuzzing framework based on `libfuzzer` is
@@ -415,8 +460,6 @@ The release procedure outlines the process for a release to occur.
   * [ ] Adjust version number
     * [ ] meson.build
     * [ ] git tag
-    * [ ] man pages
-    * [ ] README.md repology badges minversion
   * [ ] Relevant Documentation completed
     * [ ] New features
       * [ ] man pages
@@ -437,11 +480,8 @@ The release procedure outlines the process for a release to occur.
   * [ ] Testing
     * [ ] Manual testing
     * [ ] Libfuzzer testing
-    * [ ] Build version without xwayland support
-  * [ ] meson.build reproducible build versions are current archlinux libraries and gcc
+  * [ ] Arch Build System is up to date
   * [ ] wlr_xdg_shell version check
-  * [ ] `ninja -C build clang-format` makes no changes
-  * [ ] `ninja -C build scan-build` shows no issues
   * [ ] Cagebreak is reproducible on multiple machines
   * [ ] Documented reproducible build artefacts
     * [ ] Hashes of the artefacts in Hashes.md
@@ -451,6 +491,7 @@ The release procedure outlines the process for a release to occur.
       * [ ] `gpg --detach-sign -u keyid cagebreak.1`
       * [ ] `gpg --detach-sign -u keyid cagebreak-config.5`
       * [ ] `gpg --detach-sign -u keyid cagebreak-socket.7`
+  * [ ] `meson test -C build`
   * [ ] `git add` relevant files
   * [ ] `git commit`
   * [ ] `git push origin development`
