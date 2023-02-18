@@ -3,33 +3,36 @@
 # SPDX-License-Identifier: MIT
 
 testdir=$(mktemp -d)
+mkdir "${testdir}/envvars/"
 mkdir "${testdir}/cagebreak"
 
 RESULT=0
 
 # CAGEBREAK_SOCKET (duplicate of arguments test)
 ## Check without socket
-cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}"
+cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}/envvars"
 readonly oldsocket="${CAGEBREAK_SOCKET}"
-sed -i "s|CONFIGPATH|$testdir\/socket|g" "${testdir}/config"
-(WLR_BACKENDS=headless ./cagebreak -c "${testdir}/config")
+sed -i "s|CONFIGPATH|$testdir\/envvars\/socket|g" "${testdir}/envvars/config"
+(WLR_BACKENDS=headless ./cagebreak -c "${testdir}/envvars/config")
 sync
-[[ $(cat "${testdir}/socket") = "${oldsocket}" ]] || RESULT=1
+[[ $(cat "${testdir}/envvars/socket") = "${oldsocket}" ]] || RESULT=1
 ## Check with socket
-cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}"
-sed -i "s|CONFIGPATH|$testdir\/socket|g" "${testdir}/config"
-(WLR_BACKENDS=headless ./cagebreak -e -c "${testdir}/config")
+cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}/envvars"
+sed -i "s|CONFIGPATH|$testdir\/envvars\/socket|g" "${testdir}/envvars/config"
+(WLR_BACKENDS=headless ./cagebreak -e -c "${testdir}/envvars/config")
 sync
 [[ ! $(cat "${testdir}/socket") = "${oldsocket}" ]] || RESULT=1
 
 # XDG_CONFIG_HOME
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/env-var-config" "${testdir}/cagebreak/config"
-sed -i "s|CONFIGPATH|${testdir}\/result|g" "${testdir}/cagebreak/config"
+sed -i "s|CONFIGPATH|${testdir}\/cagebreak\/result|g" "${testdir}/cagebreak/config"
 XDG_CONFIG_HOME="${testdir}/" WLR_BACKENDS=headless ./cagebreak
 sync
-[[ $(cat "${testdir}/result") = "SUCCESS" ]] || RESULT=1
+[[ $(cat "${testdir}/cagebreak/result") = "SUCCESS" ]] || RESULT=1
 
 # The XKB_DEFAULT_* family of variables is not found in the source code
 # of Cagebreak but necessary to configure software for use with Cagebreak.
+
+rm -rf "${testdir}"
 
 exit "${RESULT}"
