@@ -148,7 +148,7 @@ Cagebreak was originally built to suit the needs of its creators. This section o
 how we intended some parts of cagebreak and might ease learning how to use cagebreak a
 little bit. Please note that this does not replace the man pages or the FAQ.
 Also, this is in no way intended as a guide on how cagebreak must be used but rather
-as a source of inspiration and of explanations for why certain particularities.
+as a source of inspiration and explanations for certain particularities.
 
 1. Cagebreak is keyboard-based. Everything regarding cagebreak can be done
    through the keyboard and it is our view that it should be. This does not mean
@@ -293,7 +293,7 @@ and after
 meson test -C build
 ```
 
-invokes the all tests. This is required for a release to occur.
+invokes all tests. This is required for a release to occur.
 
 There are four test suites:
 
