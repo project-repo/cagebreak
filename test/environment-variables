@@ -10,7 +10,7 @@ RESULT=0
 # CAGEBREAK_SOCKET (duplicate of arguments test)
 ## Check without socket
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}"
-readonly oldsocket=$CAGEBREAK_SOCKET
+readonly oldsocket="${CAGEBREAK_SOCKET}"
 sed -i "s|CONFIGPATH|$testdir\/socket|g" "${testdir}/config"
 (WLR_BACKENDS=headless ./cagebreak -c "${testdir}/config")
 sync
