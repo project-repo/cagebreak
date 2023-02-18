@@ -33,6 +33,3 @@ sync
 # of Cagebreak but necessary to configure software for use with Cagebreak.
 
 exit "${RESULT}"
-
-
-
