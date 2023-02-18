@@ -209,7 +209,7 @@ reproducible_build_versions = {
   'fontconfig': '2.14.2',
   'libinput': '1.22.1',
   'libevdev': '1.13.0',
-  'libudev': '252',
+  'libudev': '253',
   'pango': '1.50.12',
   'cairo': '1.17.8',
   'pangocairo': '1.50.12',
