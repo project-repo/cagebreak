@@ -1181,8 +1181,16 @@ keybinding_dump(struct cg_server *server) {
 	print_str(&str, "\"nws\":%d,\n", server->nws);
 	print_str(&str, "\"bg_color\":[%f,%f,%f],\n", server->bg_color[0],
 	          server->bg_color[1], server->bg_color[2]);
-	print_str(&str, "\"views_curr_id\":%d,\n", server->views_curr_id);
-	print_str(&str, "\"tiles_curr_id\":%d,\n", server->tiles_curr_id);
+	struct cg_view *focused_view=seat_get_focus(server->seat);
+	int curr_view_id=-1,curr_tile_id=-1;
+	if(focused_view != NULL) {
+		curr_view_id=focused_view->id;
+		if(focused_view->tile != NULL) {
+			curr_tile_id=focused_view->tile->id;
+		}
+	}
+	print_str(&str, "\"views_curr_id\":%d,\n", curr_view_id);
+	print_str(&str, "\"tiles_curr_id\":%d,\n", curr_tile_id);
 	print_str(&str, "\"curr_output\":\"%s\",\n",
 	          server->curr_output->wlr_output->name);
 	print_str(&str, "\"default_mode\":\"%s\",\n",
