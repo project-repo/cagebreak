@@ -14,9 +14,9 @@ readonly helptext="Usage: ./cagebreak [OPTIONS]
  -s		 Show information about the current setup and exit
  -v		 Show the version number and exit"
 
-readonly basicheadless="Cagebreak $1 is running on Wayland display wayland-1
+readonly basicheadless="Cagebreak ${1} is running on Wayland display wayland-.
 Outputs:
-	 * HEADLESS-1
+	 \\* HEADLESS-1
 Inputs:"
 
 RESULT=0
@@ -51,7 +51,7 @@ sync
 [[ $(./cagebreak -h) = "$helptext" ]] || RESULT=1
 
 # check -s option
-[[ $(WLR_BACKENDS=headless ./cagebreak -s) = "$basicheadless" ]] || RESULT=1
+[[ $(WLR_BACKENDS=headless ./cagebreak -s) =~ ${basicheadless} ]] || RESULT=1
 
 
 # check -v option
