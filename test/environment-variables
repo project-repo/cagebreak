@@ -2,7 +2,8 @@
 # Copyright 2023, project-repo and the cagebreak contributors
 # SPDX-License-Identifier: MIT
 
-testdir=$(mktemp -d)
+testdir="${MESONCURRENTCONFIGDIR}/_build-envvars"
+mkdir "${testdir}"
 mkdir "${testdir}/envvars/"
 mkdir "${testdir}/cagebreak"
 
