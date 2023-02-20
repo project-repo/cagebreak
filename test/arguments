@@ -14,7 +14,7 @@ readonly helptext="Usage: ./cagebreak [OPTIONS]
  -s		 Show information about the current setup and exit
  -v		 Show the version number and exit"
 
-readonly basicheadless="Cagebreak ${1} is running on Wayland display wayland-.
+readonly basicheadless="Cagebreak ${1} is running on Wayland display wayland-.*
 Outputs:
 	 \\* HEADLESS-1
 Inputs:"
