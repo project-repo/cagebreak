@@ -210,9 +210,9 @@ reproducible_build_versions = {
   'libinput': '1.22.1',
   'libevdev': '1.13.0',
   'libudev': '253',
-  'pango': '1.50.12',
+  'pango': '1.50.13',
   'cairo': '1.17.8',
-  'pangocairo': '1.50.12',
+  'pangocairo': '1.50.13',
   'math': '-1'
 }
 
