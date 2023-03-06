@@ -6,6 +6,7 @@
 #include "config.h"
 
 #include <fontconfig/fontconfig.h>
+#include <getopt.h>
 #include <pango.h>
 #include <pango/pangocairo.h>
 #include <signal.h>
@@ -128,17 +129,25 @@ usage(FILE *file, const char *const cage) {
 	        " -e\t\t Enable socket\n"
 	        " -h\t\t Display this help message\n"
 	        " -s\t\t Show information about the current setup and exit\n"
-	        " -v\t\t Show the version number and exit\n",
+	        " -v\t\t Show the version number and exit\n"
+	        " --bs\t\t \"bad security\": Enable features with potential "
+	        "security implications (see man page)\n",
 	        cage);
 }
 
 static bool
 parse_args(struct cg_server *server, int argc, char *argv[],
            char **config_path) {
-	int c;
+	int c, option_index;
 	server->enable_socket = false;
-	while((c = getopt(argc, argv, "c:hvse")) != -1) {
+	static struct option long_options[] = {{"bs", no_argument, 0, 0},
+	                                       {0, 0, 0, 0}};
+	while((c = getopt_long(argc, argv, "c:hvse", long_options,
+	                       &option_index)) != -1) {
 		switch(c) {
+		case 0:
+			server->bs = true;
+			break;
 		case 'h':
 			usage(stdout, argv[0]);
 			return false;
@@ -275,6 +284,7 @@ main(int argc, char *argv[]) {
 	wl_list_init(&server.output_priorities);
 
 	int ret = 0;
+	server.bs = 0;
 
 	char *config_path = NULL;
 	if(!parse_args(&server, argc, argv, &config_path)) {

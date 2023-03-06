@@ -39,6 +39,7 @@ struct cg_view {
 
 struct cg_view_impl {
 	pid_t (*get_pid)(const struct cg_view *view);
+	char *(*get_title)(const struct cg_view *view);
 	bool (*is_primary)(const struct cg_view *view);
 	void (*activate)(struct cg_view *view, bool activate);
 	void (*close)(struct cg_view *view);

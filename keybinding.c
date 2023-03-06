@@ -868,10 +868,15 @@ print_view(struct cg_view *view) {
 	struct dyn_str outp_str;
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
-	uint32_t nmemb = 4;
+	uint32_t nmemb = 5;
 	outp_str.str_arr = calloc(nmemb, sizeof(char *));
 	print_str(&outp_str, "\"id\": %d,\n", view->id);
 	print_str(&outp_str, "\"pid\": %d,\n", view->impl->get_pid(view));
+	if(view->server->bs == true) {
+		char *title_str = view->impl->get_title(view);
+		print_str(&outp_str, "\"title\": \"%s\",\n",
+		          title_str == NULL ? "" : title_str);
+	}
 	print_str(&outp_str, "\"coords\": {\"x\":%d,\"y\":%d},\n", view->ox,
 	          view->oy);
 #if CG_HAS_XWAYLAND

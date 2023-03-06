@@ -46,6 +46,13 @@ get_pid(const struct cg_view *view) {
 	return surf->pid;
 }
 
+static char *
+get_title(const struct cg_view *view) {
+	const struct cg_xwayland_view *xwayland_view =
+	    xwayland_view_from_const_view(view);
+	return xwayland_view->xwayland_surface->title;
+}
+
 static bool
 is_primary(const struct cg_view *view) {
 	const struct cg_xwayland_view *xwayland_view =
@@ -157,6 +164,7 @@ handle_xwayland_surface_destroy(struct wl_listener *listener, void *_data) {
 }
 
 static const struct cg_view_impl xwayland_view_impl = {
+    .get_title = get_title,
     .get_pid = get_pid,
     .is_primary = is_primary,
     .activate = activate,
