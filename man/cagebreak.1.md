@@ -47,6 +47,12 @@ are displayed in a message box at the top right of the screen.
 *-v*
 	Show version number and exit
 
+*--bs*
+	"bad security". Enable features with potential security implications.
+	Currently, this option has the following effects (possible implications
+	in parentheses):
+	- Print view titles in `dump` output (an attacker may be able to read sensitive information contained in the view title).
+
 # ENVIRONMENT
 
 *CAGEBREAK_SOCKET*
