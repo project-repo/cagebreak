@@ -12,7 +12,8 @@ readonly helptext="Usage: ./cagebreak [OPTIONS]
  -e		 Enable socket
  -h		 Display this help message
  -s		 Show information about the current setup and exit
- -v		 Show the version number and exit"
+ -v		 Show the version number and exit
+ --bs		 \"bad security\": Enable features with potential security implications (see man page)"
 
 readonly basicheadless="Cagebreak ${1} is running on Wayland display wayland-.*
 Outputs:
