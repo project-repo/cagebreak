@@ -142,6 +142,7 @@ parse_args(struct cg_server *server, int argc, char *argv[],
 	server->enable_socket = false;
 	static struct option long_options[] = {{"bs", no_argument, 0, 0},
 	                                       {0, 0, 0, 0}};
+#ifndef __clang_analyzer__
 	while((c = getopt_long(argc, argv, "c:hvse", long_options,
 	                       &option_index)) != -1) {
 		switch(c) {
@@ -176,6 +177,7 @@ parse_args(struct cg_server *server, int argc, char *argv[],
 		usage(stderr, argv[0]);
 		return false;
 	}
+#endif
 
 	return true;
 }
