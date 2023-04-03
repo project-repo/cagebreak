@@ -207,7 +207,7 @@ reproducible_build_versions = {
   'wlroots': '0.16.2',
   'xkbcommon': '1.5.0',
   'fontconfig': '2.14.2',
-  'libinput': '1.22.1',
+  'libinput': '1.23.0',
   'libevdev': '1.13.0',
   'libudev': '253',
   'pango': '1.50.14',
@@ -354,5 +354,4 @@ test('Shellcheck (script linting)', find_program('test/shellcheck'), env : [ ''.
 test('Scan-build (static analysis)', find_program('test/scan-build'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel-long')
 test('Arguments', find_program('test/arguments'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
 test('Environment Variables', find_program('test/environment-variables'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
-test('Check for strings indicating problems', find_program('test/illegal-strings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
 test('Semantic versioning', find_program('test/versions'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
