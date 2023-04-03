@@ -74,7 +74,6 @@ struct cg_server;
 	KEYBINDING(KEYBINDING_FOCUS_RIGHT, focusright)                             \
 	KEYBINDING(KEYBINDING_FOCUS_TOP, focusup)                                  \
 	KEYBINDING(KEYBINDING_FOCUS_BOTTOM, focusdown)                             \
-	KEYBINDING(KEYBINDING_FOCUS_TILE, focus_tile)                              \
                                                                                \
 	KEYBINDING(KEYBINDING_DEFINEKEY,                                           \
 	           definekey) /* data.kb is the keybinding definition */           \

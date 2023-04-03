@@ -1798,9 +1798,6 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		    server->curr_output->workspaces[server->curr_output->curr_workspace]
 		        ->focused_tile->view);
 		break;
-	case KEYBINDING_FOCUS_TILE:
-		keybinding_focus_tile(server, data.u);
-		break;
 	default: {
 		wlr_log(WLR_ERROR,
 		        "run_action was called with a value not present in \"enum "
