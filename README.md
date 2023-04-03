@@ -330,8 +330,6 @@ systems.
 meson test -C build --suite basic
 ```
 
-TODO CI with Dockerfile on Github
-
 ### Fuzzing
 
 Along with the project source code, a fuzzing framework based on `libfuzzer` is
@@ -421,6 +419,8 @@ keys.
   * AA927AFD50AF7C6810E69FE8274F2C605359E31B
   * BE2DED372287BC4EB2213E13A0C743848A638955
   * 0F3476E4B2404F95EC41600683D5810F7911B020
+  * 4E82C72C6B3E58A7BC4FF8554909F84CA83BB867
+  * 5AEB1A2EB0D13F67E306AC59DC0CC81BE006FD85
 
 Should we at any point retire a key, we will only replace it with keys signed
 by at least one of the above collection.
