@@ -251,7 +251,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 
 	wlr_renderer_init_wl_display(server.renderer, server.wl_display);
 
-	server.bg_color = (float[4]){0, 0, 0, 1};
+	server.bg_color = calloc(4, sizeof(float *));
 	server.output_layout = wlr_output_layout_create();
 	if(!server.output_layout) {
 		wlr_log(WLR_ERROR, "Unable to create output layout");
