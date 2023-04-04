@@ -1,9 +1,9 @@
 # Copyright 2020 - 2023, project-repo and the cagebreak contributors
-# SPDX -License-Identifier: MIT
+# SPDX-License-Identifier: MIT
 project(
   'cagebreak',
   'c',
-version : '2.0.1',
+version : '2.1.0',
 license : 'MIT',
 default_options : ['c_std=c11', 'warning_level=3']
 )
@@ -204,15 +204,15 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.21.0',
   'wayland_cursor': '1.21.0',
-  'wlroots': '0.16.1',
+  'wlroots': '0.16.2',
   'xkbcommon': '1.5.0',
-  'fontconfig': '2.14.1',
-  'libinput': '1.22.0',
+  'fontconfig': '2.14.2',
+  'libinput': '1.23.0',
   'libevdev': '1.13.0',
-  'libudev': '252',
-  'pango': '1.50.12',
-  'cairo': '1.17.6',
-  'pangocairo': '1.50.12',
+  'libudev': '253',
+  'pango': '1.50.14',
+  'cairo': '1.17.8',
+  'pangocairo': '1.50.14',
   'math': '-1'
 }
 
@@ -238,7 +238,7 @@ foreach name, dep : cagebreak_dependencies_dict
 endforeach
 
 reproducible_build_compiler = 'gcc'
-reproducible_build_compiler_version = '12.2.0'
+reproducible_build_compiler_version = '12.2.1'
 
 if cc.get_id() != reproducible_build_compiler
   warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in Hashes.md (' + reproducible_build_compiler + ').')
@@ -256,10 +256,11 @@ executable(
 )
 
 install_data('examples/config', install_dir : '/etc/xdg/cagebreak')
+install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_name() + '/')
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1673282376
+  secssinceepoch = 1680540192
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
@@ -294,8 +295,44 @@ if get_option('man-pages')
     )
 endif
 
+fuzz_sources = [
+  'fuzz/fuzz-parse.c', 
+  'fuzz/fuzz-lib.c',
+  ]
+
+fuzz_headers = [
+  'parse.h',
+  'fuzz/fuzz-lib.h',
+  ]
+
+fuzz_override_lib = [ 'fuzz/execl_override.c' ]
+
 if get_option('fuzz')
-  subdir('fuzz')
+  inc = include_directories(['.','build/'])
+
+  fuzz_dependencies = cagebreak_dependencies
+  if fuzzing_engine.found()
+    fuzz_dependencies += fuzzing_engine
+  else
+    link_args = [ '-fsanitize=fuzzer', ]
+  endif
+
+override_lib = shared_library('execl_override',
+  [ fuzz_override_lib ],
+  dependencies: [ cairo,pango,pangocairo ],
+  install: false
+  )
+
+  executable(
+    'fuzz-parse',
+    fuzz_sources + fuzz_headers + cagebreak_headers + cagebreak_sources,
+    dependencies: fuzz_dependencies,
+    install: false,
+    include_directories: inc,
+    link_args: link_args + fuzz_link_args,
+    c_args: fuzz_compile_args,
+    link_with: override_lib,
+    )
 endif
 
 summary = [
@@ -306,3 +343,15 @@ summary = [
 	''
 ]
 message('\n'.join(summary))
+
+# Test Suite
+
+test('Build without warnings', find_program('test/build-w-o-warnings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Build without xwayland', find_program('test/build-w-o-xwayland'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Copyright and LICENSE', find_program('test/copyright-license'), args : [ cagebreak_main_file + cagebreak_source_strings + cagebreak_header_strings + fuzz_sources + fuzz_headers + fuzz_override_lib ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()), ''.join('MESONLICENSE=', meson.project_license())], suite: 'devel' )
+test('Clang-format (formatting check)', find_program('test/clang-format'), args : [ cagebreak_main_file + cagebreak_source_strings + cagebreak_header_strings + fuzz_sources + fuzz_headers + fuzz_override_lib ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Shellcheck (script linting)', find_program('test/shellcheck'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Scan-build (static analysis)', find_program('test/scan-build'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel-long')
+test('Arguments', find_program('test/arguments'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
+test('Environment Variables', find_program('test/environment-variables'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
+test('Semantic versioning', find_program('test/versions'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')

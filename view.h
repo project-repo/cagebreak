@@ -1,5 +1,5 @@
 // Copyright 2020 - 2023, project-repo and the cagebreak contributors
-// SPDX -License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 #ifndef CG_VIEW_H
 #define CG_VIEW_H
@@ -39,6 +39,7 @@ struct cg_view {
 
 struct cg_view_impl {
 	pid_t (*get_pid)(const struct cg_view *view);
+	char *(*get_title)(const struct cg_view *view);
 	bool (*is_primary)(const struct cg_view *view);
 	void (*activate)(struct cg_view *view, bool activate);
 	void (*close)(struct cg_view *view);

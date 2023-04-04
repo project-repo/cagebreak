@@ -1,5 +1,5 @@
 // Copyright 2020 - 2023, project-repo and the cagebreak contributors
-// SPDX -License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 #ifndef KEYBINDING_H
 
@@ -74,7 +74,6 @@ struct cg_server;
 	KEYBINDING(KEYBINDING_FOCUS_RIGHT, focusright)                             \
 	KEYBINDING(KEYBINDING_FOCUS_TOP, focusup)                                  \
 	KEYBINDING(KEYBINDING_FOCUS_BOTTOM, focusdown)                             \
-	KEYBINDING(KEYBINDING_FOCUS_TILE, focus_tile)                              \
                                                                                \
 	KEYBINDING(KEYBINDING_DEFINEKEY,                                           \
 	           definekey) /* data.kb is the keybinding definition */           \

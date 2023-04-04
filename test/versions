@@ -1,0 +1,42 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+readonly newversion="${1}"
+# shellcheck disable=2155
+readonly oldversion=$(git describe --match=master --abbrev=0)
+
+RESULT=0
+
+# meson.build version
+if [[ $(vercmp "${newversion}" "${oldversion}") -gt 0 ]]
+then
+    echo "[x] meson.build version respects semantic versioning"
+else
+    RESULT=1
+    echo "[ ] meson.build version is NOT semantic version"
+fi
+
+# shellcheck disable=2164
+cd "${MESONCURRENTCONFIGDIR}"
+
+for file in man/*
+do
+    if [[ $(head -1 "${file}" | cut -d ' ' -f 3 | rev | cut -c2- | rev ) = "${newversion}" ]]
+    then
+        echo "[x] ${file} version is meson.build version"
+    else
+        RESULT=1
+        echo "[ ] ${file} version is NOT meson.build version"
+    fi
+done
+
+if head -3 README.md | tail -1 | grep -q "minversion=${newversion}"
+then
+    echo "[x] README.md repology minversion"
+else
+    RESULT=1
+    echo "[ ] README.md repology minversion"
+fi
+
+exit "${RESULT}"

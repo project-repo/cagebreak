@@ -1,5 +1,5 @@
 // Copyright 2020 - 2023, project-repo and the cagebreak contributors
-// SPDX -License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 // This file is used by the fuzzer in order to prevent executing shell commands.
 
 #define _GNU_SOURCE
@@ -10,7 +10,7 @@
 #include <wlr/render/wlr_renderer.h>
 
 int
-fork() {
+fork(void) {
 	return 1;
 }
 

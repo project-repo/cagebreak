@@ -1,4 +1,4 @@
-cagebreak(1) "Version 2.0.1" "Cagebreak Manual"
+cagebreak(1) "Version 2.1.0" "Cagebreak Manual"
 
 # NAME
 
@@ -47,6 +47,12 @@ are displayed in a message box at the top right of the screen.
 *-v*
 	Show version number and exit
 
+*--bs*
+	"bad security". Enable features with potential security implications.
+	Currently, this option has the following effects (possible implications
+	in parentheses):
+	- Print view titles in `dump` output (an attacker may be able to read sensitive information contained in the view title).
+
 # ENVIRONMENT
 
 *CAGEBREAK_SOCKET*
@@ -84,6 +90,7 @@ GPG Fingerprints:
 - B15B92642760E11FE002DE168708D42451A94AB5
 - F8DD9F8DD12B85A28F5827C4678E34D2E753AA3C
 - 3ACEA46CCECD59E4C8222F791CBEB493681E8693
+- 0A268C188D7949FEB39FD1462F2AD980247E4918
 
 # LICENSE
 

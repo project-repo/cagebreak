@@ -106,3 +106,16 @@ Changelog:
   * Disable outputs when unable to set any mode (crashed previously)
   * Add Code of Conduct
   * Print version number on startup
+
+## Release 2.1.0
+
+  * Add -bs (bad security) option
+  * Fix Issue 57 (SPDX spelling error #39)
+  * Fix Issue 59 (meson install settings)
+  * Fix Issue 55 (npd)
+  * Fix Issue 56 (npd)
+  * Fix Issue 58 (#40 config)
+  * Improve release procedure
+  * Add miniscule test suite
+  * Adjust Cagebreak to wlroots 0.16.2
+  * New GPG Keys

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Copyright 2023, project-repo and the cagebreak contributors
-# SPDX -License-Identifier: MIT
+# SPDX-License-Identifier: MIT
 
 # This script uses the cagebreak socket to modify the compositor's behaviour in
 # such a way that the currently focussed tile follows the cursor, i.e. that the

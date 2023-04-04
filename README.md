@@ -1,6 +1,6 @@
 # Cagebreak: A Wayland Tiling Compositor
 
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.0.1)](https://repology.org/project/cagebreak/versions)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.1.0)](https://repology.org/project/cagebreak/versions)
 
 ## Quick Introduction
 
@@ -148,7 +148,7 @@ Cagebreak was originally built to suit the needs of its creators. This section o
 how we intended some parts of cagebreak and might ease learning how to use cagebreak a
 little bit. Please note that this does not replace the man pages or the FAQ.
 Also, this is in no way intended as a guide on how cagebreak must be used but rather
-as a source of inspiration and of explanations for why certain particularities.
+as a source of inspiration and explanations for certain particularities.
 
 1. Cagebreak is keyboard-based. Everything regarding cagebreak can be done
    through the keyboard and it is our view that it should be. This does not mean
@@ -287,6 +287,49 @@ and after
 #endif
 ```
 
+### Test Suite
+
+```
+meson test -C build
+```
+
+invokes all tests. This is required for a release to occur.
+
+There are four test suites:
+
+  * basic: tests actual outward-facing functionality
+    * Note optional dependencies for efficient socket interaction
+      * nc (openbsd-netcat)
+      * jq
+  * devel: tests internal properties of the repository
+    * Note potentially heavier dependencies such as
+      * shellcheck
+      * clang-format
+  * devel-long: applies more costly testing
+    * Note potentially heavier dependencies such as
+      * scan-build (static analysis (including security-relevant issues))
+  * release: tests release specific considerations
+    * Note that this is only expected to pass just before
+      a release. This checks mostly administrative things
+      to check that a release is ready.
+
+Every commit should pass at least the basic and devel suites.
+
+It is expected that cagebreak passes at least the
+basic, devel and devel-long suites when commits are pushed:
+
+```
+meson test -C build --suite basic --suite devel
+```
+
+The basic suite can be used to test a binary. This is
+useful for PKGBUILDs and their equivalents in other
+systems.
+
+```
+meson test -C build --suite basic
+```
+
 ### Fuzzing
 
 Along with the project source code, a fuzzing framework based on `libfuzzer` is
@@ -305,7 +348,7 @@ CC=clang meson setup build -Dfuzz=true -Db_sanitize=address,undefined -Db_lundef
 ninja -C build/
 mkdir build/fuzz_corpus
 cp examples/config build/fuzz_corpus/
-WLR_BACKENDS=headless ./build/fuzz/fuzz-parse -jobs=12 -max_len=50000 -close_fd_mask=3 build/fuzz_corpus/
+WLR_BACKENDS=headless ./build/fuzz-parse -jobs=12 -max_len=50000 -close_fd_mask=3 build/fuzz_corpus/
 ```
 
 You may want to tweak `-jobs` or add other options depending on your own setup.
@@ -376,6 +419,8 @@ keys.
   * AA927AFD50AF7C6810E69FE8274F2C605359E31B
   * BE2DED372287BC4EB2213E13A0C743848A638955
   * 0F3476E4B2404F95EC41600683D5810F7911B020
+  * 4E82C72C6B3E58A7BC4FF8554909F84CA83BB867
+  * 5AEB1A2EB0D13F67E306AC59DC0CC81BE006FD85
 
 Should we at any point retire a key, we will only replace it with keys signed
 by at least one of the above collection.
@@ -415,8 +460,6 @@ The release procedure outlines the process for a release to occur.
   * [ ] Adjust version number
     * [ ] meson.build
     * [ ] git tag
-    * [ ] man pages
-    * [ ] README.md repology badges minversion
   * [ ] Relevant Documentation completed
     * [ ] New features
       * [ ] man pages
@@ -430,16 +473,15 @@ The release procedure outlines the process for a release to occur.
     * [ ] Check features for SECURITY.md relevance (changes to socket scope
           for example)
       * [ ] Synchronize any socket changes to cagebreak-socket man page
+    * [ ] Updated internal wiki
+    * [ ] Added new files to meson.build or hardcoded testing variable
     * [ ] Fixed bugs documented in Bugs.md
       * [ ] Include issue discussion from github, where applicable
   * [ ] Testing
     * [ ] Manual testing
     * [ ] Libfuzzer testing
-    * [ ] Build version without xwayland support
-  * [ ] meson.build reproducible build versions are current archlinux libraries and gcc
+  * [ ] Arch Build System is up to date
   * [ ] wlr_xdg_shell version check
-  * [ ] `ninja -C build clang-format` makes no changes
-  * [ ] `ninja -C build scan-build` shows no issues
   * [ ] Cagebreak is reproducible on multiple machines
   * [ ] Documented reproducible build artefacts
     * [ ] Hashes of the artefacts in Hashes.md
@@ -449,6 +491,7 @@ The release procedure outlines the process for a release to occur.
       * [ ] `gpg --detach-sign -u keyid cagebreak.1`
       * [ ] `gpg --detach-sign -u keyid cagebreak-config.5`
       * [ ] `gpg --detach-sign -u keyid cagebreak-socket.7`
+  * [ ] `meson test -C build`
   * [ ] `git add` relevant files
   * [ ] `git commit`
   * [ ] `git push origin development`
@@ -568,5 +611,24 @@ see [SECURITY.md](SECURITY.md).
 
 ## License
 
-MIT, please see [LICENSE](https://github.com/project-repo/cagebreak/blob/master/LICENSE).
+Copyright (c) 2020-2023 The Cagebreak authors
+Copyright (c) 2018-2020 Jente Hidskes
+Copyright (c) 2019 The Sway authors
 
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

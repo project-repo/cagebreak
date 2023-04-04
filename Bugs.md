@@ -1120,3 +1120,53 @@ Cagebreak was not compatible with clang 15 and POSIX which was causing issues
 with building under FreeBSD.
 
 Thanks to Jan Beich for pointing this out and providing a PR.
+
+## Issue 55
+
+  * github issue number: N/A
+  * Fixed: 2.1.0
+
+Prior to release 2.1.0, cagebreak sometimes crased due to a null pointer
+derefrence when the cursor was moved.
+
+## Issue 56
+
+  * github issue numner: N/A
+  * Fixed: 2.1.0
+
+Prior to release 2.1.0, the following workflow caused cagebreak to
+crash:
+
+  * Split an empty workspace.
+  * Open 2 windows on the left tile.
+  * exchangeright
+  * focus left
+  * cycle views
+
+The reason for this is that the ipc send event did not handle
+focussing the background correctly when cycling.
+
+## Issue 57
+
+  * github issue number: #39
+  * Fixed: 2.1.0
+
+maxhbr pointed out that there was a spelling mistake in the
+SPDX-License-Identifier.
+
+## Issue 58
+
+  * github issue number: #40
+  * Fixed: 2.1.0
+
+Prior to version 2.1.0, the logic behind configuration file loading was
+broken. This had the effect, that the default configuration file was not
+loaded when the user-specific config file was not present, instead
+leading to a termination of cagebreak.
+
+## Issue 59
+
+  * github issue number: N/A
+  * Fixed: 2.1.0
+
+Prior to release 2.1.0 `meson install` did not work perfectly.

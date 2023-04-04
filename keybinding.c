@@ -1,5 +1,5 @@
 // Copyright 2020 - 2023, project-repo and the cagebreak contributors
-// SPDX -License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
 
@@ -699,19 +699,20 @@ keybinding_cycle_views(struct cg_server *server, bool reverse, bool ipc) {
 
 	seat_set_focus(server->seat, next_view);
 	if(ipc) {
+		int curr_id = -1;
+		int curr_pid = -1;
+		if(current_view != NULL &&
+		   current_view->link.next != curr_workspace->views.next) {
+			curr_id = current_view->id;
+			curr_pid = current_view->impl->get_pid(current_view);
+		}
 		ipc_send_event(
 		    curr_workspace->output->server,
 		    "{\"event_name\":\"cycle_views\",\"old_view_id\":%d,\"old_view_"
 		    "pid\":%d,"
 		    "\"new_view_id\":%d,\"new_view_pid\":%d,\"tile_id\":%d,"
 		    "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
-		    current_view->link.next == curr_workspace->views.next
-		        ? -1
-		        : (int)current_view->id,
-		    current_view->link.next == curr_workspace->views.next
-		        ? -1
-		        : (int)current_view->impl->get_pid(current_view),
-		    next_view == NULL ? -1 : (int)next_view->id,
+		    curr_id, curr_pid, next_view == NULL ? -1 : (int)next_view->id,
 		    next_view == NULL ? -1 : (int)next_view->impl->get_pid(next_view),
 		    next_view->tile->id, curr_workspace->num + 1,
 		    curr_workspace->output->wlr_output->name,
@@ -867,10 +868,15 @@ print_view(struct cg_view *view) {
 	struct dyn_str outp_str;
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
-	uint32_t nmemb = 4;
+	uint32_t nmemb = 5;
 	outp_str.str_arr = calloc(nmemb, sizeof(char *));
 	print_str(&outp_str, "\"id\": %d,\n", view->id);
 	print_str(&outp_str, "\"pid\": %d,\n", view->impl->get_pid(view));
+	if(view->server->bs == true) {
+		char *title_str = view->impl->get_title(view);
+		print_str(&outp_str, "\"title\": \"%s\",\n",
+		          title_str == NULL ? "" : title_str);
+	}
 	print_str(&outp_str, "\"coords\": {\"x\":%d,\"y\":%d},\n", view->ox,
 	          view->oy);
 #if CG_HAS_XWAYLAND
@@ -1180,8 +1186,16 @@ keybinding_dump(struct cg_server *server) {
 	print_str(&str, "\"nws\":%d,\n", server->nws);
 	print_str(&str, "\"bg_color\":[%f,%f,%f],\n", server->bg_color[0],
 	          server->bg_color[1], server->bg_color[2]);
-	print_str(&str, "\"views_curr_id\":%d,\n", server->views_curr_id);
-	print_str(&str, "\"tiles_curr_id\":%d,\n", server->tiles_curr_id);
+	struct cg_view *focused_view = seat_get_focus(server->seat);
+	int curr_view_id = -1, curr_tile_id = -1;
+	if(focused_view != NULL) {
+		curr_view_id = focused_view->id;
+		if(focused_view->tile != NULL) {
+			curr_tile_id = focused_view->tile->id;
+		}
+	}
+	print_str(&str, "\"views_curr_id\":%d,\n", curr_view_id);
+	print_str(&str, "\"tiles_curr_id\":%d,\n", curr_tile_id);
 	print_str(&str, "\"curr_output\":\"%s\",\n",
 	          server->curr_output->wlr_output->name);
 	print_str(&str, "\"default_mode\":\"%s\",\n",
@@ -1783,9 +1797,6 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_close_view(
 		    server->curr_output->workspaces[server->curr_output->curr_workspace]
 		        ->focused_tile->view);
-		break;
-	case KEYBINDING_FOCUS_TILE:
-		keybinding_focus_tile(server, data.u);
 		break;
 	default: {
 		wlr_log(WLR_ERROR,

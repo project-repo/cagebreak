@@ -1,11 +1,12 @@
 // Copyright 2020 - 2023, project-repo and the cagebreak contributors
-// SPDX -License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 #define _DEFAULT_SOURCE
 
 #include "config.h"
 
 #include <fontconfig/fontconfig.h>
+#include <getopt.h>
 #include <pango.h>
 #include <pango/pangocairo.h>
 #include <signal.h>
@@ -128,17 +129,26 @@ usage(FILE *file, const char *const cage) {
 	        " -e\t\t Enable socket\n"
 	        " -h\t\t Display this help message\n"
 	        " -s\t\t Show information about the current setup and exit\n"
-	        " -v\t\t Show the version number and exit\n",
+	        " -v\t\t Show the version number and exit\n"
+	        " --bs\t\t \"bad security\": Enable features with potential "
+	        "security implications (see man page)\n",
 	        cage);
 }
 
 static bool
 parse_args(struct cg_server *server, int argc, char *argv[],
            char **config_path) {
-	int c;
+	int c, option_index;
 	server->enable_socket = false;
-	while((c = getopt(argc, argv, "c:hvse")) != -1) {
+	static struct option long_options[] = {{"bs", no_argument, 0, 0},
+	                                       {0, 0, 0, 0}};
+#ifndef __clang_analyzer__
+	while((c = getopt_long(argc, argv, "c:hvse", long_options,
+	                       &option_index)) != -1) {
 		switch(c) {
+		case 0:
+			server->bs = true;
+			break;
 		case 'h':
 			usage(stdout, argv[0]);
 			return false;
@@ -167,6 +177,7 @@ parse_args(struct cg_server *server, int argc, char *argv[],
 		usage(stderr, argv[0]);
 		return false;
 	}
+#endif
 
 	return true;
 }
@@ -197,7 +208,7 @@ set_configuration(struct cg_server *server,
 			if(line == NULL) {
 				wlr_log(WLR_ERROR, "Could not allocate buffer for reading "
 				                   "configuration file.");
-				return 1;
+				return 2;
 			}
 		}
 		if(strlen(line) == 0) {
@@ -275,6 +286,7 @@ main(int argc, char *argv[]) {
 	wl_list_init(&server.output_priorities);
 
 	int ret = 0;
+	server.bs = 0;
 
 	char *config_path = NULL;
 	if(!parse_args(&server, argc, argv, &config_path)) {
@@ -611,7 +623,7 @@ main(int argc, char *argv[]) {
 		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY.",
 		              "Clients may not be able to connect");
 	} else {
-		fprintf(stderr,
+		fprintf(stdout,
 		        "Cagebreak " CG_VERSION " is running on Wayland display %s\n",
 		        socket);
 	}
@@ -623,7 +635,7 @@ main(int argc, char *argv[]) {
 	if(show_info) {
 		char *msg = server_show_info(&server);
 		if(msg != NULL) {
-			fprintf(stderr, "%s", msg);
+			fprintf(stdout, "%s", msg);
 			free(msg);
 		} else {
 			wlr_log(WLR_ERROR, "Failed to get info on cagebreak setup\n");
@@ -632,27 +644,25 @@ main(int argc, char *argv[]) {
 	}
 
 	{ // config_file should only be visible as long as it is valid
+		int conf_ret = 1;
 		char *config_file = get_config_file(config_path);
 		if(config_file == NULL) {
 			wlr_log(WLR_ERROR, "Unable to get path to config file");
 			ret = 1;
 			goto end;
-		}
-		int conf_ret = set_configuration(&server, config_file);
-
-		// Configurtion file not found
-		if(conf_ret != 0) {
-			if(config_file == NULL) {
-				char *default_conf = "/etc/xdg/cagebreak/config";
-				wlr_log(WLR_INFO, "Loading default configuration file: \"%s\"",
-				        default_conf);
-				conf_ret = set_configuration(&server, default_conf);
-			} else {
-				conf_ret = 1;
-			}
+		} else {
+			conf_ret = set_configuration(&server, config_file);
+			free(config_file);
 		}
 
-		free(config_file);
+		// Configuration file not found
+		if(conf_ret == 1) {
+			char *default_conf = "/etc/xdg/cagebreak/config";
+			wlr_log(WLR_INFO, "Loading default configuration file: \"%s\"",
+			        default_conf);
+			conf_ret = set_configuration(&server, default_conf);
+		}
+
 		if(conf_ret != 0 || !server.running) {
 			ret = 1;
 			goto end;
