@@ -1,5 +1,5 @@
 // Copyright 2020 - 2023, project-repo and the cagebreak contributors
-// SPDX -License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 #ifndef CG_FUZZ_LIB_H
 #define CG_FUZZ_LIB_H
@@ -21,7 +21,7 @@ extern struct wlr_xcursor_manager *xcursor_manager;
 #endif
 
 void
-cleanup();
+cleanup(void);
 
 int
 LLVMFuzzerInitialize(int *argc, char ***argv);

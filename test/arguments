@@ -1,0 +1,63 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+testdir="${MESONCURRENTCONFIGDIR}/_build-arguments/"
+mkdir "${testdir}"
+mkdir "${testdir}/arguments/"
+
+readonly helptext="Usage: ./cagebreak [OPTIONS]
+
+ -c <path>	 Load configuration file from <path>
+ -e		 Enable socket
+ -h		 Display this help message
+ -s		 Show information about the current setup and exit
+ -v		 Show the version number and exit
+ --bs		 \"bad security\": Enable features with potential security implications (see man page)"
+
+readonly basicheadless="Cagebreak ${1} is running on Wayland display wayland-.*
+Outputs:
+	 \\* HEADLESS-1
+Inputs:"
+
+RESULT=0
+
+# check -c option
+## Check without config file
+[[ $(2>&1 ./cagebreak -c | head -1 ) = "./cagebreak: option requires an argument -- 'c'" ]] || RESULT=1
+[[ $(2>&1 ./cagebreak -c | tail -n +2 ) = "$helptext" ]] || RESULT=1
+## Check with config file
+cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/-c-config" "${testdir}/arguments/"
+sed -i "s|CONFIGPATH|${testdir}\/arguments\/result|g" "${testdir}/arguments/-c-config"
+WLR_BACKENDS=headless ./cagebreak -c "${testdir}/arguments/-c-config"
+sync
+[[ $(cat "${testdir}/arguments/result") = "SUCCESS" ]] || RESULT=1
+
+# check -e option
+## Check without socket
+cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}/arguments"
+readonly oldsocket=$CAGEBREAK_SOCKET
+sed -i "s|CONFIGPATH|${testdir}\/arguments\/socket|g" "${testdir}/arguments/config"
+(WLR_BACKENDS=headless ./cagebreak -c "${testdir}/arguments/config")
+sync
+[[ $(cat "${testdir}/arguments/socket") = "${oldsocket}" ]] || RESULT=1
+## Check with socket
+cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}/arguments"
+sed -i "s|CONFIGPATH|$testdir\/arguments\/socket|g" "${testdir}/arguments/config"
+(WLR_BACKENDS=headless ./cagebreak -e -c "${testdir}/arguments/config")
+sync
+[[ ! $(cat "${testdir}/arguments/socket") = "${oldsocket}" ]] || RESULT=1
+
+# check -h option
+[[ $(./cagebreak -h) = "$helptext" ]] || RESULT=1
+
+# check -s option
+[[ $(WLR_BACKENDS=headless ./cagebreak -s) =~ ${basicheadless} ]] || RESULT=1
+
+
+# check -v option
+[[ $(./cagebreak -v) = "Cagebreak version $1" ]] || RESULT=1
+
+rm -rf "${testdir}"
+
+exit "${RESULT}"

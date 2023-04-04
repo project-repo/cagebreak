@@ -1,5 +1,5 @@
 // Copyright 2020 - 2023, project-repo and the cagebreak contributors
-// SPDX -License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200812L
 
@@ -88,7 +88,7 @@ drop_permissions(void) {
 }
 
 void
-cleanup() {
+cleanup(void) {
 	server.running = false;
 #if CG_HAS_XWAYLAND
 	if(xwayland != NULL) {
@@ -251,7 +251,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 
 	wlr_renderer_init_wl_display(server.renderer, server.wl_display);
 
-	server.bg_color = (float[4]){0, 0, 0, 1};
+	server.bg_color = calloc(4, sizeof(float *));
 	server.output_layout = wlr_output_layout_create();
 	if(!server.output_layout) {
 		wlr_log(WLR_ERROR, "Unable to create output layout");

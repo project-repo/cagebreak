@@ -1,0 +1,26 @@
+#! /bin/sh
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+readonly declared_deps="${*}"
+readonly deps="${declared_deps}"
+
+RESULT=0
+
+set -x
+
+echo "${MESONCURRENTCONFIGDIR}"
+
+for file in ${deps}
+do
+	echo "${file}"
+	if (clang-format -Werror --dry-run "${MESONCURRENTCONFIGDIR}/${file}")
+	then
+		echo "	[x] clang-format"
+	else
+		RESULT=1
+		echo "	[ ] clang-format"
+	fi
+done
+
+exit "${RESULT}"

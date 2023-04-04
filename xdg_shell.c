@@ -1,5 +1,5 @@
 // Copyright 2020 - 2023, project-repo and the cagebreak contributors
-// SPDX -License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
 
@@ -110,6 +110,13 @@ get_pid(const struct cg_view *view) {
 	return pid;
 }
 
+static char *
+get_title(const struct cg_view *view) {
+	const struct cg_xdg_shell_view *xdg_shell_view =
+	    xdg_shell_view_from_const_view(view);
+	return xdg_shell_view->xdg_surface->toplevel->title;
+}
+
 static bool
 is_primary(const struct cg_view *view) {
 	const struct cg_xdg_shell_view *xdg_shell_view =
@@ -208,6 +215,7 @@ handle_xdg_shell_surface_destroy(struct wl_listener *listener, void *_data) {
 }
 
 static const struct cg_view_impl xdg_shell_view_impl = {.get_pid = get_pid,
+                                                        .get_title = get_title,
                                                         .is_primary =
                                                             is_primary,
                                                         .activate = activate,

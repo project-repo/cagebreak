@@ -1,3 +1,6 @@
+// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// SPDX-License-Identifier: MIT
+
 #ifndef CG_SERVER_H
 #define CG_SERVER_H
 
@@ -54,6 +57,7 @@ struct cg_server {
 	struct cg_ipc_handle ipc;
 
 	bool enable_socket;
+	bool bs;
 	bool running;
 	char **modes;
 	uint16_t nws;
