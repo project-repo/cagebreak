@@ -109,7 +109,7 @@ Changelog:
 
 ## Release 2.1.0
 
-  * Add -bs (bad security) option as addition to -e option to enable view of frame titles and other private information
+  * Add -bs (bad security) option
   * Fix Issue 57 (SPDX spelling error #39)
   * Fix Issue 59 (meson install settings)
   * Fix Issue 55 (npd)
