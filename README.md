@@ -468,6 +468,7 @@ The release procedure outlines the process for a release to occur.
     * [ ] git tag
   * [ ] Relevant Documentation completed
     * [ ] New features
+      * [ ] tests added and old test scripts adjusted
       * [ ] man pages
         * [ ] cagebreak
         * [ ] cagebreak-config
