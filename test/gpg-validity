@@ -1,0 +1,46 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+RESULT=0
+
+# shellcheck disable=2164
+cd "${MESONCURRENTCONFIGDIR}/keys"
+stoday=$(date +%s)
+signingmargin=90
+
+# shellcheck disable=2046
+skey11exptime=$(date --date=$(gpg --show-keys cagebreak_signing_key_11\@project-repo.co.pub | tail -2 | head -1 | cut -d " " -f 8 | rev | cut -c2- | rev) '+%s')
+# shellcheck disable=2046
+skey12exptime=$(date --date=$(gpg --show-keys cagebreak_signing_key_12\@project-repo.co.pub | tail -2 | head -1 | cut -d " " -f 8 | rev | cut -c2- | rev) '+%s')
+# shellcheck disable=2046
+mailexptime=$(date --date=$(gpg --show-keys cagebreak\@project-repo.co.pub | tail -2 | head -1 | cut -d " " -f 8 | rev | cut -c2- | rev) '+%s')
+
+# signing keys
+## signing key 11
+if [[ $(( (stoday - skey11exptime) / 86400 )) -lt $signingmargin ]]
+then
+    echo "[x] signign key 11"
+else
+    RESULT=1
+    echo "[ ] signing key 11"
+fi
+## signing key 12
+if [[ $(( (stoday - skey12exptime) / 86400 )) -lt $signingmargin ]]
+then
+    echo "[x] signign key 12"
+else
+    RESULT=1
+    echo "[ ] signing key 12"
+fi
+
+# email key
+if [[ $(( (stoday - mailexptime) / 86400 )) -lt $signingmargin ]]
+then
+    echo "[x] mail key"
+else
+    RESULT=1
+    echo "[ ] mail key"
+fi
+
+exit "${RESULT}"
