@@ -312,6 +312,11 @@ There are four test suites:
     * Note that this is only expected to pass just before
       a release. This checks mostly administrative things
       to check that a release is ready.
+    * Note that non-auto tests are files in `release-non-auto-checks`
+      and have to contain the release version and current date in
+      YYYY-mm-dd format on seperate lines. This is our imperfect attempt
+      to guarantee some hard-to-automate checks are carried out before
+      a release is undertaken.
 
 Every commit should pass at least the basic and devel suites.
 
@@ -457,6 +462,7 @@ The release procedure outlines the process for a release to occur.
   * [ ] `git pull origin development`
   * [ ] `git push origin development`
   * [ ] New semantic version number determined
+  * [ ] `meson test -C build/` just to get an overview
   * [ ] Adjust version number
     * [ ] meson.build
     * [ ] git tag
@@ -503,6 +509,7 @@ The release procedure outlines the process for a release to occur.
   * [ ] `git commit` and insert message
   * [ ] `git tag -u keyid version HEAD` and insert message
   * [ ] `git tag -v version` and check output
+  * [ ] `meson test -C build/` last check before the push
   * [ ] `git push --tags origin master`
   * [ ] `git checkout development` (merge to development depends on whether release was a hotfix)
   * [ ] `git merge master`

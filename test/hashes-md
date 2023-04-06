@@ -1,0 +1,53 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+VERSION=$1
+RESULT=0
+
+# shellcheck disable=2164
+cd "${MESONCURRENTCONFIGDIR}"
+
+cb256=$(sha256sum build/cagebreak | cut -d " " -f1 )
+cb256man1=$(sha256sum build/cagebreak.1 | cut -d " " -f1 )
+cb256man5=$(sha256sum build/cagebreak-config.5 | cut -d " " -f1 )
+cb256man7=$(sha256sum build/cagebreak-socket.7 | cut -d " " -f1 )
+cb512=$(sha512sum build/cagebreak | cut -d " " -f1 )
+cb512man1=$(sha512sum build/cagebreak.1 | cut -d " " -f1 )
+cb512man5=$(sha512sum build/cagebreak-config.5 | cut -d " " -f1 )
+cb512man7=$(sha512sum build/cagebreak-socket.7 | cut -d " " -f1 )
+
+hashesdoc=$(head -21 Hashes.md)
+
+testdoc="# Hashes
+
+$VERSION cagebreak
+
+  * sha 256: ${cb256}
+  * sha 512: ${cb512}
+
+$VERSION cagebreak.1
+
+  * sha 256: ${cb256man1}
+  * sha 512: ${cb512man1}
+
+$VERSION cagebreak-config.5
+
+  * sha 256: ${cb256man5}
+  * sha 512: ${cb512man5}
+
+$VERSION cagebreak-socket.7
+
+  * sha 256: ${cb256man7}
+  * sha 512: ${cb512man7}"
+
+# email key
+if [[ "${hashesdoc}" = "${testdoc}" ]]
+then
+    echo "[x] Hashes.md"
+else
+    RESULT=1
+    echo "[ ] Hashes.md"
+fi
+
+exit "${RESULT}"
