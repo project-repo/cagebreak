@@ -355,5 +355,6 @@ test('Scan-build (static analysis)', find_program('test/scan-build'), env : [ ''
 test('Arguments', find_program('test/arguments'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
 test('Environment Variables', find_program('test/environment-variables'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
 test('Semantic versioning', find_program('test/versions'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
+test('Signature validity', find_program('test/gpg-signatures'), suite: 'release')
 test('Hashes.md', find_program('test/hashes-md'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
 test('Non-auto tests', find_program('test/non-auto-tests'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
