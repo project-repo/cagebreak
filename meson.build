@@ -359,3 +359,4 @@ test('Semantic versioning', find_program('test/versions'), args : [ meson.projec
 test('Signature validity', find_program('test/gpg-signatures'), suite: 'release')
 test('Hashes.md', find_program('test/hashes-md'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
 test('Non-auto tests', find_program('test/non-auto-tests'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
+test('Git tag', find_program('test/git-tag'), args : [ meson.project_version() ], suite: 'release')
