@@ -202,8 +202,8 @@ cagebreak_dependencies_dict = {
 reproducible_build_versions = { 
   'server_protos': '-1',
   'wayland_server': '1.19.0',
-  'wayland_client': '1.21.0',
-  'wayland_cursor': '1.21.0',
+  'wayland_client': '1.22.0',
+  'wayland_cursor': '1.22.0',
   'wlroots': '0.16.2',
   'xkbcommon': '1.5.0',
   'fontconfig': '2.14.2',
