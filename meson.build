@@ -350,6 +350,9 @@ run_target('devel-install',
 run_target('fuzz',
   command : ['scripts/fuzz', get_option('corpus')])
 
+run_target('adjust-epoch',
+  command : ['scripts/adjust-epoch'])
+
 # Test Suite
 
 test('Build without warnings', find_program('test/build-w-o-warnings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')

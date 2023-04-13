@@ -294,6 +294,21 @@ meson compile fuzz -C build
 If you want to use a different directory, configure cagebreak with
 `-Dcorpus=OTHERDIRECTORY` or call `./scripts/fuzz OTHERDIRECTORY`.
 
+##### Adjusting Epoch
+
+To facilitate the creation of reproducible man pages an arbitrary release
+time has to be set in `meson.build`:
+
+```
+meson compile adjust-epoch -C build
+```
+
+or
+
+```
+./scripts/adjust-epoch
+```
+
 ### GCC and -fanalyzer
 
 Cagebreak should compile with any reasonably new gcc or clang. Consider
