@@ -327,6 +327,23 @@ Cagebreak with `-Dgpg_id=GPGID`.
 
 can be used alternatively.
 
+##### Output Hashes
+
+Hashes of release versions of all binaries can be output to `local-hashes.txt`
+via:
+
+```
+meson compile output-hashes -C build
+```
+
+Or
+
+```
+./scripts/output-hashes VERSION
+```
+
+if meson is unavailable.
+
 ### GCC and -fanalyzer
 
 Cagebreak should compile with any reasonably new gcc or clang. Consider
