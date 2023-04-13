@@ -344,6 +344,23 @@ Or
 
 if meson is unavailable.
 
+##### Create Signatures
+
+Creation of signatures for releases can be acchieved through:
+
+```
+meson compile create-sigs -C build
+```
+
+Configure Cagebreak with `-Dgpg_id=GPGID` for a different gpg signing
+key.
+
+Withou meson use:
+
+```
+./scripts/create-signatures GPGID
+```
+
 ### GCC and -fanalyzer
 
 Cagebreak should compile with any reasonably new gcc or clang. Consider

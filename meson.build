@@ -359,6 +359,9 @@ run_target('git-tag',
 run_target('output-hashes',
   command : ['scripts/output-hashes', meson.project_version()])
 
+run_target('create-sigs',
+  command : ['scripts/create-signatures', get_option('gpg_id')])
+
 # Test Suite
 
 test('Build without warnings', find_program('test/build-w-o-warnings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
