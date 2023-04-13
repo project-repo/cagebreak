@@ -1,0 +1,5 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+sudo pacman -Syu --noconfirm git meson ninja clang gcc shellcheck jq openbsd-netcat gnupg binutils alacritty firefox wlroots wayland libxkbcommon cairo pango fontconfig libinput libevdev systemd-libs # systemd-libs is included because of libudev

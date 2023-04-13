@@ -260,6 +260,24 @@ need to ask for the distribution the user was having the issue on.)).
 You should use Arch Linux if you want to modify Cagebreak
 for yourself.
 
+#### Development Environment
+
+Cloning the Cagebreak repository and building it is sufficient as a starting point.
+
+All other dependencies can be installed by invoking
+
+```
+meson compile devel-install -C build
+```
+
+if meson is already available or
+
+```
+./scripts/install-development-environment
+```
+
+otherwise.
+
 ### GCC and -fanalyzer
 
 Cagebreak should compile with any reasonably new gcc or clang. Consider

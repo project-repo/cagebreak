@@ -10,7 +10,9 @@ readonly test_deps=$(cd "${MESONCURRENTCONFIGDIR}" ; find . -type f | grep test/
 readonly examples_deps=$(cd "${MESONCURRENTCONFIGDIR}" ; find . -type f | grep examples/)
 # shellcheck disable=2155,2164,2046
 readonly example_scripts_deps=$(cd "${MESONCURRENTCONFIGDIR}" ; find . -type f | grep example_scripts/)
-readonly deps="${declared_deps} ${hardcoded_deps} ${test_deps} ${examples_deps} ${example_scripts_deps}"
+# shellcheck disable=2155,2164,2046
+readonly scripts_deps=$(cd "${MESONCURRENTCONFIGDIR}" ; find . -type f | grep scripts/)
+readonly deps="${declared_deps} ${hardcoded_deps} ${test_deps} ${examples_deps} ${example_scripts_deps} ${scripts_deps}"
 # shellcheck disable=2046,2155
 readonly curryear=$(date +%Y)
 
