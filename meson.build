@@ -362,6 +362,9 @@ run_target('output-hashes',
 run_target('create-sigs',
   command : ['scripts/create-signatures', get_option('gpg_id')])
 
+run_target('set-ver',
+  command : ['scripts/set-version', meson.project_version()])
+
 # Test Suite
 
 test('Build without warnings', find_program('test/build-w-o-warnings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')

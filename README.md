@@ -361,6 +361,19 @@ Withou meson use:
 ./scripts/create-signatures GPGID
 ```
 
+##### Set Version Number
+
+Once the version number is set within meson.build, you can use
+
+```
+meson compile set-ver -C build
+```
+
+to set the version number in the man pages and README repology minversion.
+
+Use of the script without meson is discouraged because meson.build is
+not touched by the script.
+
 ### GCC and -fanalyzer
 
 Cagebreak should compile with any reasonably new gcc or clang. Consider
