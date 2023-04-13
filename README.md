@@ -309,6 +309,24 @@ or
 ./scripts/adjust-epoch
 ```
 
+##### Git tag
+
+If you are on the master branch, everything is ready and you want to create
+a release tag you can call:
+
+```
+meson compule git-tag -C build
+```
+
+If you want to use another signing key than the prespecified one, configure
+Cagebreak with `-Dgpg_id=GPGID`.
+
+```
+./scripts/git-tag GPGID CBVERSION
+```
+
+can be used alternatively.
+
 ### GCC and -fanalyzer
 
 Cagebreak should compile with any reasonably new gcc or clang. Consider

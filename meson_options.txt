@@ -5,3 +5,4 @@ option('man-pages', type: 'boolean', value: 'false', description: 'Build man pag
 option('fuzz', type: 'boolean', value: 'false', description: 'Enable building fuzzer targets')
 option('version_override', type: 'string', description: 'Set the project version to the string specified. Used for creating hashes for reproducible builds.')
 option('corpus', type: 'string', value: 'fuzz_corpus',  description: 'Set fuzzing corpus directory')
+option('gpg_id', type: 'string', value: '4E82C72C6B3E58A7BC4FF8554909F84CA83BB867',  description: 'Set gpg signing key for cagebreak')

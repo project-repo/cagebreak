@@ -353,6 +353,9 @@ run_target('fuzz',
 run_target('adjust-epoch',
   command : ['scripts/adjust-epoch'])
 
+run_target('git-tag',
+  command : ['scripts/git-tag', get_option('gpg_id'), meson.project_version()])
+
 # Test Suite
 
 test('Build without warnings', find_program('test/build-w-o-warnings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
