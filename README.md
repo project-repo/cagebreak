@@ -278,6 +278,22 @@ if meson is already available or
 
 otherwise.
 
+#### Scripts
+
+Cagebreak provides a few convenience tools to facilitate development.
+
+##### Fuzzing
+
+If your fuzzing corpus is located in the directory `fuzz_corpus` you can
+just call:
+
+```
+meson compile fuzz -C build
+```
+
+If you want to use a different directory, configure cagebreak with
+`-Dcorpus=OTHERDIRECTORY` or call `./scripts/fuzz OTHERDIRECTORY`.
+
 ### GCC and -fanalyzer
 
 Cagebreak should compile with any reasonably new gcc or clang. Consider

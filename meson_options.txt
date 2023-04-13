@@ -4,3 +4,4 @@ option('xwayland', type: 'boolean', value: 'false', description: 'Enable support
 option('man-pages', type: 'boolean', value: 'false', description: 'Build man pages (requires pandoc)')
 option('fuzz', type: 'boolean', value: 'false', description: 'Enable building fuzzer targets')
 option('version_override', type: 'string', description: 'Set the project version to the string specified. Used for creating hashes for reproducible builds.')
+option('corpus', type: 'string', value: 'fuzz_corpus',  description: 'Set fuzzing corpus directory')

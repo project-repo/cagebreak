@@ -347,6 +347,9 @@ message('\n'.join(summary))
 run_target('devel-install',
   command : ['scripts/install-development-environment'])
 
+run_target('fuzz',
+  command : ['scripts/fuzz', get_option('corpus')])
+
 # Test Suite
 
 test('Build without warnings', find_program('test/build-w-o-warnings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')

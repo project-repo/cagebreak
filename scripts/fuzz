@@ -1,0 +1,16 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+readonly fuzzing_corpus="${1}"
+
+if [[ -n ${MESON_SOURCE_ROOT} ]]
+then
+	# shellcheck disable=2164
+	cd "${MESON_SOURCE_ROOT}"
+fi
+
+rm -rf fuzzing-directory
+CC=clang meson setup fuzzing-directory -Dfuzz=true -Db_sanitize=address,undefined -Db_lundef=false -Db_detect-leaks=0
+ninja -C fuzzing-directory/
+WLR_BACKENDS=headless ./fuzzing-directory/fuzz-parse -jobs=12 -max_len=50000 -close_fd_mask=3 "${fuzzing_corpus}"
