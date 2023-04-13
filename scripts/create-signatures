@@ -9,6 +9,7 @@ then
 fi
 
 readonly gpg_id="${1}"
+# shellcheck disable=2155
 readonly old_tags=$(git tag| tail -1)
 
 mv signatures/cagebreak.sig "signatures/${old_tags}-cagebreak.sig"
