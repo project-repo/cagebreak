@@ -365,6 +365,9 @@ run_target('create-sigs',
 run_target('set-ver',
   command : ['scripts/set-version', meson.project_version()])
 
+run_target('create-artefacts',
+  command : ['scripts/create-release-artefacts', get_option('gpg_id'), meson.project_version()])
+
 # Test Suite
 
 test('Build without warnings', find_program('test/build-w-o-warnings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')

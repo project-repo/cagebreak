@@ -377,6 +377,19 @@ to set the version number in the man pages and README repology minversion.
 Use of the script without meson is discouraged because meson.build is
 not touched by the script.
 
+##### Create Release Artefacts
+
+Once a release is completely ready to be published, the commit is tagged with the
+version on the master branch etc. release artefacts have to be created.
+
+To aid this use:
+
+```
+meson compile create-artefacts -C build
+```
+
+Use of the script version is discouraged.
+
 ### GCC and -fanalyzer
 
 Cagebreak should compile with any reasonably new gcc or clang. Consider
