@@ -586,10 +586,9 @@ The release procedure outlines the process for a release to occur.
   * [ ] `git checkout development`
   * [ ] `git pull origin development`
   * [ ] `git push origin development`
-  * [ ] New semantic version number determined
-  * [ ] Adjust version number
-    * [ ] meson.build
-    * [ ] git tag
+  * [ ] Update internal wiki
+  * [ ] Adjust version number in meson.build
+  * [ ] `meson compile set-ver -C build`
   * [ ] Relevant Documentation completed
     * [ ] New features
       * [ ] man pages
@@ -597,42 +596,32 @@ The release procedure outlines the process for a release to occur.
         * [ ] cagebreak-config
         * [ ] cagebreak-socket
         * [ ] example config
-        * [ ] Set EPOCH to release day in man generation in meson.build
       * [ ] FAQ.md
       * [ ] Changelog.md for major and minor releases but not patches
     * [ ] Check features for SECURITY.md relevance (changes to socket scope
           for example)
       * [ ] Synchronize any socket changes to cagebreak-socket man page
-    * [ ] Updated internal wiki
-    * [ ] Added new files to meson.build or hardcoded testing variable
     * [ ] Fixed bugs documented in Bugs.md
       * [ ] Include issue discussion from github, where applicable
+  * [ ] Added new files to meson.build or hardcoded testing variable
   * [ ] Testing
     * [ ] Manual testing
-    * [ ] Libfuzzer testing
+    * [ ] `meson compile fuzz -C build` for at least one hour
   * [ ] Arch Build System is up to date
-  * [ ] wlr_xdg_shell version check
-  * [ ] Cagebreak is reproducible on multiple machines
-  * [ ] Documented reproducible build artefacts
-    * [ ] Hashes of the artefacts in Hashes.md
-    * [ ] Renamed previous signatures
-    * [ ] Created gpg signature of the artefacts
-      * [ ] `gpg --detach-sign -u keyid cagebreak`
-      * [ ] `gpg --detach-sign -u keyid cagebreak.1`
-      * [ ] `gpg --detach-sign -u keyid cagebreak-config.5`
-      * [ ] `gpg --detach-sign -u keyid cagebreak-socket.7`
+  * [ ] release-non-auto-checks
+  * [ ] `meson compile create-signatures -C build`
+  * [ ] Use `meson compile output-hashes -C build` to add Hashes or aid in repro check
+  * [ ] Commit and push signatures and hashes
   * [ ] `meson test -C build`
   * [ ] `git add` relevant files
   * [ ] `git commit`
   * [ ] `git push origin development`
-  * [ ] Determined commit and tag message (Start with "Release version_number\n\n")
-    * [ ] Mentioned fixed Bugs.md issues ("Fixed Issue n")
-    * [ ] Mentioned other important changes
   * [ ] `git checkout master`
   * [ ] `git merge --squash development`
   * [ ] `git commit` and insert message
-  * [ ] `git tag -u keyid version HEAD` and insert message
-  * [ ] `git tag -v version` and check output
+  * [ ] `meson compile git-tag -C build`
+  * [ ] `meson compile create-artefacts -C build`
+  * [ ] `meson test -C build` THIS MUST PASS WITHOUT ANY FAILURES WHATSOEVER
   * [ ] `git push --tags origin master`
   * [ ] `git checkout development` (merge to development depends on whether release was a hotfix)
   * [ ] `git merge master`
@@ -640,32 +629,6 @@ The release procedure outlines the process for a release to occur.
   * [ ] `git checkout hotfix` (hotfix is to be kept current with master after releases)
   * [ ] `git merge master`
   * [ ] `git push --tags origin hotfix`
-  * [ ] `git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .`
-  * [ ] Create release-artefacts_version.tar.gz
-    * [ ] `mkdir release-artefacts_version`
-    * [ ] `cp build/cagebreak release-artefacts_version/`
-    * [ ] `cp build/cagebreak.sig release-artefacts_version/`
-    * [ ] `cp build/cagebreak.1 release-artefacts_version/`
-    * [ ] `cp build/cagebreak.1.sig release-artefacts_version/`
-    * [ ] `cp build/cagebreak-config.5 release-artefacts_version/`
-    * [ ] `cp build/cagebreak-config.5.sig release-artefacts_version/`
-    * [ ] `cp build/cagebreak-socket.7 release-artefacts_version/`
-    * [ ] `cp build/cagebreak-socket.7.sig release-artefacts_version/`
-    * [ ] `cp LICENSE release-artefacts_version/`
-    * [ ] `cp README.md release-artefacts_version/`
-    * [ ] `cp SECURITY.md release-artefacts_version/`
-    * [ ] `cp FAQ.md release-artefacts_version/`
-    * [ ] `export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf release-artefacts_version.tar.gz release-artefacts_version`
-  * [ ] Checked archive
-    * [ ] tar -xvf release_version.tar.gz
-    * [ ] cd cagebreak
-    * [ ] meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
-    * [ ] ninja -C build
-    * [ ] gpg --verify ../signatures/cagebreak.sig build/cagebreak
-    * [ ] cd ..
-    * [ ] rm -rf cagebreak
-  * [ ] `gpg --detach-sign -u keyid release_version.tar.gz`
-  * [ ] `gpg --detach-sign -u keyid release-artefacts_version.tar.gz`
   * [ ] Upload archives and signatures as release assets
 
 ## Roadmap
