@@ -4,13 +4,12 @@
 
 RESULT=0
 
-set -x
 # shellcheck disable=2164
 cd "${MESONCURRENTCONFIGDIR}/test"
 # shellcheck disable=2046
 shellcheck --source-path=../example_scripts/ $(ls -Itesting-configurations) || RESULT=1
 
 cd "${MESONCURRENTCONFIGDIR}/example_scripts/" || RESULT=1
-shellcheck ./*
+shellcheck ./* || RESULT=1
 
 exit "${RESULT}"
