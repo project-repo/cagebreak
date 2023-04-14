@@ -262,6 +262,9 @@ for yourself.
 
 #### Development Environment
 
+CAVEAT: This script works exclusively on Arch Linux, which, as outlined above,
+is the development distribution of Cagebreak.
+
 Cloning the Cagebreak repository and building it is sufficient as a starting point.
 
 All other dependencies can be installed by invoking
