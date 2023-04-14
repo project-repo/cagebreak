@@ -379,3 +379,4 @@ test('Scan-build (static analysis)', find_program('test/scan-build'), env : [ ''
 test('Arguments', find_program('test/arguments'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
 test('Environment Variables', find_program('test/environment-variables'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
 test('Semantic versioning', find_program('test/versions'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
+test('Release-artefacts', find_program('test/check-artefacts'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')

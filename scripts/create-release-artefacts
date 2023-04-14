@@ -30,7 +30,8 @@ cp temp-rel-artefacts/cagebreak-config.5 "release-artefacts_${version}"
 cp temp-rel-artefacts/cagebreak-socket.7 "release-artefacts_${version}"
 cp signatures/cagebreak*.sig "release-artefacts_${version}"
 
-export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf release-artefacts_${version}.tar.gz release-artefacts_${version}
+# shellcheck disable=2155
+export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf "release-artefacts_${version}.tar.gz" "release-artefacts_${version}"
 
 gpg -u "${gpg_id}" --detach-sign "release-artefacts_${version}.tar.gz"
 gpg -u "${gpg_id}" --detach-sign "release_${version}.tar.gz"
