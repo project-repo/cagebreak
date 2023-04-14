@@ -14,6 +14,6 @@ cd "${MESONCURRENTCONFIGDIR}/example_scripts/" || RESULT=1
 shellcheck ./*
 
 cd "${MESONCURRENTCONFIGDIR}/scripts/" || RESULT=1
-shellcheck ./*
+shellcheck ./* || RESULT=1
 
 exit "${RESULT}"
