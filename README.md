@@ -315,7 +315,7 @@ If you are on the master branch, everything is ready and you want to create
 a release tag you can call:
 
 ```
-meson compule git-tag -C build
+meson compile git-tag -C build
 ```
 
 If you want to use another signing key than the prespecified one, configure
@@ -346,7 +346,7 @@ if meson is unavailable.
 
 ##### Create Signatures
 
-Creation of signatures for releases can be acchieved through:
+Creation of signatures for releases can be achieved through:
 
 ```
 meson compile create-sigs -C build
@@ -355,7 +355,7 @@ meson compile create-sigs -C build
 Configure Cagebreak with `-Dgpg_id=GPGID` for a different gpg signing
 key.
 
-Withou meson use:
+Without meson use:
 
 ```
 ./scripts/create-signatures GPGID
@@ -473,7 +473,7 @@ find bugs in other areas of the code.
 #### Caveat
 
 Currently, there are memory leaks which do not seem to stem from our code but rather
-the code of wl-roots or some other library we depend on. We are working on the problem.
+the code of wlroots or some other library we depend on. We are working on the problem.
 In the meantime, add `-Db_detect-leaks=0` to the meson command to exclude memory leaks.
 
 ### Reproducible Builds
