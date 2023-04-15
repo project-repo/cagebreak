@@ -600,7 +600,7 @@ The release procedure outlines the process for a release to occur.
     * [ ] Check features for SECURITY.md relevance (changes to socket scope
           for example)
       * [ ] Synchronize any socket changes to cagebreak-socket man page
-    * [ ] Fixed bugs documented in Bugs.md
+    * [ ] Document fixed bugs in Bugs.md
       * [ ] Include issue discussion from github, where applicable
   * [ ] Added new files to meson.build or hardcoded testing variable
   * [ ] Testing
