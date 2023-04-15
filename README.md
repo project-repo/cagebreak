@@ -379,10 +379,9 @@ not touched by the script.
 
 ##### Create Release Artefacts
 
-Once a release is completely ready to be published, the commit is tagged with the
-version on the master branch etc. release artefacts have to be created.
-
-To aid this use:
+The following command generates the release artefacts which must be created
+once a release is completely ready to be published (the commit is tagged with
+the version of the master branch, etc.):
 
 ```
 meson compile create-artefacts -C build
