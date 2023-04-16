@@ -703,6 +703,17 @@ independent of github, in case this service is unavailable.
 For other means of contacting the Cagebreak authors and for security issues
 see [SECURITY.md](SECURITY.md).
 
+## Accessibility
+
+  * We use text input/output to interact with the user whenever possible. For
+    example, sending text-based commands to the cagebreak sockets allows
+    one to change every configurable feature of cagebreak.
+  * Color is displayed but never a vital part to operating cagebreak.
+  * Text size can be increased and background color adjusted using text commands.
+  * There is no screen reader support per se but using a screen reader on socket output
+    would work and cagebreak does not preclude the use of a screen reader
+    for any software run with it.
+
 ## Contributors
 
   * Aisha Tammy
