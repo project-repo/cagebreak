@@ -260,6 +260,27 @@ need to ask for the distribution the user was having the issue on.)).
 You should use Arch Linux if you want to modify Cagebreak
 for yourself.
 
+### Review Requirements
+
+Project-repo will review your proposal before your implementation for feasibility
+and desirability. After your pull request, the code will be reviewed in conjunction
+with all other changes before the release as per the release procedure.
+
+All reviews performed by project-repo are verified by at least two people internally.
+
+### Developer Certificate of Origin (DCO)
+
+On any pull requests please include a
+
+```
+signed-off-by: YOUR IDENTIFIER OR NAME
+```
+
+DCO statement.
+
+By doing this you claim that you are legally allowed to contribute the
+code and agree to let project-repo publish it under the MIT License.
+
 #### Development Environment
 
 CAVEAT: This script works exclusively on Arch Linux, which, as outlined above,
