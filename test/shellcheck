@@ -12,4 +12,7 @@ shellcheck --source-path=../example_scripts/ $(ls -Itesting-configurations) || R
 cd "${MESONCURRENTCONFIGDIR}/example_scripts/" || RESULT=1
 shellcheck ./* || RESULT=1
 
+cd "${MESONCURRENTCONFIGDIR}/scripts/" || RESULT=1
+shellcheck ./* || RESULT=1
+
 exit "${RESULT}"

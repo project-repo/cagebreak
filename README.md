@@ -1,6 +1,6 @@
 # Cagebreak: A Wayland Tiling Compositor
 
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.1.0)](https://repology.org/project/cagebreak/versions)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.1.1)](https://repology.org/project/cagebreak/versions)
 
 ## Quick Introduction
 
@@ -260,6 +260,135 @@ need to ask for the distribution the user was having the issue on.)).
 You should use Arch Linux if you want to modify Cagebreak
 for yourself.
 
+#### Development Environment
+
+CAVEAT: This script works exclusively on Arch Linux, which, as outlined above,
+is the development distribution of Cagebreak.
+
+Cloning the Cagebreak repository and building it is sufficient as a starting point.
+
+All other dependencies can be installed by invoking
+
+```
+meson compile devel-install -C build
+```
+
+if meson is already available or
+
+```
+./scripts/install-development-environment
+```
+
+otherwise.
+
+#### Scripts
+
+Cagebreak provides a few convenience tools to facilitate development.
+
+##### Fuzzing
+
+If your fuzzing corpus is located in the directory `fuzz_corpus` you can
+just call:
+
+```
+meson compile fuzz -C build
+```
+
+If you want to use a different directory, configure cagebreak with
+`-Dcorpus=OTHERDIRECTORY` or call `./scripts/fuzz OTHERDIRECTORY`.
+
+##### Adjusting Epoch
+
+To facilitate the creation of reproducible man pages an arbitrary release
+time has to be set in `meson.build`:
+
+```
+meson compile adjust-epoch -C build
+```
+
+or
+
+```
+./scripts/adjust-epoch
+```
+
+##### Git tag
+
+If you are on the master branch, everything is ready and you want to create
+a release tag you can call:
+
+```
+meson compile git-tag -C build
+```
+
+If you want to use another signing key than the prespecified one, configure
+Cagebreak with `-Dgpg_id=GPGID`.
+
+```
+./scripts/git-tag GPGID CBVERSION
+```
+
+can be used alternatively.
+
+##### Output Hashes
+
+Hashes of release versions of all binaries can be output to `local-hashes.txt`
+via:
+
+```
+meson compile output-hashes -C build
+```
+
+Or
+
+```
+./scripts/output-hashes VERSION
+```
+
+if meson is unavailable.
+
+##### Create Signatures
+
+Creation of signatures for releases can be achieved through:
+
+```
+meson compile create-sigs -C build
+```
+
+Configure Cagebreak with `-Dgpg_id=GPGID` for a different gpg signing
+key.
+
+Without meson use:
+
+```
+./scripts/create-signatures GPGID
+```
+
+##### Set Version Number
+
+Once the version number is set within meson.build, you can use
+
+```
+meson compile set-ver -C build
+```
+
+to set the version number in the man pages and README repology minversion.
+
+Use of the script without meson is discouraged because meson.build is
+not touched by the script.
+
+##### Create Release Artefacts
+
+The following command generates the release artefacts which must be created
+once a release is completely ready to be published (the commit is tagged with
+the version of the master branch, etc.):
+
+```
+meson compile create-artefacts -C build
+```
+
+Use of the script version is discouraged.
+
 ### GCC and -fanalyzer
 
 Cagebreak should compile with any reasonably new gcc or clang. Consider
@@ -364,7 +493,7 @@ find bugs in other areas of the code.
 #### Caveat
 
 Currently, there are memory leaks which do not seem to stem from our code but rather
-the code of wl-roots or some other library we depend on. We are working on the problem.
+the code of wlroots or some other library we depend on. We are working on the problem.
 In the meantime, add `-Db_detect-leaks=0` to the meson command to exclude memory leaks.
 
 ### Reproducible Builds
@@ -466,6 +595,9 @@ The release procedure outlines the process for a release to occur.
   * [ ] Adjust version number
     * [ ] meson.build
     * [ ] git tag
+  * [ ] Update internal wiki
+  * [ ] Adjust version number in meson.build
+  * [ ] `meson compile set-ver -C build`
   * [ ] Relevant Documentation completed
     * [ ] New features
       * [ ] tests added and old test scripts adjusted
@@ -474,43 +606,32 @@ The release procedure outlines the process for a release to occur.
         * [ ] cagebreak-config
         * [ ] cagebreak-socket
         * [ ] example config
-        * [ ] Set EPOCH to release day in man generation in meson.build
       * [ ] FAQ.md
       * [ ] Changelog.md for major and minor releases but not patches
     * [ ] Check features for SECURITY.md relevance (changes to socket scope
           for example)
       * [ ] Synchronize any socket changes to cagebreak-socket man page
-    * [ ] Updated internal wiki
-    * [ ] Added new files to meson.build or hardcoded testing variable
-    * [ ] Fixed bugs documented in Bugs.md
+    * [ ] Document fixed bugs in Bugs.md
       * [ ] Include issue discussion from github, where applicable
+  * [ ] Added new files to meson.build or hardcoded testing variable
   * [ ] Testing
     * [ ] Manual testing
-    * [ ] Libfuzzer testing
+    * [ ] `meson compile fuzz -C build` for at least one hour
   * [ ] Arch Build System is up to date
-  * [ ] wlr_xdg_shell version check
-  * [ ] Cagebreak is reproducible on multiple machines
-  * [ ] Documented reproducible build artefacts
-    * [ ] Hashes of the artefacts in Hashes.md
-    * [ ] Renamed previous signatures
-    * [ ] Created gpg signature of the artefacts
-      * [ ] `gpg --detach-sign -u keyid cagebreak`
-      * [ ] `gpg --detach-sign -u keyid cagebreak.1`
-      * [ ] `gpg --detach-sign -u keyid cagebreak-config.5`
-      * [ ] `gpg --detach-sign -u keyid cagebreak-socket.7`
+  * [ ] release-non-auto-checks
+  * [ ] `meson compile create-signatures -C build`
+  * [ ] Use `meson compile output-hashes -C build` to add Hashes or aid in repro check
+  * [ ] Commit and push signatures and hashes
   * [ ] `meson test -C build`
   * [ ] `git add` relevant files
   * [ ] `git commit`
   * [ ] `git push origin development`
-  * [ ] Determined commit and tag message (Start with "Release version_number\n\n")
-    * [ ] Mentioned fixed Bugs.md issues ("Fixed Issue n")
-    * [ ] Mentioned other important changes
   * [ ] `git checkout master`
   * [ ] `git merge --squash development`
   * [ ] `git commit` and insert message
-  * [ ] `git tag -u keyid version HEAD` and insert message
-  * [ ] `git tag -v version` and check output
-  * [ ] `meson test -C build/` last check before the push
+  * [ ] `meson compile git-tag -C build`
+  * [ ] `meson compile create-artefacts -C build`
+  * [ ] `meson test -C build` THIS MUST PASS WITHOUT ANY FAILURES WHATSOEVER
   * [ ] `git push --tags origin master`
   * [ ] `git checkout development` (merge to development depends on whether release was a hotfix)
   * [ ] `git merge master`
@@ -518,32 +639,6 @@ The release procedure outlines the process for a release to occur.
   * [ ] `git checkout hotfix` (hotfix is to be kept current with master after releases)
   * [ ] `git merge master`
   * [ ] `git push --tags origin hotfix`
-  * [ ] `git archive --prefix=cagebreak/ -o release_version.tar.gz tags/version .`
-  * [ ] Create release-artefacts_version.tar.gz
-    * [ ] `mkdir release-artefacts_version`
-    * [ ] `cp build/cagebreak release-artefacts_version/`
-    * [ ] `cp build/cagebreak.sig release-artefacts_version/`
-    * [ ] `cp build/cagebreak.1 release-artefacts_version/`
-    * [ ] `cp build/cagebreak.1.sig release-artefacts_version/`
-    * [ ] `cp build/cagebreak-config.5 release-artefacts_version/`
-    * [ ] `cp build/cagebreak-config.5.sig release-artefacts_version/`
-    * [ ] `cp build/cagebreak-socket.7 release-artefacts_version/`
-    * [ ] `cp build/cagebreak-socket.7.sig release-artefacts_version/`
-    * [ ] `cp LICENSE release-artefacts_version/`
-    * [ ] `cp README.md release-artefacts_version/`
-    * [ ] `cp SECURITY.md release-artefacts_version/`
-    * [ ] `cp FAQ.md release-artefacts_version/`
-    * [ ] `export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf release-artefacts_version.tar.gz release-artefacts_version`
-  * [ ] Checked archive
-    * [ ] tar -xvf release_version.tar.gz
-    * [ ] cd cagebreak
-    * [ ] meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
-    * [ ] ninja -C build
-    * [ ] gpg --verify ../signatures/cagebreak.sig build/cagebreak
-    * [ ] cd ..
-    * [ ] rm -rf cagebreak
-  * [ ] `gpg --detach-sign -u keyid release_version.tar.gz`
-  * [ ] `gpg --detach-sign -u keyid release-artefacts_version.tar.gz`
   * [ ] Upload archives and signatures as release assets
 
 ## Roadmap

@@ -3,7 +3,7 @@
 project(
   'cagebreak',
   'c',
-version : '2.1.0',
+version : '2.1.1',
 license : 'MIT',
 default_options : ['c_std=c11', 'warning_level=3']
 )
@@ -344,6 +344,30 @@ summary = [
 ]
 message('\n'.join(summary))
 
+run_target('devel-install',
+  command : ['scripts/install-development-environment'])
+
+run_target('fuzz',
+  command : ['scripts/fuzz', get_option('corpus')])
+
+run_target('adjust-epoch',
+  command : ['scripts/adjust-epoch'])
+
+run_target('git-tag',
+  command : ['scripts/git-tag', get_option('gpg_id'), meson.project_version()])
+
+run_target('output-hashes',
+  command : ['scripts/output-hashes', meson.project_version()])
+
+run_target('create-sigs',
+  command : ['scripts/create-signatures', get_option('gpg_id')])
+
+run_target('set-ver',
+  command : ['scripts/set-version', meson.project_version()])
+
+run_target('create-artefacts',
+  command : ['scripts/create-release-artefacts', get_option('gpg_id'), meson.project_version()])
+
 # Test Suite
 
 test('Build without warnings', find_program('test/build-w-o-warnings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
@@ -360,3 +384,4 @@ test('Signature validity', find_program('test/gpg-signatures'), suite: 'release'
 test('Hashes.md', find_program('test/hashes-md'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
 test('Non-auto tests', find_program('test/non-auto-tests'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
 test('Git tag', find_program('test/git-tag'), args : [ meson.project_version() ], suite: 'release')
+test('Release-artefacts', find_program('test/check-artefacts'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
