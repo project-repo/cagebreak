@@ -611,15 +611,15 @@ The release procedure outlines the process for a release to occur.
   * [ ] `git checkout development`
   * [ ] `git pull origin development`
   * [ ] `git push origin development`
-  * [ ] New semantic version number determined
+  * [ ] Arch Build System is up to date
   * [ ] `meson test -C build/` just to get an overview
-  * [ ] Adjust version number
-    * [ ] meson.build
-    * [ ] git tag
   * [ ] Update internal wiki
   * [ ] Adjust version number in meson.build
   * [ ] `meson compile set-ver -C build`
-  * [ ] Relevant Documentation completed
+  * [ ] Add new files to meson.build or hardcoded testing variable
+  * [ ] Commit changes
+  * [ ] `git push origin development`
+  * [ ] Complete relevant documentation
     * [ ] New features
       * [ ] tests added and old test scripts adjusted
       * [ ] man pages
@@ -629,21 +629,20 @@ The release procedure outlines the process for a release to occur.
         * [ ] example config
       * [ ] FAQ.md
       * [ ] Changelog.md for major and minor releases but not patches
-    * [ ] Check features for SECURITY.md relevance (changes to socket scope
-          for example)
+    * [ ] Check changes for SECURITY.md relevance (changes to socket scope for example)
       * [ ] Synchronize any socket changes to cagebreak-socket man page
     * [ ] Document fixed bugs in Bugs.md
       * [ ] Include issue discussion from github, where applicable
-  * [ ] Added new files to meson.build or hardcoded testing variable
+  * [ ] Commit changes
+  * [ ] `git push origin development`
   * [ ] Testing
     * [ ] Manual testing
     * [ ] `meson compile fuzz -C build` for at least one hour
-  * [ ] Arch Build System is up to date
-  * [ ] release-non-auto-checks
+  * [ ] Complete release-non-auto-checks
+    * [ ] Use `meson compile output-hashes -C build` to add Hashes or aid in repro check
   * [ ] `meson compile create-signatures -C build`
-  * [ ] Use `meson compile output-hashes -C build` to add Hashes or aid in repro check
-  * [ ] Commit and push signatures and hashes
-  * [ ] `meson test -C build`
+  * [ ] Commit and push signatures, hashes and non-auto-check files
+  * [ ] `meson test -C build` passes everything except some release tests
   * [ ] `git add` relevant files
   * [ ] `git commit`
   * [ ] `git push origin development`
@@ -661,6 +660,7 @@ The release procedure outlines the process for a release to occur.
   * [ ] `git merge master`
   * [ ] `git push --tags origin hotfix`
   * [ ] Upload archives and signatures as release assets
+  * [ ] Manage package release
 
 ## Roadmap
 
