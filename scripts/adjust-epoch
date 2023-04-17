@@ -1,0 +1,13 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+if [[ -n ${MESON_SOURCE_ROOT} ]]
+then
+	# shellcheck disable=2164
+	cd "${MESON_SOURCE_ROOT}"
+fi
+
+# shellcheck disable=2034
+ssepoch=$(date +%s)
+sed -i -e "/secssinceepoch \=/s/[0-9]*$/$ssepoch/" meson.build

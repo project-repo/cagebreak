@@ -1,1 +1,3 @@
 build
+fuzz_corpus
+fuzzing-directory
