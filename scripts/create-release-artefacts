@@ -11,7 +11,7 @@ fi
 readonly gpg_id="${1}"
 readonly version="${2}"
 
-git archive --prefix=cagebreak/ -o "release_${version}".tar.gz tags/version .
+git archive --prefix=cagebreak/ -o "release_${version}.tar.gz" "tags/${version}" .
 
 rm -rf "release-artefacts_${version}"
 mkdir "release-artefacts_${version}"
