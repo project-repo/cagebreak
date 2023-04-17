@@ -13,7 +13,7 @@ gpg --verify "release_${version}.tar.gz.sig" || RESULT=1
 gpg --verify "release-artefacts_${version}.tar.gz.sig" || RESULT=1
 
 tar -xvf "release_${version}.tar.gz"
-cd cagebreak || RESULT=1 && exit 1
+cd cagebreak || exit 1
 meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
 ninja -C build
 gpg --verify ../signatures/cagebreak.sig build/cagebreak || RESULT=1
