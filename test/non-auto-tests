@@ -1,0 +1,25 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+VERSION=$1
+RESULT=0
+
+# shellcheck disable=2164
+cd "${MESONCURRENTCONFIGDIR}/release-non-auto-checks"
+
+filevar="$VERSION
+$(date +%Y-%m-%d)"
+
+for check in ./*
+do
+	if [[ $(cat "$check") = "${filevar}" ]]
+	then
+		echo "[x] ${check}"
+	else
+		RESULT=1
+		echo "[ ] ${check}"
+	fi
+done
+
+exit "${RESULT}"

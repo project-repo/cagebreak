@@ -1,0 +1,27 @@
+#! /bin/sh
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+RESULT=0
+
+readonly version="${1}"
+
+# shellcheck disable=SC2164
+cd "${MESONCURRENTCONFIGDIR}"
+
+gpg --verify "release_${version}.tar.gz.sig" || RESULT=1
+gpg --verify "release-artefacts_${version}.tar.gz.sig" || RESULT=1
+
+tar -xvf "release_${version}.tar.gz"
+cd cagebreak || exit 1
+meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
+ninja -C build
+gpg --verify ../signatures/cagebreak.sig build/cagebreak || RESULT=1
+gpg --verify ../signatures/cagebreak.1.sig build/cagebreak.1 || RESULT=1
+gpg --verify ../signatures/cagebreak-config.5.sig build/cagebreak-config.5 || RESULT=1
+gpg --verify ../signatures/cagebreak-socket.7.sig build/cagebreak-socket.7 || RESULT=1
+# shellcheck disable=2103
+cd ..
+rm -rf cagebreak
+
+exit "${RESULT}"
