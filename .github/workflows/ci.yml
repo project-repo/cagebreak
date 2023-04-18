@@ -8,17 +8,10 @@ jobs:
     container:
       image: archlinux:latest
     steps:
-      - run: ls
-      - run: ls ..
-      - run: echo $GITHUB_WORKSPACE
-      - run: ls $GITHUB_WORKSPACE
-      - run: pwd
-      - run: ls /
-      - run: ls /github
-      - run: ls /github/home
-      - run: ls /github/workflow
-      - run: ls /home
-      - run: bash ../../scripts/install-development-environment
+      - run: git clone https://github.com/project-repo/cagebreak
+      - run: cd cagebreak
+      - run: git checkout feature/continuous-integration
+      - run: bash scripts/install-development-environment
       - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
       - run: ninja -C build
       - run: meson test -C build
