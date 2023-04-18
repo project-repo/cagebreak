@@ -1,4 +1,5 @@
 name: ci
+description: "CI"
 
 on:
   push:
@@ -7,15 +8,4 @@ on:
 runs:
   using: 'docker'
   image: 'Dockerfile'
-steps:
-- uses: actions/checkout@v3
-- run: bash scripts/install-development-environment
-- run: meson setup build/ -Dxwayland=true -Dman-pages=true --buildtype=release
-- run: ninja -C build/
-- run: meson test -C build/
-- uses: actions/upload-artifact@v1
-  if: failure()
-  with:
-    name: Cagebreak_Meson_Testlog
-    path: builddir/meson-logs/testlog.txt
 
