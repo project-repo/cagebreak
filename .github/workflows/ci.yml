@@ -8,6 +8,8 @@ jobs:
     container:
       image: archlinux:latest
     steps:
+      - run: ls
+      - run: pwd
       - run: bash ../../scripts/install-development-environment
       - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
       - run: ninja -C build
