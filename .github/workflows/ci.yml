@@ -13,5 +13,5 @@ jobs:
       pre-entrypoint: '../../scripts/install-development-environment'
       entrypoint: '../../scripts/test'
     steps:
-      run: meson test -C build
+      - run: meson test -C build
 
