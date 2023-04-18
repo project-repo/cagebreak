@@ -1,8 +1,5 @@
 name: ci
 
-default:
-  image: "archlinux:latest"
-
 on:
   push:
     branches: [ "feature/continuous-integration", "development" ]
@@ -10,6 +7,7 @@ on:
 jobs:
 
   linux:
+    runs-on: archlinux:latest
     steps:
     - uses: actions/checkout@v3
     - run: bash scripts/install-development-environment
