@@ -12,6 +12,9 @@ jobs:
       - run: pwd
       - run: ls /
       - run: ls /github
+      - run: ls /github/home
+      - run: ls /github/workflow
+      - run: ls /home
       - run: bash ../../scripts/install-development-environment
       - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
       - run: ninja -C build
