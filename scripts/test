@@ -1,0 +1,6 @@
+#!/bin/bash
+
+cd ..
+meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
+ninja -C build
+meson test -C build

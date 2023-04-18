@@ -8,4 +8,6 @@ on:
 runs:
   using: 'docker'
   image: 'Dockerfile'
+  pre-entrypoint: '../../scripts/install-development-environment'
+  entrypoint: '../../scripts/test'
 
