@@ -638,9 +638,11 @@ The release procedure outlines the process for a release to occur.
   * [ ] Testing
     * [ ] Manual testing
     * [ ] `meson compile fuzz -C build` for at least one hour
+  * [ ] Adjust Hashes.md - Use `meson compile output-hashes -C build` to add Hashes or aid in repro check
+  * [ ] Commit changes
+  * [ ] `git push origin development`
   * [ ] Complete release-non-auto-checks
-    * [ ] Use `meson compile output-hashes -C build` to add Hashes or aid in repro check
-  * [ ] `meson compile create-signatures -C build`
+  * [ ] `meson compile create-sigs -C build`
   * [ ] Commit and push signatures, hashes and non-auto-check files
   * [ ] `meson test -C build` passes everything except some release tests
   * [ ] `git add` relevant files
@@ -660,6 +662,7 @@ The release procedure outlines the process for a release to occur.
   * [ ] `git merge master`
   * [ ] `git push --tags origin hotfix`
   * [ ] Upload archives and signatures as release assets
+  * [ ] Delete feature branches if appropriate
   * [ ] Manage package release
 
 ## Roadmap
