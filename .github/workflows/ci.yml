@@ -11,8 +11,8 @@ jobs:
       - run: pacman -Syu --noconfirm git sudo
       - run: git clone https://github.com/project-repo/cagebreak
       - run: git -C cagebreak checkout feature/continuous-integration
-      - run: bash cagebreak/scripts/install-development-environment
-      - run: meson setup cagebreak/build -Dxwayland=true -Dman-pages=true --buildtype=release
-      - run: ninja -C cagebreak/build
-      - run: meson test -C cagebreak/build
+      - run: cd cagebreak ; bash scripts/install-development-environment
+      - run: cd cagebreak ; meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
+      - run: cd cagebreak ; ninja -C build
+      - run: cd cagebreak ; meson test -C build
 
