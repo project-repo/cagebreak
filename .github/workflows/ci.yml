@@ -12,4 +12,6 @@ jobs:
       image: 'Dockerfile'
       pre-entrypoint: '../../scripts/install-development-environment'
       entrypoint: '../../scripts/test'
+    steps:
+      run: meson test -C build
 
