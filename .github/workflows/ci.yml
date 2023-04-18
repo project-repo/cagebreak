@@ -11,6 +11,8 @@ jobs:
       - run: pacman -Syu --noconfirm git sudo
       - run: git clone https://github.com/project-repo/cagebreak
       - run: cd cagebreak
+      - run: git branch
+      - run: git fetch origin/feature/continuous-integration
       - run: git checkout feature/continuous-integration
       - run: bash scripts/install-development-environment
       - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
