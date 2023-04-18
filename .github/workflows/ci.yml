@@ -10,6 +10,8 @@ jobs:
     steps:
       - run: ls
       - run: pwd
+      - run: ls /
+      - run: ls /github
       - run: bash ../../scripts/install-development-environment
       - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
       - run: ninja -C build
