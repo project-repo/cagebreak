@@ -8,7 +8,7 @@ jobs:
     container:
       image: archlinux:latest
     steps:
-      - run: pacman -S --noconfirm git sudo
+      - run: pacman -Syu --noconfirm git sudo
       - run: git clone https://github.com/project-repo/cagebreak
       - run: cd cagebreak
       - run: git checkout feature/continuous-integration
