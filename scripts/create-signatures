@@ -1,0 +1,37 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+if [[ -n ${MESON_SOURCE_ROOT} ]]
+then
+	# shellcheck disable=2164
+	cd "${MESON_SOURCE_ROOT}"
+fi
+
+readonly gpg_id="${1}"
+# shellcheck disable=2155
+readonly old_tags=$(git tag| tail -1)
+
+mv signatures/cagebreak.sig "signatures/${old_tags}-cagebreak.sig"
+mv signatures/cagebreak.1.sig "signatures/${old_tags}-cagebreak.1.sig"
+mv signatures/cagebreak-config.5.sig "signatures/${old_tags}-cagebreak-config.5.sig"
+mv signatures/cagebreak-socket.7.sig "signatures/${old_tags}-cagebreak-socket.7.sig"
+
+git add "signatures/${old_tags}-cagebreak.sig"
+git add "signatures/${old_tags}-cagebreak.1.sig"
+git add "signatures/${old_tags}-cagebreak-config.5.sig"
+git add "signatures/${old_tags}-cagebreak-socket.7.sig"
+
+rm -rf temp-sigs
+meson setup temp-sigs -Dxwayland=true -Dman-pages=true --buildtype=release
+ninja -C temp-sigs
+
+gpg -u "${gpg_id}" --detach-sign temp-sigs/cagebreak
+gpg -u "${gpg_id}" --detach-sign temp-sigs/cagebreak.1
+gpg -u "${gpg_id}" --detach-sign temp-sigs/cagebreak-config.5
+gpg -u "${gpg_id}" --detach-sign temp-sigs/cagebreak-socket.7
+
+cp temp-sigs/*.sig signatures/
+
+
+rm -rf temp-sigs
