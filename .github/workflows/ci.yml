@@ -7,7 +7,7 @@ on:
 jobs:
 
   linux:
-    runs:
+    runs-on:
       using: 'docker'
       image: 'Dockerfile'
     steps:
