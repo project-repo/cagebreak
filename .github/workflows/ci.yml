@@ -8,7 +8,7 @@ jobs:
     container:
       image: archlinux:latest
     steps:
-      - run: bash scripts/install-development-environment
+      - run: bash ../../scripts/install-development-environment
       - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
       - run: ninja -C build
       - run: meson test -C build
