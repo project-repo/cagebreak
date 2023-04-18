@@ -9,6 +9,9 @@ jobs:
       image: archlinux:latest
     steps:
       - run: ls
+      - run: ls ..
+      - run: echo $GITHUB_WORKSPACE
+      - run: ls $GITHUB_WORKSPACE
       - run: pwd
       - run: ls /
       - run: ls /github
