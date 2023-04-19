@@ -15,5 +15,5 @@ jobs:
       - run: cd cagebreak ; bash scripts/install-development-environment
       - run: cd cagebreak ; meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
       - run: cd cagebreak ; ninja -C build
-      - run: cd cagebreak ; meson test -C build ; cat cagebreak/build/meson-logs/testlog.txt
+      - run: cd cagebreak ; meson test -C build ; cat build/meson-logs/testlog.txt
 
