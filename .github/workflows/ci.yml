@@ -16,7 +16,6 @@ jobs:
       - run: bash scripts/install-development-environment
       - run: |
           for commit in $(git rev-list ${{ github.base_ref }}..${{ github.head_ref }}); do
-            cd cagebreak
             meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
             ninja -C build
             meson test -C build --suite devel -v
