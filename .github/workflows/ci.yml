@@ -8,12 +8,16 @@ jobs:
     container:
       image: archlinux:latest
     steps:
+      - uses: actions/checkout@v2
+        with: fetch-depth: 0
       - run: pacman-key --init
       - run: pacman -Syu --noconfirm git sudo
-      - run: git clone https://github.com/project-repo/cagebreak
-      - run: git -C cagebreak checkout feature/continuous-integration
       - run: cd cagebreak ; bash scripts/install-development-environment
-      - run: cd cagebreak ; meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
-      - run: cd cagebreak ; ninja -C build
-      - run: cd cagebreak ; meson test -C build --suite devel -v
+      - run: |
+          for commit in $(git rev-list ${{ github.base_ref }}..${{ github.head_ref }}); do
+            cd cagebreak
+            meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
+            ninja -C build
+            meson test -C build --suite devel -v
+          done
 
