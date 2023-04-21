@@ -11,14 +11,9 @@ jobs:
       - run: pacman-key --init
       - run: pacman -Syu --noconfirm git sudo
       - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
       - run: git config --global --add safe.directory /__w/cagebreak/cagebreak
       - run: bash scripts/install-development-environment
-      - run: |
-          for commit in $(git rev-list ${{ github.base_ref }}..${{ github.head_ref }}); do
-            meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
-            ninja -C build
-            meson test -C build --suite devel -v
-          done
+      - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
+      - run: ninja -C build
+      - run: meson test -C build --suite devel -v
 
