@@ -3,7 +3,7 @@ on:
     branches: [ "feature/continuous-integration", "development" ]
 
 jobs:
-  linux:
+  devel:
     runs-on: ubuntu-latest
     container:
       image: archlinux:latest
@@ -15,5 +15,20 @@ jobs:
       - run: bash scripts/install-development-environment
       - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
       - run: ninja -C build
-      - run: meson test -C build --suite devel -v
+      - run: meson test -C build --suite devel --suite devel-long -v
+
+jobs:
+  basic:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - run: pacman-key --init
+      - run: pacman -Syu --noconfirm git sudo
+      - uses: actions/checkout@v3
+      - run: git config --global --add safe.directory /__w/cagebreak/cagebreak
+      - run: bash scripts/install-development-environment
+      - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
+      - run: ninja -C build
+      - run: meson test -C build --suite basic -v
 
