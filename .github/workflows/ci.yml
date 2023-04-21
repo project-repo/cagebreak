@@ -16,8 +16,6 @@ jobs:
       - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
       - run: ninja -C build
       - run: meson test -C build --suite devel --suite devel-long -v
-
-jobs:
   basic:
     runs-on: ubuntu-latest
     container:
