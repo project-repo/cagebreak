@@ -10,7 +10,7 @@ jobs:
     steps:
       - run: pacman-key --init
       - run: pacman -Syu --noconfirm git sudo
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: git config --global --add safe.directory /__w/cagebreak/cagebreak
       - run: bash scripts/install-development-environment
       - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
