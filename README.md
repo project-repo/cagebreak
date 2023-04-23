@@ -1,6 +1,6 @@
 # Cagebreak: A Wayland Tiling Compositor
 
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.1.1)](https://repology.org/project/cagebreak/versions)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.1.2)](https://repology.org/project/cagebreak/versions)
 
 ## Quick Introduction
 
@@ -633,6 +633,7 @@ The release procedure outlines the process for a release to occur.
       * [ ] Synchronize any socket changes to cagebreak-socket man page
     * [ ] Document fixed bugs in Bugs.md
       * [ ] Include issue discussion from github, where applicable
+  * [ ] `meson compile adjust-epoch -C build`
   * [ ] Commit changes
   * [ ] `git push origin development`
   * [ ] Testing
@@ -746,6 +747,8 @@ see [SECURITY.md](SECURITY.md).
   * Oliver Friedmann
     * [Add output scaling](https://github.com/project-repo/cagebreak/pull/34), released
       in 2.0.0 with slight modifications
+  * Tom Greif
+    * Fix bug in merge_output_configs in 2.1.2
 
 ## License
 
