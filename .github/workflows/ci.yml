@@ -16,6 +16,16 @@ jobs:
       - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
       - run: ninja -C build
       - run: meson test -C build --suite devel --suite devel-long -v
+  pkgtest:
+    runs-on: ubuntu-latest
+    container:
+      image: archlinux:latest
+    steps:
+      - run: pacman-key --init
+      - run: pacman -Syu --noconfirm git sudo
+      - run: git clone https://github.com/project-repo/cagebreak-pkgbuild
+      - run: cd cagebreak-pkgbuild/cagebreak
+      - run: makepkg
   basic:
     runs-on: ubuntu-latest
     container:
