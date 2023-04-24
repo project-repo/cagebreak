@@ -747,7 +747,7 @@ see [SECURITY.md](SECURITY.md).
   * Oliver Friedmann
     * [Add output scaling](https://github.com/project-repo/cagebreak/pull/34), released
       in 2.0.0 with slight modifications
-  * Tom Greif
+  * Tom Greig
     * Fix bug in merge_output_configs in 2.1.2
 
 ## License
