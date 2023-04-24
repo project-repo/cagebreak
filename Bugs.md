@@ -1186,5 +1186,4 @@ being copied to the `status` element of the resultant structure.
   * Fixed: 2.1.2
 
 The script introduced with 2.1.1 `scripts/install-development-environment` had some
-missing dependencies. This has benn resolved and tested with bare arch containers.
-
+missing dependencies. This has been resolved and tested with bare arch containers.
