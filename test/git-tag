@@ -1,0 +1,16 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+VERSION=$1
+RESULT=0
+
+if git tag -v "${VERSION}"
+then
+    echo "[x] git tag"
+else
+    RESULT=1
+    echo "[ ] git tag"
+fi
+
+exit "${RESULT}"

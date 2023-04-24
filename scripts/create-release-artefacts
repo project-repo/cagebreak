@@ -1,0 +1,40 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+if [[ -n ${MESON_SOURCE_ROOT} ]]
+then
+	# shellcheck disable=2164
+	cd "${MESON_SOURCE_ROOT}"
+fi
+
+readonly gpg_id="${1}"
+readonly version="${2}"
+
+git archive --prefix=cagebreak/ -o "release_${version}.tar.gz" "tags/${version}" .
+
+rm -rf "release-artefacts_${version}"
+mkdir "release-artefacts_${version}"
+
+rm -rf temp-rel-artefacts
+meson setup temp-rel-artefacts -Dxwayland=true -Dman-pages=true --buildtype=release
+ninja -C temp-rel-artefacts
+
+cp LICENSE "release-artefacts_${version}"
+cp SECURITY.md "release-artefacts_${version}"
+cp FAQ.md "release-artefacts_${version}"
+cp README.md "release-artefacts_${version}"
+cp temp-rel-artefacts/cagebreak "release-artefacts_${version}"
+cp temp-rel-artefacts/cagebreak.1 "release-artefacts_${version}"
+cp temp-rel-artefacts/cagebreak-config.5 "release-artefacts_${version}"
+cp temp-rel-artefacts/cagebreak-socket.7 "release-artefacts_${version}"
+cp signatures/cagebreak*.sig "release-artefacts_${version}"
+
+# shellcheck disable=2155
+export SOURCE_DATE_EPOCH=$(git log -1 --pretty=%ct) ; tar --sort=name --mtime= --owner=0 --group=0 --numeric-owner -czf "release-artefacts_${version}.tar.gz" "release-artefacts_${version}"
+
+gpg -u "${gpg_id}" --detach-sign "release-artefacts_${version}.tar.gz"
+gpg -u "${gpg_id}" --detach-sign "release_${version}.tar.gz"
+
+
+rm -rf temp-rel-artefacts

@@ -1,0 +1,50 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+if [[ -n ${MESON_SOURCE_ROOT} ]]
+then
+	# shellcheck disable=2164
+	cd "${MESON_SOURCE_ROOT}"
+fi
+
+readonly version="${1}"
+
+rm -rf hashes
+meson setup hashes -Dxwayland=true -Dman-pages=true --buildtype=release
+ninja -C hashes
+
+cb256=$(sha256sum hashes/cagebreak | cut -d " " -f1)
+cb512=$(sha512sum hashes/cagebreak | cut -d " " -f1)
+
+cb1man256=$(sha256sum hashes/cagebreak.1 | cut -d " " -f1)
+cb1man512=$(sha512sum hashes/cagebreak.1 | cut -d " " -f1)
+
+cb5man256=$(sha256sum hashes/cagebreak-config.5 | cut -d " " -f1)
+cb5man512=$(sha512sum hashes/cagebreak-config.5 | cut -d " " -f1)
+
+cb7man256=$(sha256sum hashes/cagebreak-socket.7 | cut -d " " -f1)
+cb7man512=$(sha512sum hashes/cagebreak-socket.7 | cut -d " " -f1)
+
+echo "${version} cagebreak
+
+  * sha 256: ${cb256}
+  * sha 512: ${cb512}
+
+${version} cagebreak.1
+
+  * sha 256: ${cb1man256}
+  * sha 512: ${cb1man512}
+
+${version} cagebreak-config.5
+
+  * sha 256: ${cb5man256}
+  * sha 512: ${cb5man512}
+
+${version} cagebreak-socket.7
+
+  * sha 256: ${cb7man256}
+  * sha 512: ${cb7man512}
+" > local-hashes.txt
+
+rm -rf hashes

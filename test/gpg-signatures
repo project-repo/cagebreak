@@ -1,0 +1,43 @@
+#!/bin/bash
+# Copyright 2023, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+RESULT=0
+
+# cagebreak
+if gpg --verify ../signatures/cagebreak.sig cagebreak
+then
+    echo "[x] cagebreak binary"
+else
+    RESULT=1
+    echo "[ ] cagebreak binary"
+fi
+
+# cagebreak-man
+if gpg --verify ../signatures/cagebreak.1.sig cagebreak.1
+then
+    echo "[x] cagebreak.1 man"
+else
+    RESULT=1
+    echo "[ ] cagebreak.1 man"
+fi
+
+# cagebreak-config man
+if gpg --verify ../signatures/cagebreak-config.5.sig cagebreak-config.5
+then
+    echo "[x] cagebreak-config.5 man"
+else
+    RESULT=1
+    echo "[ ] cagebreak-config.5 man"
+fi
+
+# cagebreak-socket man
+if gpg --verify ../signatures/cagebreak-socket.7.sig cagebreak-socket.7
+then
+    echo "[x] cagebreak-socket.7 man"
+else
+    RESULT=1
+    echo "[ ] cagebreak-socket.7 man"
+fi
+
+exit "${RESULT}"
