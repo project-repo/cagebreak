@@ -399,7 +399,7 @@ merge_output_configs(struct cg_output_config *cfg1,
 		out_cfg->scale = cfg1->scale;
 	}
 	if(cfg1->angle == out_cfg->angle) {
-		out_cfg->status = cfg2->angle;
+		out_cfg->angle = cfg2->angle;
 	} else {
 		out_cfg->angle = cfg1->angle;
 	}

@@ -1170,3 +1170,20 @@ leading to a termination of cagebreak.
   * Fixed: 2.1.0
 
 Prior to release 2.1.0 `meson install` did not work perfectly.
+
+## Issue 60
+
+  * github issue number: N/A
+  * Fixed: 2.1.2
+
+In the `merge_output_configs` function, when copying the properties of
+one config to another, the `angles` element of an input structure was
+being copied to the `status` element of the resultant structure.
+
+## Issue 61
+
+  * github issue number: N/A
+  * Fixed: 2.1.2
+
+The script introduced with 2.1.1 `scripts/install-development-environment` had some
+missing dependencies. This has been resolved and tested with bare arch containers.

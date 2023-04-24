@@ -1,6 +1,6 @@
 # Cagebreak: A Wayland Tiling Compositor
 
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.1.1)](https://repology.org/project/cagebreak/versions)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.1.2)](https://repology.org/project/cagebreak/versions)
 
 ## Quick Introduction
 
@@ -633,14 +633,17 @@ The release procedure outlines the process for a release to occur.
       * [ ] Synchronize any socket changes to cagebreak-socket man page
     * [ ] Document fixed bugs in Bugs.md
       * [ ] Include issue discussion from github, where applicable
+  * [ ] `meson compile adjust-epoch -C build`
   * [ ] Commit changes
   * [ ] `git push origin development`
   * [ ] Testing
     * [ ] Manual testing
     * [ ] `meson compile fuzz -C build` for at least one hour
+  * [ ] Adjust Hashes.md - Use `meson compile output-hashes -C build` to add Hashes or aid in repro check
+  * [ ] Commit changes
+  * [ ] `git push origin development`
   * [ ] Complete release-non-auto-checks
-    * [ ] Use `meson compile output-hashes -C build` to add Hashes or aid in repro check
-  * [ ] `meson compile create-signatures -C build`
+  * [ ] `meson compile create-sigs -C build`
   * [ ] Commit and push signatures, hashes and non-auto-check files
   * [ ] `meson test -C build` passes everything except some release tests
   * [ ] `git add` relevant files
@@ -660,6 +663,7 @@ The release procedure outlines the process for a release to occur.
   * [ ] `git merge master`
   * [ ] `git push --tags origin hotfix`
   * [ ] Upload archives and signatures as release assets
+  * [ ] Delete feature branches if appropriate
   * [ ] Manage package release
 
 ## Roadmap
@@ -743,6 +747,8 @@ see [SECURITY.md](SECURITY.md).
   * Oliver Friedmann
     * [Add output scaling](https://github.com/project-repo/cagebreak/pull/34), released
       in 2.0.0 with slight modifications
+  * Tom Greig
+    * Fix bug in merge_output_configs in 2.1.2
 
 ## License
 
