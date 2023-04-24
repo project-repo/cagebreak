@@ -96,6 +96,12 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 		if(keybinding->data.c != NULL) {
 			free(keybinding->data.c);
 		}
+		break;
+	case KEYBINDING_SEND_CUSTOM_EVENT:
+		if(keybinding->data.c != NULL) {
+			free(keybinding->data.c);
+		}
+		break;
 	default:
 		break;
 	}
@@ -1246,6 +1252,12 @@ keybinding_display_message(struct cg_server *server, char *msg) {
 }
 
 void
+keybinding_send_custom_event(struct cg_server *server, char *msg) {
+	ipc_send_event( server,
+			"{\"event_name\":\"custom_event\",\"message\":\"%s\"}", msg);
+}
+
+void
 keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 	if(wl_list_length(&server->outputs) <= 1) {
 		return;
@@ -1705,6 +1717,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_DISPLAY_MESSAGE:
 		keybinding_display_message(server, data.c);
+		break;
+	case KEYBINDING_SEND_CUSTOM_EVENT:
+		keybinding_send_custom_event(server, data.c);
 		break;
 	case KEYBINDING_RESIZE_TILE_HORIZONTAL:
 		resize_tile(server, data.i, 0);
