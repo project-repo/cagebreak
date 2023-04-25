@@ -1253,8 +1253,8 @@ keybinding_display_message(struct cg_server *server, char *msg) {
 
 void
 keybinding_send_custom_event(struct cg_server *server, char *msg) {
-	ipc_send_event( server,
-			"{\"event_name\":\"custom_event\",\"message\":\"%s\"}", msg);
+	ipc_send_event(server,
+	               "{\"event_name\":\"custom_event\",\"message\":\"%s\"}", msg);
 }
 
 void
