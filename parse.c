@@ -545,6 +545,10 @@ parse_output_config_keyword(char *key_str, enum output_status *status) {
 		*status = OUTPUT_ENABLE;
 	} else if(strcmp(key_str, "disable") == 0) {
 		*status = OUTPUT_DISABLE;
+	} else if(strcmp(key_str, "off") == 0) {
+		*status = OUTPUT_OFF;
+	} else if(strcmp(key_str, "on") == 0) {
+		*status = OUTPUT_ENABLE;
 	} else {
 		return -1;
 	}
@@ -579,7 +583,8 @@ parse_output_config(char **saveptr, char **errstr) {
 		                    name);
 		goto error;
 	}
-	if(cfg->status == OUTPUT_ENABLE || cfg->status == OUTPUT_DISABLE) {
+	if(cfg->status == OUTPUT_ENABLE || cfg->status == OUTPUT_DISABLE ||
+	   cfg->status == OUTPUT_OFF) {
 		cfg->output_name = strdup(name);
 		return cfg;
 	}

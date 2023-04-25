@@ -258,6 +258,12 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
                     struct cg_output_config *config) {
 	struct wlr_output *wlr_output = output->wlr_output;
 
+	if(config->status == OUTPUT_OFF) {
+		wlr_output_enable(wlr_output, false);
+		wlr_output_commit(wlr_output);
+		return;
+	}
+
 	if(output->wlr_output->enabled) {
 		wlr_output_layout_remove(server->output_layout, wlr_output);
 	}

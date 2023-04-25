@@ -36,7 +36,12 @@ struct cg_output_priorities {
 	struct wl_list link;
 };
 
-enum output_status { OUTPUT_ENABLE, OUTPUT_DISABLE, OUTPUT_DEFAULT };
+enum output_status {
+	OUTPUT_ENABLE,
+	OUTPUT_DISABLE,
+	OUTPUT_DEFAULT,
+	OUTPUT_OFF
+};
 
 struct cg_output_config {
 	enum output_status status;
