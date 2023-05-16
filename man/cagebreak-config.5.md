@@ -88,7 +88,7 @@ configure_message display_time 4
 *custom_event <message>*
 	Send a custom event to the IPC socket
 
-	This sends an event of time "custom_event" to all programs
+	This sends an event of type "custom_event" to all programs
 	listening to the IPC socket along with the string <message>.
 	See *cagebreak-socket(7)* for more details.
 
