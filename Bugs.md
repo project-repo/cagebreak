@@ -1187,3 +1187,39 @@ being copied to the `status` element of the resultant structure.
 
 The script introduced with 2.1.1 `scripts/install-development-environment` had some
 missing dependencies. This has been resolved and tested with bare arch containers.
+
+## Issue 62
+
+  * github issue number: #46
+  * Fixed: 2.2.0
+
+When the readable flag of the IPC socket was set with 0 readable bytes
+available, cagebreak entered an infinite loop which caused high CPU
+usage before the first event was sent over the IPC socket.
+
+## Issue 63
+
+  * github issue number: N/A
+  * Fixed: 2.2.0
+
+A file path in the environment-variables unit test was wrongly set,
+causing this test to fail.
+
+## Issue 64
+
+  * github issue number: N/A
+  * Fixed: 2.2.0
+
+Cagebreak did not update the pointer focus when focussing the
+background. This means that the first pointer event after focussing the
+background was sent to the previously focussed window.
+
+Steps to reproduce:
+
+  * Open an application and hover the mouse over a clickable area.
+  * Switch to an empty desktop using a keybinding without moving the
+    mouse.
+  * Click the mouse without moving it.
+  * Observe that the element in the previously focussed window was
+    clicked.
+

@@ -1,4 +1,4 @@
-cagebreak-socket(7) "Version 2.1.2" "Cagebreak Manual"
+cagebreak-socket(7) "Version 2.2.0" "Cagebreak Manual"
 
 # NAME
 
@@ -111,6 +111,17 @@ cg-ipc{"event_name":"configure_output","output":"eDP-1","output_id":1}
 ```
 # Cursor switches tile
 cg-ipc{"event_name":"cursor_switch_tile","old_output":"eDP-1","old_output_id":1,"old_tile":2,"new_output":"eDP-1","new_output_id":1,"new_tile":3}
+```
+
+*custom_event*
+	- Trigger: Cagebreak receives the *custom_event* command, either in the config file or via the IPC socket (see *cagebreak-config(5)*).
+	- JSON
+		- event_name: "custom_event"
+		- message: The message passed to the *custom_event* command
+
+```
+custom_event Hello World!
+cg-ipc{"event_name":"custom_event","message":"Hello World!"}
 ```
 
 *cycle_outputs*

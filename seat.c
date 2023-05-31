@@ -1043,6 +1043,7 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 			view_activate(prev_view, false);
 		}
 		wlr_seat_keyboard_clear_focus(wlr_seat);
+		process_cursor_motion(seat, -1);
 		return;
 	}
 
