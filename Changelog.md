@@ -119,3 +119,10 @@ Changelog:
   * Add miniscule test suite
   * Adjust Cagebreak to wlroots 0.16.2
   * New GPG Keys
+
+## Release 2.2.0
+
+  * Add custom events
+  * Fix Issue 62 (#46 Github)
+  * Fix Issue 63 (environment variables test)
+  * Fix Issue 64 (pointer focus bug)

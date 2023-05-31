@@ -63,6 +63,7 @@ struct cg_server;
 	KEYBINDING(KEYBINDING_SHOW_TIME, time)                                     \
 	KEYBINDING(KEYBINDING_SHOW_INFO, show_info)                                \
 	KEYBINDING(KEYBINDING_DISPLAY_MESSAGE, message)                            \
+	KEYBINDING(KEYBINDING_SEND_CUSTOM_EVENT, custom_event)                     \
 	KEYBINDING(KEYBINDING_CURSOR, cursor)                                      \
                                                                                \
 	KEYBINDING(KEYBINDING_SWAP_LEFT, exchangeleft)                             \
