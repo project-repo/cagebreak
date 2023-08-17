@@ -229,6 +229,11 @@ input_manager_merge_input_configs(struct cg_input_config *cfg1,
 	} else {
 		out_cfg->repeat_rate = cfg1->repeat_rate;
 	}
+	if(cfg1->calibration_matrix.configured == false) {
+		out_cfg->calibration_matrix=cfg2->calibration_matrix;
+	} else {
+		out_cfg->calibration_matrix=cfg1->calibration_matrix;
+	}
 	return out_cfg;
 }
 
