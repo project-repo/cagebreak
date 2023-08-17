@@ -747,6 +747,8 @@ see [SECURITY.md](SECURITY.md).
   * Oliver Friedmann
     * [Add output scaling](https://github.com/project-repo/cagebreak/pull/34), released
       in 2.0.0 with slight modifications
+    * [Fix: calibration matrix](https://github.com/project-repo/cagebreak/pull/49),
+      released in 2.2.1 with slight modifications
   * Tom Greig
     * Fix bug in merge_output_configs in 2.1.2
 
