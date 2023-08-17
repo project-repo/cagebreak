@@ -582,8 +582,8 @@ by at least one of the above collection.
 
 We registered project-repo.co and added mail addresses after release `1.3.0`.
 
-We now have a mail address and its key is signed by signing keys. See Security
-Bugs for details.
+We now have a mail address and its key is signed by signing keys. See [SECURITY.md](SECURITY.md)
+for details.
 
 The full public keys can be found in `keys/` along with any revocation certificates.
 
