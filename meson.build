@@ -3,7 +3,7 @@
 project(
   'cagebreak',
   'c',
-version : '2.2.0',
+version : '2.2.1',
 license : 'MIT',
 default_options : ['c_std=c11', 'warning_level=3']
 )
@@ -209,7 +209,7 @@ reproducible_build_versions = {
   'fontconfig': '2.14.2',
   'libinput': '1.23.0',
   'libevdev': '1.13.1',
-  'libudev': '253',
+  'libudev': '254',
   'pango': '1.50.14',
   'cairo': '1.17.8',
   'pangocairo': '1.50.14',
@@ -238,7 +238,7 @@ foreach name, dep : cagebreak_dependencies_dict
 endforeach
 
 reproducible_build_compiler = 'gcc'
-reproducible_build_compiler_version = '13.1.1'
+reproducible_build_compiler_version = '13.2.1'
 
 if cc.get_id() != reproducible_build_compiler
   warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in Hashes.md (' + reproducible_build_compiler + ').')
@@ -260,7 +260,7 @@ install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_nam
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1685543842
+  secssinceepoch = 1692353837
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')

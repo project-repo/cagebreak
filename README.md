@@ -1,6 +1,6 @@
 # Cagebreak: A Wayland Tiling Compositor
 
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.2.0)](https://repology.org/project/cagebreak/versions)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.2.1)](https://repology.org/project/cagebreak/versions)
 
 ## Quick Introduction
 
@@ -582,8 +582,8 @@ by at least one of the above collection.
 
 We registered project-repo.co and added mail addresses after release `1.3.0`.
 
-We now have a mail address and its key is signed by signing keys. See Security
-Bugs for details.
+We now have a mail address and its key is signed by signing keys. See [SECURITY.md](SECURITY.md)
+for details.
 
 The full public keys can be found in `keys/` along with any revocation certificates.
 
@@ -747,6 +747,8 @@ see [SECURITY.md](SECURITY.md).
   * Oliver Friedmann
     * [Add output scaling](https://github.com/project-repo/cagebreak/pull/34), released
       in 2.0.0 with slight modifications
+    * [Fix: calibration matrix](https://github.com/project-repo/cagebreak/pull/49),
+      released in 2.2.1 with slight modifications
   * Tom Greig
     * Fix bug in merge_output_configs in 2.1.2
 
