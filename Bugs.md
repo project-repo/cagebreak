@@ -1223,3 +1223,15 @@ Steps to reproduce:
   * Observe that the element in the previously focussed window was
     clicked.
 
+## Issue 65
+
+  * github issue number: N/A
+  * Fixed: 2.2.1
+
+Up until cagebreak 2.2.0, the configuration for the calibration matrix of
+a libinput device was not propagated correctly when internally copying
+the configuration. This meant that effectively, the calibration matrix
+configuration was a NoOp. Starting with version 2.2.1, the calibration
+matrix can be set as documented.
+
+Thanks to Oliver Friedmann for providing a pull request.
