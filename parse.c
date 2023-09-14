@@ -543,6 +543,10 @@ parse_output_config_keyword(char *key_str, enum output_status *status) {
 		*status = OUTPUT_DEFAULT;
 	} else if(strcmp(key_str, "enable") == 0) {
 		*status = OUTPUT_ENABLE;
+	} else if(strcmp(key_str, "permanent") == 0) {
+		*status = OUTPUT_DEFAULT;
+	} else if(strcmp(key_str, "peripheral") == 0) {
+		*status = OUTPUT_DEFAULT;
 	} else if(strcmp(key_str, "disable") == 0) {
 		*status = OUTPUT_DISABLE;
 	} else {
@@ -566,6 +570,7 @@ parse_output_config(char **saveptr, char **errstr) {
 	cfg->priority = -1;
 	cfg->scale = -1;
 	cfg->angle = -1;
+	cfg->role = OUTPUT_ROLE_DEFAULT;
 	char *name = strtok_r(NULL, " ", saveptr);
 	if(name == NULL) {
 		*errstr =
@@ -574,8 +579,9 @@ parse_output_config(char **saveptr, char **errstr) {
 	}
 	char *key_str = strtok_r(NULL, " ", saveptr);
 	if(parse_output_config_keyword(key_str, &(cfg->status)) != 0) {
-		*errstr = log_error("Expected keyword \"pos\", \"prio\", \"enable\" or "
-		                    "\"disable\" in output configuration for output %s",
+		*errstr = log_error("Expected keyword \"pos\", \"prio\", \"enable\", "
+		                    "\"disable\", \"permanent\" or \"peripheral\" in "
+		                    "output configuration for output %s",
 		                    name);
 		goto error;
 	}
@@ -619,6 +625,18 @@ parse_output_config(char **saveptr, char **errstr) {
 			goto error;
 		}
 		cfg->output_name = strdup(name);
+		return cfg;
+	}
+
+	if(strcmp(key_str, "peripheral") == 0) {
+		cfg->output_name = strdup(name);
+		cfg->role = OUTPUT_ROLE_PERIPHERAL;
+		return cfg;
+	}
+
+	if(strcmp(key_str, "permanent") == 0) {
+		cfg->output_name = strdup(name);
+		cfg->role = OUTPUT_ROLE_PERMANENT;
 		return cfg;
 	}
 

@@ -95,7 +95,7 @@ new_touch(struct cg_seat *seat, struct cg_input_device *input_device) {
 	if(wlr_touch->output_name != NULL) {
 		struct cg_output *output;
 		wl_list_for_each(output, &seat->server->outputs, link) {
-			if(strcmp(wlr_touch->output_name, output->wlr_output->name) == 0) {
+			if(strcmp(wlr_touch->output_name, output->name) == 0) {
 				wlr_cursor_map_input_to_output(seat->cursor, device,
 				                               output->wlr_output);
 				break;
@@ -133,8 +133,7 @@ new_pointer(struct cg_seat *seat, struct cg_input_device *input_device) {
 	if(wlr_pointer->output_name != NULL) {
 		struct cg_output *output;
 		wl_list_for_each(output, &seat->server->outputs, link) {
-			if(strcmp(wlr_pointer->output_name, output->wlr_output->name) ==
-			   0) {
+			if(strcmp(wlr_pointer->output_name, output->name) == 0) {
 				wlr_cursor_map_input_to_output(seat->cursor, device,
 				                               output->wlr_output);
 				break;
@@ -755,7 +754,7 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 		               "\"%s\",\"old_output_id\":%d,"
 		               "\"old_tile\":%d,\"new_output\":\"%s\",\"new_output_"
 		               "id\":%d,\"new_tile\":%d}",
-		               seat->cursor_tile->workspace->output->wlr_output->name,
+		               seat->cursor_tile->workspace->output->name,
 		               output_get_num(seat->cursor_tile->workspace->output),
 		               seat->cursor_tile->id, c_outp->name,
 		               output_get_num(cg_outp), c_tile->id);
@@ -1095,9 +1094,8 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 
 	wlr_scene_node_raise_to_top(&view->scene_tree->node);
 	process_cursor_motion(seat, -1);
-	struct wlr_box box;
-	wlr_output_layout_get_box(server->output_layout,
-	                          view->workspace->output->wlr_output, &box);
-	wlr_scene_node_set_position(&view->workspace->output->bg->node, box.x,
-	                            box.y);
+	wlr_scene_node_set_position(
+	    &view->workspace->output->bg->node,
+	    output_get_layout_box(view->workspace->output).x,
+	    output_get_layout_box(view->workspace->output).y);
 }

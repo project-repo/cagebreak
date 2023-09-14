@@ -236,17 +236,18 @@ message_set_output(struct cg_output *output, const char *string,
 	    wlr_scene_buffer_create(&scene_output->scene->tree, &buf->base);
 	wlr_scene_node_raise_to_top(&message->message->node);
 	wlr_scene_node_set_enabled(&message->message->node, true);
-	struct wlr_box outp_box;
-	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,
-	                          &outp_box);
 	wlr_scene_buffer_set_dest_size(message->message, width, height);
-	wlr_scene_node_set_position(&message->message->node,
-	                            message->position->x + outp_box.x,
-	                            message->position->y + outp_box.y);
+	wlr_scene_node_set_position(
+	    &message->message->node,
+	    message->position->x + output_get_layout_box(output).x,
+	    message->position->y + output_get_layout_box(output).y);
 }
 
 void
 message_printf(struct cg_output *output, const char *fmt, ...) {
+	if(output->destroyed) {
+		return;
+	}
 	va_list ap;
 	va_start(ap, fmt);
 	char *buffer = malloc_vsprintf_va_list(fmt, ap);
@@ -262,11 +263,7 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 		free(buffer);
 		return;
 	}
-	struct wlr_box output_box;
-	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,
-	                          &output_box);
-
-	box->x = output_box.width;
+	box->x = output_get_layout_box(output).width;
 	box->y = 0;
 	box->width = 0;
 	box->height = 0;
@@ -282,6 +279,9 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 void
 message_printf_pos(struct cg_output *output, struct wlr_box *position,
                    const enum cg_message_align align, const char *fmt, ...) {
+	if(output->destroyed) {
+		return;
+	}
 	uint16_t buf_len = 256;
 	char *buffer = (char *)malloc(buf_len * sizeof(char));
 	va_list ap;

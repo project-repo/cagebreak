@@ -81,11 +81,10 @@ void
 view_maximize(struct cg_view *view, struct cg_tile *tile) {
 	view->ox = tile->tile.x;
 	view->oy = tile->tile.y;
-	struct wlr_box box;
-	wlr_output_layout_get_box(view->server->output_layout,
-	                          view->workspace->output->wlr_output, &box);
-	wlr_scene_node_set_position(&view->scene_tree->node, view->ox + box.x,
-	                            view->oy + box.y);
+	wlr_scene_node_set_position(
+	    &view->scene_tree->node,
+	    view->ox + output_get_layout_box(view->workspace->output).x,
+	    output_get_layout_box(view->oy + view->workspace->output).y);
 	view->impl->maximize(view, tile->tile.width, tile->tile.height);
 	view->tile = tile;
 	wlr_scene_node_raise_to_top(&view->scene_tree->node);
@@ -97,7 +96,7 @@ view_unmap(struct cg_view *view) {
 	uint32_t id = view->id;
 	uint32_t tile_id = 0;
 	uint32_t ws = view->workspace->num;
-	char *output_name = view->workspace->output->wlr_output->name;
+	char *output_name = view->workspace->output->name;
 	int output_id = output_get_num(view->workspace->output);
 	pid_t pid = view->impl->get_pid(view);
 	/* If the view is not mapped, do nothing */
@@ -171,11 +170,10 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	   their own (x,y) coordinates in handle_wayland_surface_map. */
 	if(view->type == CG_XWAYLAND_VIEW && !xwayland_view_should_manage(view)) {
 		wl_list_insert(&ws->unmanaged_views, &view->link);
-		struct wlr_box box;
-		wlr_output_layout_get_box(view->server->output_layout,
-		                          view->workspace->output->wlr_output, &box);
-		wlr_scene_node_set_position(&view->scene_tree->node, view->ox + box.x,
-		                            view->oy + box.y);
+		wlr_scene_node_set_position(
+		    &view->scene_tree->node,
+		    view->ox + output_get_layout_box(view->workspace->output).x,
+		    view->oy + output_get_layout_box(view->workspace->output).y);
 	} else
 #endif
 	{
@@ -193,8 +191,8 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	    "{\"event_name\":\"view_map\",\"view_id\":%d,\"tile_id\":%d,"
 	    "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d,\"view_pid\":%d}",
 	    view->id, tile_id, view->workspace->num + 1,
-	    view->workspace->output->wlr_output->name,
-	    output_get_num(view->workspace->output), view->impl->get_pid(view));
+	    view->workspace->output->name, output_get_num(view->workspace->output),
+	    view->impl->get_pid(view));
 }
 
 void

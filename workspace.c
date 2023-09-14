@@ -35,7 +35,6 @@ workspace_tile_update_view(struct cg_tile *tile, struct cg_view *view) {
 #endif
 int
 full_screen_workspace_tiles(struct wlr_output_layout *layout,
-                            struct wlr_output *output,
                             struct cg_workspace *workspace,
                             uint32_t *tiles_curr_id) {
 	workspace->focused_tile = calloc(1, sizeof(struct cg_tile));
@@ -47,10 +46,10 @@ full_screen_workspace_tiles(struct wlr_output_layout *layout,
 	workspace->focused_tile->prev = workspace->focused_tile;
 	workspace->focused_tile->tile.x = 0;
 	workspace->focused_tile->tile.y = 0;
-	struct wlr_box output_box;
-	wlr_output_layout_get_box(layout, output, &output_box);
-	workspace->focused_tile->tile.width = output_box.width;
-	workspace->focused_tile->tile.height = output_box.height;
+	workspace->focused_tile->tile.width =
+	    output_get_layout_box(workspace->output).width;
+	workspace->focused_tile->tile.height =
+	    output_get_layout_box(workspace->output).height;
 	workspace_tile_update_view(workspace->focused_tile, NULL);
 	workspace->focused_tile->id = *tiles_curr_id;
 	++(*tiles_curr_id);
@@ -72,16 +71,15 @@ full_screen_workspace(struct cg_output *output) {
 		free(workspace);
 		return NULL;
 	}
+	workspace->output = output;
 	workspace->server = output->server;
 	workspace->num = -1;
 	workspace->scene = wlr_scene_tree_create(&scene_output->scene->tree);
-	if(full_screen_workspace_tiles(output->server->output_layout,
-	                               output->wlr_output, workspace,
+	if(full_screen_workspace_tiles(output->server->output_layout, workspace,
 	                               &output->server->tiles_curr_id) != 0) {
 		free(workspace);
 		return NULL;
 	}
-	workspace->output = output;
 	return workspace;
 }
 
@@ -107,7 +105,8 @@ workspace_free_tiles(struct cg_workspace *workspace) {
 		       workspace->focused_tile) {
 			workspace->output->server->seat->cursor_tile = NULL;
 		}
-		if(workspace->focused_tile == workspace->server->seat->cursor_tile) {
+		if(workspace->output->server->running &&
+		   workspace->focused_tile == workspace->server->seat->cursor_tile) {
 			workspace->server->seat->cursor_tile = NULL;
 		}
 		struct cg_tile *next = workspace->focused_tile->next;

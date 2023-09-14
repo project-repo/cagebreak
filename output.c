@@ -103,7 +103,7 @@ output_get_num(const struct cg_output *output) {
 	struct cg_output *it;
 	int count = 1;
 	wl_list_for_each(it, &output->server->outputs, link) {
-		if(strcmp(output->wlr_output->name, it->wlr_output->name) == 0) {
+		if(strcmp(output->name, it->name) == 0) {
 			return count;
 		}
 		++count;
@@ -111,34 +111,47 @@ output_get_num(const struct cg_output *output) {
 	return -1;
 }
 
+struct wlr_box
+output_get_layout_box(struct cg_output *output) {
+	if(!output->destroyed) {
+		wlr_output_layout_get_box(output->server->output_layout,
+		                          output->wlr_output, &output->layout_box);
+	}
+	return output->layout_box;
+}
+
 static void
 output_destroy(struct cg_output *output) {
 	struct cg_server *server = output->server;
-	char *outp_name = strdup(output->wlr_output->name);
+	char *outp_name = strdup(output->name);
 	int outp_num = output_get_num(output);
 
+	output->destroyed = true;
 	wl_list_remove(&output->destroy.link);
 	wl_list_remove(&output->mode.link);
 	wl_list_remove(&output->commit.link);
 	wl_list_remove(&output->frame.link);
+	enum output_role role = output->role;
+	if(role == OUTPUT_ROLE_PERMANENT) {
+		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
+		                          &output->layout_box);
+	} else {
 
-	output_clear(output);
+		output_clear(output);
 
-	/*Important: due to unfortunate events, "workspace" and "output->workspace"
-	 * have nothing in common. The former is the workspace of a single output,
-	 * whereas the latter is the workspace of the outputs.*/
-	for(unsigned int i = 0; i < server->nws; ++i) {
-		workspace_free(output->workspaces[i]);
+		for(unsigned int i = 0; i < server->nws; ++i) {
+			workspace_free(output->workspaces[i]);
+		}
+		free(output->workspaces);
+		free(output->name);
+
+		free(output);
 	}
-	free(output->workspaces);
-
-	free(output);
-
 	if(outp_name != NULL) {
 		ipc_send_event(server,
 		               "{\"event_name\":\"destroy_output\",\"output\":\"%s\","
-		               "\"output_id\":%d}",
-		               outp_name, outp_num);
+		               "\"output_id\":%d,\"permanent\":%d}",
+		               outp_name, outp_num, role == OUTPUT_ROLE_PERMANENT);
 		free(outp_name);
 	} else {
 		wlr_log(WLR_ERROR,
@@ -258,6 +271,10 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
                     struct cg_output_config *config) {
 	struct wlr_output *wlr_output = output->wlr_output;
 
+	if(config->role != OUTPUT_ROLE_DEFAULT) {
+		output->role = config->role;
+	}
+
 	if(output->wlr_output->enabled) {
 		wlr_output_layout_remove(server->output_layout, wlr_output);
 	}
@@ -325,9 +342,11 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	output->bg = wlr_scene_rect_create(
 	    &scene_output->scene->tree, output->wlr_output->width,
 	    output->wlr_output->height, server->bg_color);
-	struct wlr_box box;
-	wlr_output_layout_get_box(server->output_layout, output->wlr_output, &box);
-	wlr_scene_node_set_position(&output->bg->node, box.x, box.y);
+	wlr_output_layout_get_box(server->output_layout, output->wlr_output,
+	                          &output->layout_box);
+	wlr_scene_node_set_position(&output->bg->node,
+	                            output_get_layout_box(output).x,
+	                            output_get_layout_box(output).y);
 	wlr_scene_node_lower_to_bottom(&output->bg->node);
 }
 
@@ -340,6 +359,7 @@ empty_output_config(void) {
 	}
 
 	cfg->status = OUTPUT_DEFAULT;
+	cfg->role = OUTPUT_ROLE_DEFAULT;
 	cfg->pos.x = -1;
 	cfg->pos.y = -1;
 	cfg->pos.width = -1;
@@ -362,6 +382,11 @@ merge_output_configs(struct cg_output_config *cfg1,
 		out_cfg->status = cfg2->status;
 	} else {
 		out_cfg->status = cfg1->status;
+	}
+	if(cfg1->role == out_cfg->role) {
+		out_cfg->role = cfg2->role;
+	} else {
+		out_cfg->role = cfg1->role;
 	}
 	if(cfg1->pos.x == out_cfg->pos.x) {
 		out_cfg->pos.x = cfg2->pos.x;
@@ -411,7 +436,7 @@ output_configure(struct cg_server *server, struct cg_output *output) {
 	struct cg_output_config *tot_config = empty_output_config();
 	struct cg_output_config *config;
 	wl_list_for_each(config, &server->output_config, link) {
-		if(strcmp(config->output_name, output->wlr_output->name) == 0) {
+		if(strcmp(config->output_name, output->name) == 0) {
 			if(tot_config == NULL) {
 				return;
 			}
@@ -484,7 +509,7 @@ output_make_workspace_fullscreen(struct cg_output *output, int ws) {
 	}
 
 	workspace_free_tiles(output->workspaces[ws]);
-	if(full_screen_workspace_tiles(server->output_layout, output->wlr_output,
+	if(full_screen_workspace_tiles(server->output_layout,
 	                               output->workspaces[ws],
 	                               &server->tiles_curr_id) != 0) {
 		wlr_log(WLR_ERROR, "Failed to allocate space for fullscreen workspace");
@@ -516,58 +541,85 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		return;
 	}
 
-	struct cg_output *output = calloc(1, sizeof(struct cg_output));
+	struct cg_output *ito;
+	bool reinit = false;
+	struct cg_output *output = NULL;
+	wl_list_for_each(ito, &server->outputs, link) {
+		if((strcmp(ito->name, wlr_output->name) == 0) && (ito->destroyed)) {
+			reinit = true;
+			output = ito;
+		}
+	}
+	if(!reinit) {
+		output = calloc(1, sizeof(struct cg_output));
+	}
 	if(!output) {
 		wlr_log(WLR_ERROR, "Failed to allocate output");
 		return;
 	}
 
 	output->wlr_output = wlr_output;
-	output->server = server;
-	output->last_scanned_out_view = NULL;
+	output->destroyed = false;
 
-	struct cg_output_priorities *it;
-	int prio = -1;
-	wl_list_for_each(it, &server->output_priorities, link) {
-		if(strcmp(output->wlr_output->name, it->ident) == 0) {
-			prio = it->priority;
+	if(!reinit) {
+		output->server = server;
+		output->last_scanned_out_view = NULL;
+		output->name = strdup(wlr_output->name);
+
+		struct cg_output_priorities *it;
+		int prio = -1;
+		wl_list_for_each(it, &server->output_priorities, link) {
+			if(strcmp(output->name, it->ident) == 0) {
+				prio = it->priority;
+			}
 		}
-	}
-	output->priority = prio;
-	wlr_output_set_transform(wlr_output, WL_OUTPUT_TRANSFORM_NORMAL);
-	output->workspaces = NULL;
+		output->priority = prio;
+		wlr_output_set_transform(wlr_output, WL_OUTPUT_TRANSFORM_NORMAL);
+		output->workspaces = NULL;
 
-	wl_list_init(&output->messages);
+		wl_list_init(&output->messages);
 
-	if(!wlr_xcursor_manager_load(server->seat->xcursor_manager,
-	                             wlr_output->scale)) {
-		wlr_log(WLR_ERROR,
-		        "Cannot load XCursor theme for output '%s' with scale %f",
-		        wlr_output->name, wlr_output->scale);
-	}
-
-	output_insert(server, output);
-	output_configure(server, output);
-
-	output->workspaces = malloc(server->nws * sizeof(struct cg_workspace *));
-	for(unsigned int i = 0; i < server->nws; ++i) {
-		output->workspaces[i] = full_screen_workspace(output);
-		if(!output->workspaces[i]) {
-			wlr_log(WLR_ERROR, "Failed to allocate workspaces for output");
-			return;
+		if(!wlr_xcursor_manager_load(server->seat->xcursor_manager,
+		                             wlr_output->scale)) {
+			wlr_log(WLR_ERROR,
+			        "Cannot load XCursor theme for output '%s' with scale %f",
+			        output->name, wlr_output->scale);
 		}
-		output->workspaces[i]->num = i;
-		wl_list_init(&output->workspaces[i]->views);
-		wl_list_init(&output->workspaces[i]->unmanaged_views);
+
+		output_insert(server, output);
+		output_configure(server, output);
+		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
+		                          &output->layout_box);
+
+		output->workspaces =
+		    malloc(server->nws * sizeof(struct cg_workspace *));
+		for(unsigned int i = 0; i < server->nws; ++i) {
+			output->workspaces[i] = full_screen_workspace(output);
+			if(!output->workspaces[i]) {
+				wlr_log(WLR_ERROR, "Failed to allocate workspaces for output");
+				return;
+			}
+			output->workspaces[i]->num = i;
+			wl_list_init(&output->workspaces[i]->views);
+			wl_list_init(&output->workspaces[i]->unmanaged_views);
+		}
+
+		wlr_scene_node_raise_to_top(&output->workspaces[0]->scene->node);
+		workspace_focus(output, 0);
+
+		/* We are the first output. Set the current output to this one. */
+		if(server->curr_output == NULL) {
+			server->curr_output = output;
+		}
+	} else {
+		wlr_output_layout_add(server->output_layout, wlr_output,
+		                      output_get_layout_box(output).x,
+		                      output_get_layout_box(output).y);
+		output_configure(server, output);
+		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
+		                          &output->layout_box);
 	}
 
-	wlr_scene_node_raise_to_top(&output->workspaces[0]->scene->node);
-	workspace_focus(output, 0);
-
-	/* We are the first output. Set the current output to this one. */
-	if(server->curr_output == NULL) {
-		server->curr_output = output;
-	}
 	wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
 	                                     DEFAULT_XCURSOR, server->seat->cursor);
 	wlr_cursor_warp(server->seat->cursor, NULL, 0, 0);
@@ -580,11 +632,12 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	wl_signal_add(&wlr_output->events.commit, &output->commit);
 	output->mode.notify = handle_output_mode;
 	wl_signal_add(&wlr_output->events.mode, &output->mode);
+
 	ipc_send_event(server,
 	               "{\"event_name\":\"new_output\",\"output\":\"%s\",\"output_"
-	               "id\":%d,\"priority\":%d}",
-	               output->wlr_output->name, output_get_num(output),
-	               output->priority);
+	               "id\":%d,\"priority\":%d,\"restart\":%d}",
+	               output->name, output_get_num(output), output->priority,
+	               reinit);
 }
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop
