@@ -271,7 +271,7 @@ message <text>
 *only*
 	Remove all splits and make current window fill the entire screen
 
-*output <name> [[pos <xpos> <ypos> res <width>x<height> rate <rate> [scale <scale>]] | enable | disable | prio <n> | rotate <n>]*
+*output <name> [[pos <xpos> <ypos> res <width>x<height> rate <rate> [scale <scale>]] | enable | disable | [permanent|peripheral] | prio <n> | rotate <n>]*
 	Configure output "<name>" -
 	- <xpos> and <ypos> are the position of the
 	  monitor in pixels. The top-left monitor should have the coordinates 0 0.
@@ -281,6 +281,12 @@ message <text>
 	- enable and disable enable or disable <name>. Note that if
 	  <output> is the only enabled output, *output <output> disable* has
 	  no effect.
+	- permanent sets <name> as permanent even on disconnect. This moves
+	  all views on the disconnected <name> to a headless output while no
+	  device is connected and restores on reconnect. Set <name> to
+	  peripheral in order to regain all views without device reconnect.
+	- peripheral sets <name> as peripheral, reallocating views to available
+	  outputs on disconnect. Default is peripheral.
 	- prio <n> is used to set the priority of an output. If
 	  nothing else is set, outputs are added as they request to be added
 	  and have a numerical priority of -1. Using prio <n> it is possible
