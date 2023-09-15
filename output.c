@@ -127,11 +127,13 @@ output_destroy(struct cg_output *output) {
 	char *outp_name = strdup(output->name);
 	int outp_num = output_get_num(output);
 
+	if(output->destroyed == false) {
+		wl_list_remove(&output->destroy.link);
+		wl_list_remove(&output->mode.link);
+		wl_list_remove(&output->commit.link);
+		wl_list_remove(&output->frame.link);
+	}
 	output->destroyed = true;
-	wl_list_remove(&output->destroy.link);
-	wl_list_remove(&output->mode.link);
-	wl_list_remove(&output->commit.link);
-	wl_list_remove(&output->frame.link);
 	enum output_role role = output->role;
 	if(role == OUTPUT_ROLE_PERMANENT) {
 		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
@@ -279,6 +281,11 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 
 	if(config->role != OUTPUT_ROLE_DEFAULT) {
 		output->role = config->role;
+		if((output->role == OUTPUT_ROLE_PERIPHERAL)&&(output->destroyed == true)) {
+			output_destroy(output);
+			wlr_output_destroy(wlr_output);
+			return;
+		}
 	}
 
 	if(output->wlr_output->enabled) {

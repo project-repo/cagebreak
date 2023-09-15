@@ -1549,11 +1549,12 @@ keybinding_configure_output(struct cg_server *server,
 	struct cg_output *output, *tmp_output;
 	wl_list_for_each_safe(output, tmp_output, &server->outputs, link) {
 		if(strcmp(config->output_name, output->name) == 0) {
+			int output_num=output_get_num(output);
 			output_configure(server, output);
-			ipc_send_event(output->server,
+			ipc_send_event(server,
 			               "{\"event_name\":\"configure_output\",\"output\":\"%"
 			               "s\",\"output_id\":%d}",
-			               cfg->output_name, output_get_num(output));
+			               cfg->output_name, output_num);
 			return;
 		}
 	}
