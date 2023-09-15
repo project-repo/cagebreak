@@ -281,12 +281,15 @@ message <text>
 	- enable and disable enable or disable <name>. Note that if
 	  <output> is the only enabled output, *output <output> disable* has
 	  no effect.
-	- permanent sets <name> as permanent even on disconnect. This moves
-	  all views on the disconnected <name> to a headless output while no
-	  device is connected and restores on reconnect. Set <name> to
-	  peripheral in order to regain all views without device reconnect.
-	- peripheral sets <name> as peripheral, reallocating views to available
-	  outputs on disconnect. Default is peripheral.
+	- permanent sets <name> to persist even on disconnect. Thus when
+	  the physical monitor is disconnected, the output is nevertheless
+	  maintained and operates identically to the attached monitor. On reconnect,
+	  the monitor operates as though it was never disconnected. Setting the
+	  output role to peripheral when the monitor is disconnected, immediately
+	  destroys the output, as if the monitor were disconnected.
+	- peripheral sets the role of <name> to peripheral, meaning that on
+	  disconnecting the respective monitor, all views will be moved to another
+	  available output. The default role is peripheral.
 	- prio <n> is used to set the priority of an output. If
 	  nothing else is set, outputs are added as they request to be added
 	  and have a numerical priority of -1. Using prio <n> it is possible
