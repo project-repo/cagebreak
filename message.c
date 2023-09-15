@@ -280,6 +280,7 @@ void
 message_printf_pos(struct cg_output *output, struct wlr_box *position,
                    const enum cg_message_align align, const char *fmt, ...) {
 	if(output->destroyed) {
+		free(position);
 		return;
 	}
 	uint16_t buf_len = 256;

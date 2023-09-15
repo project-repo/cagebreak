@@ -18,6 +18,7 @@
 #include <wayland-client.h>
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
+#include <wlr/backend/headless.h>
 #include <wlr/render/allocator.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_compositor.h>
@@ -369,6 +370,7 @@ main(int argc, char *argv[]) {
 	server.event_loop = event_loop;
 
 	backend = wlr_backend_autocreate(server.wl_display);
+	server.headless_backend=wlr_headless_backend_create(server.wl_display);
 	if(!backend) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots backend");
 		ret = 1;

@@ -37,6 +37,7 @@ struct cg_server {
 	struct cg_output *curr_output;
 	struct wl_listener new_output;
 	struct wl_list output_priorities;
+	struct wlr_backend *headless_backend;
 
 	struct wlr_renderer *renderer;
 	struct wlr_allocator *allocator;

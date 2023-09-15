@@ -14,6 +14,7 @@
 #if WLR_HAS_X11_BACKEND
 #include <wlr/backend/x11.h>
 #endif
+#include <wlr/backend/headless.h>
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_output.h>
@@ -135,6 +136,11 @@ output_destroy(struct cg_output *output) {
 	if(role == OUTPUT_ROLE_PERMANENT) {
 		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
 		                          &output->layout_box);
+		wlr_output_layout_remove(server->output_layout, output->wlr_output);
+		output->wlr_output=wlr_headless_add_output(server->headless_backend,output->layout_box.width,output->layout_box.height);
+		wlr_output_layout_add(server->output_layout, output->wlr_output, output->layout_box.x,
+		                      output->layout_box.y);
+
 	} else {
 
 		output_clear(output);
@@ -309,6 +315,13 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		}
 	} else {
 		wlr_output_layout_add_auto(server->output_layout, wlr_output);
+		// The following two lines make sure that the output is "manually" managed,
+		// so that its position doesn't change anymore in the future.
+		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
+								  &output->layout_box);
+		wlr_output_layout_move(server->output_layout, output->wlr_output, output->layout_box.x,
+		                      output->layout_box.y);
+
 
 		struct wlr_output_mode *preferred_mode =
 		    wlr_output_preferred_mode(wlr_output);
@@ -550,7 +563,10 @@ handle_new_output(struct wl_listener *listener, void *data) {
 			output = ito;
 		}
 	}
-	if(!reinit) {
+	if(reinit) {
+		wlr_output_layout_remove(server->output_layout, output->wlr_output);
+		wlr_output_destroy(output->wlr_output);
+	} else {
 		output = calloc(1, sizeof(struct cg_output));
 	}
 	if(!output) {
