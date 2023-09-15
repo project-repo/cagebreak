@@ -1018,7 +1018,7 @@ print_output(struct cg_output *outp) {
 	struct dyn_str outp_str;
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
-	uint32_t nmemb = 8;
+	uint32_t nmemb = 9;
 	outp_str.str_arr = calloc(nmemb, sizeof(char *));
 	print_str(&outp_str, "\"%s\": {\n", outp->name);
 	print_str(&outp_str, "\"priority\": %d,\n", outp->priority);
@@ -1028,6 +1028,7 @@ print_output(struct cg_output *outp) {
 	          outp->wlr_output->width, outp->wlr_output->height);
 	print_str(&outp_str, "\"refresh_rate\": %f,\n",
 	          (float)outp->wlr_output->refresh / 1000.0);
+	print_str(&outp_str, "\"permanent\": %d,\n", outp->role == OUTPUT_ROLE_PERMANENT);
 	print_str(&outp_str, "\"curr_workspace\": %d,\n", outp->curr_workspace + 1);
 	char *workspaces_str = print_workspaces(outp);
 	if(workspaces_str != NULL) {
