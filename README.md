@@ -650,6 +650,7 @@ The release procedure outlines the process for a release to occur.
   * [ ] `git commit`
   * [ ] `git push origin development`
   * [ ] `git checkout master`
+  * [ ] `git pull --tags origin master`
   * [ ] `git merge --squash development`
   * [ ] `git commit` and insert message
   * [ ] `meson compile git-tag -C build`
