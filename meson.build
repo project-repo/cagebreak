@@ -207,7 +207,7 @@ reproducible_build_versions = {
   'wlroots': '0.16.2',
   'xkbcommon': '1.5.0',
   'fontconfig': '2.14.2',
-  'libinput': '1.23.0',
+  'libinput': '1.24.0',
   'libevdev': '1.13.1',
   'libudev': '254',
   'pango': '1.50.14',
