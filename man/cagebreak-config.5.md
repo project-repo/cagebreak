@@ -281,11 +281,11 @@ message <text>
 	- enable and disable enable or disable <name>. Note that if
 	  <output> is the only enabled output, *output <output> disable* has
 	  no effect.
-	- permanent sets <name> to persist even on disconnect. Thus when
-	  the physical monitor is disconnected, the output is nevertheless
+	- permanent sets <name> to persist even on disconnect. When
+	  the physical monitor is disconnected, the output is
 	  maintained and operates identically to the attached monitor. On reconnect,
 	  the monitor operates as though it was never disconnected. Setting the
-	  output role to peripheral when the monitor is disconnected, immediately
+	  output role to peripheral when the monitor is disconnected,
 	  destroys the output, as if the monitor were disconnected.
 	- peripheral sets the role of <name> to peripheral, meaning that on
 	  disconnecting the respective monitor, all views will be moved to another
