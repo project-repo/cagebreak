@@ -100,12 +100,7 @@ void
 workspace_free_tiles(struct cg_workspace *workspace) {
 	workspace->focused_tile->prev->next = NULL;
 	while(workspace->focused_tile != NULL) {
-		if(workspace->output->server->running &&
-		   workspace->output->server->seat->cursor_tile ==
-		       workspace->focused_tile) {
-			workspace->output->server->seat->cursor_tile = NULL;
-		}
-		if(workspace->output->server->running &&
+		if(!workspace->output->server->running ||
 		   workspace->focused_tile == workspace->server->seat->cursor_tile) {
 			workspace->server->seat->cursor_tile = NULL;
 		}
