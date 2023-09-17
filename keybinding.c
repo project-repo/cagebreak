@@ -1028,7 +1028,8 @@ print_output(struct cg_output *outp) {
 	          outp->wlr_output->width, outp->wlr_output->height);
 	print_str(&outp_str, "\"refresh_rate\": %f,\n",
 	          (float)outp->wlr_output->refresh / 1000.0);
-	print_str(&outp_str, "\"permanent\": %d,\n", outp->role == OUTPUT_ROLE_PERMANENT);
+	print_str(&outp_str, "\"permanent\": %d,\n",
+	          outp->role == OUTPUT_ROLE_PERMANENT);
 	print_str(&outp_str, "\"curr_workspace\": %d,\n", outp->curr_workspace + 1);
 	char *workspaces_str = print_workspaces(outp);
 	if(workspaces_str != NULL) {
@@ -1549,7 +1550,7 @@ keybinding_configure_output(struct cg_server *server,
 	struct cg_output *output, *tmp_output;
 	wl_list_for_each_safe(output, tmp_output, &server->outputs, link) {
 		if(strcmp(config->output_name, output->name) == 0) {
-			int output_num=output_get_num(output);
+			int output_num = output_get_num(output);
 			output_configure(server, output);
 			ipc_send_event(server,
 			               "{\"event_name\":\"configure_output\",\"output\":\"%"

@@ -139,9 +139,11 @@ output_destroy(struct cg_output *output) {
 		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
 		                          &output->layout_box);
 		wlr_output_layout_remove(server->output_layout, output->wlr_output);
-		output->wlr_output=wlr_headless_add_output(server->headless_backend,output->layout_box.width,output->layout_box.height);
-		wlr_output_layout_add(server->output_layout, output->wlr_output, output->layout_box.x,
-		                      output->layout_box.y);
+		output->wlr_output = wlr_headless_add_output(server->headless_backend,
+		                                             output->layout_box.width,
+		                                             output->layout_box.height);
+		wlr_output_layout_add(server->output_layout, output->wlr_output,
+		                      output->layout_box.x, output->layout_box.y);
 
 	} else {
 
@@ -280,10 +282,11 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	struct wlr_output *wlr_output = output->wlr_output;
 
 	wlr_output_layout_get_box(server->output_layout, output->wlr_output,
-							  &output->layout_box);
+	                          &output->layout_box);
 	if(config->role != OUTPUT_ROLE_DEFAULT) {
 		output->role = config->role;
-		if((output->role == OUTPUT_ROLE_PERIPHERAL)&&(output->destroyed == true)) {
+		if((output->role == OUTPUT_ROLE_PERIPHERAL) &&
+		   (output->destroyed == true)) {
 			output_destroy(output);
 			wlr_output_destroy(wlr_output);
 			return;
@@ -319,38 +322,38 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		                      config->pos.y);
 		/* Since the size of the output may have changed, we
 		 * reinitialize all workspaces with a fullscreen layout */
-		if(output->layout_box.width!=config->pos.width||output->layout_box.height!=config->pos.height) {
+		if(output->layout_box.width != config->pos.width ||
+		   output->layout_box.height != config->pos.height) {
 			for(unsigned int i = 0; i < output->server->nws; ++i) {
 				output_make_workspace_fullscreen(output, i);
 			}
 		} else {
 			wlr_output_layout_get_box(server->output_layout, output->wlr_output,
-									  &output->layout_box);
+			                          &output->layout_box);
 			for(unsigned int i = 0; i < server->nws; ++i) {
-				struct cg_workspace *ws=output->workspaces[i];
+				struct cg_workspace *ws = output->workspaces[i];
 				bool first = true;
 				for(struct cg_tile *tile = ws->focused_tile;
-					first || output->workspaces[i]->focused_tile != tile;
-					tile = tile->next) {
+				    first || output->workspaces[i]->focused_tile != tile;
+				    tile = tile->next) {
 					first = false;
 					if(tile->view != NULL) {
 						wlr_scene_node_set_position(
-								&tile->view->scene_tree->node,
-								tile->view->ox + output->layout_box.x,
-								output->layout_box.y);
+						    &tile->view->scene_tree->node,
+						    tile->view->ox + output->layout_box.x,
+						    output->layout_box.y);
 					}
 				}
 			}
 		}
 	} else {
 		wlr_output_layout_add_auto(server->output_layout, wlr_output);
-		// The following two lines make sure that the output is "manually" managed,
-		// so that its position doesn't change anymore in the future.
+		// The following two lines make sure that the output is "manually"
+		// managed, so that its position doesn't change anymore in the future.
 		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
-								  &output->layout_box);
-		wlr_output_layout_move(server->output_layout, output->wlr_output, output->layout_box.x,
-		                      output->layout_box.y);
-
+		                          &output->layout_box);
+		wlr_output_layout_move(server->output_layout, output->wlr_output,
+		                       output->layout_box.x, output->layout_box.y);
 
 		struct wlr_output_mode *preferred_mode =
 		    wlr_output_preferred_mode(wlr_output);

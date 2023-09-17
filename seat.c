@@ -914,7 +914,7 @@ handle_destroy(struct wl_listener *listener, void *_data) {
 	wl_list_remove(&seat->request_set_cursor.link);
 	wl_list_remove(&seat->request_set_selection.link);
 	wl_list_remove(&seat->request_set_primary_selection.link);
-	seat->server->seat=NULL;
+	seat->server->seat = NULL;
 	free(seat);
 }
 
