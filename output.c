@@ -22,6 +22,7 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_xcursor_manager.h>
+#include <wlr/util/box.h>
 #include <wlr/util/log.h>
 #include <wlr/util/region.h>
 #if CG_HAS_XWAYLAND
@@ -114,9 +115,14 @@ output_get_num(const struct cg_output *output) {
 
 struct wlr_box
 output_get_layout_box(struct cg_output *output) {
-	if(!output->destroyed) {
-		wlr_output_layout_get_box(output->server->output_layout,
-		                          output->wlr_output, &output->layout_box);
+	struct wlr_box box;
+	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,
+	                          &box);
+	if(!output->destroyed && !wlr_box_empty(&box)) {
+		output->layout_box.x = box.x;
+		output->layout_box.y = box.y;
+		output->layout_box.width = box.width;
+		output->layout_box.height = box.height;
 	}
 	return output->layout_box;
 }
@@ -281,8 +287,11 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
                     struct cg_output_config *config) {
 	struct wlr_output *wlr_output = output->wlr_output;
 
-	wlr_output_layout_get_box(server->output_layout, output->wlr_output,
-	                          &output->layout_box);
+	struct wlr_box prev_box;
+	prev_box.x = output->layout_box.x;
+	prev_box.y = output->layout_box.y;
+	prev_box.width = output->layout_box.width;
+	prev_box.height = output->layout_box.height;
 	if(config->role != OUTPUT_ROLE_DEFAULT) {
 		output->role = config->role;
 		if((output->role == OUTPUT_ROLE_PERIPHERAL) &&
@@ -291,10 +300,6 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 			wlr_output_destroy(wlr_output);
 			return;
 		}
-	}
-
-	if(output->wlr_output->enabled) {
-		wlr_output_layout_remove(server->output_layout, wlr_output);
 	}
 
 	if(config->priority != -1) {
@@ -318,38 +323,48 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 			wlr_output_commit(wlr_output);
 			return;
 		}
-		wlr_output_layout_add(server->output_layout, wlr_output, config->pos.x,
-		                      config->pos.y);
-		/* Since the size of the output may have changed, we
-		 * reinitialize all workspaces with a fullscreen layout */
-		if(output->layout_box.width != config->pos.width ||
-		   output->layout_box.height != config->pos.height) {
-			for(unsigned int i = 0; i < output->server->nws; ++i) {
-				output_make_workspace_fullscreen(output, i);
-			}
+		if(wlr_box_empty(&output->layout_box)) {
+			wlr_output_layout_add(server->output_layout, wlr_output,
+			                      config->pos.x, config->pos.y);
 		} else {
+			wlr_output_layout_move(server->output_layout, wlr_output,
+			                       config->pos.x, config->pos.y);
+		}
+		if(output->workspaces != NULL) {
 			wlr_output_layout_get_box(server->output_layout, output->wlr_output,
 			                          &output->layout_box);
-			for(unsigned int i = 0; i < server->nws; ++i) {
-				struct cg_workspace *ws = output->workspaces[i];
-				bool first = true;
-				for(struct cg_tile *tile = ws->focused_tile;
-				    first || output->workspaces[i]->focused_tile != tile;
-				    tile = tile->next) {
-					first = false;
-					if(tile->view != NULL) {
-						wlr_scene_node_set_position(
-						    &tile->view->scene_tree->node,
-						    tile->view->ox + output->layout_box.x,
-						    output->layout_box.y);
+			/* Since the size of the output may have changed, we
+			 * reinitialize all workspaces with a fullscreen layout */
+			if(output->layout_box.width != prev_box.width ||
+			   output->layout_box.height != prev_box.height) {
+				for(unsigned int i = 0; i < output->server->nws; ++i) {
+					output_make_workspace_fullscreen(output, i);
+				}
+			}
+			if(prev_box.x != output->layout_box.x ||
+			   prev_box.y != output->layout_box.y) {
+				for(unsigned int i = 0; i < server->nws; ++i) {
+					struct cg_workspace *ws = output->workspaces[i];
+					bool first = true;
+					for(struct cg_tile *tile = ws->focused_tile;
+					    first || output->workspaces[i]->focused_tile != tile;
+					    tile = tile->next) {
+						first = false;
+						if(tile->view != NULL) {
+							wlr_scene_node_set_position(
+							    &tile->view->scene_tree->node,
+							    tile->view->ox + output->layout_box.x,
+							    tile->view->oy + output->layout_box.y);
+						}
 					}
 				}
 			}
 		}
-	} else {
+	} else if(wlr_box_empty(&output->layout_box)) {
 		wlr_output_layout_add_auto(server->output_layout, wlr_output);
 		// The following two lines make sure that the output is "manually"
-		// managed, so that its position doesn't change anymore in the future.
+		// managed, so that its position doesn't change anymore in the
+		// future.
 		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
 		                          &output->layout_box);
 		wlr_output_layout_move(server->output_layout, output->wlr_output,
@@ -541,9 +556,9 @@ handle_output_mode(struct wl_listener *listener, void *data) {
 void
 output_make_workspace_fullscreen(struct cg_output *output, int ws) {
 	struct cg_server *server = output->server;
-	struct cg_view *current_view = seat_get_focus(server->seat);
+	struct cg_view *current_view = output->workspaces[ws]->focused_tile->view;
 
-	if(current_view == NULL || ws != output->curr_workspace) {
+	if(current_view == NULL) {
 		struct cg_view *it = NULL;
 		wl_list_for_each(it, &output->workspaces[ws]->views, link) {
 			if(view_is_visible(it)) {
@@ -566,7 +581,9 @@ output_make_workspace_fullscreen(struct cg_output *output, int ws) {
 		it_view->tile = output->workspaces[ws]->focused_tile;
 	}
 
-	if(ws == output->curr_workspace) {
+	workspace_tile_update_view(output->workspaces[ws]->focused_tile,
+	                           current_view);
+	if((ws == output->curr_workspace) && (output == server->curr_output)) {
 		seat_set_focus(server->seat, current_view);
 	}
 }
@@ -579,6 +596,7 @@ void
 handle_new_output(struct wl_listener *listener, void *data) {
 	struct cg_server *server = wl_container_of(listener, server, new_output);
 	struct wlr_output *wlr_output = data;
+	wlr_output_enable(wlr_output, true);
 
 	if(!wlr_output_init_render(wlr_output, server->allocator,
 	                           server->renderer)) {

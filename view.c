@@ -84,7 +84,7 @@ view_maximize(struct cg_view *view, struct cg_tile *tile) {
 	wlr_scene_node_set_position(
 	    &view->scene_tree->node,
 	    view->ox + output_get_layout_box(view->workspace->output).x,
-	    output_get_layout_box(view->oy + view->workspace->output).y);
+	    view->oy + output_get_layout_box(view->workspace->output).y);
 	view->impl->maximize(view, tile->tile.width, tile->tile.height);
 	view->tile = tile;
 	wlr_scene_node_raise_to_top(&view->scene_tree->node);
