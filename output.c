@@ -279,6 +279,8 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
                     struct cg_output_config *config) {
 	struct wlr_output *wlr_output = output->wlr_output;
 
+	wlr_output_layout_get_box(server->output_layout, output->wlr_output,
+							  &output->layout_box);
 	if(config->role != OUTPUT_ROLE_DEFAULT) {
 		output->role = config->role;
 		if((output->role == OUTPUT_ROLE_PERIPHERAL)&&(output->destroyed == true)) {
@@ -317,8 +319,28 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		                      config->pos.y);
 		/* Since the size of the output may have changed, we
 		 * reinitialize all workspaces with a fullscreen layout */
-		for(unsigned int i = 0; i < output->server->nws; ++i) {
-			output_make_workspace_fullscreen(output, i);
+		if(output->layout_box.width!=config->pos.width||output->layout_box.height!=config->pos.height) {
+			for(unsigned int i = 0; i < output->server->nws; ++i) {
+				output_make_workspace_fullscreen(output, i);
+			}
+		} else {
+			wlr_output_layout_get_box(server->output_layout, output->wlr_output,
+									  &output->layout_box);
+			for(unsigned int i = 0; i < server->nws; ++i) {
+				struct cg_workspace *ws=output->workspaces[i];
+				bool first = true;
+				for(struct cg_tile *tile = ws->focused_tile;
+					first || output->workspaces[i]->focused_tile != tile;
+					tile = tile->next) {
+					first = false;
+					if(tile->view != NULL) {
+						wlr_scene_node_set_position(
+								&tile->view->scene_tree->node,
+								tile->view->ox + output->layout_box.x,
+								output->layout_box.y);
+					}
+				}
+			}
 		}
 	} else {
 		wlr_output_layout_add_auto(server->output_layout, wlr_output);
