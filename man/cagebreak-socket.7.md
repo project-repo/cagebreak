@@ -226,6 +226,7 @@ cg-ipc{"event_name":"destroy_output","output":"HDMI-A-1","output_id":2}
 				- coords: object of x and y coordinates of output
 				- size: object of width and height as integers
 				- refresh_rate: refresh rate as float
+				- permanent: 0 if peripheral, 1 if permanent
 				- curr_workspace: current workspace as an integer
 				- workspaces: list of objects for each workspace
 					- views: list of objects for each view
@@ -263,6 +264,7 @@ cg-ipc{"event_name":"dump","nws":1,
 "coords": {"x":0,"y":0},
 "size": {"width":2560,"height":1440},
 "refresh_rate": 60.012000,
+"permanent": 0
 "curr_workspace": 0,
 "workspaces": [{"views": [{
 "id": 16,
