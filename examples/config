@@ -97,8 +97,11 @@ definekey top XF86MonBrightnessUp exec xbacklight -inc 1
 #Output configuration
 ######################
 #output eDP-1 pos 0 0 res 1366x768 rate 60
-#output eDP-1 disable
-#output eDP-1 enable
+output eDP-1 disable
+output eDP-1 enable
+output eDP-1 permanent
+
+output eDP-1 peripheral
 #output eDP-1 prio 1
 #output eDP-2 pos 0 0 res 1366x768 rate 60 scale 2.0
 
