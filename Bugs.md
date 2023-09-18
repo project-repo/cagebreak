@@ -1235,3 +1235,14 @@ configuration was a NoOp. Starting with version 2.2.1, the calibration
 matrix can be set as documented.
 
 Thanks to Oliver Friedmann for providing a pull request.
+
+## Issue 66
+
+  * github issue numner: #38
+  * Fixed: 2.3.0
+
+After extensive discussion of how to deal with turning off outputs, the
+output command was ammended by two settings (permanent & peripheral).
+See man pages for details.
+
+Thanks to sodface for the great cooperation.
