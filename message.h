@@ -11,12 +11,15 @@ struct cg_output;
 struct wlr_box;
 struct wlr_buffer;
 
-enum cg_message_align {
+enum cg_message_anchor {
 	CG_MESSAGE_TOP_LEFT,
+   CG_MESSAGE_TOP_CENTER,
 	CG_MESSAGE_TOP_RIGHT,
 	CG_MESSAGE_BOTTOM_LEFT,
+   CG_MESSAGE_BOTTOM_CENTER,
 	CG_MESSAGE_BOTTOM_RIGHT,
 	CG_MESSAGE_CENTER,
+   CG_MESSAGE_NOPT
 };
 
 struct cg_message_config {
@@ -24,6 +27,7 @@ struct cg_message_config {
 	int display_time;
 	float bg_color[4];
 	float fg_color[4];
+   enum cg_message_anchor anchor;
 };
 
 struct cg_message {
@@ -37,7 +41,7 @@ void
 message_printf(struct cg_output *output, const char *fmt, ...);
 void
 message_printf_pos(struct cg_output *output, struct wlr_box *position,
-                   enum cg_message_align, const char *fmt, ...);
+                   enum cg_message_anchor, const char *fmt, ...);
 void
 message_clear(struct cg_output *output);
 

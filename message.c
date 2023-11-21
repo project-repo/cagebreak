@@ -177,11 +177,11 @@ create_message_texture(const char *string, const struct cg_output *output) {
 
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
+#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak" //NOLINT
 #endif
 void
 message_set_output(struct cg_output *output, const char *string,
-                   struct wlr_box *box, enum cg_message_align align) {
+                   struct wlr_box *box, enum cg_message_anchor anchor) {
 	struct cg_message *message = malloc(sizeof(struct cg_message));
 	if(!message) {
 		wlr_log(WLR_ERROR, "Error allocating message structure");
@@ -203,26 +203,35 @@ message_set_output(struct cg_output *output, const char *string,
 	int height = buf->base.height / scale;
 	message->position->width = width;
 	message->position->height = height;
-	switch(align) {
-	case CG_MESSAGE_TOP_RIGHT: {
+	switch(anchor) {
+	case CG_MESSAGE_TOP_LEFT:
+      message->position->x = 0;
+      message->position->y = 0;
+      break;
+	case CG_MESSAGE_TOP_CENTER:
+      message->position->x -= width / 2;
+      message->position->y = 0;
+      break;
+	case CG_MESSAGE_TOP_RIGHT:
 		message->position->x -= width;
+      message->position->y = 0;
 		break;
-	}
-	case CG_MESSAGE_BOTTOM_LEFT: {
+	case CG_MESSAGE_BOTTOM_LEFT:
+      message->position->x = 0;
 		message->position->y -= height;
 		break;
-	}
-	case CG_MESSAGE_BOTTOM_RIGHT: {
+	case CG_MESSAGE_BOTTOM_CENTER:
+      message->position->x -= width / 2;
+		message->position->y -= height;
+		break;
+	case CG_MESSAGE_BOTTOM_RIGHT:
 		message->position->x -= width;
 		message->position->y -= height;
 		break;
-	}
-	case CG_MESSAGE_CENTER: {
+	case CG_MESSAGE_CENTER:
 		message->position->x -= width / 2;
 		message->position->y -= height / 2;
 		break;
-	}
-	case CG_MESSAGE_TOP_LEFT:
 	default:
 		break;
 	}
@@ -265,13 +274,43 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 	struct wlr_box output_box;
 	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,
 	                          &output_box);
-
-	box->x = output_box.width;
-	box->y = 0;
-	box->width = 0;
+	
+   box->width  = 0;
 	box->height = 0;
-
-	message_set_output(output, buffer, box, CG_MESSAGE_TOP_RIGHT);
+	switch(output->server->message_config.anchor) {
+	case CG_MESSAGE_TOP_LEFT:
+	   box->x = 0;
+	   box->y = 0;
+      break;
+   case CG_MESSAGE_TOP_CENTER:
+      box->x = output_box.width /2;
+      box->y = 0;
+      break;
+	case CG_MESSAGE_TOP_RIGHT:
+	   box->x = output_box.width;
+	   box->y = 0;
+		break;
+	case CG_MESSAGE_BOTTOM_LEFT:
+	   box->x = 0;
+	   box->y = output_box.height;
+		break;
+   case CG_MESSAGE_BOTTOM_CENTER:
+      box->x = output_box.width /2;
+      box->y = output_box.height;
+      break;
+	case CG_MESSAGE_BOTTOM_RIGHT:
+	   box->x = output_box.width;
+	   box->y = output_box.height;
+		break;
+	case CG_MESSAGE_CENTER:
+	   box->x = output_box.width / 2;
+	   box->y = output_box.height / 2;
+		break;
+	default:
+		break;
+	}
+	
+   message_set_output(output, buffer, box, output->server->message_config.anchor);
 	free(buffer);
 	alarm(output->server->message_config.display_time);
 }
@@ -281,7 +320,7 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 
 void
 message_printf_pos(struct cg_output *output, struct wlr_box *position,
-                   const enum cg_message_align align, const char *fmt, ...) {
+                   const enum cg_message_anchor anchor, const char *fmt, ...) {
 	uint16_t buf_len = 256;
 	char *buffer = (char *)malloc(buf_len * sizeof(char));
 	va_list ap;
@@ -290,7 +329,7 @@ message_printf_pos(struct cg_output *output, struct wlr_box *position,
 	vsnprintf(buffer, buf_len, fmt, ap);
 	va_end(ap);
 
-	message_set_output(output, buffer, position, align);
+	message_set_output(output, buffer, position, anchor);
 	free(buffer);
 	alarm(output->server->message_config.display_time);
 }
