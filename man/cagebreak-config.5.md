@@ -61,8 +61,8 @@ definekey root <key> <command>
 	- fg_color <r> <g> <b> <a> sets RGBA of foreground
 	- bg_color <r> <g> <b> <a> sets RGBA of background
 	- display_time <n> sets display time in seconds
-   - anchor <position> sets the position of the message
-      - <position> may be one of {top,bottom}_{left,center,right} or center
+	- anchor <position> sets the position of the message
+		- <position> may be one of {top,bottom}_{left,center,right} or center
 
 ```
 # Set font

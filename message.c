@@ -177,7 +177,7 @@ create_message_texture(const char *string, const struct cg_output *output) {
 
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak" //NOLINT
+#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak" // NOLINT
 #endif
 void
 message_set_output(struct cg_output *output, const char *string,
@@ -205,23 +205,23 @@ message_set_output(struct cg_output *output, const char *string,
 	message->position->height = height;
 	switch(anchor) {
 	case CG_MESSAGE_TOP_LEFT:
-      message->position->x = 0;
-      message->position->y = 0;
-      break;
+		message->position->x = 0;
+		message->position->y = 0;
+		break;
 	case CG_MESSAGE_TOP_CENTER:
-      message->position->x -= width / 2;
-      message->position->y = 0;
-      break;
+		message->position->x -= width / 2;
+		message->position->y = 0;
+		break;
 	case CG_MESSAGE_TOP_RIGHT:
 		message->position->x -= width;
-      message->position->y = 0;
+		message->position->y = 0;
 		break;
 	case CG_MESSAGE_BOTTOM_LEFT:
-      message->position->x = 0;
+		message->position->x = 0;
 		message->position->y -= height;
 		break;
 	case CG_MESSAGE_BOTTOM_CENTER:
-      message->position->x -= width / 2;
+		message->position->x -= width / 2;
 		message->position->y -= height;
 		break;
 	case CG_MESSAGE_BOTTOM_RIGHT:
@@ -274,43 +274,44 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 	struct wlr_box output_box;
 	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,
 	                          &output_box);
-	
-   box->width  = 0;
+
+	box->width = 0;
 	box->height = 0;
 	switch(output->server->message_config.anchor) {
 	case CG_MESSAGE_TOP_LEFT:
-	   box->x = 0;
-	   box->y = 0;
-      break;
-   case CG_MESSAGE_TOP_CENTER:
-      box->x = output_box.width /2;
-      box->y = 0;
-      break;
+		box->x = 0;
+		box->y = 0;
+		break;
+	case CG_MESSAGE_TOP_CENTER:
+		box->x = output_box.width / 2;
+		box->y = 0;
+		break;
 	case CG_MESSAGE_TOP_RIGHT:
-	   box->x = output_box.width;
-	   box->y = 0;
+		box->x = output_box.width;
+		box->y = 0;
 		break;
 	case CG_MESSAGE_BOTTOM_LEFT:
-	   box->x = 0;
-	   box->y = output_box.height;
+		box->x = 0;
+		box->y = output_box.height;
 		break;
-   case CG_MESSAGE_BOTTOM_CENTER:
-      box->x = output_box.width /2;
-      box->y = output_box.height;
-      break;
+	case CG_MESSAGE_BOTTOM_CENTER:
+		box->x = output_box.width / 2;
+		box->y = output_box.height;
+		break;
 	case CG_MESSAGE_BOTTOM_RIGHT:
-	   box->x = output_box.width;
-	   box->y = output_box.height;
+		box->x = output_box.width;
+		box->y = output_box.height;
 		break;
 	case CG_MESSAGE_CENTER:
-	   box->x = output_box.width / 2;
-	   box->y = output_box.height / 2;
+		box->x = output_box.width / 2;
+		box->y = output_box.height / 2;
 		break;
 	default:
 		break;
 	}
-	
-   message_set_output(output, buffer, box, output->server->message_config.anchor);
+
+	message_set_output(output, buffer, box,
+	                   output->server->message_config.anchor);
 	free(buffer);
 	alarm(output->server->message_config.display_time);
 }
