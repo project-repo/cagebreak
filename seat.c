@@ -14,13 +14,13 @@
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_data_device.h>
-#include <wlr/types/wlr_idle.h>
 #include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/types/wlr_primary_selection.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_seat.h>
 #include <wlr/types/wlr_touch.h>
 #include <wlr/types/wlr_xcursor_manager.h>
+#include <wlr/types/wlr_idle_notify_v1.h>
 #include <wlr/util/log.h>
 #if CG_HAS_XWAYLAND
 #include <wlr/xwayland.h>
@@ -59,10 +59,9 @@ update_capabilities(const struct cg_seat *seat) {
 	/* Hide cursor if the seat doesn't have pointer capability. */
 	if(((caps & WL_SEAT_CAPABILITY_POINTER) == 0) ||
 	   seat->enable_cursor == false) {
-		wlr_cursor_set_image(seat->cursor, NULL, 0, 0, 0, 0, 0, 0);
+		wlr_cursor_unset_image(seat->cursor);
 	} else {
-		wlr_xcursor_manager_set_cursor_image(seat->xcursor_manager,
-		                                     DEFAULT_XCURSOR, seat->cursor);
+		wlr_cursor_set_xcursor(seat->cursor, seat->xcursor_manager, DEFAULT_XCURSOR);
 	}
 }
 
@@ -169,7 +168,7 @@ handle_modifier_event(struct wlr_input_device *device, struct cg_seat *seat) {
 	wlr_seat_set_keyboard(seat->seat, keyboard);
 	wlr_seat_keyboard_notify_modifiers(seat->seat, &keyboard->modifiers);
 
-	wlr_idle_notify_activity(seat->server->idle, seat->seat);
+	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
 
 void
@@ -205,12 +204,11 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 		    &server->scene->tree.node, server->seat->cursor->x,
 		    server->seat->cursor->y, &sx, &sy);
 		if(server->seat->enable_cursor) {
-			wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
-			                                     "left_ptr",
-			                                     server->seat->cursor);
+			wlr_cursor_set_xcursor(server->seat->cursor, server->seat->xcursor_manager,
+	                                     "left_ptr");
 			if(node && node->type == WLR_SCENE_NODE_BUFFER) {
 				struct wlr_scene_surface *scene_surface =
-				    wlr_scene_surface_from_buffer(
+				    wlr_scene_surface_try_from_buffer(
 				        wlr_scene_buffer_from_node(node));
 				if(scene_surface != NULL) {
 					surface = scene_surface->surface;
@@ -239,7 +237,7 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 		}
 		message_clear(group->seat->server->curr_output);
 		run_action((*keybinding)->action, server, (*keybinding)->data);
-		wlr_idle_notify_activity(server->idle, server->seat->seat);
+		wlr_idle_notifier_v1_notify_activity(server->idle, server->seat->seat);
 		return true;
 	} else if(mode != 0) {
 		run_action(KEYBINDING_NOOP, server, (union keybinding_params){NULL});
@@ -312,7 +310,7 @@ handle_key_event(struct cg_keyboard_group *group, struct cg_seat *seat,
 		                             event->keycode, event->state);
 	}
 
-	wlr_idle_notify_activity(seat->server->idle, seat->seat);
+	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
 
 static void
@@ -589,7 +587,7 @@ handle_touch_down(struct wl_listener *listener, void *data) {
 	uint32_t serial = 0;
 	if(node && node->type == WLR_SCENE_NODE_BUFFER) {
 		struct wlr_scene_surface *scene_surface =
-		    wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node));
+		    wlr_scene_surface_try_from_buffer(wlr_scene_buffer_from_node(node));
 		if(scene_surface != NULL) {
 			serial = wlr_seat_touch_notify_down(
 			    seat->seat, scene_surface->surface, event->time_msec,
@@ -603,7 +601,7 @@ handle_touch_down(struct wl_listener *listener, void *data) {
 		seat->touch_ly = ly;
 	}
 
-	wlr_idle_notify_activity(seat->server->idle, seat->seat);
+	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
 
 static void
@@ -616,7 +614,7 @@ handle_touch_up(struct wl_listener *listener, void *data) {
 	}
 
 	wlr_seat_touch_notify_up(seat->seat, event->time_msec, event->touch_id);
-	wlr_idle_notify_activity(seat->server->idle, seat->seat);
+	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
 
 static void
@@ -638,7 +636,7 @@ handle_touch_motion(struct wl_listener *listener, void *data) {
 
 	if(node && node->type == WLR_SCENE_NODE_BUFFER) {
 		struct wlr_scene_surface *scene_surface =
-		    wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node));
+		    wlr_scene_surface_try_from_buffer(wlr_scene_buffer_from_node(node));
 		if(scene_surface != NULL) {
 
 			wlr_seat_touch_point_focus(seat->seat, scene_surface->surface,
@@ -657,7 +655,7 @@ handle_touch_motion(struct wl_listener *listener, void *data) {
 		seat->touch_ly = ly;
 	}
 
-	wlr_idle_notify_activity(seat->server->idle, seat->seat);
+	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
 
 static void
@@ -665,7 +663,7 @@ handle_cursor_frame(struct wl_listener *listener, void *_data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, cursor_frame);
 
 	wlr_seat_pointer_notify_frame(seat->seat);
-	wlr_idle_notify_activity(seat->server->idle, seat->seat);
+	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
 
 static void
@@ -676,7 +674,7 @@ handle_cursor_axis(struct wl_listener *listener, void *data) {
 	wlr_seat_pointer_notify_axis(seat->seat, event->time_msec,
 	                             event->orientation, event->delta,
 	                             event->delta_discrete, event->source);
-	wlr_idle_notify_activity(seat->server->idle, seat->seat);
+	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
 
 static void
@@ -686,7 +684,7 @@ handle_cursor_button(struct wl_listener *listener, void *data) {
 
 	wlr_seat_pointer_notify_button(seat->seat, event->time_msec, event->button,
 	                               event->state);
-	wlr_idle_notify_activity(seat->server->idle, seat->seat);
+	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
 
 static void
@@ -701,7 +699,7 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 
 	if(node && node->type == WLR_SCENE_NODE_BUFFER) {
 		struct wlr_scene_surface *scene_surface =
-		    wlr_scene_surface_from_buffer(wlr_scene_buffer_from_node(node));
+		    wlr_scene_surface_try_from_buffer(wlr_scene_buffer_from_node(node));
 		if(scene_surface != NULL) {
 			surface = scene_surface->surface;
 			if(surface != NULL) {
@@ -722,7 +720,7 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 		drag_icon_update_position(drag_icon);
 	}
 
-	wlr_idle_notify_activity(seat->server->idle, seat->seat);
+	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 
 	/* Check if cursor switched tile */
 	struct wlr_output *c_outp = wlr_output_layout_output_at(
@@ -772,7 +770,7 @@ handle_cursor_motion_absolute(struct wl_listener *listener, void *data) {
 	wlr_cursor_warp_absolute(seat->cursor, &event->pointer->base, event->x,
 	                         event->y);
 	process_cursor_motion(seat, event->time_msec);
-	wlr_idle_notify_activity(seat->server->idle, seat->seat);
+	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
 
 static void
@@ -783,7 +781,7 @@ handle_cursor_motion(struct wl_listener *listener, void *data) {
 	wlr_cursor_move(seat->cursor, &event->pointer->base, event->delta_x,
 	                event->delta_y);
 	process_cursor_motion(seat, event->time_msec);
-	wlr_idle_notify_activity(seat->server->idle, seat->seat);
+	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
 
 static void

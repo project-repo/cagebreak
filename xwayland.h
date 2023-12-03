@@ -13,6 +13,8 @@ struct cg_xwayland_view {
 	struct wl_listener destroy;
 	struct wl_listener unmap;
 	struct wl_listener map;
+	struct wl_listener associate;
+	struct wl_listener dissociate;
 	struct wl_listener request_fullscreen;
 };
 

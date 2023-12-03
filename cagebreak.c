@@ -26,8 +26,8 @@
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_export_dmabuf_v1.h>
 #include <wlr/types/wlr_gamma_control_v1.h>
-#include <wlr/types/wlr_idle.h>
 #include <wlr/types/wlr_idle_inhibit_v1.h>
+#include <wlr/types/wlr_idle_notify_v1.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_presentation_time.h>
 #include <wlr/types/wlr_primary_selection_v1.h>
@@ -368,7 +368,7 @@ main(int argc, char *argv[]) {
 	    wl_event_loop_add_signal(event_loop, SIGPIPE, handle_signal, &server);
 	server.event_loop = event_loop;
 
-	backend = wlr_backend_autocreate(server.wl_display);
+	backend = wlr_backend_autocreate(server.wl_display,&server.session);
 	if(!backend) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots backend");
 		ret = 1;
@@ -428,9 +428,9 @@ main(int argc, char *argv[]) {
 		ret = 1;
 		goto end;
 	}
-	wlr_scene_attach_output_layout(server.scene, server.output_layout);
+	server.scene_output_layout=wlr_scene_attach_output_layout(server.scene, server.output_layout);
 
-	compositor = wlr_compositor_create(server.wl_display, server.renderer);
+	compositor = wlr_compositor_create(server.wl_display,6,server.renderer);
 	if(!compositor) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots compositor");
 		ret = 1;
@@ -474,14 +474,8 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 
-	server.idle = wlr_idle_create(server.wl_display);
-	if(!server.idle) {
-		wlr_log(WLR_ERROR, "Unable to create the idle tracker");
-		ret = 1;
-		goto end;
-	}
-
 	server.idle_inhibit_v1 = wlr_idle_inhibit_v1_create(server.wl_display);
+	server.idle = wlr_idle_notifier_v1_create(server.wl_display);
 	if(!server.idle_inhibit_v1) {
 		wlr_log(WLR_ERROR, "Cannot create the idle inhibitor");
 		ret = 1;
@@ -687,6 +681,12 @@ main(int argc, char *argv[]) {
 
 	wl_display_run(server.wl_display);
 
+#if CG_HAS_XWAYLAND
+	if(server.xwayland != NULL) {
+		wlr_xwayland_destroy(server.xwayland);
+	}
+#endif
+
 	wl_display_destroy_clients(server.wl_display);
 
 end:
@@ -734,11 +734,6 @@ end:
 	if(server.seat != NULL) {
 		seat_destroy(server.seat);
 	}
-#if CG_HAS_XWAYLAND
-	if(server.xwayland != NULL) {
-		wlr_xwayland_destroy(server.xwayland);
-	}
-#endif
 
 	if(sigint_source != NULL) {
 		wl_event_source_remove(sigint_source);

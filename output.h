@@ -16,8 +16,8 @@ struct cg_output {
 	struct cg_server *server;
 	struct wlr_output *wlr_output;
 	struct wlr_scene_rect *bg;
+	struct wlr_scene_output *scene_output;
 
-	struct wl_listener mode;
 	struct wl_listener commit;
 	struct wl_listener destroy;
 	struct wl_listener frame;
