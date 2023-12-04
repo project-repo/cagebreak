@@ -15,6 +15,7 @@
 #include <wlr/backend/x11.h>
 #endif
 #include <wlr/types/wlr_compositor.h>
+#include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_layout.h>
@@ -22,7 +23,6 @@
 #include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/util/log.h>
 #include <wlr/util/region.h>
-#include <wlr/types/wlr_cursor.h>
 #if CG_HAS_XWAYLAND
 #include <wlr/xwayland.h>
 #endif
@@ -165,7 +165,7 @@ handle_output_frame(struct wl_listener *listener, void *data) {
 	if(scene_output == NULL) {
 		return;
 	}
-	wlr_scene_output_commit(scene_output,NULL);
+	wlr_scene_output_commit(scene_output, NULL);
 
 	struct timespec now = {0};
 	clock_gettime(CLOCK_MONOTONIC, &now);
@@ -439,7 +439,8 @@ handle_output_commit(struct wl_listener *listener, void *data) {
 	}
 
 	if(event->state->committed &
-	   (WLR_OUTPUT_STATE_TRANSFORM | WLR_OUTPUT_STATE_SCALE | WLR_OUTPUT_STATE_MODE)) {
+	   (WLR_OUTPUT_STATE_TRANSFORM | WLR_OUTPUT_STATE_SCALE |
+	    WLR_OUTPUT_STATE_MODE)) {
 		struct cg_view *view;
 		wl_list_for_each(
 		    view, &output->workspaces[output->curr_workspace]->views, link) {
@@ -499,7 +500,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	}
 
 	struct cg_output *output = calloc(1, sizeof(struct cg_output));
-	output->scene_output=wlr_scene_output_create(server->scene,wlr_output);
+	output->scene_output = wlr_scene_output_create(server->scene, wlr_output);
 	if(!output) {
 		wlr_log(WLR_ERROR, "Failed to allocate output");
 		return;
@@ -552,7 +553,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		server->curr_output = output;
 	}
 	wlr_cursor_set_xcursor(server->seat->cursor, server->seat->xcursor_manager,
-	                                     DEFAULT_XCURSOR);
+	                       DEFAULT_XCURSOR);
 	wlr_cursor_warp(server->seat->cursor, NULL, 0, 0);
 
 	output->destroy.notify = handle_output_destroy;

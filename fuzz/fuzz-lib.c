@@ -270,9 +270,10 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		ret = 1;
 		goto end;
 	}
-	server.scene_output_layout=wlr_scene_attach_output_layout(server.scene, server.output_layout);
+	server.scene_output_layout =
+	    wlr_scene_attach_output_layout(server.scene, server.output_layout);
 
-	compositor = wlr_compositor_create(server.wl_display, 5,server.renderer);
+	compositor = wlr_compositor_create(server.wl_display, 5, server.renderer);
 	if(!compositor) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots compositor");
 		ret = 1;

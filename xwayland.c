@@ -42,7 +42,7 @@ static pid_t
 get_pid(const struct cg_view *view) {
 	struct wlr_xwayland_surface *surf =
 	    wlr_xwayland_surface_try_from_wlr_surface(view->wlr_surface);
-	if(surf==NULL) {
+	if(surf == NULL) {
 		return -1;
 	} else {
 		return surf->pid;
@@ -177,9 +177,8 @@ static const struct cg_view_impl xwayland_view_impl = {
 static void
 handle_xwayland_surface_associate(struct wl_listener *listener, void *data) {
 	struct cg_xwayland_view *xwayland_view =
-		wl_container_of(listener, xwayland_view, associate);
-	struct wlr_xwayland_surface *xsurface =
-		xwayland_view->xwayland_surface;
+	    wl_container_of(listener, xwayland_view, associate);
+	struct wlr_xwayland_surface *xsurface = xwayland_view->xwayland_surface;
 	wl_signal_add(&xsurface->surface->events.unmap, &xwayland_view->unmap);
 	xwayland_view->unmap.notify = handle_xwayland_surface_unmap;
 	wl_signal_add(&xsurface->surface->events.map, &xwayland_view->map);
@@ -189,7 +188,7 @@ handle_xwayland_surface_associate(struct wl_listener *listener, void *data) {
 static void
 handle_xwayland_surface_dissociate(struct wl_listener *listener, void *data) {
 	struct cg_xwayland_view *xwayland_view =
-		wl_container_of(listener, xwayland_view, dissociate);
+	    wl_container_of(listener, xwayland_view, dissociate);
 	wl_list_remove(&xwayland_view->map.link);
 	wl_list_remove(&xwayland_view->unmap.link);
 }
@@ -212,9 +211,11 @@ handle_xwayland_surface_new(struct wl_listener *listener, void *data) {
 	xwayland_view->xwayland_surface = xwayland_surface;
 
 	xwayland_view->associate.notify = handle_xwayland_surface_associate;
-	wl_signal_add(&xwayland_surface->events.associate, &xwayland_view->associate);
+	wl_signal_add(&xwayland_surface->events.associate,
+	              &xwayland_view->associate);
 	xwayland_view->dissociate.notify = handle_xwayland_surface_dissociate;
-	wl_signal_add(&xwayland_surface->events.dissociate, &xwayland_view->dissociate);
+	wl_signal_add(&xwayland_surface->events.dissociate,
+	              &xwayland_view->dissociate);
 	xwayland_view->destroy.notify = handle_xwayland_surface_destroy;
 	wl_signal_add(&xwayland_surface->events.destroy, &xwayland_view->destroy);
 	xwayland_view->request_fullscreen.notify =
