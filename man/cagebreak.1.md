@@ -1,4 +1,4 @@
-cagebreak(1) "Version 2.2.1" "Cagebreak Manual"
+cagebreak(1) "Version 2.2.2" "Cagebreak Manual"
 
 # NAME
 
