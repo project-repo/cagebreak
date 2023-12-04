@@ -1,6 +1,6 @@
 # Cagebreak: A Wayland Tiling Compositor
 
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.2.1)](https://repology.org/project/cagebreak/versions)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.2.2)](https://repology.org/project/cagebreak/versions)
 
 ## Quick Introduction
 
@@ -9,25 +9,21 @@ based on [Cage](https://github.com/Hjdskes/cage) and inspired by [ratpoison](htt
 
 ### Purpose
 
-The goal of this project is to provide a successor to ratpoison for Wayland.
+This project provides a successor to ratpoison for Wayland.
 However, this is no reimplementation of ratpoison.
 
 #### New Features, Bugs and Contact Information
 
-Should you want to know if a feature will be implemented, file a bug or
-get in touch, [open an issue](https://github.com/project-repo/cagebreak/issues/new)
+You can [open an issue](https://github.com/project-repo/cagebreak/issues/new)
 or write an e-mail (See [SECURITY.md](SECURITY.md) for details.).
 
-The Roadmap section outlines what is planned for the future.
+The Roadmap section outlines our plans.
 
 #### Compatibility & Development Distribution
 
 Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the libraries
-(and software versions) as they are obtained through [pacman](https://wiki.archlinux.org/title/Pacman)
-at the time of release. Any other use is out of scope.
-
-Most other setups probably work with a bit of luck. We
-make no guarantees.
+and versions from extra and core at the time of release.
+Most other setups work with a bit of luck.
 
 ### Quick Installation
 
@@ -42,17 +38,12 @@ details on getting started and the documentation for everything else.
 
 ### Documentation
 
-  * the rest of this file
-  * the man pages:
-    * [cagebreak](man/cagebreak.1.md)
-    * [configuration](man/cagebreak-config.5.md)
-    * [socket](man/cagebreak-socket.7.md)
-  * the [FAQ](FAQ.md)
-  * [SECURITY.md](SECURITY.md)
+  * the man pages: [cagebreak](man/cagebreak.1.md), [configuration](man/cagebreak-config.5.md) & [socket](man/cagebreak-socket.7.md)
+  * the [README](README.md), [FAQ](FAQ.md) & [SECURITY.md](SECURITY.md)
 
 #### What's new?
 
-See the [Changelog](Changelog.md).
+Check the [Changelog](Changelog.md).
 
 ### Uninstallation
 
@@ -60,9 +51,9 @@ See the [Changelog](Changelog.md).
 
 ### Contributing
 
-  * Just [open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your idea.
-    We will consider the proposal and get back to you.
-  * Don't open a pull request. We might not accept your code and
+  * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your idea.
+    We will get back to you.
+  * Ask before you open a pull request. We might not accept your code and
     it would be sad to waste the effort.
   * Respect the [Code of Conduct](CODE_OF_CONDUCT.md) (To date, we never
     had to intervene - Keep it that way!)
@@ -208,16 +199,16 @@ as a source of inspiration and explanations for certain particularities.
 ## Contributing
 
   * Read this document.
-  * Just [open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your feature request.
-    We will consider the proposal and get back to you.
-  * Don't open a pull request without asking first. We might not accept your
+  * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your feature request.
+    We will get back to you.
+  * Ask before opening a pull request. We might not accept your
     code and it would be sad to waste the effort.
   * Respect the [Code of Conduct](CODE_OF_CONDUCT.md) (To date, we never
     had to intervene - Please keep it that way!)
 
 ### Good First Contributions
 
-  * Reviewing the project is always welcome.
+  * Reviews are always welcome.
     * Read the code.
     * Read the documentation.
     * Test whether the documentation matches the code.
@@ -225,12 +216,12 @@ as a source of inspiration and explanations for certain particularities.
     * Compile the code.
   * Ideas on improving the testing and quality assurance are particularly
     welcome.
-  * If you want, you can share your cagebreak scripts and we might include them
-    in the repository provided you agree to release them under MIT and we agree
-    with the use case and coding style.
-  * Iff you are happy with Cagebreak and use Arch Linux, you may vote for
+  * You can share your cagebreak scripts and we might include them with Cagebreak
+    provided you agree to release them under MIT and we agree with the
+    use case and coding style.
+  * If you are happy with Cagebreak under Arch Linux, you may vote for
     [Cagebreak in the AUR](https://aur.archlinux.org/packages/cagebreak).
-  * The points above still apply.
+  * The points from the Contributing section above still apply.
 
 ### Philosophy
 
