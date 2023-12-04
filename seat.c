@@ -748,7 +748,8 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 			break;
 		}
 	}
-	if(seat->cursor_tile != NULL && seat->cursor_tile != c_tile) {
+	if(seat->cursor_tile != NULL && seat->cursor_tile != c_tile &&
+	   seat->server->running) {
 		ipc_send_event(seat->server,
 		               "{\"event_name\":\"cursor_switch_tile\",\"old_output\":"
 		               "\"%s\",\"old_output_id\":%d,"
