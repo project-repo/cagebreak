@@ -282,15 +282,20 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 			wlr_output_commit(wlr_output);
 			return;
 		}
-		wlr_output_layout_add(server->output_layout, wlr_output, config->pos.x,
-		                      config->pos.y);
+		struct wlr_output_layout_output *lo = wlr_output_layout_add(
+		    server->output_layout, wlr_output, config->pos.x, config->pos.y);
+		wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
+		                                   output->scene_output);
 		/* Since the size of the output may have changed, we
 		 * reinitialize all workspaces with a fullscreen layout */
 		for(unsigned int i = 0; i < output->server->nws; ++i) {
 			output_make_workspace_fullscreen(output, i);
 		}
 	} else {
-		wlr_output_layout_add_auto(server->output_layout, wlr_output);
+		struct wlr_output_layout_output *lo =
+		    wlr_output_layout_add_auto(server->output_layout, wlr_output);
+		wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
+		                                   output->scene_output);
 
 		struct wlr_output_mode *preferred_mode =
 		    wlr_output_preferred_mode(wlr_output);
