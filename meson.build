@@ -3,7 +3,7 @@
 project(
   'cagebreak',
   'c',
-version : '2.2.2',
+version : '2.2.3',
 license : 'MIT',
 default_options : ['c_std=c11', 'warning_level=3']
 )
@@ -55,7 +55,7 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots', version: ['>=0.16.1', '< 0.17.1'])
+wlroots        = dependency('wlroots', version: ['>=0.17.0', '< 0.18.0'])
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')
@@ -260,7 +260,7 @@ install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_nam
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1701680868
+  secssinceepoch = 1701768836
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
