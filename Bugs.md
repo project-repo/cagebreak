@@ -1235,3 +1235,12 @@ configuration was a NoOp. Starting with version 2.2.1, the calibration
 matrix can be set as documented.
 
 Thanks to Oliver Friedmann for providing a pull request.
+
+## Issue 66
+
+  * github issue number: #65
+  * Fixed 2.2.3
+
+In Cagebreak 2.2.2 the compatible wlroots versions were wrongly specified.
+To stop this from reoccurring, we  have added a check to our release checks.
+
