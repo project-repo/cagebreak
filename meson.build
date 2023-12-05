@@ -3,7 +3,7 @@
 project(
   'cagebreak',
   'c',
-version : '2.2.2',
+version : '2.2.3',
 license : 'MIT',
 default_options : ['c_std=c11', 'warning_level=3']
 )
@@ -260,7 +260,7 @@ install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_nam
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1701680868
+  secssinceepoch = 1701768836
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
