@@ -811,6 +811,15 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			return -1;
 		}
 		keybinding->data.c = strdup(saveptr);
+	} else if(strcmp(action, "custom_event") == 0) {
+		keybinding->action = KEYBINDING_SEND_CUSTOM_EVENT;
+		if(saveptr == NULL) {
+			*errstr =
+			    log_error("Not enough paramaters to \"custom_event\". Expected "
+			              "string to send.");
+			return -1;
+		}
+		keybinding->data.c = strdup(saveptr);
 	} else if(strcmp(action, "time") == 0) {
 		keybinding->action = KEYBINDING_SHOW_TIME;
 	} else if(strcmp(action, "nextscreen") == 0) {

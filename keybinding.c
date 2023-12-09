@@ -11,7 +11,6 @@
 #include <wlr/backend/session.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_keyboard_group.h>
-#include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_xcursor_manager.h>
@@ -96,6 +95,12 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 		if(keybinding->data.c != NULL) {
 			free(keybinding->data.c);
 		}
+		break;
+	case KEYBINDING_SEND_CUSTOM_EVENT:
+		if(keybinding->data.c != NULL) {
+			free(keybinding->data.c);
+		}
+		break;
 	default:
 		break;
 	}
@@ -500,11 +505,10 @@ keybinding_workspace_fullscreen(struct cg_server *server) {
 
 // Switch to a differerent virtual terminal
 static int
-keybinding_switch_vt(struct wlr_backend *backend, unsigned int vt) {
-	if(wlr_backend_is_multi(backend)) {
-		struct wlr_session *session = wlr_backend_get_session(backend);
-		if(session) {
-			wlr_session_change_vt(session, vt);
+keybinding_switch_vt(struct cg_server *server, unsigned int vt) {
+	if(wlr_backend_is_multi(server->backend)) {
+		if(server->session) {
+			wlr_session_change_vt(server->session, vt);
 		}
 		return 0;
 	}
@@ -1246,6 +1250,12 @@ keybinding_display_message(struct cg_server *server, char *msg) {
 }
 
 void
+keybinding_send_custom_event(struct cg_server *server, char *msg) {
+	ipc_send_event(server,
+	               "{\"event_name\":\"custom_event\",\"message\":\"%s\"}", msg);
+}
+
+void
 keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 	if(wl_list_length(&server->outputs) <= 1) {
 		return;
@@ -1615,11 +1625,11 @@ void
 set_cursor(bool enabled, struct cg_seat *seat) {
 	if(enabled == true) {
 		seat->enable_cursor = true;
-		wlr_xcursor_manager_set_cursor_image(seat->xcursor_manager,
-		                                     DEFAULT_XCURSOR, seat->cursor);
+		wlr_cursor_set_xcursor(seat->cursor, seat->xcursor_manager,
+		                       DEFAULT_XCURSOR);
 	} else {
 		seat->enable_cursor = false;
-		wlr_cursor_set_image(seat->cursor, NULL, 0, 0, 0, 0, 0, 0);
+		wlr_cursor_unset_image(seat->cursor);
 	}
 }
 
@@ -1633,7 +1643,7 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		server->running = false;
 		break;
 	case KEYBINDING_CHANGE_TTY:
-		return keybinding_switch_vt(server->backend, data.u);
+		return keybinding_switch_vt(server, data.u);
 	case KEYBINDING_CURSOR:
 		set_cursor(data.i, server->seat);
 		break;
@@ -1676,9 +1686,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		if(data.u != server->seat->default_mode) {
 			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
 			if(server->seat->enable_cursor == true) {
-				wlr_xcursor_manager_set_cursor_image(
-				    server->seat->xcursor_manager, "dot_box_mask",
-				    server->seat->cursor);
+				wlr_cursor_set_xcursor(server->seat->cursor,
+				                       server->seat->xcursor_manager,
+				                       "dot_box_mask");
 			}
 		}
 		server->seat->mode = data.u;
@@ -1705,6 +1715,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_DISPLAY_MESSAGE:
 		keybinding_display_message(server, data.c);
+		break;
+	case KEYBINDING_SEND_CUSTOM_EVENT:
+		keybinding_send_custom_event(server, data.c);
 		break;
 	case KEYBINDING_RESIZE_TILE_HORIZONTAL:
 		resize_tile(server, data.i, 0);

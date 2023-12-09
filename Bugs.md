@@ -1170,3 +1170,85 @@ leading to a termination of cagebreak.
   * Fixed: 2.1.0
 
 Prior to release 2.1.0 `meson install` did not work perfectly.
+
+## Issue 60
+
+  * github issue number: N/A
+  * Fixed: 2.1.2
+
+In the `merge_output_configs` function, when copying the properties of
+one config to another, the `angles` element of an input structure was
+being copied to the `status` element of the resultant structure.
+
+## Issue 61
+
+  * github issue number: N/A
+  * Fixed: 2.1.2
+
+The script introduced with 2.1.1 `scripts/install-development-environment` had some
+missing dependencies. This has been resolved and tested with bare arch containers.
+
+## Issue 62
+
+  * github issue number: #46
+  * Fixed: 2.2.0
+
+When the readable flag of the IPC socket was set with 0 readable bytes
+available, cagebreak entered an infinite loop which caused high CPU
+usage before the first event was sent over the IPC socket.
+
+## Issue 63
+
+  * github issue number: N/A
+  * Fixed: 2.2.0
+
+A file path in the environment-variables unit test was wrongly set,
+causing this test to fail.
+
+## Issue 64
+
+  * github issue number: N/A
+  * Fixed: 2.2.0
+
+Cagebreak did not update the pointer focus when focussing the
+background. This means that the first pointer event after focussing the
+background was sent to the previously focussed window.
+
+Steps to reproduce:
+
+  * Open an application and hover the mouse over a clickable area.
+  * Switch to an empty desktop using a keybinding without moving the
+    mouse.
+  * Click the mouse without moving it.
+  * Observe that the element in the previously focussed window was
+    clicked.
+
+## Issue 65
+
+  * github issue number: N/A
+  * Fixed: 2.2.1
+
+Up until cagebreak 2.2.0, the configuration for the calibration matrix of
+a libinput device was not propagated correctly when internally copying
+the configuration. This meant that effectively, the calibration matrix
+configuration was a NoOp. Starting with version 2.2.1, the calibration
+matrix can be set as documented.
+
+Thanks to Oliver Friedmann for providing a pull request.
+
+## Issue 66
+
+  * github issue number: #65
+  * Fixed 2.2.3
+
+In Cagebreak 2.2.2 the compatible wlroots versions were wrongly specified.
+To stop this from reoccurring, we  have added a check to our release checks.
+
+## Issue 67
+
+  * github issue number: #66
+  * Fixed 2.2.3
+
+In Cagebreak 2.2.2 dual monitors were mirrored instead of extended, changing
+established behaviour.
+

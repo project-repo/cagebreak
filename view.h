@@ -28,6 +28,10 @@ struct cg_view {
 	struct cg_tile *tile;
 	struct wlr_scene_tree *scene_tree;
 
+	struct wl_listener destroy;
+	struct wl_listener unmap;
+	struct wl_listener map;
+
 	/* The view has a position in output coordinates. */
 	int ox, oy;
 

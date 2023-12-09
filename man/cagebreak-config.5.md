@@ -1,4 +1,4 @@
-cagebreak-config(5) "VERSION 2.1.1" "Cagebreak Manual"
+cagebreak-config(5) "Version 2.2.3" "Cagebreak Manual"
 
 # NAME
 
@@ -81,8 +81,16 @@ configure_message display_time 4
 
 *cursor [enable|disable]*
 	Enable or disable cursor
+
 	This simply hides the cursor. Pointing and clicking is
 	still possible.
+
+*custom_event <message>*
+	Send a custom event to the IPC socket
+
+	This sends an event of type "custom_event" to all programs
+	listening to the IPC socket along with the string <message>.
+	See *cagebreak-socket(7)* for more details.
 
 *definekey <mode> <key> <command>*
 	Bind <key> to execute <command> if pressed in <mode> -

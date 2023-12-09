@@ -127,10 +127,6 @@ ipc_client_handle_writable(int client_fd, uint32_t mask, void *data) {
 		return 0;
 	}
 
-	if(client->write_buffer_len <= 0) {
-		return 0;
-	}
-
 	if(fcntl(client->fd, F_GETFD) == -1) {
 		return 0;
 	}

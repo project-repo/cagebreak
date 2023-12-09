@@ -15,9 +15,9 @@
 #include <wlr/backend/x11.h>
 #endif
 #include <wlr/types/wlr_compositor.h>
+#include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_output.h>
-#include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_xcursor_manager.h>
@@ -42,7 +42,7 @@
 void
 output_clear(struct cg_output *output) {
 	struct cg_server *server = output->server;
-	wlr_output_layout_remove(server->output_layout, output->wlr_output);
+	wlr_scene_output_destroy(output->scene_output);
 
 	if(server->running && server->curr_output == output &&
 	   wl_list_length(&server->outputs) > 1) {
@@ -118,7 +118,6 @@ output_destroy(struct cg_output *output) {
 	int outp_num = output_get_num(output);
 
 	wl_list_remove(&output->destroy.link);
-	wl_list_remove(&output->mode.link);
 	wl_list_remove(&output->commit.link);
 	wl_list_remove(&output->frame.link);
 
@@ -166,7 +165,7 @@ handle_output_frame(struct wl_listener *listener, void *data) {
 	if(scene_output == NULL) {
 		return;
 	}
-	wlr_scene_output_commit(scene_output);
+	wlr_scene_output_commit(scene_output, NULL);
 
 	struct timespec now = {0};
 	clock_gettime(CLOCK_MONOTONIC, &now);
@@ -283,15 +282,20 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 			wlr_output_commit(wlr_output);
 			return;
 		}
-		wlr_output_layout_add(server->output_layout, wlr_output, config->pos.x,
-		                      config->pos.y);
+		struct wlr_output_layout_output *lo = wlr_output_layout_add(
+		    server->output_layout, wlr_output, config->pos.x, config->pos.y);
+		wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
+		                                   output->scene_output);
 		/* Since the size of the output may have changed, we
 		 * reinitialize all workspaces with a fullscreen layout */
 		for(unsigned int i = 0; i < output->server->nws; ++i) {
 			output_make_workspace_fullscreen(output, i);
 		}
 	} else {
-		wlr_output_layout_add_auto(server->output_layout, wlr_output);
+		struct wlr_output_layout_output *lo =
+		    wlr_output_layout_add_auto(server->output_layout, wlr_output);
+		wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
+		                                   output->scene_output);
 
 		struct wlr_output_mode *preferred_mode =
 		    wlr_output_preferred_mode(wlr_output);
@@ -399,7 +403,7 @@ merge_output_configs(struct cg_output_config *cfg1,
 		out_cfg->scale = cfg1->scale;
 	}
 	if(cfg1->angle == out_cfg->angle) {
-		out_cfg->status = cfg2->angle;
+		out_cfg->angle = cfg2->angle;
 	} else {
 		out_cfg->angle = cfg1->angle;
 	}
@@ -439,31 +443,15 @@ handle_output_commit(struct wl_listener *listener, void *data) {
 		return;
 	}
 
-	if(event->committed &
-	   (WLR_OUTPUT_STATE_TRANSFORM | WLR_OUTPUT_STATE_SCALE)) {
+	if(event->state->committed &
+	   (WLR_OUTPUT_STATE_TRANSFORM | WLR_OUTPUT_STATE_SCALE |
+	    WLR_OUTPUT_STATE_MODE)) {
 		struct cg_view *view;
 		wl_list_for_each(
 		    view, &output->workspaces[output->curr_workspace]->views, link) {
 			if(view_is_visible(view)) {
 				view_maximize(view, view->tile);
 			}
-		}
-	}
-}
-
-static void
-handle_output_mode(struct wl_listener *listener, void *data) {
-	struct cg_output *output = wl_container_of(listener, output, mode);
-
-	if(!output->wlr_output->enabled || output->workspaces == NULL) {
-		return;
-	}
-
-	struct cg_view *view;
-	wl_list_for_each(view, &output->workspaces[output->curr_workspace]->views,
-	                 link) {
-		if(view_is_visible(view)) {
-			view_maximize(view, view->tile);
 		}
 	}
 }
@@ -517,6 +505,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	}
 
 	struct cg_output *output = calloc(1, sizeof(struct cg_output));
+	output->scene_output = wlr_scene_output_create(server->scene, wlr_output);
 	if(!output) {
 		wlr_log(WLR_ERROR, "Failed to allocate output");
 		return;
@@ -568,8 +557,8 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	if(server->curr_output == NULL) {
 		server->curr_output = output;
 	}
-	wlr_xcursor_manager_set_cursor_image(server->seat->xcursor_manager,
-	                                     DEFAULT_XCURSOR, server->seat->cursor);
+	wlr_cursor_set_xcursor(server->seat->cursor, server->seat->xcursor_manager,
+	                       DEFAULT_XCURSOR);
 	wlr_cursor_warp(server->seat->cursor, NULL, 0, 0);
 
 	output->destroy.notify = handle_output_destroy;
@@ -578,8 +567,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	wl_signal_add(&wlr_output->events.frame, &output->frame);
 	output->commit.notify = handle_output_commit;
 	wl_signal_add(&wlr_output->events.commit, &output->commit);
-	output->mode.notify = handle_output_mode;
-	wl_signal_add(&wlr_output->events.mode, &output->mode);
+
 	ipc_send_event(server,
 	               "{\"event_name\":\"new_output\",\"output\":\"%s\",\"output_"
 	               "id\":%d,\"priority\":%d}",

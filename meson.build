@@ -3,7 +3,7 @@
 project(
   'cagebreak',
   'c',
-version : '2.1.1',
+version : '2.2.3',
 license : 'MIT',
 default_options : ['c_std=c11', 'warning_level=3']
 )
@@ -55,7 +55,7 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots', version: ['>=0.16.1', '< 0.17.0'])
+wlroots        = dependency('wlroots', version: ['>=0.17.0', '< 0.18.0'])
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')
@@ -204,15 +204,15 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.22.0',
   'wayland_cursor': '1.22.0',
-  'wlroots': '0.16.2',
-  'xkbcommon': '1.5.0',
+  'wlroots': '0.17.0',
+  'xkbcommon': '1.6.0',
   'fontconfig': '2.14.2',
-  'libinput': '1.23.0',
-  'libevdev': '1.13.0',
-  'libudev': '253',
-  'pango': '1.50.14',
-  'cairo': '1.17.8',
-  'pangocairo': '1.50.14',
+  'libinput': '1.24.0',
+  'libevdev': '1.13.1',
+  'libudev': '254',
+  'pango': '1.51.0',
+  'cairo': '1.18.0',
+  'pangocairo': '1.51.0',
   'math': '-1'
 }
 
@@ -238,7 +238,7 @@ foreach name, dep : cagebreak_dependencies_dict
 endforeach
 
 reproducible_build_compiler = 'gcc'
-reproducible_build_compiler_version = '12.2.1'
+reproducible_build_compiler_version = '13.2.1'
 
 if cc.get_id() != reproducible_build_compiler
   warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in Hashes.md (' + reproducible_build_compiler + ').')
@@ -260,7 +260,7 @@ install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_nam
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1681758922
+  secssinceepoch = 1701768836
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')

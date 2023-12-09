@@ -25,10 +25,9 @@
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_export_dmabuf_v1.h>
 #include <wlr/types/wlr_gamma_control_v1.h>
-#include <wlr/types/wlr_idle.h>
 #include <wlr/types/wlr_idle_inhibit_v1.h>
+#include <wlr/types/wlr_idle_notify_v1.h>
 #include <wlr/types/wlr_keyboard_group.h>
-#include <wlr/types/wlr_output_damage.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_presentation_time.h>
 #include <wlr/types/wlr_primary_selection_v1.h>
@@ -271,9 +270,10 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		ret = 1;
 		goto end;
 	}
-	wlr_scene_attach_output_layout(server.scene, server.output_layout);
+	server.scene_output_layout =
+	    wlr_scene_attach_output_layout(server.scene, server.output_layout);
 
-	compositor = wlr_compositor_create(server.wl_display, server.renderer);
+	compositor = wlr_compositor_create(server.wl_display, 5, server.renderer);
 	if(!compositor) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots compositor");
 		ret = 1;
@@ -310,7 +310,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		goto end;
 	}
 
-	server.idle = wlr_idle_create(server.wl_display);
+	server.idle = wlr_idle_notifier_v1_create(server.wl_display);
 	if(!server.idle) {
 		wlr_log(WLR_ERROR, "Unable to create the idle tracker");
 		ret = 1;
