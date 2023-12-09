@@ -51,3 +51,4 @@ jobs:
       - run: ninja -C build
       - run: meson test -C build --suite release -v
 
+
