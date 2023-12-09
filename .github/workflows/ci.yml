@@ -28,7 +28,8 @@ jobs:
       - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
       - run: ninja -C build
       - run: useradd test && usermod -L test
-      - run: runuser -l test -c 'meson test -C build --suite basic -v'
+      - run: chown -R test .
+      - run: runuser -p -l test -c 'meson test -C build --suite basic -v'
   release:
     runs-on: ubuntu-latest
     container:
@@ -41,7 +42,8 @@ jobs:
       - run: meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
       - run: ninja -C build
       - run: useradd test && usermod -L test
-      - run: runuser -l test -c 'meson test -C build --suite release -v'
+      - run: chown -R test .
+      - run: runuser -p -l test -c 'meson test -C build --suite release -v'
 
 
 #  pkgtest:
