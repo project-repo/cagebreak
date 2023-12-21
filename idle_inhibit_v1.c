@@ -2,8 +2,8 @@
 // SPDX-License-Identifier: MIT
 
 #include <wayland-server-core.h>
-#include <wlr/types/wlr_idle.h>
 #include <wlr/types/wlr_idle_inhibit_v1.h>
+#include <wlr/types/wlr_idle_notify_v1.h>
 
 #include "idle_inhibit_v1.h"
 #include "server.h"
@@ -24,7 +24,7 @@ idle_inhibit_v1_check_active(struct cg_server *server) {
 	/* As of right now, this does not check whether the inhibitor
 	 * is visible or not.*/
 	bool inhibited = !wl_list_empty(&server->inhibitors);
-	wlr_idle_set_enabled(server->idle, NULL, !inhibited);
+	wlr_idle_notifier_v1_set_inhibited(server->idle, inhibited);
 }
 #if CG_HAS_FANALYZE
 #pragma GCC diagnostic pop

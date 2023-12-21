@@ -26,18 +26,20 @@ struct cg_server {
 	struct cg_seat *seat;
 	struct cg_input_manager *input;
 	struct wlr_backend *backend;
-	struct wlr_idle *idle;
+	struct wlr_idle_notifier_v1 *idle;
 	struct wlr_idle_inhibit_manager_v1 *idle_inhibit_v1;
 	struct wl_listener new_idle_inhibitor_v1;
 	struct wl_list inhibitors;
 
 	struct wlr_output_layout *output_layout;
+	struct wlr_scene_output_layout *scene_output_layout;
 	struct wl_list disabled_outputs;
 	struct wl_list outputs;
 	struct cg_output *curr_output;
 	struct wl_listener new_output;
 	struct wl_list output_priorities;
 	struct wlr_backend *headless_backend;
+	struct wlr_session *session;
 
 	struct wlr_renderer *renderer;
 	struct wlr_allocator *allocator;
