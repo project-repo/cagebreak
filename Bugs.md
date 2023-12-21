@@ -1238,6 +1238,22 @@ Thanks to Oliver Friedmann for providing a pull request.
 
 ## Issue 66
 
+  * github issue number: #65
+  * Fixed 2.2.3
+
+In Cagebreak 2.2.2 the compatible wlroots versions were wrongly specified.
+To stop this from reoccurring, we  have added a check to our release checks.
+
+## Issue 67
+
+  * github issue number: #66
+  * Fixed 2.2.3
+
+In Cagebreak 2.2.2 dual monitors were mirrored instead of extended, changing
+established behaviour.
+
+## Issue 68
+
   * github issue numner: #38
   * Fixed: 2.3.0
 

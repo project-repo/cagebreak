@@ -14,6 +14,7 @@
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_data_device.h>
+#include <wlr/types/wlr_idle_notify_v1.h>
 #include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/types/wlr_primary_selection.h>
 #include <wlr/types/wlr_scene.h>
@@ -746,7 +747,8 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 			break;
 		}
 	}
-	if(seat->cursor_tile != NULL && seat->cursor_tile != c_tile) {
+	if(seat->cursor_tile != NULL && seat->cursor_tile != c_tile &&
+	   seat->server->running) {
 		ipc_send_event(seat->server,
 		               "{\"event_name\":\"cursor_switch_tile\",\"old_output\":"
 		               "\"%s\",\"old_output_id\":%d,"

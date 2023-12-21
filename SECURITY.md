@@ -51,11 +51,10 @@ public key or provide the fingerprint and directions to obtain the key.
 
 ## Threat Model
 
-Cagebreak is a wayland compositor run by the user of the system
-and thus has access to whichever resources this user has access to.
-Cagebreak can restrict other programs in no way, because this would hamper
-usability (consider a web browser unable to write a downloaded file to disk
-for instance).
+Cagebreak is a wayland compositor run by a user and has access to
+the resources the user has access to.
+Cagebreak cannot restrict other programs (consider a web browser
+unable to write a downloaded file for instance).
 
 There is no transmission of information by cagebreak other than to the
 screens, ipc and potentially other documented local channels.
@@ -63,38 +62,36 @@ screens, ipc and potentially other documented local channels.
 ### STRIDE Threat List
 
 This is not a thorough analysis, just an overview of the ways in which cagebreak
-has (no) attack surface. Please reference the man pages for details but especially
-the -e and --bs options.
+has (no) attack surface. Please reference the man pages (especially options -e and --bs ).
 
 #### Spoofing
 
-Not applicable - Using Cagebreak already requires a login as a user.
+Not applicable - Cagebreak is executed after user login.
 
 #### Tampering
 
-Not applicable - Cagebreak must allow system manipulation for user software.
+Not applicable - Cagebreak allows system manipulation for user software.
 
 #### Repudiation
 
 Not applicable - There are no prohibited operations (See Tampering above.).
-While cagebreak does send events over documented channels there is no logging
-activated by default, though, of course, this can be changed by the user
-by logging socket output (if enabled) for example.
+Cagebreak sends events over documented channels. There is no logging
+activated by default - this can be changed by logging the socket (if enabled) for example.
 
 #### Information Disclosure
 
-Not applicable - Information disclosure over documented channels is a feature
-and any software run by the user may exfiltrate any data the user has access to.
+Not applicable - Information disclosure over documented channels is a feature.
+Any user software may exfiltrate any data the user has access to.
 
 #### Denial of Service
 
-Not applicable - Cagebreak offers functionality to terminate itself, which is
-available to all user software over the socket if the socket is enabled.
+Not applicable - Cagebreak offers functionality to terminate itself. This is
+available to user software over the socket (if enabled).
 
 #### Elevation of Privilege
 
-Software may gain arbitrary code execution rights if it has access to the
-Cagebreak socket. Privilege escalation to root is unlikely since privileges
+Software may gain arbitrary code execution if it has access to the
+socket (if enabled). Privilege escalation to root is unlikely since privileges
 are dropped before any user input is accepted.
 
 ## GPG Keys of the Cagebreak Repository
