@@ -17,9 +17,8 @@ are parsed sequentially but independently from the rest of the file.
 
 Each line starting with a "#" is a comment.
 
-Note that nesting of commands is limited to 50 times, though lines
-are arbitrarily long in practice, though a reasonable limit of 4Mb has
-been set.
+Nesting of commands is limited to 50 times.
+Lines are arbitrarily long in practice, though a reasonable limit of 4Mb has been set.
 
 See *KEY DEFINITIONS* for details on modifier keys and *MODES* for details
 on modes.
