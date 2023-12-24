@@ -90,6 +90,7 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 		if(keybinding->data.m_cfg->font != NULL) {
 			free(keybinding->data.m_cfg->font);
 		}
+		free(keybinding->data.m_cfg);
 		break;
 	case KEYBINDING_DISPLAY_MESSAGE:
 		if(keybinding->data.c != NULL) {
