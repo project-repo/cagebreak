@@ -357,6 +357,7 @@ main(int argc, char *argv[]) {
 
 	server.message_config.display_time = 2;
 	server.message_config.font = strdup("pango:Monospace 10");
+	server.message_config.anchor = CG_MESSAGE_TOP_RIGHT;
 
 	event_loop = wl_display_get_event_loop(server.wl_display);
 	sigint_source =

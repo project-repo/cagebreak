@@ -720,6 +720,7 @@ parse_message_config(char **saveptr, char **errstr) {
 	cfg->fg_color[0] = -1;
 	cfg->display_time = -1;
 	cfg->font = NULL;
+	cfg->anchor = CG_MESSAGE_NOPT;
 
 	char *setting = strtok_r(NULL, " ", saveptr);
 	if(setting == NULL) {
@@ -762,6 +763,22 @@ parse_message_config(char **saveptr, char **errstr) {
 				    "expected 4 float values separated by spaces");
 				goto error;
 			}
+		}
+	} else if(strcmp(setting, "anchor") == 0) {
+		char *anchors[] = {"top_left",    "top_center",    "top_right",
+		                   "bottom_left", "bottom_center", "bottom_right",
+		                   "center"};
+		for(int i = 0; i < 7; ++i) {
+			if(strcmp(*saveptr, anchors[i]) == 0) {
+				cfg->anchor = i;
+				break;
+			}
+		}
+		if(cfg->anchor == CG_MESSAGE_NOPT) {
+			*errstr =
+			    log_error("Error parsing command \"configure_message anchor\", "
+			              "the given anchor value is not a valid option");
+			goto error;
 		}
 	} else {
 		*errstr = log_error("Invalid option to command \"configure_message\"");
