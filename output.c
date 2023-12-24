@@ -144,8 +144,6 @@ output_destroy(struct cg_output *output) {
 	output->destroyed = true;
 	enum output_role role = output->role;
 	if(role == OUTPUT_ROLE_PERMANENT) {
-		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
-		                          &output->layout_box);
 		output->wlr_output = wlr_headless_add_output(server->headless_backend,
 		                                             output->layout_box.width,
 		                                             output->layout_box.height);
@@ -408,11 +406,9 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	output->bg = wlr_scene_rect_create(
 	    &scene_output->scene->tree, output->wlr_output->width,
 	    output->wlr_output->height, server->bg_color);
-	wlr_output_layout_get_box(server->output_layout, output->wlr_output,
-	                          &output->layout_box);
 	wlr_scene_node_set_position(&output->bg->node,
-	                            output_get_layout_box(output).x,
-	                            output_get_layout_box(output).y);
+	                            scene_output->x,
+	                            scene_output->y);
 	wlr_scene_node_lower_to_bottom(&output->bg->node);
 }
 
@@ -607,8 +603,8 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		wlr_output_destroy(output->wlr_output);
 	} else {
 		output = calloc(1, sizeof(struct cg_output));
-		output->scene_output=wlr_scene_output_create(server->scene,wlr_output);
 	}
+	output->scene_output=wlr_scene_output_create(server->scene,wlr_output);
 	if(!output) {
 		wlr_log(WLR_ERROR, "Failed to allocate output");
 		return;
@@ -668,12 +664,19 @@ handle_new_output(struct wl_listener *listener, void *data) {
 			server->curr_output = output;
 		}
 	} else {
+		struct wlr_output_mode *preferred_mode =
+		    wlr_output_preferred_mode(wlr_output);
+		if(preferred_mode) {
+			wlr_output_set_mode(wlr_output, preferred_mode);
+		}
+		wlr_output_set_transform(wlr_output, WL_OUTPUT_TRANSFORM_NORMAL);
 		wlr_scene_output_set_position(output->scene_output,
-		                      output_get_layout_box(output).x,
-		                      output_get_layout_box(output).y);
+		                      output->layout_box.x,
+		                      output->layout_box.y);
+		wlr_output_enable(wlr_output, true);
+		wlr_output_commit(wlr_output);
 		output_configure(server, output);
-		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
-		                          &output->layout_box);
+		output_get_layout_box(output);
 	}
 
 	wlr_cursor_set_xcursor(server->seat->cursor, server->seat->xcursor_manager,
