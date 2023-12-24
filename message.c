@@ -271,7 +271,7 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 		free(buffer);
 		return;
 	}
-	struct wlr_box output_box=output_get_layout_box(output);
+	struct wlr_box output_box = output_get_layout_box(output);
 	box->width = 0;
 	box->height = 0;
 	switch(output->server->message_config.anchor) {
