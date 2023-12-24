@@ -628,7 +628,7 @@ keybinding_split_horizontal(struct cg_server *server) {
 
 static void
 into_process(const char *command) {
-	execl("/bin/sh", "sh", "-c", command, (char *)NULL);
+	execlp("sh", "sh", "-c", command, (char *)NULL);
 	_exit(1);
 }
 
@@ -1656,6 +1656,10 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	case KEYBINDING_RUN_COMMAND: {
 		int pid;
 		if((pid = fork()) == 0) {
+			setsid();
+			sigset_t set;
+			sigemptyset(&set);
+			sigprocmask(SIG_SETMASK, &set, NULL);
 			if(fork() == 0) {
 				into_process(data.c);
 			}
