@@ -21,7 +21,6 @@
 #include <wlr/types/wlr_seat.h>
 #include <wlr/types/wlr_touch.h>
 #include <wlr/types/wlr_xcursor_manager.h>
-#include <wlr/types/wlr_idle_notify_v1.h>
 #include <wlr/util/log.h>
 #if CG_HAS_XWAYLAND
 #include <wlr/xwayland.h>
@@ -62,7 +61,8 @@ update_capabilities(const struct cg_seat *seat) {
 	   seat->enable_cursor == false) {
 		wlr_cursor_unset_image(seat->cursor);
 	} else {
-		wlr_cursor_set_xcursor(seat->cursor, seat->xcursor_manager, DEFAULT_XCURSOR);
+		wlr_cursor_set_xcursor(seat->cursor, seat->xcursor_manager,
+		                       DEFAULT_XCURSOR);
 	}
 }
 
@@ -204,8 +204,8 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 		    &server->scene->tree.node, server->seat->cursor->x,
 		    server->seat->cursor->y, &sx, &sy);
 		if(server->seat->enable_cursor) {
-			wlr_cursor_set_xcursor(server->seat->cursor, server->seat->xcursor_manager,
-	                                     "left_ptr");
+			wlr_cursor_set_xcursor(server->seat->cursor,
+			                       server->seat->xcursor_manager, "left_ptr");
 			if(node && node->type == WLR_SCENE_NODE_BUFFER) {
 				struct wlr_scene_surface *scene_surface =
 				    wlr_scene_surface_try_from_buffer(

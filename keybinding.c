@@ -1028,8 +1028,7 @@ print_output(struct cg_output *outp) {
 	          (float)outp->wlr_output->refresh / 1000.0);
 	print_str(&outp_str, "\"permanent\": %d,\n",
 	          outp->role == OUTPUT_ROLE_PERMANENT);
-	print_str(&outp_str, "\"active\": %d,\n",
-	          !outp->destroyed);
+	print_str(&outp_str, "\"active\": %d,\n", !outp->destroyed);
 	print_str(&outp_str, "\"curr_workspace\": %d,\n", outp->curr_workspace + 1);
 	char *workspaces_str = print_workspaces(outp);
 	if(workspaces_str != NULL) {
@@ -1623,7 +1622,8 @@ void
 set_cursor(bool enabled, struct cg_seat *seat) {
 	if(enabled == true) {
 		seat->enable_cursor = true;
-		wlr_cursor_set_xcursor(seat->cursor,seat->xcursor_manager, DEFAULT_XCURSOR);
+		wlr_cursor_set_xcursor(seat->cursor, seat->xcursor_manager,
+		                       DEFAULT_XCURSOR);
 	} else {
 		seat->enable_cursor = false;
 		wlr_cursor_unset_image(seat->cursor);
@@ -1687,7 +1687,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		if(data.u != server->seat->default_mode) {
 			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
 			if(server->seat->enable_cursor == true) {
-				wlr_cursor_set_xcursor(server->seat->cursor,server->seat->xcursor_manager, "dot_box_mask");
+				wlr_cursor_set_xcursor(server->seat->cursor,
+				                       server->seat->xcursor_manager,
+				                       "dot_box_mask");
 			}
 		}
 		server->seat->mode = data.u;

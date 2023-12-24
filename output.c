@@ -25,7 +25,6 @@
 #include <wlr/util/box.h>
 #include <wlr/util/log.h>
 #include <wlr/util/region.h>
-#include <wlr/types/wlr_cursor.h>
 #if CG_HAS_XWAYLAND
 #include <wlr/xwayland.h>
 #endif
@@ -139,7 +138,7 @@ output_destroy(struct cg_output *output) {
 		wl_list_remove(&output->commit.link);
 		wl_list_remove(&output->frame.link);
 		wlr_scene_output_destroy(output->scene_output);
-		output->scene_output=NULL;
+		output->scene_output = NULL;
 	}
 	output->destroyed = true;
 	enum output_role role = output->role;
@@ -147,10 +146,13 @@ output_destroy(struct cg_output *output) {
 		output->wlr_output = wlr_headless_add_output(server->headless_backend,
 		                                             output->layout_box.width,
 		                                             output->layout_box.height);
-		output->scene_output=wlr_scene_output_create(server->scene,output->wlr_output);
-		struct wlr_output_layout_output *lo=wlr_output_layout_add(server->output_layout, output->wlr_output,
-		                      output->layout_box.x, output->layout_box.y);
-		wlr_scene_output_layout_add_output(server->scene_output_layout,lo,output->scene_output);
+		output->scene_output =
+		    wlr_scene_output_create(server->scene, output->wlr_output);
+		struct wlr_output_layout_output *lo =
+		    wlr_output_layout_add(server->output_layout, output->wlr_output,
+		                          output->layout_box.x, output->layout_box.y);
+		wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
+		                                   output->scene_output);
 
 	} else {
 
@@ -196,7 +198,7 @@ handle_output_frame(struct wl_listener *listener, void *data) {
 	if(scene_output == NULL) {
 		return;
 	}
-	wlr_scene_output_commit(scene_output,NULL);
+	wlr_scene_output_commit(scene_output, NULL);
 
 	struct timespec now = {0};
 	clock_gettime(CLOCK_MONOTONIC, &now);
@@ -325,12 +327,14 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 			return;
 		}
 		if(wlr_box_empty(&output->layout_box)) {
-			struct wlr_output_layout_output *lo=wlr_output_layout_add(server->output_layout, wlr_output,
-			                      config->pos.x, config->pos.y);
-			wlr_scene_output_layout_add_output(server->scene_output_layout,lo,output->scene_output);
+			struct wlr_output_layout_output *lo =
+			    wlr_output_layout_add(server->output_layout, wlr_output,
+			                          config->pos.x, config->pos.y);
+			wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
+			                                   output->scene_output);
 		} else {
-			wlr_scene_output_set_position(output->scene_output,
-			                       config->pos.x, config->pos.y);
+			wlr_scene_output_set_position(output->scene_output, config->pos.x,
+			                              config->pos.y);
 		}
 		if(output->workspaces != NULL) {
 			wlr_output_layout_get_box(server->output_layout, output->wlr_output,
@@ -369,10 +373,12 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		// future.
 		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
 		                          &output->layout_box);
-		wlr_output_layout_remove(server->output_layout,output->wlr_output);
-		struct wlr_output_layout_output *lo=wlr_output_layout_add(server->output_layout, output->wlr_output,
-		                       output->layout_box.x, output->layout_box.y);
-		wlr_scene_output_layout_add_output(server->scene_output_layout,lo,output->scene_output);
+		wlr_output_layout_remove(server->output_layout, output->wlr_output);
+		struct wlr_output_layout_output *lo =
+		    wlr_output_layout_add(server->output_layout, output->wlr_output,
+		                          output->layout_box.x, output->layout_box.y);
+		wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
+		                                   output->scene_output);
 
 		struct wlr_output_mode *preferred_mode =
 		    wlr_output_preferred_mode(wlr_output);
@@ -406,8 +412,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	output->bg = wlr_scene_rect_create(
 	    &scene_output->scene->tree, output->wlr_output->width,
 	    output->wlr_output->height, server->bg_color);
-	wlr_scene_node_set_position(&output->bg->node,
-	                            scene_output->x,
+	wlr_scene_node_set_position(&output->bg->node, scene_output->x,
 	                            scene_output->y);
 	wlr_scene_node_lower_to_bottom(&output->bg->node);
 }
@@ -527,7 +532,8 @@ handle_output_commit(struct wl_listener *listener, void *data) {
 	}
 
 	if(event->state->committed &
-	   (WLR_OUTPUT_STATE_TRANSFORM | WLR_OUTPUT_STATE_SCALE | WLR_OUTPUT_STATE_MODE)) {
+	   (WLR_OUTPUT_STATE_TRANSFORM | WLR_OUTPUT_STATE_SCALE |
+	    WLR_OUTPUT_STATE_MODE)) {
 		struct cg_view *view;
 		wl_list_for_each(
 		    view, &output->workspaces[output->curr_workspace]->views, link) {
@@ -604,7 +610,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	} else {
 		output = calloc(1, sizeof(struct cg_output));
 	}
-	output->scene_output=wlr_scene_output_create(server->scene,wlr_output);
+	output->scene_output = wlr_scene_output_create(server->scene, wlr_output);
 	if(!output) {
 		wlr_log(WLR_ERROR, "Failed to allocate output");
 		return;
@@ -670,9 +676,8 @@ handle_new_output(struct wl_listener *listener, void *data) {
 			wlr_output_set_mode(wlr_output, preferred_mode);
 		}
 		wlr_output_set_transform(wlr_output, WL_OUTPUT_TRANSFORM_NORMAL);
-		wlr_scene_output_set_position(output->scene_output,
-		                      output->layout_box.x,
-		                      output->layout_box.y);
+		wlr_scene_output_set_position(
+		    output->scene_output, output->layout_box.x, output->layout_box.y);
 		wlr_output_enable(wlr_output, true);
 		wlr_output_commit(wlr_output);
 		output_configure(server, output);
@@ -680,7 +685,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	}
 
 	wlr_cursor_set_xcursor(server->seat->cursor, server->seat->xcursor_manager,
-	                                     DEFAULT_XCURSOR);
+	                       DEFAULT_XCURSOR);
 	wlr_cursor_warp(server->seat->cursor, NULL, 0, 0);
 
 	output->destroy.notify = handle_output_destroy;
