@@ -52,17 +52,17 @@ definekey root <key> <command>
 	Close current window - This may be useful for windows of
 	applications which do not offer any method of closing them.
 
-*configure_message [font <font description>|[f|b]g_color <r> <g> b> <a>|display_time <n>|align <alignment>]*
+*configure_message [font <font description>|[f|b]g_color <r> <g> b> <a>|display_time <n>|anchor <position>]*
 	Configure message characteristics -
-	- font <font description> sets
-	  - <font description> is
-	    - X core font description or
-	    - FreeType font description via pango
-	- fg_color <r> <g> <b> <a> sets RGBA of foreground
-	- bg_color <r> <g> <b> <a> sets RGBA of background
-	- display_time <n> sets display time in seconds
-	- anchor <position> sets the position of the message
-		- <position> may be one of {top,bottom}_{left,center,right} or center
+	- font <font description> sets the font of the message.
+	  Here, <font description> is either
+	    - an X core font description or
+	    - a FreeType font description via pango
+	- fg_color <r> <g> <b> <a> sets the RGBA of the foreground
+	- bg_color <r> <g> <b> <a> sets the RGBA of the background
+	- display_time <n> sets the display time in seconds
+	- anchor <position> sets the position of the message.
+      <position> may be one of {top,bottom}\_{left,center,right} or center.
 
 ```
 # Set font
