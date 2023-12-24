@@ -52,7 +52,7 @@ definekey root <key> <command>
 	Close current window - This may be useful for windows of
 	applications which do not offer any method of closing them.
 
-*configure_message [font <font description>|[f|b]g_color <r> <g> b> <a>|display_time <n>]*
+*configure_message [font <font description>|[f|b]g_color <r> <g> b> <a>|display_time <n>|align <alignment>]*
 	Configure message characteristics -
 	- font <font description> sets
 	  - <font description> is
@@ -61,6 +61,8 @@ definekey root <key> <command>
 	- fg_color <r> <g> <b> <a> sets RGBA of foreground
 	- bg_color <r> <g> <b> <a> sets RGBA of background
 	- display_time <n> sets display time in seconds
+	- anchor <position> sets the position of the message
+		- <position> may be one of {top,bottom}_{left,center,right} or center
 
 ```
 # Set font

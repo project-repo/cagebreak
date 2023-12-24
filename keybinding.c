@@ -1615,6 +1615,9 @@ keybinding_configure_message(struct cg_server *server,
 		server->message_config.fg_color[2] = config->fg_color[2];
 		server->message_config.fg_color[3] = config->fg_color[3];
 	}
+	if(config->anchor != CG_MESSAGE_NOPT) {
+		server->message_config.anchor = config->anchor;
+	}
 	ipc_send_event(server, "{\"event_name\":\"configure_message\"}");
 }
 
