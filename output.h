@@ -32,7 +32,6 @@ struct cg_output {
 	struct wlr_box layout_box;
 	int curr_workspace;
 	int priority;
-	struct cg_view *last_scanned_out_view;
 	enum output_role role;
 	bool destroyed;
 	char *name;
@@ -76,4 +75,6 @@ void
 output_make_workspace_fullscreen(struct cg_output *output, int ws);
 int
 output_get_num(const struct cg_output *output);
+void
+handle_output_gamma_control_set_gamma(struct wl_listener *listener, void *data);
 #endif

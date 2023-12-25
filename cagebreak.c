@@ -280,7 +280,6 @@ main(int argc, char *argv[]) {
 	struct wlr_viewporter *viewporter = NULL;
 	struct wlr_presentation *presentation = NULL;
 	struct wlr_xdg_output_manager_v1 *output_manager = NULL;
-	struct wlr_gamma_control_manager_v1 *gamma_control_manager = NULL;
 	struct wlr_xdg_shell *xdg_shell = NULL;
 	wl_list_init(&server.input_config);
 	wl_list_init(&server.output_config);
@@ -566,13 +565,17 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 
-	gamma_control_manager =
+	server.gamma_control =
 	    wlr_gamma_control_manager_v1_create(server.wl_display);
-	if(!gamma_control_manager) {
+	if(!server.gamma_control) {
 		wlr_log(WLR_ERROR, "Unable to create the gamma control manager");
 		ret = 1;
 		goto end;
 	}
+	server.gamma_control_set_gamma.notify =
+	    handle_output_gamma_control_set_gamma;
+	wl_signal_add(&server.gamma_control->events.set_gamma,
+	              &server.gamma_control_set_gamma);
 
 #if CG_HAS_XWAYLAND
 	server.xwayland = wlr_xwayland_create(server.wl_display, compositor, true);

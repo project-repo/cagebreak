@@ -29,6 +29,8 @@ struct cg_server {
 	struct wlr_idle_notifier_v1 *idle;
 	struct wlr_idle_inhibit_manager_v1 *idle_inhibit_v1;
 	struct wl_listener new_idle_inhibitor_v1;
+	struct wlr_gamma_control_manager_v1 *gamma_control;
+	struct wl_listener gamma_control_set_gamma;
 	struct wl_list inhibitors;
 
 	struct wlr_output_layout *output_layout;

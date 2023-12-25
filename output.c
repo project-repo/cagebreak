@@ -18,6 +18,7 @@
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_data_device.h>
+#include <wlr/types/wlr_gamma_control_v1.h>
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_scene.h>
@@ -185,6 +186,27 @@ static void
 handle_output_destroy(struct wl_listener *listener, void *data) {
 	struct cg_output *output = wl_container_of(listener, output, destroy);
 	output_destroy(output);
+}
+
+void
+handle_output_gamma_control_set_gamma(struct wl_listener *listener,
+                                      void *data) {
+	struct cg_server *server =
+	    wl_container_of(listener, server, gamma_control_set_gamma);
+	const struct wlr_gamma_control_manager_v1_set_gamma_event *event = data;
+
+	struct wlr_gamma_control_v1 *gamma_control =
+	    wlr_gamma_control_manager_v1_get_control(server->gamma_control,
+	                                             event->output);
+
+	struct wlr_output_state pending = {0};
+	wlr_gamma_control_v1_apply(gamma_control, &pending);
+	if(!wlr_output_test_state(event->output, &pending)) {
+		wlr_gamma_control_v1_send_failed_and_destroy(gamma_control);
+	} else {
+		wlr_output_commit_state(event->output, &pending);
+		wlr_output_schedule_frame(event->output);
+	}
 }
 
 static void
@@ -621,7 +643,6 @@ handle_new_output(struct wl_listener *listener, void *data) {
 
 	if(!reinit) {
 		output->server = server;
-		output->last_scanned_out_view = NULL;
 		output->name = strdup(wlr_output->name);
 
 		struct cg_output_priorities *it;
