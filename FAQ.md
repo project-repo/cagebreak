@@ -26,6 +26,17 @@ Set the following environment variables
 
 to activate wayland support for firefox.
 
+## How di I get firefox to screenshare properly?
+
+Execute the following commands with the appropriate env vars:
+
+```
+export XDG_SESSION_TYPE=wayland
+export XDG_CURRENT_DESKTIP=sway
+/usr/lib/xdg-desktop-portal -r
+/usr/lib/xdg-desktop-portal-wlr
+```
+
 ## How do I map characters which are not on the Keyboard?
 
 Suppose you want to use a command like `bind` for a character
