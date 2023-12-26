@@ -1,0 +1,23 @@
+#!/bin/bash
+# Copyright 2023, project-repo, sodface and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+source "$(dirname "${BASH_SOURCE[0]}")/cb_script_header.sh"
+
+if [[ ${#} -lt 1 ]]
+then
+        echo "Expected a single command line argument specifying the command to edit the screenshot."
+        exit 1
+fi
+
+edit_cmd="${1}"
+
+echo "dump" >&3
+IFS= read -r -d $'\0' event <&4
+
+co="$(echo "${event:6}"|jq -r ".curr_output")"
+tmpfile="$(mktemp)"
+grim -t png -o "${co}" "${tmpfile}"
+bash -c "${edit_cmd} \"${tmpfile}\""
+wl-copy < "${tmpfile}"
+rm "${tmpfile}"
