@@ -666,6 +666,8 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		}
 
 		output_insert(server, output);
+		// This is duplicated here only as a cue for the static analysis tool
+		output->destroyed = false;
 		output_configure(server, output);
 		wlr_output_layout_get_box(server->output_layout, output->wlr_output,
 		                          &output->layout_box);
