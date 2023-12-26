@@ -21,7 +21,7 @@ RESULT=0
 for file in ${deps}
 do
 	echo "${file}"
-	if (grep -q "Copyright.*${curryear}, project-repo and the cagebreak contributors" "$MESONCURRENTCONFIGDIR/${file}")
+	if (grep -q "Copyright.*${curryear}, project-repo.* and the cagebreak contributors" "$MESONCURRENTCONFIGDIR/${file}")
 	then
 		echo "	[x] Copyright Notice"
 	else
