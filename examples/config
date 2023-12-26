@@ -46,6 +46,9 @@ definekey resize Escape setmode top
 #unhide cursor (default)
 cursor enable
 
+#send a custom event over the socket
+#custom_event Hello World!
+
 ######################
 #Workspaces
 ######################
@@ -112,3 +115,9 @@ output eDP-1 peripheral
 #input 1234:0:Device_Ident click_method clickfinger
 #input type:pointer scroll_method two_finger
 #input * calibration_matrix 1 2 3 4 5 6
+
+#####################
+#Message configuration
+#####################
+#configure_message display_time 1
+#configure_message anchor top_center
