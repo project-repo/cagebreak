@@ -282,6 +282,8 @@ see [SECURITY.md](SECURITY.md).
       released in 2.2.1 with slight modifications
   * Tom Greig
     * Fix bug in merge_output_configs in 2.1.2
+  * sodface
+    * Add a screenshot example script in 2.3.0
 
 ## License
 
