@@ -694,10 +694,10 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		}
 	} else {
 		struct wlr_output_layout_output *lo =
-			wlr_output_layout_add(server->output_layout, wlr_output,
-								  output->layout_box.x, output->layout_box.y);
+		    wlr_output_layout_add(server->output_layout, wlr_output,
+		                          output->layout_box.x, output->layout_box.y);
 		wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
-										   output->scene_output);
+		                                   output->scene_output);
 
 		struct wlr_output_mode *preferred_mode =
 		    wlr_output_preferred_mode(wlr_output);

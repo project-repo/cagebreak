@@ -735,30 +735,32 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 		struct cg_tile *c_tile;
 		bool first = true;
 		for(c_tile = cg_outp->workspaces[cg_outp->curr_workspace]->focused_tile;
-				first ||
-				c_tile != cg_outp->workspaces[cg_outp->curr_workspace]->focused_tile;
-				c_tile = c_tile->next) {
+		    first ||
+		    c_tile !=
+		        cg_outp->workspaces[cg_outp->curr_workspace]->focused_tile;
+		    c_tile = c_tile->next) {
 			first = false;
 			double ox = seat->cursor->x, oy = seat->cursor->y;
 			wlr_output_layout_output_coords(seat->server->output_layout, c_outp,
-					&ox, &oy);
+			                                &ox, &oy);
 			if(c_tile->tile.x <= ox && c_tile->tile.y <= oy &&
-					c_tile->tile.x + c_tile->tile.width >= ox &&
-					c_tile->tile.y + c_tile->tile.height >= oy) {
+			   c_tile->tile.x + c_tile->tile.width >= ox &&
+			   c_tile->tile.y + c_tile->tile.height >= oy) {
 				break;
 			}
 		}
 		if(seat->cursor_tile != NULL && seat->cursor_tile != c_tile &&
-				seat->server->running) {
-			ipc_send_event(seat->server,
-					"{\"event_name\":\"cursor_switch_tile\",\"old_output\":"
-					"\"%s\",\"old_output_id\":%d,"
-					"\"old_tile\":%d,\"new_output\":\"%s\",\"new_output_"
-					"id\":%d,\"new_tile\":%d}",
-					seat->cursor_tile->workspace->output->name,
-					output_get_num(seat->cursor_tile->workspace->output),
-					seat->cursor_tile->id, c_outp->name,
-					output_get_num(cg_outp), c_tile->id);
+		   seat->server->running) {
+			ipc_send_event(
+			    seat->server,
+			    "{\"event_name\":\"cursor_switch_tile\",\"old_output\":"
+			    "\"%s\",\"old_output_id\":%d,"
+			    "\"old_tile\":%d,\"new_output\":\"%s\",\"new_output_"
+			    "id\":%d,\"new_tile\":%d}",
+			    seat->cursor_tile->workspace->output->name,
+			    output_get_num(seat->cursor_tile->workspace->output),
+			    seat->cursor_tile->id, c_outp->name, output_get_num(cg_outp),
+			    c_tile->id);
 		}
 		seat->cursor_tile = c_tile;
 	}
