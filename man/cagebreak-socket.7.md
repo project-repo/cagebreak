@@ -2,7 +2,7 @@ cagebreak-socket(7) "Version 2.3.0" "Cagebreak Manual"
 
 # NAME
 
-*cagebreak-socket* — Cagebreak socket
+*cagebreak-socket* Cagebreak socket
 
 # SYNOPSIS
 
@@ -30,7 +30,10 @@ Here is an example of how this works using *only* as a command sent over the soc
 
 ```
 only
-cg-ipc{"event_name":"fullscreen","tile_id":2,"workspace":1,"output":"eDP-1"}
+cg-ipc{"event_name":"fullscreen",
+"tile_id":2,
+"workspace":1,
+"output":"eDP-1"}
 ```
 
 This documentation describes the trigger for the events, the keys and the data
@@ -45,7 +48,9 @@ type of the values of each event.
 
 ```
 background 0 1.0 0
-cg-ipc{"event_name":"background","old_bg":[0.000000,1.000000,1.000000],"new_bg":[0.000000,1.000000,0.000000]}
+cg-ipc{"event_name":"background",
+"old_bg":[0.000000,1.000000,1.000000],
+"new_bg":[0.000000,1.000000,0.000000]}
 ```
 
 *close*
@@ -61,7 +66,13 @@ cg-ipc{"event_name":"background","old_bg":[0.000000,1.000000,1.000000],"new_bg":
 
 ```
 close
-cg-ipc{"event_name":"close","view_id":47,"view_pid":30456,"tile_id":47,"workspace":1,"output":"eDP-1","output_id":1}
+cg-ipc{"event_name":"close",
+"view_id":47,
+"view_pid":30456,
+"tile_id":47,
+"workspace":1,
+"output":"eDP-1",
+"output_id":1}
 ```
 
 *configure_input*
@@ -110,7 +121,13 @@ cg-ipc{"event_name":"configure_output","output":"eDP-1","output_id":1}
 
 ```
 # Cursor switches tile
-cg-ipc{"event_name":"cursor_switch_tile","old_output":"eDP-1","old_output_id":1,"old_tile":2,"new_output":"eDP-1","new_output_id":1,"new_tile":3}
+cg-ipc{"event_name":"cursor_switch_tile",
+"old_output":"eDP-1",
+"old_output_id":1,
+"old_tile":2,
+"new_output":"eDP-1",
+"new_output_id":1,
+"new_tile":3}
 ```
 
 *custom_event*
@@ -136,7 +153,12 @@ cg-ipc{"event_name":"custom_event","message":"Hello World!"}
 
 ```
 nextscreen
-cg-ipc{"event_name":"cycle_outputs","old_output":"eDP-1","old_output_id":1,"new_output":"HDMI-A-1","new_output_id":2,"reverse":0}
+cg-ipc{"event_name":"cycle_outputs",
+"old_output":"eDP-1",
+"old_output_id":1,
+"new_output":"HDMI-A-1",
+"new_output_id":2,
+"reverse":0}
 ```
 
 *cycle_views*
@@ -154,7 +176,15 @@ cg-ipc{"event_name":"cycle_outputs","old_output":"eDP-1","old_output_id":1,"new_
 
 ```
 next
-cg-ipc{"event_name":"cycle_views","old_view_id":11,"old_view_pid":32223,"new_view_id":4,"old_view_pid";53221,"tile_id":13,"workspace":1,"output":"eDP-1","output_id":1}
+cg-ipc{"event_name":"cycle_views",
+"old_view_id":11,
+"old_view_pid":32223,
+"new_view_id":4,
+"old_view_pid";53221,
+"tile_id":13,
+"workspace":1,
+"output":"eDP-1",
+"output_id":1}
 ```
 
 *definekey*
@@ -353,7 +383,12 @@ cg-ipc{"event_name":"dump","nws":1,
 
 ```
 focus
-cg-ipc{"event_name":"focus_tile","old_tile_id":14,"new_tile_id":13,"workspace":1,"output":"eDP-1","output_id":1}
+cg-ipc{"event_name":"focus_tile",
+"old_tile_id":14,
+"new_tile_id":13,
+"workspace":1,
+"output":"eDP-1",
+"output_id":1}
 ```
 
 *fullscreen*
@@ -367,7 +402,11 @@ cg-ipc{"event_name":"focus_tile","old_tile_id":14,"new_tile_id":13,"workspace":1
 
 ```
 only
-cg-ipc{"event_name":"fullscreen","tile_id":3,"workspace":1,"output":"eDP-1","output_id":1}
+cg-ipc{"event_name":"fullscreen",
+"tile_id":3,
+"workspace":1,
+"output":"eDP-1",
+"output_id":1}
 ```
 
 *move_view_to_cycle_output*
@@ -383,8 +422,17 @@ cg-ipc{"event_name":"fullscreen","tile_id":3,"workspace":1,"output":"eDP-1","out
 
 ```
 movetonextscreen
-cg-ipc{"event_name":"cycle_outputs","old_output":"eDP-1","new_output":"HDMI-A-1","reverse":0}
-cg-ipc{"event_name":"move_view_to_cycle_output","view_id":11,"view_pid":43123,"old_output":"eDP-1","old_output_id":1,"new_output":"HDMI-A-1","new_output_id":2}
+cg-ipc{"event_name":"cycle_outputs",
+"old_output":"eDP-1",
+"new_output":"HDMI-A-1",
+"reverse":0}
+cg-ipc{"event_name":"move_view_to_cycle_output",
+"view_id":11,
+"view_pid":43123,
+"old_output":"eDP-1",
+"old_output_id":1,
+"new_output":"HDMI-A-1",
+"new_output_id":2}
 ```
 
 *move_view_to_output*
@@ -397,8 +445,13 @@ cg-ipc{"event_name":"move_view_to_cycle_output","view_id":11,"view_pid":43123,"o
 
 ```
 movetoscreen 2
-cg-ipc{"event_name":"switch_output","old_output":"eDP-1","new_output":"HDMI-A-1"}
-cg-ipc{"event_name":"move_view_to_output","view_id":78,"old_output":"eDP-1","new_output":"HDMI-A-1"}
+cg-ipc{"event_name":"switch_output",
+"old_output":"eDP-1",
+"new_output":"HDMI-A-1"}
+cg-ipc{"event_name":"move_view_to_output",
+"view_id":78,
+"old_output":"eDP-1",
+"new_output":"HDMI-A-1"}
 ```
 
 *move_view_to_ws*
@@ -414,8 +467,17 @@ cg-ipc{"event_name":"move_view_to_output","view_id":78,"old_output":"eDP-1","new
 
 ```
 movetoworkspace 1
-cg-ipc{"event_name":"switch_ws","old_workspace":1,"new_workspace":1,"output":"eDP-1"}
-cg-ipc{"event_name":"move_view_to_ws","view_id":43,"old_workspace":0,"new_workspace":0,"output":"eDP-1","output_id":1,"view_pid":64908}
+cg-ipc{"event_name":"switch_ws",
+"old_workspace":1,
+"new_workspace":1,
+"output":"eDP-1"}
+cg-ipc{"event_name":"move_view_to_ws",
+"view_id":43,
+"old_workspace":0,
+"new_workspace":0,
+"output":"eDP-1",
+"output_id":1,
+"view_pid":64908}
 ```
 
 *new_output*
@@ -444,8 +506,19 @@ cg-ipc{"event_name":"new_output","output":"HDMI-A-1","output_id":2,"priority":-1
 
 ```
 resizeleft
-cg-ipc{"event_name":"resize_tile","tile_id":14,"old_dims":"[1280,0,1440,1280]","new_dims":"[1270,0,1440,1290]","workspace":1,"output":"eDP-1","output_id":1}
-cg-ipc{"event_name":"resize_tile","tile_id":13,"old_dims":"[0,0,1440,1280]","new_dims":"[0,0,1440,1270]","workspace":1,"output":"eDP-1","output_id":1}
+cg-ipc{"event_name":"resize_tile",
+"tile_id":14,
+"old_dims":"[1280,0,1440,1280]",
+"new_dims":"[1270,0,1440,1290]",
+"workspace":1,"output":"eDP-1",
+"output_id":1}
+cg-ipc{"event_name":"resize_tile",
+"tile_id":13,
+"old_dims":"[0,0,1440,1280]",
+"new_dims":"[0,0,1440,1270]",
+"workspace":1,
+"output":"eDP-1",
+"output_id":1}
 ```
 
 *set_nws*
@@ -473,7 +546,13 @@ cg-ipc{"event_name":"set_nws","old_nws":1,"new_nws":2}
 
 ```
 hsplit
-cg-ipc{"event_name":"split","tile_id":11,"new_tile_id":12,"workspace":1,"output":"eDP-1","output_id":1,"vertical":0}
+cg-ipc{"event_name":"split",
+"tile_id":11,
+"new_tile_id":12,
+"workspace":1,
+"output":"eDP-1",
+"output_id":1,
+"vertical":0}
 ```
 
 *swap_tile*
@@ -490,7 +569,13 @@ cg-ipc{"event_name":"split","tile_id":11,"new_tile_id":12,"workspace":1,"output"
 
 ```
 exchangeright
-cg-ipc{"event_name":"swap_tile","tile_id":1,"tile_pid":53478,"swap_tile_id":3,"swap_tile_pid":98234,"workspace":1,"output":"eDP-1"}
+cg-ipc{"event_name":"swap_tile",
+"tile_id":1,
+"tile_pid":53478,
+"swap_tile_id":3,
+"swap_tile_pid":98234,
+"workspace":1,
+"output":"eDP-1"}
 ```
 
 *switch_default_mode*
@@ -516,7 +601,11 @@ switch_output
 
 ```
 screen 2
-cg-ipc{"event_name":"switch_output","old_output":"eDP-1","old_output_id":1,"new_output":"HDMI-A-1","new_output_id":2}
+cg-ipc{"event_name":"switch_output",
+"old_output":"eDP-1",
+"old_output_id":1,
+"new_output":"HDMI-A-1",
+"new_output_id":2}
 ```
 
 switch_ws
@@ -530,7 +619,11 @@ switch_ws
 
 ```
 workspace 2
-cg-ipc{"event_name":"switch_ws","old_workspace":1,"new_workspace":2,"output":"eDP-1","output_id":1}
+cg-ipc{"event_name":"switch_ws",
+"old_workspace":1,
+"new_workspace":2,
+"output":"eDP-1",
+"output_id":1}
 ```
 
 *view_map*
@@ -546,7 +639,13 @@ cg-ipc{"event_name":"switch_ws","old_workspace":1,"new_workspace":2,"output":"eD
 
 ```
 # process opens a view
-cg-ipc{"event_name":"view_map","view_id":28,"tile_id":14,"workspace":1,"output":"eDP-1","output_id":1,"view_pid":39827}
+cg-ipc{"event_name":"view_map",
+"view_id":28,
+"tile_id":14,
+"workspace":1,
+"output":"eDP-1",
+"output_id":1,
+"view_pid":39827}
 ```
 
 *view_unmap*
@@ -562,7 +661,13 @@ cg-ipc{"event_name":"view_map","view_id":28,"tile_id":14,"workspace":1,"output":
 
 ```
 # view is closed by the process
-cg-ipc{"event_name":"view_unmap","view_id":24,"tile_id":13,"workspace":1,"output":"eDP-1","output_id":1,"view_pid":39544}
+cg-ipc{"event_name":"view_unmap",
+"view_id":24,
+"tile_id":13,
+"workspace":1,
+"output":"eDP-1",
+"output_id":1,
+"view_pid":39544}
 ```
 
 ## SECURITY

@@ -2,7 +2,7 @@ cagebreak-config(5) "Version 2.3.0" "Cagebreak Manual"
 
 # NAME
 
-*cagebreak-config* — Cagebreak configuration file
+*cagebreak-config* Cagebreak configuration file
 
 # SYNOPSIS
 
