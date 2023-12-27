@@ -628,15 +628,15 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	}
 	if(reinit) {
 		wlr_output_layout_remove(server->output_layout, output->wlr_output);
-		wlr_output_destroy(output->wlr_output);
+		wlr_scene_output_destroy(output->scene_output);
 	} else {
 		output = calloc(1, sizeof(struct cg_output));
 	}
-	output->scene_output = wlr_scene_output_create(server->scene, wlr_output);
 	if(!output) {
 		wlr_log(WLR_ERROR, "Failed to allocate output");
 		return;
 	}
+	output->scene_output = wlr_scene_output_create(server->scene, wlr_output);
 
 	output->wlr_output = wlr_output;
 	output->destroyed = false;
@@ -693,6 +693,12 @@ handle_new_output(struct wl_listener *listener, void *data) {
 			server->curr_output = output;
 		}
 	} else {
+		struct wlr_output_layout_output *lo =
+			wlr_output_layout_add(server->output_layout, wlr_output,
+								  output->layout_box.x, output->layout_box.y);
+		wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
+										   output->scene_output);
+
 		struct wlr_output_mode *preferred_mode =
 		    wlr_output_preferred_mode(wlr_output);
 		if(preferred_mode) {

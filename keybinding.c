@@ -834,6 +834,50 @@ print_str(struct dyn_str *outp, const char *fmt, ...) {
 	return 0;
 }
 
+char *
+print_message_conf(struct cg_message_config *config) {
+	struct dyn_str outp_str;
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	uint32_t nmemb = 7;
+	outp_str.str_arr = calloc(nmemb, sizeof(char *));
+	print_str(&outp_str, "\"message_config\": {");
+	print_str(&outp_str, "\"font\": \"%s\",\n", config->font);
+	print_str(&outp_str, "\"display_time\": %d,\n", config->display_time);
+	print_str(&outp_str, "\"bg_color\": [%f,%f,%f,%f],\n", config->bg_color[0],
+	          config->bg_color[1], config->bg_color[2], config->bg_color[3]);
+	print_str(&outp_str, "\"fg_color\": [%f,%f,%f,%f],\n", config->fg_color[0],
+	          config->fg_color[1], config->fg_color[2], config->fg_color[3]);
+	switch(config->anchor) {
+	case CG_MESSAGE_TOP_LEFT:
+		print_str(&outp_str, "\"anchor\": \"top_left\"\n", config->font);
+		break;
+	case CG_MESSAGE_TOP_CENTER:
+		print_str(&outp_str, "\"anchor\": \"top_center\"\n", config->font);
+		break;
+	case CG_MESSAGE_TOP_RIGHT:
+		print_str(&outp_str, "\"anchor\": \"top_right\"\n", config->font);
+		break;
+	case CG_MESSAGE_BOTTOM_LEFT:
+		print_str(&outp_str, "\"anchor\": \"bottom_left\"\n", config->font);
+		break;
+	case CG_MESSAGE_BOTTOM_CENTER:
+		print_str(&outp_str, "\"anchor\": \"bottom_center\"\n", config->font);
+		break;
+	case CG_MESSAGE_BOTTOM_RIGHT:
+		print_str(&outp_str, "\"anchor\": \"bottom_right\"\n", config->font);
+		break;
+	case CG_MESSAGE_CENTER:
+		print_str(&outp_str, "\"anchor\": \"center\"\n", config->font);
+		break;
+	case CG_MESSAGE_NOPT: // This should actually never occur
+		print_str(&outp_str, "\"anchor\": \"no_op\"\n", config->font);
+		break;
+	}
+	print_str(&outp_str, "}");
+	return dyn_str_to_str(&outp_str);
+}
+
 void
 print_modes(struct dyn_str *str, char **modes) {
 	uint32_t len = 0;
@@ -1183,7 +1227,7 @@ keybinding_dump(struct cg_server *server) {
 	struct dyn_str str;
 	str.len = 0;
 	str.cur_pos = 0;
-	uint32_t nmemb = 13;
+	uint32_t nmemb = 14;
 	str.str_arr = calloc(nmemb, sizeof(char *));
 
 	print_str(&str, "{\"event_name\":\"dump\",");
@@ -1204,6 +1248,11 @@ keybinding_dump(struct cg_server *server) {
 	print_str(&str, "\"default_mode\":\"%s\",\n",
 	          get_mode_name(server->modes, server->seat->default_mode));
 	print_modes(&str, server->modes);
+	char *message_string = print_message_conf(&server->message_config);
+	if(message_string != NULL) {
+		print_str(&str, "%s,", message_string);
+		free(message_string);
+	}
 	char *outps_str = print_outputs(server);
 	if(outps_str != NULL) {
 		print_str(&str, "%s,", outps_str);
