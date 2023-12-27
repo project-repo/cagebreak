@@ -1,35 +1,14 @@
 # Security
 
-The main possibility for security bugs in cagebreak is by privilege
-escalation through the socket. Any program with access to the socket
-immediately gains arbitrary code execution rights. The socket
-is restricted to the user of the cagebreak process (700) and has to
-be explicitely enabled using the `-e` flag on invocation.
-
-If you disagree with this threat model, you may contact us via email (See
-section Email Contact below.) or [open an issue on github](https://github.com/project-repo/cagebreak/issues/new).
-
-Should any problem with the github issue system arise or any other reason
-for (potentially confidential) contact with the Cagebreak authors appear,
-you may contact us via email (See section Email Contact below.).
-
-## Supported Versions
-
-The most recent release always contains the latest bug fixes and features.
-There are no official backports for security vulnerabilities.
-Builds are reproducible under conditions outlined in [README.md](README.md).
-
-## Bug Reports
-
-For normal bugs you may [open an issue on github](https://github.com/project-repo/cagebreak/issues/new).
-
-For everything else, an email contact (with gpg encryption and signature)
-is available below.
+The main possibility for security bugs in cagebreak is privilege
+escalation via the socket. Any program with access to the socket
+immediately gains arbitrary code execution rights. The socket has to
+be explicitely enabled using the `-e` flag on invocation and
+is restricted to the user of the cagebreak process (700).
 
 ## Email Contact
 
-If you want to get in touch with the developers of cagebreak to report
-a security vulnerability or anything else via email, contact
+If you want to get in touch with project-repo via email, contact
 `cagebreak @ project-repo . co`.
 
 We try to respond to everything that is not obvious spam.
@@ -49,6 +28,19 @@ Note that our keys are signed by cagebreak signing keys.
 If you want us to respond via GPG-encrypted email, please include your own
 public key or provide the fingerprint and directions to obtain the key.
 
+## Supported Versions
+
+The most recent release always contains the latest bug fixes and features.
+There are no official backports for security vulnerabilities.
+Builds are reproducible under conditions outlined in [README.md](README.md).
+
+## Bug Reports
+
+For normal bugs you may [open an issue on github](https://github.com/project-repo/cagebreak/issues/new).
+
+For everything else, an email contact (with gpg encryption and signature)
+is available above.
+
 ## Threat Model
 
 Cagebreak is a wayland compositor run by a user and has access to
@@ -57,7 +49,7 @@ Cagebreak cannot restrict other programs (consider a web browser
 unable to write a downloaded file for instance).
 
 There is no transmission of information by cagebreak other than to the
-screens, ipc and potentially other documented local channels.
+screens, ipc (if enabled with `-e`) and potentially other documented local channels.
 
 ### STRIDE Threat List
 
@@ -76,7 +68,7 @@ Not applicable - Cagebreak allows system manipulation for user software.
 
 Not applicable - There are no prohibited operations (See Tampering above.).
 Cagebreak sends events over documented channels. There is no logging
-activated by default - this can be changed by logging the socket (if enabled) for example.
+activated by default - this can be changed by logging the socket for example.
 
 #### Information Disclosure
 
@@ -86,12 +78,12 @@ Any user software may exfiltrate any data the user has access to.
 #### Denial of Service
 
 Not applicable - Cagebreak offers functionality to terminate itself. This is
-available to user software over the socket (if enabled).
+available to user software over the socket.
 
 #### Elevation of Privilege
 
 Software may gain arbitrary code execution if it has access to the
-socket (if enabled). Privilege escalation to root is unlikely since privileges
+socket. Privilege escalation to root is unlikely since privileges
 are dropped before any user input is accepted.
 
 ## GPG Keys of the Cagebreak Repository
