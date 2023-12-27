@@ -1,70 +1,46 @@
-# Cagebreak: A Wayland Tiling Compositor
+# Cagebreak: A Tiling Wayland Compositor
 
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.3.0)](https://repology.org/project/cagebreak/versions)
 
 [Open Issue](https://github.com/project-repo/cagebreak/issues/new) [Contact](SECURITY.md) [Manuals](manuals.md) [FAQ](FAQ.md) [CONTRIBUTING](CONTRIBUTING.md) [ArchWiki](https://wiki.archlinux.org/title/Cagebreak) [AUR](https://aur.archlinux.org/packages?O=0&K=cagebreak) [License](LICENSE) [GitHub](https://github.com/project-repo/cagebreak)
 
-## Quick Introduction
+## Introduction
 
-Cagebreak is a [Wayland](https://wayland.freedesktop.org/) tiling compositor
-based on [Cage](https://github.com/Hjdskes/cage) and inspired by [ratpoison](https://www.nongnu.org/ratpoison/).
+Cagebreak is a [ratpoison](https://www.nongnu.org/ratpoison/)-inspired, [cage](https://github.com/Hjdskes/cage)-based, tiling [Wayland](https://wayland.freedesktop.org/) compositor.
 
-### Purpose
+  * Purpose
+    * Cagebreak provides a ratpoison-inspired Wayland compositor.
+  * New Features, Bugs and Contact Information
+    * [Open an issue](https://github.com/project-repo/cagebreak/issues/new).
+    * Write an e-mail (See [SECURITY.md](SECURITY.md) for details.).
+    * The Roadmap section outlines our plans.
+  * Compatibility & Development Distribution
+    * Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the library
+      versions from extra and core at the time of release.
+      Most other setups work with a bit of luck.
+  * Quick Installation (on ArchLinux, more [here (ArchWiki)](https://wiki.archlinux.org/title/Cagebreak))
+    1. Use the [cagebreak PKGBUILD](https://aur.archlinux.org/packages/cagebreak).
+    2. Add an example config such as [config](examples/config) to `$USER/.config/cagebreak/config`
+    3. Execute cagebreak like any other binary.
+  * Documentation
+    * [the man pages](manuals.md)
+    * the [README](README.md), [FAQ](FAQ.md) & [SECURITY.md](SECURITY.md)
+  * What's new?
+    * [Changelog](Changelog.md).
+  * Uninstallation
+    * `pacman -R cagebreak` should be sufficient.
 
-This project provides a successor to ratpoison for Wayland.
-However, this is no reimplementation of ratpoison.
-
-#### New Features, Bugs and Contact Information
-
-You can [open an issue](https://github.com/project-repo/cagebreak/issues/new)
-or write an e-mail (See [SECURITY.md](SECURITY.md) for details.).
-
-The Roadmap section outlines our plans.
-
-#### Compatibility & Development Distribution
-
-Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the libraries
-and versions from extra and core at the time of release.
-Most other setups work with a bit of luck.
-
-### Quick Installation
-
-This assumes Arch Linux:
-
-1. Use the [cagebreak PKGBUILD](https://aur.archlinux.org/packages/cagebreak).
-2. Add an example config such as [config](examples/config) to `$USER/.config/cagebreak/config`
-3. Execute cagebreak like any other binary.
-
-See the [ArchWiki](https://wiki.archlinux.org/title/Cagebreak#Getting_started) for
-details on getting started and the documentation for everything else.
-
-### Documentation
-
-  * [the man pages](manuals.md)
-  * the [README](README.md), [FAQ](FAQ.md) & [SECURITY.md](SECURITY.md)
-
-#### What's new?
-
-Check the [Changelog](Changelog.md).
-
-### Uninstallation
-
-`pacman -R cagebreak` should be sufficient.
-
-### Contributing
-
-  * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your idea.
-    We will get back to you.
-  * Ask before you open a pull request. We might not accept your code and
-    it would be sad to waste the effort.
-  * Respect the [Code of Conduct](CODE_OF_CONDUCT.md) (To date, we never
-    had to intervene - Keep it that way!)
-
-### Name
-
-Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
-compositor. Since it breaks the kiosk into tiles the name
-Cagebreak seemed appropriate.
+  * Contributing
+    * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your idea.
+      We will get back to you.
+    * Ask before you open a pull request. We might not accept your code and
+      it would be sad to waste the effort.
+    * Respect the [Code of Conduct](CODE_OF_CONDUCT.md) (To date, we've never
+      had to intervene. - Keep it that way!)
+  * Name
+    * Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a kiosk.
+      Since Cagebreak breaks the kiosk into tiles, the name
+      Cagebreak seemed appropriate.
 
 ## Installation
 
