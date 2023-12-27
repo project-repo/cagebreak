@@ -839,8 +839,9 @@ print_message_conf(struct cg_message_config *config) {
 	struct dyn_str outp_str;
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
-	uint32_t nmemb = 5;
+	uint32_t nmemb = 7;
 	outp_str.str_arr = calloc(nmemb, sizeof(char *));
+	print_str(&outp_str, "\"message_config\": {");
 	print_str(&outp_str, "\"font\": \"%s\",\n", config->font);
 	print_str(&outp_str, "\"display_time\": %d,\n", config->display_time);
 	print_str(&outp_str, "\"bg_color\": [%f,%f,%f,%f],\n", config->bg_color[0],
@@ -849,30 +850,31 @@ print_message_conf(struct cg_message_config *config) {
 	          config->fg_color[1], config->fg_color[2], config->fg_color[3]);
 	switch(config->anchor) {
 	case CG_MESSAGE_TOP_LEFT:
-		print_str(&outp_str, "\"anchor\": \"top_left\",\n", config->font);
+		print_str(&outp_str, "\"anchor\": \"top_left\"\n", config->font);
 		break;
 	case CG_MESSAGE_TOP_CENTER:
-		print_str(&outp_str, "\"anchor\": \"top_center\",\n", config->font);
+		print_str(&outp_str, "\"anchor\": \"top_center\"\n", config->font);
 		break;
 	case CG_MESSAGE_TOP_RIGHT:
-		print_str(&outp_str, "\"anchor\": \"top_right\",\n", config->font);
+		print_str(&outp_str, "\"anchor\": \"top_right\"\n", config->font);
 		break;
 	case CG_MESSAGE_BOTTOM_LEFT:
-		print_str(&outp_str, "\"anchor\": \"bottom_left\",\n", config->font);
+		print_str(&outp_str, "\"anchor\": \"bottom_left\"\n", config->font);
 		break;
 	case CG_MESSAGE_BOTTOM_CENTER:
-		print_str(&outp_str, "\"anchor\": \"bottom_center\",\n", config->font);
+		print_str(&outp_str, "\"anchor\": \"bottom_center\"\n", config->font);
 		break;
 	case CG_MESSAGE_BOTTOM_RIGHT:
-		print_str(&outp_str, "\"anchor\": \"bottom_right\",\n", config->font);
+		print_str(&outp_str, "\"anchor\": \"bottom_right\"\n", config->font);
 		break;
 	case CG_MESSAGE_CENTER:
-		print_str(&outp_str, "\"anchor\": \"center\",\n", config->font);
+		print_str(&outp_str, "\"anchor\": \"center\"\n", config->font);
 		break;
 	case CG_MESSAGE_NOPT: // This should actually never occur
-		print_str(&outp_str, "\"anchor\": \"no_op\",\n", config->font);
+		print_str(&outp_str, "\"anchor\": \"no_op\"\n", config->font);
 		break;
 	}
+	print_str(&outp_str, "}");
 	return dyn_str_to_str(&outp_str);
 }
 
