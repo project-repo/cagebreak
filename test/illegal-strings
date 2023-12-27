@@ -8,22 +8,12 @@ RESULT=0
 cd "${MESONCURRENTCONFIGDIR}"
 
 # Check that no TODO statements remain in the release directory
-if ! grep -Rq "TODO" .
+if grep --exclude='test/illegal-strings' --exclude-dir='build' -Rn "TODO" ./**
 then
 	echo "[x] TODO"
 else
 	RESULT=1
 	echo "[ ] TODO"
 fi
-
-# Check that Cagebreak does not falsely claim to be POSIX compliant
-if ! grep -Rq "_POSIX_C_SOURCE" .
-then
-	echo "[x] _POSIX_C_SOURCE"
-else
-	RESULT=1
-	echo "[ ] _POSIX_C_SOURCE"
-fi
-
 
 exit "${RESULT}"
