@@ -1,6 +1,14 @@
 #!/bin/bash
 # Copyright 2023, project-repo, sodface and the cagebreak contributors
 # SPDX-License-Identifier: MIT
+#
+# Execute this script if you want to take a screenshot.
+# Please supply your chosen cropping/editing tool as a
+# command-line argument. The filepath to the temporary
+# file will be given as an argument to your command.
+#
+# Example:
+# screenshot_script "gwenview"
 
 source "$(dirname "${BASH_SOURCE[0]}")/cb_script_header.sh"
 

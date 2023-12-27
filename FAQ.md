@@ -26,7 +26,7 @@ Set the following environment variables
 
 to activate wayland support for firefox.
 
-## How di I get firefox to screenshare properly?
+## How do I get firefox to screenshare properly?
 
 Execute the following commands with the appropriate env vars:
 
