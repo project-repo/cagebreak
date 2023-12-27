@@ -2,6 +2,8 @@
 
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.3.0)](https://repology.org/project/cagebreak/versions)
 
+[Open Issue](https://github.com/project-repo/cagebreak/issues/new) [Contact](SECURITY.md) [Manuals](manuals.md) [FAQ](FAQ.md) [CONTRIBUTING](CONTRIBUTING.md) [ArchWiki](https://wiki.archlinux.org/title/Cagebreak) [AUR](https://aur.archlinux.org/packages?O=0&K=cagebreak) [License](LICENSE) [GitHub](https://github.com/project-repo/cagebreak)
+
 ## Quick Introduction
 
 Cagebreak is a [Wayland](https://wayland.freedesktop.org/) tiling compositor
@@ -38,7 +40,7 @@ details on getting started and the documentation for everything else.
 
 ### Documentation
 
-  * the man pages: [cagebreak](man/cagebreak.1.md), [configuration](man/cagebreak-config.5.md) & [socket](man/cagebreak-socket.7.md)
+  * [the man pages](manuals.md)
   * the [README](README.md), [FAQ](FAQ.md) & [SECURITY.md](SECURITY.md)
 
 #### What's new?

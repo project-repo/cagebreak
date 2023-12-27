@@ -2,14 +2,9 @@
 
 ## How do I do a particular thing with cagebreak?
 
-  * Check the man pages
-    * [cagebreak config](man/cagebreak-config.5.md) (probably where you find the answer)
-    * [cagebreak](man/cagebreak.1.md) (command line options etc.)
-    * [cagebreak-socket](man/cagebreak-socket.7.md) (socket information, mostly useful for scritping)
-  * Check the rest of this FAQ
-  * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) or otherwise get in touch with the development team (See section Email Contact in [SECURITY.md](SECURITY.md)).
-
-Note that the feature set of cagebreak is intentionally limited.
+  * Check the [man pages](manuals.md).
+  * Check the rest of this file.
+  * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) or get in touch (See section Email Contact in [SECURITY.md](SECURITY.md)).
 
 ## How do I remap Caps Lock?
 
