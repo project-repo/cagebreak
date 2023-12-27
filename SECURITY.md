@@ -18,10 +18,10 @@ We try to respond to everything that is not obvious spam.
 If you can, please encrypt your email with the appropriate GPG key found
 in `keys/` and sign your message with your own key.
 
-* B15B92642760E11FE002DE168708D42451A94AB5
-* F8DD9F8DD12B85A28F5827C4678E34D2E753AA3C
-* 3ACEA46CCECD59E4C8222F791CBEB493681E8693
-* 0A268C188D7949FEB39FD1462F2AD980247E4918
+* B15B92642760E11FE002DE168708D42451A94AB5 (expired)
+* F8DD9F8DD12B85A28F5827C4678E34D2E753AA3C (expired)
+* 3ACEA46CCECD59E4C8222F791CBEB493681E8693 (expired)
+* [0A268C188D7949FEB39FD1462F2AD980247E4918](keys/cagebreak@project-repo.co.pub)
 
 Note that our keys are signed by cagebreak signing keys.
 
