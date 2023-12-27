@@ -8,37 +8,32 @@
 
 Cagebreak is a [ratpoison](https://www.nongnu.org/ratpoison/)-inspired, [cage](https://github.com/Hjdskes/cage)-based, tiling [Wayland](https://wayland.freedesktop.org/) compositor.
 
-  * Purpose
-    * Cagebreak provides a ratpoison-inspired Wayland compositor.
-  * New Features, Bugs and Contact Information
+  * Purpose: Cagebreak provides a ratpoison-inspired Wayland compositor.
+  * New Features, Bugs and Contact Information:
     * [Open an issue](https://github.com/project-repo/cagebreak/issues/new).
     * Write an e-mail (See [SECURITY.md](SECURITY.md) for details.).
     * The Roadmap section outlines our plans.
-  * Compatibility & Development Distribution
+  * Compatibility & Development Distribution:
     * Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the library
       versions from extra and core at the time of release.
       Most other setups work with a bit of luck.
-  * Quick Installation (on ArchLinux, more [here (ArchWiki)](https://wiki.archlinux.org/title/Cagebreak))
+  * Quick Installation (on ArchLinux, more [here (ArchWiki)](https://wiki.archlinux.org/title/Cagebreak)):
     1. Use the [cagebreak PKGBUILD](https://aur.archlinux.org/packages/cagebreak).
     2. Add an example config such as [config](examples/config) to `$USER/.config/cagebreak/config`
     3. Execute cagebreak like any other binary.
-  * Documentation
+  * Documentation:
     * [the man pages](manuals.md)
     * the [README](README.md), [FAQ](FAQ.md) & [SECURITY.md](SECURITY.md)
-  * What's new?
-    * [Changelog](Changelog.md).
-  * Uninstallation
-    * `pacman -R cagebreak` should be sufficient.
-
-  * Contributing
+  * What's new?: [Changelog](Changelog.md)
+  * Uninstallation: `pacman -R cagebreak` should be sufficient.
+  * Contributing:
     * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your idea.
       We will get back to you.
     * Ask before you open a pull request. We might not accept your code and
       it would be sad to waste the effort.
     * Respect the [Code of Conduct](CODE_OF_CONDUCT.md) (To date, we've never
       had to intervene. - Keep it that way!)
-  * Name
-    * Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a kiosk.
+  * Name: Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a kiosk.
       Since Cagebreak breaks the kiosk into tiles, the name
       Cagebreak seemed appropriate.
 
