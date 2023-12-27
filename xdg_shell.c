@@ -53,10 +53,6 @@ xdg_decoration_handle_destroy(struct wl_listener *listener, void *data) {
 	free(xdg_decoration);
 }
 
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
-#endif
 static void
 xdg_decoration_handle_request_mode(struct wl_listener *listener, void *_data) {
 	struct cg_xdg_decoration *xdg_decoration =
@@ -67,9 +63,6 @@ xdg_decoration_handle_request_mode(struct wl_listener *listener, void *_data) {
 	wlr_xdg_toplevel_decoration_v1_set_mode(xdg_decoration->wlr_decoration,
 	                                        mode);
 }
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic pop
-#endif
 
 static void
 popup_unconstrain(struct cg_view *view, struct wlr_xdg_popup *popup) {

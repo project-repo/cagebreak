@@ -29,10 +29,6 @@ workspace_tile_update_view(struct cg_tile *tile, struct cg_view *view) {
 	}
 }
 
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
-#endif
 int
 full_screen_workspace_tiles(struct wlr_output_layout *layout,
                             struct cg_workspace *workspace,
@@ -55,9 +51,6 @@ full_screen_workspace_tiles(struct wlr_output_layout *layout,
 	++(*tiles_curr_id);
 	return 0;
 }
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic pop
-#endif
 
 struct cg_workspace *
 full_screen_workspace(struct cg_output *output) {

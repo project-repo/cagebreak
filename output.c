@@ -601,10 +601,6 @@ output_make_workspace_fullscreen(struct cg_output *output, int ws) {
 	}
 }
 
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
-#endif
 void
 handle_new_output(struct wl_listener *listener, void *data) {
 	struct cg_server *server = wl_container_of(listener, server, new_output);
@@ -730,6 +726,3 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	               output->name, output_get_num(output), output->priority,
 	               reinit);
 }
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic pop
-#endif
