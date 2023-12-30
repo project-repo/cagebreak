@@ -74,12 +74,12 @@ $ meson setup build
 $ ninja -C build
 ```
 
-#### Release Build
+### Release Build
 
 By default, this builds a debug build. To build a release build, use `meson
 setup build --buildtype=release`.
 
-##### Xwayland Support
+### Xwayland Support
 
 Cagebreak comes with compile-time support for XWayland. To enable this,
 first make sure that your version of wlroots is compiled with this
@@ -87,12 +87,12 @@ option. Then, add `-Dxwayland=true` to the `meson` command above. Note
 that you'll need to have the XWayland binary installed on your system
 for this to work.
 
-##### Man Pages
+### Man Pages
 
 Cagebreak has man pages. To use them, make sure that you have `scdoc`
 installed. Then, add `-Dman-pages=true` to the `meson` command.
 
-### Running Cagebreak
+## Running Cagebreak
 
 You can start Cagebreak by running `./build/cagebreak`. If you run it from
 within an existing X11 or Wayland session, it will open in a virtual output as
@@ -103,7 +103,7 @@ configuration options, see the man pages.
 Please see `example_scripts/` for example scripts and a basis to customize
 from.
 
-#### Usage Philosophy
+### Usage Philosophy
 
 Cagebreak was originally built to suit the needs of its creators. This section outlines
 how we intended some parts of cagebreak and might ease learning how to use cagebreak a
@@ -180,14 +180,18 @@ in the future:
 
 Cagebreak is managed by project-repo.
 
+Consider project-repo as a single
+benevolent dictator for life that happens to occupy at least two brains.
+
 Project-repo is a pseudonym of at least two individuals acting
 as benevolent dictators for the project by the others mutual consent.
 
 The individuals comprising project-repo are not otherwise associated
 by payment from any organisation or grant.
 
-For all intents and purposes consider project-repo as a single
-benevolent dictator for life that happens to occupy at least two brains.
+### Governance Issues
+
+Use [SECURITY.md](SECURITY.md) to contact project-repo.
 
 ### Roles
 
@@ -197,37 +201,20 @@ There are no specific roles forced unto anyone.
 
 ### Bus Factor
 
+The current bus factor for Cagebreak is: 1
+
 The Bus Factor is a measure of how many people have to be
 incapacitated for a project to be unable to continue.
 
-The current bus factor for Cagebreak is: 1
-
-Project-repo could still react to issues (even confidential
+Project-repo could react to issues (even confidential
 e-mails) and fix easier issues if any one individual were
 incapacitated.
 
 However, not all aspects of the code or release engineering
 are fully resilient to the loss of any one individual.
 
-We strive to improve the Bus Factor to at least two in all
-aspects of Cagebreak.
-
-### Governance Issues
-
-Anyone can use the information in [SECURITY.md](SECURITY.md) to
-contact the members of project-repo and bring governance
-issues to their attention.
-
-## Bugs
-
-For any bug, please [create an issue](https://github.com/project-repo/cagebreak/issues/new) on
-[GitHub](https://github.com/project-repo/cagebreak).
-
-Fixed bugs are to be assigned a number and summarized inside Bugs.md for future reference
-independent of github, in case this service is unavailable.
-
-For other means of contacting the Cagebreak authors and for security issues
-see [SECURITY.md](SECURITY.md).
+We strive to increase the bus factor to at least 2 in all
+aspects.
 
 ## Accessibility
 
@@ -239,6 +226,15 @@ see [SECURITY.md](SECURITY.md).
   * There is no screen reader support per se but using a screen reader on socket output
     would work and cagebreak does not preclude the use of a screen reader
     for any software run with it.
+
+## Bugs
+
+[Open an issue](https://github.com/project-repo/cagebreak/issues/new) is you find something.
+
+See [SECURITY.md](SECURITY.md) for other means of contacting the Cagebreak authors and security issues.
+
+Fixed bugs are assigned a number and summarized in [Bugs.md](Bugs.md) for future reference
+independent of github.
 
 ## Contributors
 
