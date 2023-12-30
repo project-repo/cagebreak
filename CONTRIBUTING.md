@@ -207,7 +207,7 @@ Use of the script version is discouraged.
 
 Cagebreak should compile with any reasonably new gcc or clang. Consider
 a gcc version of at least [10.1](https://gcc.gnu.org/gcc-10/changes.html) if
-you want to get the benefit of the brand-new
+you want to get the benefit of the
 [-fanalyzer](https://gcc.gnu.org/onlinedocs/gcc/Static-Analyzer-Options.html)
 flag. However, this new flag sometimes produces false-postives and we
 selectively disable warnings for affected code segments as described below.
