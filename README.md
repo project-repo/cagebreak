@@ -36,15 +36,19 @@ Cagebreak provides a [ratpoison](https://www.nongnu.org/ratpoison/)-inspired, [c
 
 ## Installation
 
-On Arch Linux, just use the PKGBUILDs from the [AUR](https://aur.archlinux.org/):
+On [Arch Linux](https://archlinux.org/), use the [AUR](https://aur.archlinux.org/) [PKGBUILDs](https://wiki.archlinux.org/title/PKGBUILD):
 
   * Using [cagebreak](https://aur.archlinux.org/packages/cagebreak), Cagebreak is
-    compiled on the target system (since release 1.3.0)
+    built on the target system (since release 1.3.0)
   * Using [cagebreak-bin](https://aur.archlinux.org/packages/cagebreak-bin),
-    the pre-built binaries are extracted to
-    appropriate paths on the target system (since release 1.3.2)
+    pre-built binaries are extracted to
+    on the target system (since release 1.3.2)
 
 See [cagebreak-pkgbuild](https://github.com/project-repo/cagebreak-pkgbuild) for details.
+
+You may check out other distros here:
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/cagebreak.svg)](https://repology.org/project/cagebreak/versions)
 
 ### Obtaining Source Code
 
@@ -55,61 +59,68 @@ There are different ways to obtain cagebreak source:
 
 #### Verifying Source Code
 
-There are corresponding methods of verifying that you obtained the correct code:
+There are ways to verify that you obtained the correct source (See `keys/`):
 
-  * our git history includes signed tags for releases
-  * release assets starting at release 1.2.1 contain a signature for the tarball
+  * signature for the tarball of release assets starting at release 1.2.1
+  * signed tags for releases in the git history
 
 ## Building Cagebreak
 
-You can build Cagebreak with the [meson](https://mesonbuild.com/) build system. It
-requires wayland, wlroots and xkbcommon to be installed. Note that Cagebreak is
-developed against the latest tag of wlroots, in order not to constantly chase
-breaking changes as soon as they occur.
+Cagebreak uses the [meson](https://mesonbuild.com/) build system.
 
-Simply execute the following steps to build Cagebreak:
+Cagebreak is developed against the latest tag of wlroots, so as not to constantly
+chase breaking changes.
+
+Execute the following commands to build Cagebreak:
 
 ```
-$ meson setup build
+$ meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
 $ ninja -C build
 ```
 
 ### Release Build
 
-By default, this builds a debug build. To build a release build, use `meson
-setup build --buildtype=release`.
+To obtain a debug build, remove `--buildtype=release`.
+
+The release build is reproducible under conditions outlined in [CONTRIBUTING](CONTRIBUTING.md).
 
 ### Xwayland Support
 
-Cagebreak comes with compile-time support for XWayland. To enable this,
-first make sure that your version of wlroots is compiled with this
-option. Then, add `-Dxwayland=true` to the `meson` command above. Note
-that you'll need to have the XWayland binary installed on your system
-for this to work.
+To build Cagebreak without XWayland support, remove `-Dxwayland=true`.
+
+To use XWayland make sure that your version of wlroots is compiled with
+XWayland support.
+
+You'll need to have [XWayland](https://archlinux.org/packages/extra/x86_64/xorg-xwayland/) installed for XWayland support to work.
 
 ### Man Pages
 
-Cagebreak has man pages. To use them, make sure that you have `scdoc`
-installed. Then, add `-Dman-pages=true` to the `meson` command.
+Remove `-Dman-pages=true` to disable man page generation.
+
+To generate man pages, make sure that you have [scdoc](https://archlinux.org/packages/extra/x86_64/scdoc/) installed.
 
 ## Running Cagebreak
 
-You can start Cagebreak by running `./build/cagebreak`. If you run it from
-within an existing X11 or Wayland session, it will open in a virtual output as
-a window in your existing session. If you run it in a TTY, it'll run with the
-KMS+DRM backend. Note that a configuration file is required. For more
-configuration options, see the man pages.
+```
+$ ./build/cagebreak
+```
 
-Please see `example_scripts/` for example scripts and a basis to customize
-from.
+If you run Cagebreak within an existing X11 or Wayland session, it will
+open in a virtual output as a window in your existing session.
+
+If you run it in a TTY, it'll run with the KMS+DRM backend.
+
+Note that a configuration file is required. For more configuration options, see the [man pages](manuals.md).
+
+Please see `example_scripts/` for a basis to customize from.
 
 ### Usage Philosophy
 
-Cagebreak was originally built to suit the needs of its creators. This section outlines
+Cagebreak was built to suit the needs of its creators. This outlines
 how we intended some parts of cagebreak and might ease learning how to use cagebreak a
-little bit. Please note that this does not replace the man pages or the FAQ.
-Also, this is in no way intended as a guide on how cagebreak must be used but rather
-as a source of inspiration and explanations for certain particularities.
+little bit. Please note that this does not replace the [man pages](manuals.md) or the [FAQ](FAQ.md).
+Also, this is not intended as a guide on how cagebreak must be used but
+as a source of inspiration and explanation for certain particularities.
 
 1. Cagebreak is keyboard-based. Everything regarding cagebreak can be done
    through the keyboard and it is our view that it should be. This does not mean
@@ -166,7 +177,6 @@ as a source of inspiration and explanations for certain particularities.
 
 > Example scripts can be found in the repository under `example_scripts/`.
 
-
 ## Roadmap
 
 Cagebreak plans to do or keep doing the following things
@@ -174,13 +184,13 @@ in the future:
 
   * React to all issues.
   * Add or modify features, which the authors find convenient or important.
-  * Improve the [OpenSSF Best Practices Badge Program](https://bestpractices.coreinfrastructure.org/en) level
+  * Improve the [OpenSSF Best Practices Badge Program](https://bestpractices.coreinfrastructure.org/en) level.
 
 ## Governance
 
 Cagebreak is managed by project-repo.
 
-Consider project-repo as a single
+Consider project-repo a single
 benevolent dictator for life that happens to occupy at least two brains.
 
 Project-repo is a pseudonym of at least two individuals acting
