@@ -2,21 +2,20 @@
 
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.3.0)](https://repology.org/project/cagebreak/versions)
 
-[Open Issue](https://github.com/project-repo/cagebreak/issues/new) [Contact](SECURITY.md) [Manuals](manuals.md) [FAQ](FAQ.md) [CONTRIBUTING](CONTRIBUTING.md) [ArchWiki](https://wiki.archlinux.org/title/Cagebreak) [AUR](https://aur.archlinux.org/packages?O=0&K=cagebreak) [License](LICENSE) [GitHub](https://github.com/project-repo/cagebreak)
+[Contact](SECURITY.md) [Manuals](manuals.md) [FAQ](FAQ.md) [CONTRIBUTING](CONTRIBUTING.md) [ArchWiki](https://wiki.archlinux.org/title/Cagebreak) [AUR](https://aur.archlinux.org/packages?O=0&K=cagebreak)
 
 ## Introduction
 
-Cagebreak is a [ratpoison](https://www.nongnu.org/ratpoison/)-inspired, [cage](https://github.com/Hjdskes/cage)-based, tiling [Wayland](https://wayland.freedesktop.org/) compositor.
+Cagebreak provides a [ratpoison](https://www.nongnu.org/ratpoison/)-inspired, [cage](https://github.com/Hjdskes/cage)-based, tiling [Wayland](https://wayland.freedesktop.org/) compositor.
 
-  * Purpose: Cagebreak provides a ratpoison-inspired Wayland compositor.
-  * New Features, Bugs and Contact Information:
+  * Bugs, Contact Information and New Features:
     * [Open an issue](https://github.com/project-repo/cagebreak/issues/new).
     * Write an e-mail (See [SECURITY.md](SECURITY.md) for details.).
     * The Roadmap section outlines our plans.
   * Compatibility & Development Distribution:
     * Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the library
       versions from extra and core at the time of release.
-      Most other setups work with a bit of luck.
+      Most other setups work with a [bit of luck](https://repology.org/project/cagebreak/versions).
   * Quick Installation (on ArchLinux, more [here (ArchWiki)](https://wiki.archlinux.org/title/Cagebreak)):
     1. Use the [cagebreak PKGBUILD](https://aur.archlinux.org/packages/cagebreak).
     2. Add an example config such as [config](examples/config) to `$USER/.config/cagebreak/config`
@@ -25,7 +24,7 @@ Cagebreak is a [ratpoison](https://www.nongnu.org/ratpoison/)-inspired, [cage](h
     * [the man pages](manuals.md)
     * the [README](README.md), [FAQ](FAQ.md) & [SECURITY.md](SECURITY.md)
   * What's new?: [Changelog](Changelog.md)
-  * Uninstallation: `pacman -R cagebreak` should be sufficient.
+  * Uninstallation: `pacman -R cagebreak`
   * Contributing:
     * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your idea.
       We will get back to you.
@@ -33,9 +32,7 @@ Cagebreak is a [ratpoison](https://www.nongnu.org/ratpoison/)-inspired, [cage](h
       it would be sad to waste the effort.
     * Respect the [Code of Conduct](CODE_OF_CONDUCT.md) (To date, we've never
       had to intervene. - Keep it that way!)
-  * Name: Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a kiosk.
-      Since Cagebreak breaks the kiosk into tiles, the name
-      Cagebreak seemed appropriate.
+  * Name: Cagebreak breaks the kiosk of [Cage](https://github.com/Hjdskes/cage) into tiles, hence the name.
 
 ## Installation
 
