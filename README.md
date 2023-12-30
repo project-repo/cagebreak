@@ -10,8 +10,8 @@ Cagebreak provides a [ratpoison](https://www.nongnu.org/ratpoison/)-inspired, [c
 
   * Bugs, Contact Information and New Features:
     * [Open an issue](https://github.com/project-repo/cagebreak/issues/new).
-    * Write an e-mail (See [SECURITY.md](SECURITY.md) for details.).
-    * The Roadmap section outlines our plans.
+    * Write an e-mail (See [SECURITY.md](SECURITY.md)).
+    * The Roadmap below outlines our plans.
   * Compatibility & Development Distribution:
     * Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the library
       versions from extra and core at the time of release.
@@ -21,8 +21,8 @@ Cagebreak provides a [ratpoison](https://www.nongnu.org/ratpoison/)-inspired, [c
     2. Add an example config such as [config](examples/config) to `$USER/.config/cagebreak/config`
     3. Execute cagebreak like any other binary.
   * Documentation:
-    * [the man pages](manuals.md)
-    * the [README](README.md), [FAQ](FAQ.md) & [SECURITY.md](SECURITY.md)
+    * [man pages](manuals.md)
+    * [README](README.md), [FAQ](FAQ.md) & [SECURITY.md](SECURITY.md)
   * What's new?: [Changelog](Changelog.md)
   * Uninstallation: `pacman -R cagebreak`
   * Contributing:
