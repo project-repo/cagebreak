@@ -1,4 +1,4 @@
-# Copyright 2023, project-repo and the cagebreak contributors
+# Copyright 2023 - 2024, project-repo and the cagebreak contributors
 # SPDX-License-Identifier: MIT
 exec (echo "SUCCESS" > CONFIGPATH )
 quit

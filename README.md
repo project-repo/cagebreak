@@ -263,7 +263,7 @@ independent of github.
 
 ## License
 
-Copyright (c) 2020-2023 The Cagebreak authors
+Copyright (c) 2020-2024 The Cagebreak authors
 Copyright (c) 2018-2020 Jente Hidskes
 Copyright (c) 2019 The Sway authors
 
