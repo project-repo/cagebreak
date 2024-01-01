@@ -259,6 +259,8 @@ Fixed bugs are assigned a number and summarized in [Bugs.md](Bugs.md) for future
     * Fix bug in merge_output_configs in 2.1.2
   * sodface
     * Add a screenshot example script in 2.3.0
+  * Luca Kennedy (unsigned-enby)
+    * [Add option to configure the anchor position of messages](https://github.com/project-repo/cagebreak/pull/61) in 2.3.0
 
 ## License
 
