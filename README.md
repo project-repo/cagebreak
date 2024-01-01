@@ -41,8 +41,8 @@ On [Arch Linux](https://archlinux.org/), use the [AUR](https://aur.archlinux.org
   * Using [cagebreak](https://aur.archlinux.org/packages/cagebreak), Cagebreak is
     built on the target system (since release 1.3.0)
   * Using [cagebreak-bin](https://aur.archlinux.org/packages/cagebreak-bin),
-    pre-built binaries are extracted to
-    on the target system (since release 1.3.2)
+    pre-built binaries are extracted
+    to the target system (since release 1.3.2)
 
 See [cagebreak-pkgbuild](https://github.com/project-repo/cagebreak-pkgbuild) for details.
 
@@ -78,6 +78,12 @@ $ meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
 $ ninja -C build
 ```
 
+### Man Pages
+
+Remove `-Dman-pages=true` to disable man page generation.
+
+To generate man pages, make sure that you have [scdoc](https://archlinux.org/packages/extra/x86_64/scdoc/) installed.
+
 ### Release Build
 
 To obtain a debug build, remove `--buildtype=release`.
@@ -92,12 +98,6 @@ To use XWayland make sure that your version of wlroots is compiled with
 XWayland support.
 
 You'll need to have [XWayland](https://archlinux.org/packages/extra/x86_64/xorg-xwayland/) installed for XWayland support to work.
-
-### Man Pages
-
-Remove `-Dman-pages=true` to disable man page generation.
-
-To generate man pages, make sure that you have [scdoc](https://archlinux.org/packages/extra/x86_64/scdoc/) installed.
 
 ## Running Cagebreak
 
@@ -243,8 +243,7 @@ aspects.
 
 See [SECURITY.md](SECURITY.md) for other means of contacting the Cagebreak authors and security issues.
 
-Fixed bugs are assigned a number and summarized in [Bugs.md](Bugs.md) for future reference
-independent of github.
+Fixed bugs are assigned a number and summarized in [Bugs.md](Bugs.md) for future reference.
 
 ## Contributors
 
