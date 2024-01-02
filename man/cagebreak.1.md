@@ -28,7 +28,7 @@ socket specified in the environment variable *\$CAGEBREAK_SOCKET*.
 The syntax accepted through this socket is identical to
 that of the configuration file (see *cagebreak-config(5)*).
 Errors which occur during interaction over IPC channel
-are displayed in a message box at the top right of the screen.
+are displayed in a message box on the screen.
 
 # OPTIONS
 
