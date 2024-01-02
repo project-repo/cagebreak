@@ -317,6 +317,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	prev_box.y = output->layout_box.y;
 	prev_box.width = output->layout_box.width;
 	prev_box.height = output->layout_box.height;
+	bool prio_changed=false;
 	if(config->role != OUTPUT_ROLE_DEFAULT) {
 		output->role = config->role;
 		if((output->role == OUTPUT_ROLE_PERIPHERAL) &&
@@ -328,6 +329,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	}
 
 	if(config->priority != -1) {
+		prio_changed = (output->priority != config->priority);
 		output->priority = config->priority;
 	}
 
@@ -416,8 +418,10 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		wlr_output_enable(wlr_output, false);
 		wlr_output_commit(wlr_output);
 	} else {
-		wl_list_remove(&output->link);
-		output_insert(server, output);
+		if(prio_changed) {
+			wl_list_remove(&output->link);
+			output_insert(server, output);
+		}
 		wlr_output_enable(wlr_output, true);
 		wlr_output_commit(wlr_output);
 	}
