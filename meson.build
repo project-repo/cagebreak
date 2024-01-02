@@ -372,10 +372,11 @@ run_target('create-artefacts',
 
 test('Build without warnings', find_program('test/build-w-o-warnings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
 test('Example script header is consistent', find_program('test/script-header'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Script executability is consistent', find_program('test/script-header'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
 test('Build without xwayland', find_program('test/build-w-o-xwayland'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
 test('Copyright and LICENSE', find_program('test/copyright-license'), args : [ cagebreak_main_file + cagebreak_source_strings + cagebreak_header_strings + fuzz_sources + fuzz_headers + fuzz_override_lib ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()), ''.join('MESONLICENSE=', meson.project_license())], suite: 'devel' )
-test('Clang-format (formatting check)', find_program('test/clang-format'), args : [ cagebreak_main_file + cagebreak_source_strings + cagebreak_header_strings + fuzz_sources + fuzz_headers + fuzz_override_lib ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
-test('Shellcheck (script linting)', find_program('test/shellcheck'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Formatting check (clang-format)', find_program('test/clang-format'), args : [ cagebreak_main_file + cagebreak_source_strings + cagebreak_header_strings + fuzz_sources + fuzz_headers + fuzz_override_lib ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Script linting (shellcheck)', find_program('test/shellcheck'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
 test('GPG key validity', find_program('test/gpg-validity'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
 test('Illegal Strings', find_program('test/illegal-strings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
 test('Scan-build (static analysis)', find_program('test/scan-build'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel-long')
