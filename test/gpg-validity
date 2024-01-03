@@ -7,7 +7,7 @@ RESULT=0
 # shellcheck disable=2164
 cd "${MESONCURRENTCONFIGDIR}/keys"
 stoday=$(date +%s)
-signingmargin=90
+signingmargin=120
 
 # shellcheck disable=2046
 skey13exptime=$(date --date=$(gpg --show-keys cagebreak_signing_key_13\@project-repo.co.pub | tail -2 | head -1 | cut -d " " -f 8 | rev | cut -c2- | rev) '+%s')
