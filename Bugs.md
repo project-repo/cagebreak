@@ -1262,3 +1262,37 @@ output command was ammended by two settings (permanent & peripheral).
 See man pages for details.
 
 Thanks to sodface for the great cooperation.
+
+## Issue 69
+
+  * github issue numner: #68
+  * Fixed: 2.3.0
+
+The config man page (5) was badly formatted up to version 2.3.0.
+
+Particularly unescaped html tags caused not all information to be
+shown in the web browser view of our repo.
+
+## Issue 70
+
+  * github issue numner: #62
+  * Fixed: 2.3.0
+
+The README contained a few non-intuitive phrases up to version 2.3.0.
+
+To alleviate this, the following changes were made:
+
+- Rephrase README.md (for more clarity)
+- Add CONTRIBUTING.md (to remove dev detail from README)
+- Add PR template (to present relevant info during a PR)
+
+## Issue 71
+
+  * github issue numner: #60
+  * Fixed: 2.3.0
+
+Cagebreak up to 2.3.0 did not have configuration for the message location.
+
+This has been added through the initiative of unsigned-enby to improve
+accessibility.
+
