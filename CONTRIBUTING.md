@@ -369,6 +369,8 @@ keys.
   * 0F3476E4B2404F95EC41600683D5810F7911B020 (expired)
   * [4E82C72C6B3E58A7BC4FF8554909F84CA83BB867](keys/cagebreak_signing_key_11@project-repo.co.pub)
   * [5AEB1A2EB0D13F67E306AC59DC0CC81BE006FD85](keys/cagebreak_signing_key_12@project-repo.co.pub)
+  * [438C27DDB5D174673DF4D67B451205B3528C7C63](keys/cagebreak_signing_key_13@project-repo.co.pub)
+  * [81372DDB8124349F0303B77448D7E2EE3343E3AA](keys/cagebreak_signing_key_14@project-repo.co.pub)
 
 Should we at any point retire a key, we will only replace it with keys signed
 by at least one of the above collection.

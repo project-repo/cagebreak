@@ -48,3 +48,18 @@ License, contributors etc. should be appropriate.
 Shellcheck must pass on any script (judicious use of shellcheck pragmas is allowed but
 discouraged).
 
+## How do I add a new gpg key?
+
+1. Check which gpg key versions are currently valid.
+2. Generate keys with incremented numbers/emails/dates/passphrase.
+   * Use 4096 Bit RSA Keys
+3. Sign the new keys with at least one then-old signing key.
+4. Genereate new cagebreak@project-repo.co key
+5. Sign the new mail key with the new signing keys.
+6. Generate new pkgbuild key.
+7. Sign the pkgbuild key with the new signing keys.
+8. Add public keys to `keys/`.
+9. Update meson_options.txt
+10. Update [all man pages](../manuals.md), [CONTRIBUTING](../CONTRIBUTING.md) & [SECURITY.md](../SECURITY.md)
+11. Update the pkgbuild repo with the new key (key and readme).
+12. Securely distribute private keys and revocation certificates as per the internal wiki.
