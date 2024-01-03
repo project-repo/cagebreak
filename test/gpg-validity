@@ -10,28 +10,28 @@ stoday=$(date +%s)
 signingmargin=90
 
 # shellcheck disable=2046
-skey11exptime=$(date --date=$(gpg --show-keys cagebreak_signing_key_11\@project-repo.co.pub | tail -2 | head -1 | cut -d " " -f 8 | rev | cut -c2- | rev) '+%s')
+skey13exptime=$(date --date=$(gpg --show-keys cagebreak_signing_key_13\@project-repo.co.pub | tail -2 | head -1 | cut -d " " -f 8 | rev | cut -c2- | rev) '+%s')
 # shellcheck disable=2046
-skey12exptime=$(date --date=$(gpg --show-keys cagebreak_signing_key_12\@project-repo.co.pub | tail -2 | head -1 | cut -d " " -f 8 | rev | cut -c2- | rev) '+%s')
+skey14exptime=$(date --date=$(gpg --show-keys cagebreak_signing_key_14\@project-repo.co.pub | tail -2 | head -1 | cut -d " " -f 8 | rev | cut -c2- | rev) '+%s')
 # shellcheck disable=2046
 mailexptime=$(date --date=$(gpg --show-keys cagebreak\@project-repo.co.pub | tail -2 | head -1 | cut -d " " -f 8 | rev | cut -c2- | rev) '+%s')
 
 # signing keys
-## signing key 11
-if [[ $(( (stoday - skey11exptime) / 86400 )) -lt $signingmargin ]]
+## signing key 13
+if [[ $(( (stoday - skey13exptime) / 86400 )) -lt $signingmargin ]]
 then
-    echo "[x] signign key 11"
+    echo "[x] signign key 13"
 else
     RESULT=1
-    echo "[ ] signing key 11"
+    echo "[ ] signing key 13"
 fi
-## signing key 12
-if [[ $(( (stoday - skey12exptime) / 86400 )) -lt $signingmargin ]]
+## signing key 14
+if [[ $(( (stoday - skey14exptime) / 86400 )) -lt $signingmargin ]]
 then
-    echo "[x] signign key 12"
+    echo "[x] signign key 14"
 else
     RESULT=1
-    echo "[ ] signing key 12"
+    echo "[ ] signing key 14"
 fi
 
 # email key

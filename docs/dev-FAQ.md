@@ -41,11 +41,12 @@ run_target('create-sigs',
 
 Extrapolate from the examples in the `example_scripts` directory.
 
-The script should be executable with the .sh library file in the same directory.
+The script should be executable standalone. See `test/script-header` for a possible
+library.
 
 License, contributors etc. should be appropriate.
 
-Shellcheck must pass on any script (judicious use of shellcheck pragmas is allowed but
+Shellcheck must pass on any script (use of shellcheck pragmas is allowed but
 discouraged).
 
 ## How do I add a new gpg key?
@@ -60,6 +61,6 @@ discouraged).
 7. Sign the pkgbuild key with the new signing keys.
 8. Add public keys to `keys/`.
 9. Update meson_options.txt
-10. Update [all man pages](../manuals.md), [CONTRIBUTING](../CONTRIBUTING.md) & [SECURITY.md](../SECURITY.md)
+10. Update [all man pages](../manuals.md), [CONTRIBUTING](../CONTRIBUTING.md), gpg-validity test & [SECURITY.md](../SECURITY.md)
 11. Update the pkgbuild repo with the new key (key and readme).
 12. Securely distribute private keys and revocation certificates as per the internal wiki.
