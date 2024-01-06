@@ -59,7 +59,8 @@ There are different ways to obtain cagebreak source:
 
 #### Verifying Source Code
 
-There are ways to verify that you obtained the correct source (See `keys/`):
+There are ways to verify that you obtained the correct source (See `keys/`
+and [CONTRIBUTING](CONTRIBUTING.md)):
 
   * signature for the tarball of release assets starting at release 1.2.1
   * signed tags for releases in the git history
