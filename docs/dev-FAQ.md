@@ -1,5 +1,7 @@
 # FAQ for Development
 
+## What is the high-level Architecture?
+
 ## How is cagebreak adjusted to a new wlroots version?
 
 There are three steps:
@@ -63,4 +65,5 @@ discouraged).
 9. Update meson_options.txt
 10. Update [all man pages](../manuals.md), [CONTRIBUTING](../CONTRIBUTING.md), gpg-validity test & [SECURITY.md](../SECURITY.md)
 11. Update the pkgbuild repo with the new key (key and readme).
-12. Securely distribute private keys and revocation certificates as per the internal wiki.
+12. Update git config email.
+13. Securely distribute private keys and revocation certificates as per the internal wiki.
