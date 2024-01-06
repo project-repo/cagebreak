@@ -1296,3 +1296,11 @@ Cagebreak up to 2.3.0 did not have configuration for the message location.
 This has been added through the initiative of unsigned-enby to improve
 accessibility.
 
+## Issue 72
+
+  * github issue numner: N/A
+  * Fixed: 2.3.0
+
+A Cagebreak version before 2.3.0 broke the gamma toolkit used to tune the
+monitor colors.
+
