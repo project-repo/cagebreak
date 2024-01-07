@@ -1,0 +1,37 @@
+#!/bin/bash
+# Copyright 2024, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+RESULT=0
+
+cd "${MESONCURRENTCONFIGDIR}" || exit 1
+
+tail_license=$(tail -n 17 LICENSE)
+tail_man1=$(tail -n 17 man/cagebreak.1.md)
+tail_man5=$(tail -n 17 man/cagebreak-config.5.md)
+tail_man7=$(tail -n 17 man/cagebreak-socket.7.md)
+
+[[ $tail_license = "$tail_man1" ]] || RESULT=1
+[[ $tail_license = "$tail_man5" ]] || RESULT=1
+[[ $tail_license = "$tail_man7" ]] || RESULT=1
+
+if [[ $RESULT -eq 0 ]]
+then
+echo "[x] License ending"
+else
+echo "[ ] License ending"
+fi
+
+for man_page in man/*
+do
+	grep -q "$man_page" manuals.md || RESULT=1
+done
+
+if [[ $RESULT -eq 0 ]]
+then
+echo "[x] All man pages listed in manuals.md"
+else
+echo "[ ] All man pages listed in manuals.md"
+fi
+
+exit "${RESULT}"

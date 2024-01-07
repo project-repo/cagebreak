@@ -2,7 +2,7 @@
 
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.3.0)](https://repology.org/project/cagebreak/versions)
 
-[Contact](SECURITY.md) [Manuals](manuals.md) [FAQ](FAQ.md) [CONTRIBUTING](CONTRIBUTING.md) [ArchWiki](https://wiki.archlinux.org/title/Cagebreak) [AUR](https://aur.archlinux.org/packages?O=0&K=cagebreak)
+[![Contact](img/mail.svg)](SECURITY.md) [![Manuals](img/manuals.svg)](manuals.md) [![FAQ](img/faq.svg)](FAQ.md) [![CONTRIBUTING](img/contributing.svg)](CONTRIBUTING.md) [![ArchWiki](img/archwiki.svg)](https://wiki.archlinux.org/title/Cagebreak) [![AUR](img/aur.svg)](https://aur.archlinux.org/packages?O=0&K=cagebreak)
 
 ## Introduction
 
@@ -59,7 +59,8 @@ There are different ways to obtain cagebreak source:
 
 #### Verifying Source Code
 
-There are ways to verify that you obtained the correct source (See `keys/`):
+There are ways to verify that you obtained the correct source (See `keys/`
+and [CONTRIBUTING](CONTRIBUTING.md)):
 
   * signature for the tarball of release assets starting at release 1.2.1
   * signed tags for releases in the git history
@@ -259,6 +260,8 @@ Fixed bugs are assigned a number and summarized in [Bugs.md](Bugs.md) for future
     * Fix bug in merge_output_configs in 2.1.2
   * sodface
     * Add a screenshot example script in 2.3.0
+  * Luca Kennedy (unsigned-enby)
+    * [Add option to configure the anchor position of messages](https://github.com/project-repo/cagebreak/pull/61) in 2.3.0
 
 ## License
 

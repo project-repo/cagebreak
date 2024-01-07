@@ -21,7 +21,8 @@ in `keys/` and sign your message with your own key.
 * B15B92642760E11FE002DE168708D42451A94AB5 (expired)
 * F8DD9F8DD12B85A28F5827C4678E34D2E753AA3C (expired)
 * 3ACEA46CCECD59E4C8222F791CBEB493681E8693 (expired)
-* [0A268C188D7949FEB39FD1462F2AD980247E4918](keys/cagebreak@project-repo.co.pub)
+* 0A268C188D7949FEB39FD1462F2AD980247E4918 (soon to expire)
+* [283D10F54201B0C6CCEE2C561DE04E4B056C749D](keys/cagebreak@project-repo.co.pub)
 
 Note that our keys are signed by cagebreak signing keys.
 

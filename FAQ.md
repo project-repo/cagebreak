@@ -12,6 +12,21 @@ Remapping Caps Lock globally seems to be the best option.
 Follow instructions [here](https://wiki.archlinux.org/title/Linux_console/Keyboard_configuration) to achieve this (should be roughly
 distribution-agnostic).
 
+## What do I do if Cagebreak does not work with the current wlroots version?
+
+You can probably downgrade wlroots with
+
+```
+$ pacman -U /var/cache/pacman/pkg/old-version
+```
+
+If you have cleared your package cache, see instructions in the [ArchWiki](https://wiki.archlinux.org/title/downgrading_packages#Return_to_an_earlier_package_version).
+
+Cagebreak should start working again after the downgrade.
+
+After a new release, the downgrading will no longer be necessary (in fact,
+downgrading will probably break your setup).
+
 ## How do I get firefox to run under wayland?
 
 Set the following environment variables

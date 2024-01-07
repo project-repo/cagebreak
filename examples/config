@@ -1,8 +1,7 @@
 # Copyright 2020 - 2024, project-repo and the cagebreak contributors
 # SPDX-License-Identifier: MIT
-######################
-# General settings an key bindings
-######################
+
+# General settings and key bindings
 
 exec xterm
 
@@ -36,22 +35,21 @@ bind k focusup
 bind l focusright
 bind t exec xterm
 bind C-k close
-#bind m message Hello World!
+# bind m message Hello World!
 definekey resize h resizeleft
 definekey resize l resizeright
 definekey resize j resizedown
 definekey resize k resizeup
 definekey resize Escape setmode top
 
-#unhide cursor (default)
+# unhide cursor (default)
 cursor enable
 
-#send a custom event over the socket
-#custom_event Hello World!
+# send a custom event over the socket
+# custom_event Hello World!
 
-######################
-#Workspaces
-######################
+## Workspaces
+
 bind 1 screen 1
 bind 2 screen 2
 bind 3 screen 3
@@ -87,37 +85,33 @@ definekey top XF86_Switch_VT_4 switchvt 4
 definekey top XF86_Switch_VT_5 switchvt 5
 definekey top XF86_Switch_VT_6 switchvt 6
 
-######################
-#Bind Function keys
-######################
+## Bind Function keys
+
 definekey top XF86AudioMute exec pactl set-sink-mute 0 toggle
 definekey top XF86AudioLowerVolume exec pactl set-sink-mute 0 off&&amixer set Master 1%-
 definekey top XF86AudioRaiseVolume exec pactl set-sink-mute 0 off&&amixer set Master 1%+
 definekey top XF86MonBrightnessDown exec xbacklight -dec 1
 definekey top XF86MonBrightnessUp exec xbacklight -inc 1
 
-######################
-#Output configuration
-######################
-#output eDP-1 pos 0 0 res 1366x768 rate 60
+## Output configuration
+
+# output eDP-1 pos 0 0 res 1366x768 rate 60
 output eDP-1 disable
 output eDP-1 enable
 output eDP-1 permanent
 
 output eDP-1 peripheral
-#output eDP-1 prio 1
-#output eDP-2 pos 0 0 res 1366x768 rate 60 scale 2.0
+# output eDP-1 prio 1
+# output eDP-2 pos 0 0 res 1366x768 rate 60 scale 2.0
 
-#####################
-#Input configuration
-#####################
 
-#input 1234:0:Device_Ident click_method clickfinger
-#input type:pointer scroll_method two_finger
-#input * calibration_matrix 1 2 3 4 5 6
+## Input configuration
 
-#####################
-#Message configuration
-#####################
-#configure_message display_time 1
-#configure_message anchor top_center
+# input 1234:0:Device_Ident click_method clickfinger
+# input type:pointer scroll_method two_finger
+# input * calibration_matrix 1 2 3 4 5 6
+
+## Message configuration
+
+# configure_message display_time 1
+# configure_message anchor top_center

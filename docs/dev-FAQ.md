@@ -1,5 +1,7 @@
 # FAQ for Development
 
+## What is the high-level Architecture?
+
 ## How is cagebreak adjusted to a new wlroots version?
 
 There are three steps:
@@ -41,10 +43,27 @@ run_target('create-sigs',
 
 Extrapolate from the examples in the `example_scripts` directory.
 
-The script should be executable with the .sh library file in the same directory.
+The script should be executable standalone. See `test/script-header` for a possible
+library.
 
 License, contributors etc. should be appropriate.
 
-Shellcheck must pass on any script (judicious use of shellcheck pragmas is allowed but
+Shellcheck must pass on any script (use of shellcheck pragmas is allowed but
 discouraged).
 
+## How do I add a new gpg key?
+
+1. Check which gpg key versions are currently valid.
+2. Generate keys with incremented numbers/emails/dates/passphrase.
+   * Use 4096 Bit RSA Keys
+3. Sign the new keys with at least one then-old signing key.
+4. Genereate new cagebreak@project-repo.co key
+5. Sign the new mail key with the new signing keys.
+6. Generate new pkgbuild key.
+7. Sign the pkgbuild key with the new signing keys.
+8. Add public keys to `keys/`.
+9. Update meson_options.txt
+10. Update [all man pages](../manuals.md), [CONTRIBUTING](../CONTRIBUTING.md), gpg-validity test & [SECURITY.md](../SECURITY.md)
+11. Update the pkgbuild repo with the new key (key and readme).
+12. Update git config email.
+13. Securely distribute private keys and revocation certificates as per the internal wiki.

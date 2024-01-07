@@ -1,0 +1,19 @@
+#!/bin/bash
+# Copyright 2024, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+# Each example script must contain the header unmodified.
+
+# shellcheck disable=2164
+cd "${MESONCURRENTCONFIGDIR}"
+
+RESULT=0
+
+example_all=$(find example_scripts/)
+example_exec=$(find example_scripts/ -executable)
+[[ $example_all = "$example_exec" ]] || RESULT=1
+
+scripts_all=$(find scripts/)
+scripts_exec=$(find scripts/ -executable)
+[[ $scripts_all = "$scripts_exec" ]] || RESULT=1
+
+exit $RESULT
