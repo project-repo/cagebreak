@@ -317,7 +317,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	prev_box.y = output->layout_box.y;
 	prev_box.width = output->layout_box.width;
 	prev_box.height = output->layout_box.height;
-	bool prio_changed=false;
+	bool prio_changed = false;
 	if(config->role != OUTPUT_ROLE_DEFAULT) {
 		output->role = config->role;
 		if((output->role == OUTPUT_ROLE_PERIPHERAL) &&
