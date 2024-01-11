@@ -678,7 +678,7 @@ main(int argc, char *argv[]) {
 		struct cg_output *output, *output_tmp;
 		wl_list_for_each_safe(output, output_tmp, &tmp_list, link) {
 			wl_list_remove(&output->link);
-			wl_list_insert(&server.outputs, &output->link);
+			output_insert(&server, output);
 			output_configure(&server, output);
 		}
 		server.curr_output =
