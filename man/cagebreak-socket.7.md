@@ -250,6 +250,12 @@ cg-ipc{"event_name":"destroy_output","output":"HDMI-A-1","output_id":2}
 		- curr_output: current output as a string
 		- default_mode: name of the default mode as a string
 		- modes: list of names of modes as strings
+		- message_config: the current configuration of the cagebreak messages
+		  * font: the font used to display the messages
+		  * display_time: the duration in seconds that the cagebreak messages are displayed
+		  * bg_color: list of four floating point numbers denoting the background color in rgba
+		  * fg_color: list of four floating point numbers denoting the foreground color in rgba
+		  * anchor: the positioning of the messages on the screen (see *cagebreak-config(5)* for more information)
 		- outputs: object of objects for each output
 			- output name as string
 				- priority: priority as per *output* prio <n> in *cagebreak-config(5)* or default
@@ -257,6 +263,7 @@ cg-ipc{"event_name":"destroy_output","output":"HDMI-A-1","output_id":2}
 				- size: object of width and height as integers
 				- refresh_rate: refresh rate as float
 				- permanent: 0 if peripheral, 1 if permanent
+				- active: 1 if the output is active, 0 if not
 				- curr_workspace: current workspace as an integer
 				- workspaces: list of objects for each workspace
 					- views: list of objects for each view
@@ -289,12 +296,18 @@ cg-ipc{"event_name":"dump","nws":1,
 "curr_output":"eDP-1",
 "default_mode":"top",
 "modes":["top","root","resize"],
-"outputs": {"eDP-1": {
+"message_config": {"font": "pango:Monospace 10",
+"display_time": 2,
+"bg_color": [0.900000,0.850000,0.850000,1.000000],
+"fg_color": [0.000000,0.000000,0.000000,1.000000],
+"anchor": "top_right"
+},"outputs": {"eDP-1": {
 "priority": -1,
 "coords": {"x":0,"y":0},
 "size": {"width":2560,"height":1440},
 "refresh_rate": 60.012000,
-"permanent": 0
+"permanent": 0,
+"active": 1,
 "curr_workspace": 0,
 "workspaces": [{"views": [{
 "id": 16,

@@ -77,4 +77,6 @@ int
 output_get_num(const struct cg_output *output);
 void
 handle_output_gamma_control_set_gamma(struct wl_listener *listener, void *data);
+void
+output_insert(struct cg_server *server, struct cg_output *output);
 #endif
