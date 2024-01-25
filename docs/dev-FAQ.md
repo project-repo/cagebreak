@@ -1,7 +1,5 @@
 # FAQ for Development
 
-## What is the high-level Architecture?
-
 ## How is cagebreak adjusted to a new wlroots version?
 
 There are three steps:
