@@ -191,8 +191,8 @@ in the future:
 
 Cagebreak is managed by project-repo.
 
-Consider project-repo a single
-benevolent dictator for life that happens to occupy at least two brains.
+Consider project-repo a single benevolent dictator for life that happens
+to occupy at least two brains.
 
 Project-repo is a pseudonym of at least two individuals acting
 as benevolent dictators for the project by the others mutual consent.
