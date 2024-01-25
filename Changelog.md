@@ -1,5 +1,36 @@
 # Changelog
 
+## Release 2.3.0
+
+Functionality:
+  * Add configuration to anchor position of messages (#60, 71 in Bugs.md).
+  * Add output priorisation (#38, 68 in Bugs.md).
+  * Print whether output is active in dump.
+
+Bug Fixes:
+  * Fix gamma control (72 in Bugs.md).
+  * Add missing commands to example config.
+  * Add configure_message to dump output.
+
+Example Scripts:
+  * Add screenshot script.
+  * Make example scripts standalone.
+
+Documentation:
+  * Escape html tags in config man page. (#68, 69 in Bugs.md)
+  * Improve README.md (#62, 70 in Bugs.md).
+  * Improve SECURITY.md.
+  * Add CONTRIBUTING.md (#62, 70 in Bugs.md).
+  * FAQ: Add Firefox screenshare instructions for wayland.
+  * FAQ: Add wlroots downgrading instructions for workaround in case of temporary wlroots incompatibility.
+  * Update copyright notices to 2024.
+
+Development Tooling:
+  * Add new gpg keys (signed by the old ones).
+  * Add PR template.
+  * Add dev-FAQ.
+  * Remove now-unnecessary fanalyzer pragmas.
+
 ## Release 2.2.0
 
   * Add custom events
