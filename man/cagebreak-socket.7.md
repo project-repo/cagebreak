@@ -251,11 +251,11 @@ cg-ipc{"event_name":"destroy_output","output":"HDMI-A-1","output_id":2}
 		- default_mode: name of the default mode as a string
 		- modes: list of names of modes as strings
 		- message_config: the current configuration of the cagebreak messages
-		  * font: the font used to display the messages
-		  * display_time: the duration in seconds that the cagebreak messages are displayed
-		  * bg_color: list of four floating point numbers denoting the background color in rgba
-		  * fg_color: list of four floating point numbers denoting the foreground color in rgba
-		  * anchor: the positioning of the messages on the screen (see *cagebreak-config(5)* for more information)
+			- font: the font used to display the messages
+			- display_time: the duration in seconds that the cagebreak messages are displayed
+			- bg_color: list of four floating point numbers denoting the background color in rgba
+			- fg_color: list of four floating point numbers denoting the foreground color in rgba
+			- anchor: the positioning of the messages on the screen (see *cagebreak-config(5)* for more information)
 		- outputs: object of objects for each output
 			- output name as string
 				- priority: priority as per *output* prio <n> in *cagebreak-config(5)* or default
