@@ -1,4 +1,4 @@
-// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// Copyright 2020 - 2024, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #include "input.h"
@@ -219,7 +219,7 @@ output_by_name_or_id(const char *name_or_id, struct cg_server *server) {
 		char identifier[128];
 		output_get_identifier(identifier, sizeof(identifier), output);
 		if(strcasecmp(identifier, name_or_id) == 0 ||
-		   strcasecmp(output->wlr_output->name, name_or_id) == 0) {
+		   strcasecmp(output->name, name_or_id) == 0) {
 			return output;
 		}
 	}

@@ -1,0 +1,44 @@
+#!/bin/bash
+# Copyright 2023 - 2024, project-repo, sodface and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+#
+# Execute this script if you want to take a screenshot.
+# Please supply your chosen cropping/editing tool as a
+# command-line argument. The filepath to the temporary
+# file will be given as an argument to your command.
+#
+# Example:
+# screenshot_script "gwenview"
+
+named_pipe_send="$(mktemp -u)"
+named_pipe_recv="$(mktemp -u)"
+mkfifo "${named_pipe_send}"
+mkfifo "${named_pipe_recv}"
+nc -U "${CAGEBREAK_SOCKET}" < "${named_pipe_send}" > "${named_pipe_recv}"&
+# The file descriptor 3 is set up to send commands to cagebreak and file
+# descriptor 4 can be used to read events. Notice that events will pile up in
+# file descriptor 4, so it is a good idea to continuously read from it or to
+# clear it before starting a new transaction.
+exec 3>"${named_pipe_send}"
+exec 4<"${named_pipe_recv}"
+# When the script exits, the os will clean up the pipe
+rm "${named_pipe_recv}"
+rm "${named_pipe_send}"
+
+if [[ ${#} -lt 1 ]]
+then
+        echo "Expected a single command line argument specifying the command to edit the screenshot."
+        exit 1
+fi
+
+edit_cmd="${1}"
+
+echo "dump" >&3
+IFS= read -r -d $'\0' event <&4
+
+co="$(echo "${event:6}"|jq -r ".curr_output")"
+tmpfile="$(mktemp)"
+grim -t png -o "${co}" "${tmpfile}"
+bash -c "${edit_cmd} \"${tmpfile}\""
+wl-copy < "${tmpfile}"
+rm "${tmpfile}"

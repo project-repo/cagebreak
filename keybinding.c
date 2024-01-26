@@ -1,4 +1,4 @@
-// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// Copyright 2020 - 2024, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
@@ -90,6 +90,7 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 		if(keybinding->data.m_cfg->font != NULL) {
 			free(keybinding->data.m_cfg->font);
 		}
+		free(keybinding->data.m_cfg);
 		break;
 	case KEYBINDING_DISPLAY_MESSAGE:
 		if(keybinding->data.c != NULL) {
@@ -248,8 +249,7 @@ swap_tile(struct cg_tile *tile,
 	    "{\"event_name\":\"swap_tile\",\"tile_id\":%d,\"swap_"
 	    "tile_id\":%d,\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 	    tile->id, swap_tile->id, tile->workspace->num + 1,
-	    tile->workspace->output->wlr_output->name,
-	    output_get_num(tile->workspace->output));
+	    tile->workspace->output->name, output_get_num(tile->workspace->output));
 }
 
 void
@@ -399,8 +399,7 @@ resize(struct cg_tile *tile, const struct cg_tile *parent, int coord_offset,
 	               "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 	               tile->id, old_x, old_y, old_height, old_width, tile->tile.x,
 	               tile->tile.y, tile->tile.height, tile->tile.width,
-	               tile->workspace->num + 1,
-	               tile->workspace->output->wlr_output->name,
+	               tile->workspace->num + 1, tile->workspace->output->name,
 	               output_get_num(tile->workspace->output));
 }
 
@@ -455,18 +454,18 @@ resize_vertical(struct cg_tile *tile, struct cg_tile *parent, int y_offset,
 void
 resize_tile(struct cg_server *server, int hpixs, int vpixs) {
 	struct cg_output *output = server->curr_output;
-	struct wlr_box output_box;
-	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,
-	                          &output_box);
 
 	struct cg_tile *focused =
 	    output->workspaces[output->curr_workspace]->focused_tile;
 	/* First do the horizontal adjustment */
-	if(hpixs != 0 && focused->tile.width < output_box.width &&
-	   is_between_strict(0, output_box.width, focused->tile.width + hpixs)) {
+	if(hpixs != 0 &&
+	   focused->tile.width < output_get_layout_box(output).width &&
+	   is_between_strict(0, output_get_layout_box(output).width,
+	                     focused->tile.width + hpixs)) {
 		int x_offset = 0;
 		/* In case we are on the total right, move the left edge of the tile */
-		if(focused->tile.x + focused->tile.width == output_box.width) {
+		if(focused->tile.x + focused->tile.width ==
+		   output_get_layout_box(output).width) {
 			x_offset = -hpixs;
 		}
 		bool resize_allowed =
@@ -476,10 +475,13 @@ resize_tile(struct cg_server *server, int hpixs, int vpixs) {
 		}
 	}
 	/* Repeat for vertical */
-	if(vpixs != 0 && focused->tile.height < output_box.height &&
-	   is_between_strict(0, output_box.height, focused->tile.height + vpixs)) {
+	if(vpixs != 0 &&
+	   focused->tile.height < output_get_layout_box(output).height &&
+	   is_between_strict(0, output_get_layout_box(output).height,
+	                     focused->tile.height + vpixs)) {
 		int y_offset = 0;
-		if(focused->tile.y + focused->tile.height == output_box.height) {
+		if(focused->tile.y + focused->tile.height ==
+		   output_get_layout_box(output).height) {
 			y_offset = -vpixs;
 		}
 		bool resize_allowed =
@@ -500,7 +502,7 @@ keybinding_workspace_fullscreen(struct cg_server *server) {
 	               "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 	               output->workspaces[output->curr_workspace]->focused_tile->id,
 	               output->workspaces[output->curr_workspace]->num + 1,
-	               output->wlr_output->name, output_get_num(output));
+	               output->name, output_get_num(output));
 }
 
 // Switch to a differerent virtual terminal
@@ -593,8 +595,8 @@ keybinding_split_output(struct cg_output *output, bool vertical) {
 	    "{\"event_name\":\"split\",\"tile_id\":%d,\"new_tile_id\":%d,"
 	    "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d,\"vertical\":%d}",
 	    curr_workspace->focused_tile->id, new_tile->id, curr_workspace->num + 1,
-	    curr_workspace->output->wlr_output->name,
-	    output_get_num(curr_workspace->output), vertical);
+	    curr_workspace->output->name, output_get_num(curr_workspace->output),
+	    vertical);
 }
 
 static void
@@ -612,8 +614,7 @@ keybinding_close_view(struct cg_view *view) {
 	    outp->server,
 	    "{\"event_name\":\"close\",\"view_id\":%d,\"view_pid\":%d,\"tile_id\":"
 	    "%d,\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
-	    view_id, view_pid, tile_id, ws + 1, outp->wlr_output->name,
-	    output_get_num(outp));
+	    view_id, view_pid, tile_id, ws + 1, outp->name, output_get_num(outp));
 }
 
 static void
@@ -628,7 +629,7 @@ keybinding_split_horizontal(struct cg_server *server) {
 
 static void
 into_process(const char *command) {
-	execl("/bin/sh", "sh", "-c", command, (char *)NULL);
+	execlp("sh", "sh", "-c", command, (char *)NULL);
 	_exit(1);
 }
 
@@ -668,8 +669,8 @@ keybinding_cycle_outputs(struct cg_server *server, bool reverse,
 		    "{\"event_name\":\"cycle_outputs\",\"old_output\":\"%s\",\"old_"
 		    "output_id\":%d,"
 		    "\"new_output\":\"%s\",\"new_output_id\":%d,\"reverse\":%d}",
-		    old_output->wlr_output->name, output_get_num(old_output),
-		    output->wlr_output->name, output_get_num(output), reverse);
+		    old_output->name, output_get_num(old_output), output->name,
+		    output_get_num(output), reverse);
 	}
 }
 
@@ -719,7 +720,7 @@ keybinding_cycle_views(struct cg_server *server, bool reverse, bool ipc) {
 		    curr_id, curr_pid, next_view == NULL ? -1 : (int)next_view->id,
 		    next_view == NULL ? -1 : (int)next_view->impl->get_pid(next_view),
 		    next_view->tile->id, curr_workspace->num + 1,
-		    curr_workspace->output->wlr_output->name,
+		    curr_workspace->output->name,
 		    output_get_num(curr_workspace->output));
 	}
 }
@@ -742,7 +743,7 @@ keybinding_focus_tile(struct cg_server *server, uint32_t tile_id) {
 			    "{\"event_name\":\"focus_tile\",\"old_tile_id\":%d,\"new_tile_"
 			    "id\":%d,\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 			    old_tile->id, workspace->focused_tile->id, workspace->num + 1,
-			    output->wlr_output->name, output_get_num(output));
+			    output->name, output_get_num(output));
 			break;
 		}
 	}
@@ -776,8 +777,7 @@ keybinding_switch_ws(struct cg_server *server, uint32_t ws) {
 	ipc_send_event(output->server,
 	               "{\"event_name\":\"switch_ws\",\"old_workspace\":%d,"
 	               "\"new_workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
-	               old_ws + 1, ws + 1, output->wlr_output->name,
-	               output_get_num(output));
+	               old_ws + 1, ws + 1, output->name, output_get_num(output));
 	return 0;
 }
 
@@ -832,6 +832,50 @@ print_str(struct dyn_str *outp, const char *fmt, ...) {
 	++outp->cur_pos;
 	outp->len += strlen(ret);
 	return 0;
+}
+
+char *
+print_message_conf(struct cg_message_config *config) {
+	struct dyn_str outp_str;
+	outp_str.len = 0;
+	outp_str.cur_pos = 0;
+	uint32_t nmemb = 7;
+	outp_str.str_arr = calloc(nmemb, sizeof(char *));
+	print_str(&outp_str, "\"message_config\": {");
+	print_str(&outp_str, "\"font\": \"%s\",\n", config->font);
+	print_str(&outp_str, "\"display_time\": %d,\n", config->display_time);
+	print_str(&outp_str, "\"bg_color\": [%f,%f,%f,%f],\n", config->bg_color[0],
+	          config->bg_color[1], config->bg_color[2], config->bg_color[3]);
+	print_str(&outp_str, "\"fg_color\": [%f,%f,%f,%f],\n", config->fg_color[0],
+	          config->fg_color[1], config->fg_color[2], config->fg_color[3]);
+	switch(config->anchor) {
+	case CG_MESSAGE_TOP_LEFT:
+		print_str(&outp_str, "\"anchor\": \"top_left\"\n", config->font);
+		break;
+	case CG_MESSAGE_TOP_CENTER:
+		print_str(&outp_str, "\"anchor\": \"top_center\"\n", config->font);
+		break;
+	case CG_MESSAGE_TOP_RIGHT:
+		print_str(&outp_str, "\"anchor\": \"top_right\"\n", config->font);
+		break;
+	case CG_MESSAGE_BOTTOM_LEFT:
+		print_str(&outp_str, "\"anchor\": \"bottom_left\"\n", config->font);
+		break;
+	case CG_MESSAGE_BOTTOM_CENTER:
+		print_str(&outp_str, "\"anchor\": \"bottom_center\"\n", config->font);
+		break;
+	case CG_MESSAGE_BOTTOM_RIGHT:
+		print_str(&outp_str, "\"anchor\": \"bottom_right\"\n", config->font);
+		break;
+	case CG_MESSAGE_CENTER:
+		print_str(&outp_str, "\"anchor\": \"center\"\n", config->font);
+		break;
+	case CG_MESSAGE_NOPT: // This should actually never occur
+		print_str(&outp_str, "\"anchor\": \"no_op\"\n", config->font);
+		break;
+	}
+	print_str(&outp_str, "}");
+	return dyn_str_to_str(&outp_str);
 }
 
 void
@@ -1017,19 +1061,19 @@ print_output(struct cg_output *outp) {
 	struct dyn_str outp_str;
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
-	uint32_t nmemb = 8;
-	struct wlr_box outp_box;
-	wlr_output_layout_get_box(outp->server->output_layout, outp->wlr_output,
-	                          &outp_box);
+	uint32_t nmemb = 10;
 	outp_str.str_arr = calloc(nmemb, sizeof(char *));
-	print_str(&outp_str, "\"%s\": {\n", outp->wlr_output->name);
+	print_str(&outp_str, "\"%s\": {\n", outp->name);
 	print_str(&outp_str, "\"priority\": %d,\n", outp->priority);
-	print_str(&outp_str, "\"coords\": {\"x\":%d,\"y\":%d},\n", outp_box.x,
-	          outp_box.y);
+	print_str(&outp_str, "\"coords\": {\"x\":%d,\"y\":%d},\n",
+	          output_get_layout_box(outp).x, output_get_layout_box(outp).y);
 	print_str(&outp_str, "\"size\": {\"width\":%d,\"height\":%d},\n",
 	          outp->wlr_output->width, outp->wlr_output->height);
 	print_str(&outp_str, "\"refresh_rate\": %f,\n",
 	          (float)outp->wlr_output->refresh / 1000.0);
+	print_str(&outp_str, "\"permanent\": %d,\n",
+	          outp->role == OUTPUT_ROLE_PERMANENT);
+	print_str(&outp_str, "\"active\": %d,\n", !outp->destroyed);
 	print_str(&outp_str, "\"curr_workspace\": %d,\n", outp->curr_workspace + 1);
 	char *workspaces_str = print_workspaces(outp);
 	if(workspaces_str != NULL) {
@@ -1183,7 +1227,7 @@ keybinding_dump(struct cg_server *server) {
 	struct dyn_str str;
 	str.len = 0;
 	str.cur_pos = 0;
-	uint32_t nmemb = 13;
+	uint32_t nmemb = 14;
 	str.str_arr = calloc(nmemb, sizeof(char *));
 
 	print_str(&str, "{\"event_name\":\"dump\",");
@@ -1200,11 +1244,15 @@ keybinding_dump(struct cg_server *server) {
 	}
 	print_str(&str, "\"views_curr_id\":%d,\n", curr_view_id);
 	print_str(&str, "\"tiles_curr_id\":%d,\n", curr_tile_id);
-	print_str(&str, "\"curr_output\":\"%s\",\n",
-	          server->curr_output->wlr_output->name);
+	print_str(&str, "\"curr_output\":\"%s\",\n", server->curr_output->name);
 	print_str(&str, "\"default_mode\":\"%s\",\n",
 	          get_mode_name(server->modes, server->seat->default_mode));
 	print_modes(&str, server->modes);
+	char *message_string = print_message_conf(&server->message_config);
+	if(message_string != NULL) {
+		print_str(&str, "%s,", message_string);
+		free(message_string);
+	}
 	char *outps_str = print_outputs(server);
 	if(outps_str != NULL) {
 		print_str(&str, "%s,", outps_str);
@@ -1296,9 +1344,8 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 	    "{\"event_name\":\"move_view_to_cycle_output\",\"view_id\":%d,\"view_"
 	    "pid\":%d,\"old_output\":\"%s\",\"old_output_id\":%d,\"new_output\":\"%"
 	    "s\",\"new_output_id\":%d,\"old_tile_id\":%d,\"new_tile_id\":%d}",
-	    id, pid, old_outp->wlr_output->name, output_get_num(old_outp),
-	    server->curr_output->wlr_output->name,
-	    output_get_num(server->curr_output),
+	    id, pid, old_outp->name, output_get_num(old_outp),
+	    server->curr_output->name, output_get_num(server->curr_output),
 	    old_outp->workspaces[old_outp->curr_workspace]->focused_tile->id,
 	    server->curr_output->workspaces[server->curr_output->curr_workspace]
 	        ->focused_tile->id);
@@ -1420,8 +1467,8 @@ keybinding_switch_output(struct cg_server *server, int output) {
 			               "{\"event_name\":\"switch_output\",\"old_output\":"
 			               "\"%s\",\"old_output_id\":%d,\"new_output\":\"%s\","
 			               "\"new_output_id\":%d}",
-			               old_outp->wlr_output->name, output_get_num(old_outp),
-			               it->wlr_output->name, output_get_num(it));
+			               old_outp->name, output_get_num(old_outp), it->name,
+			               output_get_num(it));
 			return;
 		}
 		++count;
@@ -1467,8 +1514,7 @@ keybinding_move_view_to_output(struct cg_server *server, int output_num) {
 	    server,
 	    "{\"event_name\":\"move_view_to_output\",\"view_id\":%d,\"old_"
 	    "output\":\"%s\",\"new_output\":\"%s\"}",
-	    view_id, old_outp->wlr_output->name,
-	    server->curr_output->wlr_output->name);
+	    view_id, old_outp->name, server->curr_output->name);
 }
 
 void
@@ -1503,7 +1549,7 @@ keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
 	               "\"old_workspace\":%d,\"new_workspace\":%d,"
 	               "\"output\":\"%s\",\"output_id\":%d,\"view_pid\":%d}",
 	               view == NULL ? -1 : (int)view->id, old_ws + 1, ws + 1,
-	               server->curr_output->wlr_output->name,
+	               server->curr_output->name,
 	               output_get_num(server->curr_output),
 	               view == NULL ? 0 : view->impl->get_pid(view));
 }
@@ -1552,17 +1598,18 @@ keybinding_configure_output(struct cg_server *server,
 
 	struct cg_output *output, *tmp_output;
 	wl_list_for_each_safe(output, tmp_output, &server->outputs, link) {
-		if(strcmp(config->output_name, output->wlr_output->name) == 0) {
+		if(strcmp(config->output_name, output->name) == 0) {
+			int output_num = output_get_num(output);
 			output_configure(server, output);
-			ipc_send_event(output->server,
+			ipc_send_event(server,
 			               "{\"event_name\":\"configure_output\",\"output\":\"%"
 			               "s\",\"output_id\":%d}",
-			               cfg->output_name, output_get_num(output));
+			               cfg->output_name, output_num);
 			return;
 		}
 	}
 	wl_list_for_each_safe(output, tmp_output, &server->disabled_outputs, link) {
-		if(strcmp(config->output_name, output->wlr_output->name) == 0) {
+		if(strcmp(config->output_name, output->name) == 0) {
 			output_configure(server, output);
 			ipc_send_event(
 			    output->server,
@@ -1618,6 +1665,9 @@ keybinding_configure_message(struct cg_server *server,
 		server->message_config.fg_color[2] = config->fg_color[2];
 		server->message_config.fg_color[3] = config->fg_color[3];
 	}
+	if(config->anchor != CG_MESSAGE_NOPT) {
+		server->message_config.anchor = config->anchor;
+	}
 	ipc_send_event(server, "{\"event_name\":\"configure_message\"}");
 }
 
@@ -1659,6 +1709,10 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	case KEYBINDING_RUN_COMMAND: {
 		int pid;
 		if((pid = fork()) == 0) {
+			setsid();
+			sigset_t set;
+			sigemptyset(&set);
+			sigprocmask(SIG_SETMASK, &set, NULL);
 			if(fork() == 0) {
 				into_process(data.c);
 			}

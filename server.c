@@ -1,4 +1,4 @@
-// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// Copyright 2020 - 2024, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
@@ -43,8 +43,7 @@ server_show_info(struct cg_server *server) {
 			return NULL;
 		}
 		output_str_tmp = output_str;
-		output_str = malloc_vsprintf("%s\t * %s\n", output_str,
-		                             output->wlr_output->name);
+		output_str = malloc_vsprintf("%s\t * %s\n", output_str, output->name);
 		free(output_str_tmp);
 	}
 	char *input_str = strdup(""), *input_str_tmp;

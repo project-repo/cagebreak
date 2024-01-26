@@ -1,4 +1,4 @@
-// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// Copyright 2020 - 2024, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
@@ -29,13 +29,8 @@ workspace_tile_update_view(struct cg_tile *tile, struct cg_view *view) {
 	}
 }
 
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
-#endif
 int
 full_screen_workspace_tiles(struct wlr_output_layout *layout,
-                            struct wlr_output *output,
                             struct cg_workspace *workspace,
                             uint32_t *tiles_curr_id) {
 	workspace->focused_tile = calloc(1, sizeof(struct cg_tile));
@@ -47,18 +42,15 @@ full_screen_workspace_tiles(struct wlr_output_layout *layout,
 	workspace->focused_tile->prev = workspace->focused_tile;
 	workspace->focused_tile->tile.x = 0;
 	workspace->focused_tile->tile.y = 0;
-	struct wlr_box output_box;
-	wlr_output_layout_get_box(layout, output, &output_box);
-	workspace->focused_tile->tile.width = output_box.width;
-	workspace->focused_tile->tile.height = output_box.height;
+	workspace->focused_tile->tile.width =
+	    output_get_layout_box(workspace->output).width;
+	workspace->focused_tile->tile.height =
+	    output_get_layout_box(workspace->output).height;
 	workspace_tile_update_view(workspace->focused_tile, NULL);
 	workspace->focused_tile->id = *tiles_curr_id;
 	++(*tiles_curr_id);
 	return 0;
 }
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic pop
-#endif
 
 struct cg_workspace *
 full_screen_workspace(struct cg_output *output) {
@@ -72,16 +64,15 @@ full_screen_workspace(struct cg_output *output) {
 		free(workspace);
 		return NULL;
 	}
+	workspace->output = output;
 	workspace->server = output->server;
 	workspace->num = -1;
 	workspace->scene = wlr_scene_tree_create(&scene_output->scene->tree);
-	if(full_screen_workspace_tiles(output->server->output_layout,
-	                               output->wlr_output, workspace,
+	if(full_screen_workspace_tiles(output->server->output_layout, workspace,
 	                               &output->server->tiles_curr_id) != 0) {
 		free(workspace);
 		return NULL;
 	}
-	workspace->output = output;
 	return workspace;
 }
 
@@ -102,10 +93,10 @@ void
 workspace_free_tiles(struct cg_workspace *workspace) {
 	workspace->focused_tile->prev->next = NULL;
 	while(workspace->focused_tile != NULL) {
-		if(workspace->output->server->running &&
-		   workspace->output->server->seat->cursor_tile ==
-		       workspace->focused_tile) {
-			workspace->output->server->seat->cursor_tile = NULL;
+		if(workspace->server->seat != NULL &&
+		   (!workspace->output->server->running ||
+		    workspace->focused_tile == workspace->server->seat->cursor_tile)) {
+			workspace->server->seat->cursor_tile = NULL;
 		}
 		struct cg_tile *next = workspace->focused_tile->next;
 		free(workspace->focused_tile);

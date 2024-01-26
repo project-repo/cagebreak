@@ -1,4 +1,4 @@
-// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// Copyright 2020 - 2024, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
@@ -53,10 +53,6 @@ xdg_decoration_handle_destroy(struct wl_listener *listener, void *data) {
 	free(xdg_decoration);
 }
 
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
-#endif
 static void
 xdg_decoration_handle_request_mode(struct wl_listener *listener, void *_data) {
 	struct cg_xdg_decoration *xdg_decoration =
@@ -67,21 +63,18 @@ xdg_decoration_handle_request_mode(struct wl_listener *listener, void *_data) {
 	wlr_xdg_toplevel_decoration_v1_set_mode(xdg_decoration->wlr_decoration,
 	                                        mode);
 }
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic pop
-#endif
 
 static void
 popup_unconstrain(struct cg_view *view, struct wlr_xdg_popup *popup) {
 	struct wlr_box *popup_box = &popup->current.geometry;
 
 	struct wlr_output_layout *output_layout = view->server->output_layout;
-	struct wlr_box view_output_box;
-	wlr_output_layout_get_box(
-	    output_layout, view->workspace->output->wlr_output, &view_output_box);
 	struct wlr_output *wlr_output = wlr_output_layout_output_at(
-	    output_layout, view_output_box.x + view->ox + popup_box->x,
-	    view_output_box.y + view->oy + popup_box->y);
+	    output_layout,
+	    output_get_layout_box(view->workspace->output).x + view->ox +
+	        popup_box->x,
+	    output_get_layout_box(view->workspace->output).y + view->oy +
+	        popup_box->y);
 	struct wlr_box output_box;
 	wlr_output_layout_get_box(output_layout, wlr_output, &output_box);
 
@@ -171,8 +164,9 @@ handle_xdg_shell_surface_request_fullscreen(struct wl_listener *listener,
 	 * they display in fullscreen mode, so we set it here.
 	 */
 	struct wlr_box layout_box;
-	wlr_output_layout_get_box(xdg_shell_view->view.server->output_layout, NULL,
-	                          &layout_box);
+	wlr_output_layout_get_box(
+	    xdg_shell_view->view.server->output_layout,
+	    xdg_shell_view->view.workspace->output->wlr_output, &layout_box);
 	wlr_xdg_toplevel_set_size(xdg_shell_view->xdg_surface->toplevel,
 	                          layout_box.width, layout_box.height);
 

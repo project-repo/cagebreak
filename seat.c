@@ -1,4 +1,4 @@
-// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// Copyright 2020 - 2024, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200812L
@@ -95,7 +95,7 @@ new_touch(struct cg_seat *seat, struct cg_input_device *input_device) {
 	if(wlr_touch->output_name != NULL) {
 		struct cg_output *output;
 		wl_list_for_each(output, &seat->server->outputs, link) {
-			if(strcmp(wlr_touch->output_name, output->wlr_output->name) == 0) {
+			if(strcmp(wlr_touch->output_name, output->name) == 0) {
 				wlr_cursor_map_input_to_output(seat->cursor, device,
 				                               output->wlr_output);
 				break;
@@ -133,8 +133,7 @@ new_pointer(struct cg_seat *seat, struct cg_input_device *input_device) {
 	if(wlr_pointer->output_name != NULL) {
 		struct cg_output *output;
 		wl_list_for_each(output, &seat->server->outputs, link) {
-			if(strcmp(wlr_pointer->output_name, output->wlr_output->name) ==
-			   0) {
+			if(strcmp(wlr_pointer->output_name, output->name) == 0) {
 				wlr_cursor_map_input_to_output(seat->cursor, device,
 				                               output->wlr_output);
 				break;
@@ -732,35 +731,39 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 			break;
 		}
 	}
-	struct cg_tile *c_tile;
-	bool first = true;
-	for(c_tile = cg_outp->workspaces[cg_outp->curr_workspace]->focused_tile;
-	    first ||
-	    c_tile != cg_outp->workspaces[cg_outp->curr_workspace]->focused_tile;
-	    c_tile = c_tile->next) {
-		first = false;
-		double ox = seat->cursor->x, oy = seat->cursor->y;
-		wlr_output_layout_output_coords(seat->server->output_layout, c_outp,
-		                                &ox, &oy);
-		if(c_tile->tile.x <= ox && c_tile->tile.y <= oy &&
-		   c_tile->tile.x + c_tile->tile.width >= ox &&
-		   c_tile->tile.y + c_tile->tile.height >= oy) {
-			break;
+	if(c_outp) {
+		struct cg_tile *c_tile;
+		bool first = true;
+		for(c_tile = cg_outp->workspaces[cg_outp->curr_workspace]->focused_tile;
+		    first ||
+		    c_tile !=
+		        cg_outp->workspaces[cg_outp->curr_workspace]->focused_tile;
+		    c_tile = c_tile->next) {
+			first = false;
+			double ox = seat->cursor->x, oy = seat->cursor->y;
+			wlr_output_layout_output_coords(seat->server->output_layout, c_outp,
+			                                &ox, &oy);
+			if(c_tile->tile.x <= ox && c_tile->tile.y <= oy &&
+			   c_tile->tile.x + c_tile->tile.width >= ox &&
+			   c_tile->tile.y + c_tile->tile.height >= oy) {
+				break;
+			}
 		}
+		if(seat->cursor_tile != NULL && seat->cursor_tile != c_tile &&
+		   seat->server->running) {
+			ipc_send_event(
+			    seat->server,
+			    "{\"event_name\":\"cursor_switch_tile\",\"old_output\":"
+			    "\"%s\",\"old_output_id\":%d,"
+			    "\"old_tile\":%d,\"new_output\":\"%s\",\"new_output_"
+			    "id\":%d,\"new_tile\":%d}",
+			    seat->cursor_tile->workspace->output->name,
+			    output_get_num(seat->cursor_tile->workspace->output),
+			    seat->cursor_tile->id, c_outp->name, output_get_num(cg_outp),
+			    c_tile->id);
+		}
+		seat->cursor_tile = c_tile;
 	}
-	if(seat->cursor_tile != NULL && seat->cursor_tile != c_tile &&
-	   seat->server->running) {
-		ipc_send_event(seat->server,
-		               "{\"event_name\":\"cursor_switch_tile\",\"old_output\":"
-		               "\"%s\",\"old_output_id\":%d,"
-		               "\"old_tile\":%d,\"new_output\":\"%s\",\"new_output_"
-		               "id\":%d,\"new_tile\":%d}",
-		               seat->cursor_tile->workspace->output->wlr_output->name,
-		               output_get_num(seat->cursor_tile->workspace->output),
-		               seat->cursor_tile->id, c_outp->name,
-		               output_get_num(cg_outp), c_tile->id);
-	}
-	seat->cursor_tile = c_tile;
 }
 
 static void
@@ -915,6 +918,7 @@ handle_destroy(struct wl_listener *listener, void *_data) {
 	wl_list_remove(&seat->request_set_cursor.link);
 	wl_list_remove(&seat->request_set_selection.link);
 	wl_list_remove(&seat->request_set_primary_selection.link);
+	seat->server->seat = NULL;
 	free(seat);
 }
 
@@ -1095,9 +1099,8 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 
 	wlr_scene_node_raise_to_top(&view->scene_tree->node);
 	process_cursor_motion(seat, -1);
-	struct wlr_box box;
-	wlr_output_layout_get_box(server->output_layout,
-	                          view->workspace->output->wlr_output, &box);
-	wlr_scene_node_set_position(&view->workspace->output->bg->node, box.x,
-	                            box.y);
+	wlr_scene_node_set_position(
+	    &view->workspace->output->bg->node,
+	    output_get_layout_box(view->workspace->output).x,
+	    output_get_layout_box(view->workspace->output).y);
 }

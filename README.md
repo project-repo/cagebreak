@@ -1,80 +1,54 @@
-# Cagebreak: A Wayland Tiling Compositor
+# Cagebreak: A Tiling Wayland Compositor
 
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=2.3.0)](https://repology.org/project/cagebreak/versions)
 
-## Quick Introduction
+[![Contact](img/mail.svg)](SECURITY.md) [![Manuals](img/manuals.svg)](manuals.md) [![FAQ](img/faq.svg)](FAQ.md) [![CONTRIBUTING](img/contributing.svg)](CONTRIBUTING.md) [![ArchWiki](img/archwiki.svg)](https://wiki.archlinux.org/title/Cagebreak) [![AUR](img/aur.svg)](https://aur.archlinux.org/packages?O=0&K=cagebreak)
 
-Cagebreak is a [Wayland](https://wayland.freedesktop.org/) tiling compositor
-based on [Cage](https://github.com/Hjdskes/cage) and inspired by [ratpoison](https://www.nongnu.org/ratpoison/).
+## Introduction
 
-### Purpose
+Cagebreak provides a [ratpoison](https://www.nongnu.org/ratpoison/)-inspired, [cage](https://github.com/Hjdskes/cage)-based, tiling [Wayland](https://wayland.freedesktop.org/) compositor.
 
-This project provides a successor to ratpoison for Wayland.
-However, this is no reimplementation of ratpoison.
-
-#### New Features, Bugs and Contact Information
-
-You can [open an issue](https://github.com/project-repo/cagebreak/issues/new)
-or write an e-mail (See [SECURITY.md](SECURITY.md) for details.).
-
-The Roadmap section outlines our plans.
-
-#### Compatibility & Development Distribution
-
-Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the libraries
-and versions from extra and core at the time of release.
-Most other setups work with a bit of luck.
-
-### Quick Installation
-
-This assumes Arch Linux:
-
-1. Use the [cagebreak PKGBUILD](https://aur.archlinux.org/packages/cagebreak).
-2. Add an example config such as [config](examples/config) to `$USER/.config/cagebreak/config`
-3. Execute cagebreak like any other binary.
-
-See the [ArchWiki](https://wiki.archlinux.org/title/Cagebreak#Getting_started) for
-details on getting started and the documentation for everything else.
-
-### Documentation
-
-  * the man pages: [cagebreak](man/cagebreak.1.md), [configuration](man/cagebreak-config.5.md) & [socket](man/cagebreak-socket.7.md)
-  * the [README](README.md), [FAQ](FAQ.md) & [SECURITY.md](SECURITY.md)
-
-#### What's new?
-
-Check the [Changelog](Changelog.md).
-
-### Uninstallation
-
-`pacman -R cagebreak` should be sufficient.
-
-### Contributing
-
-  * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your idea.
-    We will get back to you.
-  * Ask before you open a pull request. We might not accept your code and
-    it would be sad to waste the effort.
-  * Respect the [Code of Conduct](CODE_OF_CONDUCT.md) (To date, we never
-    had to intervene - Keep it that way!)
-
-### Name
-
-Cagebreak is based on [Cage](https://github.com/Hjdskes/cage), a Wayland kiosk
-compositor. Since it breaks the kiosk into tiles the name
-Cagebreak seemed appropriate.
+  * Bugs, Contact Information and New Features:
+    * [Open an issue](https://github.com/project-repo/cagebreak/issues/new).
+    * Write an e-mail (See [SECURITY.md](SECURITY.md)).
+    * The Roadmap below outlines our plans.
+  * Compatibility & Development Distribution:
+    * Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the library
+      versions from extra and core at the time of release.
+      Most other setups work with a [bit of luck](https://repology.org/project/cagebreak/versions).
+  * Quick Installation (on ArchLinux, more [here (ArchWiki)](https://wiki.archlinux.org/title/Cagebreak)):
+    1. Use the [cagebreak PKGBUILD](https://aur.archlinux.org/packages/cagebreak).
+    2. Add an example config such as [config](examples/config) to `$USER/.config/cagebreak/config`
+    3. Execute cagebreak like any other binary.
+  * Documentation:
+    * [man pages](manuals.md)
+    * [README](README.md), [FAQ](FAQ.md) & [SECURITY.md](SECURITY.md)
+  * What's new?: [Changelog](Changelog.md)
+  * Uninstallation: `pacman -R cagebreak`
+  * Contributing:
+    * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your idea.
+      We will get back to you.
+    * Ask before you open a pull request. We might not accept your code and
+      it would be sad to waste the effort.
+    * Respect the [Code of Conduct](CODE_OF_CONDUCT.md) (To date, we've never
+      had to intervene. - Keep it that way!)
+  * Name: Cagebreak breaks the kiosk of [Cage](https://github.com/Hjdskes/cage) into tiles, hence the name.
 
 ## Installation
 
-On Arch Linux, just use the PKGBUILDs from the [AUR](https://aur.archlinux.org/):
+On [Arch Linux](https://archlinux.org/), use the [AUR](https://aur.archlinux.org/) [PKGBUILDs](https://wiki.archlinux.org/title/PKGBUILD):
 
   * Using [cagebreak](https://aur.archlinux.org/packages/cagebreak), Cagebreak is
-    compiled on the target system (since release 1.3.0)
+    built on the target system (since release 1.3.0)
   * Using [cagebreak-bin](https://aur.archlinux.org/packages/cagebreak-bin),
-    the pre-built binaries are extracted to
-    appropriate paths on the target system (since release 1.3.2)
+    pre-built binaries are extracted
+    to the target system (since release 1.3.2)
 
 See [cagebreak-pkgbuild](https://github.com/project-repo/cagebreak-pkgbuild) for details.
+
+You may check out other distros here:
+
+[![Packaging status](https://repology.org/badge/vertical-allrepos/cagebreak.svg)](https://repology.org/project/cagebreak/versions)
 
 ### Obtaining Source Code
 
@@ -85,61 +59,69 @@ There are different ways to obtain cagebreak source:
 
 #### Verifying Source Code
 
-There are corresponding methods of verifying that you obtained the correct code:
+There are ways to verify that you obtained the correct source (See `keys/`
+and [CONTRIBUTING](CONTRIBUTING.md)):
 
-  * our git history includes signed tags for releases
-  * release assets starting at release 1.2.1 contain a signature for the tarball
+  * signature for the tarball of release assets starting at release 1.2.1
+  * signed tags for releases in the git history
 
 ## Building Cagebreak
 
-You can build Cagebreak with the [meson](https://mesonbuild.com/) build system. It
-requires wayland, wlroots and xkbcommon to be installed. Note that Cagebreak is
-developed against the latest tag of wlroots, in order not to constantly chase
-breaking changes as soon as they occur.
+Cagebreak uses the [meson](https://mesonbuild.com/) build system.
 
-Simply execute the following steps to build Cagebreak:
+Cagebreak is developed against the latest tag of wlroots, so as not to constantly
+chase breaking changes.
+
+Execute the following commands to build Cagebreak:
 
 ```
-$ meson setup build
+$ meson setup build -Dxwayland=true -Dman-pages=true --buildtype=release
 $ ninja -C build
 ```
 
-#### Release Build
+### Man Pages
 
-By default, this builds a debug build. To build a release build, use `meson
-setup build --buildtype=release`.
+Remove `-Dman-pages=true` to disable man page generation.
 
-##### Xwayland Support
+To generate man pages, make sure that you have [scdoc](https://archlinux.org/packages/extra/x86_64/scdoc/) installed.
 
-Cagebreak comes with compile-time support for XWayland. To enable this,
-first make sure that your version of wlroots is compiled with this
-option. Then, add `-Dxwayland=true` to the `meson` command above. Note
-that you'll need to have the XWayland binary installed on your system
-for this to work.
+### Release Build
 
-##### Man Pages
+To obtain a debug build, remove `--buildtype=release`.
 
-Cagebreak has man pages. To use them, make sure that you have `scdoc`
-installed. Then, add `-Dman-pages=true` to the `meson` command.
+The release build is reproducible under conditions outlined in [CONTRIBUTING](CONTRIBUTING.md).
 
-### Running Cagebreak
+### Xwayland Support
 
-You can start Cagebreak by running `./build/cagebreak`. If you run it from
-within an existing X11 or Wayland session, it will open in a virtual output as
-a window in your existing session. If you run it in a TTY, it'll run with the
-KMS+DRM backend. Note that a configuration file is required. For more
-configuration options, see the man pages.
+To build Cagebreak without XWayland support, remove `-Dxwayland=true`.
 
-Please see `example_scripts/` for example scripts and a basis to customize
-from.
+To use XWayland make sure that your version of wlroots is compiled with
+XWayland support.
 
-#### Usage Philosophy
+You'll need to have [XWayland](https://archlinux.org/packages/extra/x86_64/xorg-xwayland/) installed for XWayland support to work.
 
-Cagebreak was originally built to suit the needs of its creators. This section outlines
+## Running Cagebreak
+
+```
+$ ./build/cagebreak
+```
+
+If you run Cagebreak within an existing X11 or Wayland session, it will
+open in a virtual output as a window in your existing session.
+
+If you run it in a TTY, it'll run with the KMS+DRM backend.
+
+Note that a configuration file is required. For more configuration options, see the [man pages](manuals.md).
+
+Please see `example_scripts/` for a basis to customize from.
+
+### Usage Philosophy
+
+Cagebreak was built to suit the needs of its creators. This outlines
 how we intended some parts of cagebreak and might ease learning how to use cagebreak a
-little bit. Please note that this does not replace the man pages or the FAQ.
-Also, this is in no way intended as a guide on how cagebreak must be used but rather
-as a source of inspiration and explanations for certain particularities.
+little bit. Please note that this does not replace the [man pages](manuals.md) or the [FAQ](FAQ.md).
+Also, this is not intended as a guide on how cagebreak must be used but
+as a source of inspiration and explanation for certain particularities.
 
 1. Cagebreak is keyboard-based. Everything regarding cagebreak can be done
    through the keyboard and it is our view that it should be. This does not mean
@@ -203,11 +185,14 @@ in the future:
 
   * React to all issues.
   * Add or modify features, which the authors find convenient or important.
-  * Improve the [OpenSSF Best Practices Badge Program](https://bestpractices.coreinfrastructure.org/en) level
+  * Improve the [OpenSSF Best Practices Badge Program](https://bestpractices.coreinfrastructure.org/en) level.
 
 ## Governance
 
 Cagebreak is managed by project-repo.
+
+Consider project-repo a single benevolent dictator for life that happens
+to occupy at least two brains.
 
 Project-repo is a pseudonym of at least two individuals acting
 as benevolent dictators for the project by the others mutual consent.
@@ -215,8 +200,9 @@ as benevolent dictators for the project by the others mutual consent.
 The individuals comprising project-repo are not otherwise associated
 by payment from any organisation or grant.
 
-For all intents and purposes consider project-repo as a single
-benevolent dictator for life that happens to occupy at least two brains.
+### Governance Issues
+
+Use [SECURITY.md](SECURITY.md) to contact project-repo.
 
 ### Roles
 
@@ -226,37 +212,20 @@ There are no specific roles forced unto anyone.
 
 ### Bus Factor
 
+The current bus factor for Cagebreak is: 1
+
 The Bus Factor is a measure of how many people have to be
 incapacitated for a project to be unable to continue.
 
-The current bus factor for Cagebreak is: 1
-
-Project-repo could still react to issues (even confidential
+Project-repo could react to issues (even confidential
 e-mails) and fix easier issues if any one individual were
 incapacitated.
 
 However, not all aspects of the code or release engineering
 are fully resilient to the loss of any one individual.
 
-We strive to improve the Bus Factor to at least two in all
-aspects of Cagebreak.
-
-### Governance Issues
-
-Anyone can use the information in [SECURITY.md](SECURITY.md) to
-contact the members of project-repo and bring governance
-issues to their attention.
-
-## Bugs
-
-For any bug, please [create an issue](https://github.com/project-repo/cagebreak/issues/new) on
-[GitHub](https://github.com/project-repo/cagebreak).
-
-Fixed bugs are to be assigned a number and summarized inside Bugs.md for future reference
-independent of github, in case this service is unavailable.
-
-For other means of contacting the Cagebreak authors and for security issues
-see [SECURITY.md](SECURITY.md).
+We strive to increase the bus factor to at least 2 in all
+aspects.
 
 ## Accessibility
 
@@ -268,6 +237,14 @@ see [SECURITY.md](SECURITY.md).
   * There is no screen reader support per se but using a screen reader on socket output
     would work and cagebreak does not preclude the use of a screen reader
     for any software run with it.
+
+## Bugs
+
+[Open an issue](https://github.com/project-repo/cagebreak/issues/new) is you find something.
+
+See [SECURITY.md](SECURITY.md) for other means of contacting the Cagebreak authors and security issues.
+
+Fixed bugs are assigned a number and summarized in [Bugs.md](Bugs.md) for future reference.
 
 ## Contributors
 
@@ -281,10 +258,14 @@ see [SECURITY.md](SECURITY.md).
       released in 2.2.1 with slight modifications
   * Tom Greig
     * Fix bug in merge_output_configs in 2.1.2
+  * sodface
+    * Add a screenshot example script in 2.3.0
+  * Luca Kennedy (unsigned-enby)
+    * [Add option to configure the anchor position of messages](https://github.com/project-repo/cagebreak/pull/61) in 2.3.0
 
 ## License
 
-Copyright (c) 2020-2023 The Cagebreak authors
+Copyright (c) 2020-2024 The Cagebreak authors
 Copyright (c) 2018-2020 Jente Hidskes
 Copyright (c) 2019 The Sway authors
 

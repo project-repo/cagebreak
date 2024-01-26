@@ -1,7 +1,5 @@
-#!/bin/bash
-# Copyright 2023, project-repo and the cagebreak contributors
+# Copyright 2024, project-repo and the cagebreak contributors
 # SPDX-License-Identifier: MIT
-
 named_pipe_send="$(mktemp -u)"
 named_pipe_recv="$(mktemp -u)"
 mkfifo "${named_pipe_send}"

@@ -1,8 +1,7 @@
 # Contributing
 
-  * Read this document and the README.
-  * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your feature request.
-    We will get back to you.
+  * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) and state your feature request. We will get back to you.
+  * Read this document, [README.md](README.md) and [docs/dev-FAQ.md](docs/dev-FAQ.md).
   * Ask before opening a pull request. We might not accept your
     code and it would be sad to waste the effort.
   * Respect the [Code of Conduct](CODE_OF_CONDUCT.md) (To date, we never
@@ -40,7 +39,7 @@ Do your best and we will collaborate toward a solution.
 ## Compatibility & Development Distribution
 
 Cagebreak supports [Arch Linux](https://archlinux.org/) and uses the library
-versions as they are obtained through core and extra
+versions as they are obtained from extra and core
 at the time of release.
 
 However, Cagebreak may also work on other distributions given the
@@ -207,7 +206,7 @@ Use of the script version is discouraged.
 
 Cagebreak should compile with any reasonably new gcc or clang. Consider
 a gcc version of at least [10.1](https://gcc.gnu.org/gcc-10/changes.html) if
-you want to get the benefit of the brand-new
+you want to get the benefit of the
 [-fanalyzer](https://gcc.gnu.org/onlinedocs/gcc/Static-Analyzer-Options.html)
 flag. However, this new flag sometimes produces false-postives and we
 selectively disable warnings for affected code segments as described below.
@@ -357,18 +356,20 @@ are part of a signed release tag.
 All releases are signed by at least one of the following collection of
 keys.
 
-  * E79F6D9E113529F4B1FFE4D5C4F974D70CEC2C5B
-  * 4739D329C9187A1C2795C20A02ABFDEC3A40545F
-  * 7535AB89220A5C15A728B75F74104CC7DCA5D7A8
-  * 827BC2320D535AEAD0540E6E2E66F65D99761A6F
-  * A88D7431E5BAAD0B6EAE550AC8D61D8BD4FA3C46
-  * 8F872885968EB8C589A32E9539ACC012896D450F
-  * 896B92AF738C974E0065BF42F2576BD366156BB9
-  * AA927AFD50AF7C6810E69FE8274F2C605359E31B
-  * BE2DED372287BC4EB2213E13A0C743848A638955
-  * 0F3476E4B2404F95EC41600683D5810F7911B020
-  * 4E82C72C6B3E58A7BC4FF8554909F84CA83BB867
-  * 5AEB1A2EB0D13F67E306AC59DC0CC81BE006FD85
+  * E79F6D9E113529F4B1FFE4D5C4F974D70CEC2C5B (expired)
+  * 4739D329C9187A1C2795C20A02ABFDEC3A40545F (expired)
+  * 7535AB89220A5C15A728B75F74104CC7DCA5D7A8 (expired)
+  * 827BC2320D535AEAD0540E6E2E66F65D99761A6F (expired)
+  * A88D7431E5BAAD0B6EAE550AC8D61D8BD4FA3C46 (expired)
+  * 8F872885968EB8C589A32E9539ACC012896D450F (expired)
+  * 896B92AF738C974E0065BF42F2576BD366156BB9 (expired)
+  * AA927AFD50AF7C6810E69FE8274F2C605359E31B (expired)
+  * BE2DED372287BC4EB2213E13A0C743848A638955 (expired)
+  * 0F3476E4B2404F95EC41600683D5810F7911B020 (expired)
+  * [4E82C72C6B3E58A7BC4FF8554909F84CA83BB867](keys/cagebreak_signing_key_11@project-repo.co.pub)
+  * [5AEB1A2EB0D13F67E306AC59DC0CC81BE006FD85](keys/cagebreak_signing_key_12@project-repo.co.pub)
+  * [438C27DDB5D174673DF4D67B451205B3528C7C63](keys/cagebreak_signing_key_13@project-repo.co.pub)
+  * [81372DDB8124349F0303B77448D7E2EE3343E3AA](keys/cagebreak_signing_key_14@project-repo.co.pub)
 
 Should we at any point retire a key, we will only replace it with keys signed
 by at least one of the above collection.
@@ -443,6 +444,7 @@ The release procedure outlines the process for a release to occur.
   * [ ] `git commit`
   * [ ] `git push origin development`
   * [ ] `git checkout master`
+  * [ ] `git pull --tags origin master`
   * [ ] `git merge --squash development`
   * [ ] `git commit` and insert message
   * [ ] `meson compile git-tag -C build`
