@@ -10,7 +10,7 @@ Functionality:
 Bug Fixes:
   * Fix gamma control (72 in Bugs.md).
   * Add missing commands to example config.
-  * Add configure_message to dump output.
+  * Add message_config to dump output.
 
 Example Scripts:
   * Add screenshot script.
