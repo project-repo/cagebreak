@@ -3,6 +3,7 @@
 
 #define _POSIX_C_SOURCE 200809L
 
+#include <signal.h>
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
