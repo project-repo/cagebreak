@@ -2,20 +2,30 @@
 
 ## How do I do a particular thing with cagebreak?
 
-  * Check the man pages
-    * [cagebreak config](man/cagebreak-config.5.md) (probably where you find the answer)
-    * [cagebreak](man/cagebreak.1.md) (command line options etc.)
-    * [cagebreak-socket](man/cagebreak-socket.7.md) (socket information, mostly useful for scritping)
-  * Check the rest of this FAQ
-  * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) or otherwise get in touch with the development team (See section Email Contact in [SECURITY.md](SECURITY.md)).
-
-Note that the feature set of cagebreak is intentionally limited.
+  * Check the [man pages](manuals.md).
+  * Check the rest of this file.
+  * [Open an issue](https://github.com/project-repo/cagebreak/issues/new) or get in touch (See section Email Contact in [SECURITY.md](SECURITY.md)).
 
 ## How do I remap Caps Lock?
 
 Remapping Caps Lock globally seems to be the best option.
 Follow instructions [here](https://wiki.archlinux.org/title/Linux_console/Keyboard_configuration) to achieve this (should be roughly
 distribution-agnostic).
+
+## What do I do if Cagebreak does not work with the current wlroots version?
+
+You can probably downgrade wlroots with
+
+```
+$ pacman -U /var/cache/pacman/pkg/old-version
+```
+
+If you have cleared your package cache, see instructions in the [ArchWiki](https://wiki.archlinux.org/title/downgrading_packages#Return_to_an_earlier_package_version).
+
+Cagebreak should start working again after the downgrade.
+
+After a new release, the downgrading will no longer be necessary (in fact,
+downgrading will probably break your setup).
 
 ## How do I get firefox to run under wayland?
 
@@ -25,6 +35,17 @@ Set the following environment variables
   * `GDK_BACKEND=wayland`
 
 to activate wayland support for firefox.
+
+## How do I get firefox to screenshare properly?
+
+Execute the following commands with the appropriate env vars:
+
+```
+export XDG_SESSION_TYPE=wayland
+export XDG_CURRENT_DESKTIP=sway
+/usr/lib/xdg-desktop-portal -r
+/usr/lib/xdg-desktop-portal-wlr
+```
 
 ## How do I map characters which are not on the Keyboard?
 

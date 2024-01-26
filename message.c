@@ -1,4 +1,4 @@
-// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// Copyright 2020 - 2024, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #include <cairo/cairo.h>
@@ -174,13 +174,9 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	return buf;
 }
 
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-malloc-leak"
-#endif
 void
 message_set_output(struct cg_output *output, const char *string,
-                   struct wlr_box *box, enum cg_message_align align) {
+                   struct wlr_box *box, enum cg_message_anchor anchor) {
 	struct cg_message *message = malloc(sizeof(struct cg_message));
 	if(!message) {
 		wlr_log(WLR_ERROR, "Error allocating message structure");
@@ -202,26 +198,35 @@ message_set_output(struct cg_output *output, const char *string,
 	int height = buf->base.height / scale;
 	message->position->width = width;
 	message->position->height = height;
-	switch(align) {
-	case CG_MESSAGE_TOP_RIGHT: {
-		message->position->x -= width;
+	switch(anchor) {
+	case CG_MESSAGE_TOP_LEFT:
+		message->position->x = 0;
+		message->position->y = 0;
 		break;
-	}
-	case CG_MESSAGE_BOTTOM_LEFT: {
+	case CG_MESSAGE_TOP_CENTER:
+		message->position->x -= width / 2;
+		message->position->y = 0;
+		break;
+	case CG_MESSAGE_TOP_RIGHT:
+		message->position->x -= width;
+		message->position->y = 0;
+		break;
+	case CG_MESSAGE_BOTTOM_LEFT:
+		message->position->x = 0;
 		message->position->y -= height;
 		break;
-	}
-	case CG_MESSAGE_BOTTOM_RIGHT: {
+	case CG_MESSAGE_BOTTOM_CENTER:
+		message->position->x -= width / 2;
+		message->position->y -= height;
+		break;
+	case CG_MESSAGE_BOTTOM_RIGHT:
 		message->position->x -= width;
 		message->position->y -= height;
 		break;
-	}
-	case CG_MESSAGE_CENTER: {
+	case CG_MESSAGE_CENTER:
 		message->position->x -= width / 2;
 		message->position->y -= height / 2;
 		break;
-	}
-	case CG_MESSAGE_TOP_LEFT:
 	default:
 		break;
 	}
@@ -235,17 +240,18 @@ message_set_output(struct cg_output *output, const char *string,
 	    wlr_scene_buffer_create(&scene_output->scene->tree, &buf->base);
 	wlr_scene_node_raise_to_top(&message->message->node);
 	wlr_scene_node_set_enabled(&message->message->node, true);
-	struct wlr_box outp_box;
-	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,
-	                          &outp_box);
 	wlr_scene_buffer_set_dest_size(message->message, width, height);
-	wlr_scene_node_set_position(&message->message->node,
-	                            message->position->x + outp_box.x,
-	                            message->position->y + outp_box.y);
+	wlr_scene_node_set_position(
+	    &message->message->node,
+	    message->position->x + output_get_layout_box(output).x,
+	    message->position->y + output_get_layout_box(output).y);
 }
 
 void
 message_printf(struct cg_output *output, const char *fmt, ...) {
+	if(output->destroyed) {
+		return;
+	}
 	va_list ap;
 	va_start(ap, fmt);
 	char *buffer = malloc_vsprintf_va_list(fmt, ap);
@@ -261,26 +267,55 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 		free(buffer);
 		return;
 	}
-	struct wlr_box output_box;
-	wlr_output_layout_get_box(output->server->output_layout, output->wlr_output,
-	                          &output_box);
-
-	box->x = output_box.width;
-	box->y = 0;
+	struct wlr_box output_box = output_get_layout_box(output);
 	box->width = 0;
 	box->height = 0;
+	switch(output->server->message_config.anchor) {
+	case CG_MESSAGE_TOP_LEFT:
+		box->x = 0;
+		box->y = 0;
+		break;
+	case CG_MESSAGE_TOP_CENTER:
+		box->x = output_box.width / 2;
+		box->y = 0;
+		break;
+	case CG_MESSAGE_TOP_RIGHT:
+		box->x = output_box.width;
+		box->y = 0;
+		break;
+	case CG_MESSAGE_BOTTOM_LEFT:
+		box->x = 0;
+		box->y = output_box.height;
+		break;
+	case CG_MESSAGE_BOTTOM_CENTER:
+		box->x = output_box.width / 2;
+		box->y = output_box.height;
+		break;
+	case CG_MESSAGE_BOTTOM_RIGHT:
+		box->x = output_box.width;
+		box->y = output_box.height;
+		break;
+	case CG_MESSAGE_CENTER:
+		box->x = output_box.width / 2;
+		box->y = output_box.height / 2;
+		break;
+	default:
+		break;
+	}
 
-	message_set_output(output, buffer, box, CG_MESSAGE_TOP_RIGHT);
+	message_set_output(output, buffer, box,
+	                   output->server->message_config.anchor);
 	free(buffer);
 	alarm(output->server->message_config.display_time);
 }
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic pop
-#endif
 
 void
 message_printf_pos(struct cg_output *output, struct wlr_box *position,
-                   const enum cg_message_align align, const char *fmt, ...) {
+                   const enum cg_message_anchor anchor, const char *fmt, ...) {
+	if(output->destroyed) {
+		free(position);
+		return;
+	}
 	uint16_t buf_len = 256;
 	char *buffer = (char *)malloc(buf_len * sizeof(char));
 	va_list ap;
@@ -289,7 +324,7 @@ message_printf_pos(struct cg_output *output, struct wlr_box *position,
 	vsnprintf(buffer, buf_len, fmt, ap);
 	va_end(ap);
 
-	message_set_output(output, buffer, position, align);
+	message_set_output(output, buffer, position, anchor);
 	free(buffer);
 	alarm(output->server->message_config.display_time);
 }

@@ -1,4 +1,4 @@
-cagebreak(1) "Version 2.2.3" "Cagebreak Manual"
+cagebreak(1) "Version 2.3.0" "Cagebreak Manual"
 
 # NAME
 
@@ -28,7 +28,7 @@ socket specified in the environment variable *\$CAGEBREAK_SOCKET*.
 The syntax accepted through this socket is identical to
 that of the configuration file (see *cagebreak-config(5)*).
 Errors which occur during interaction over IPC channel
-are displayed in a message box at the top right of the screen.
+are displayed in a message box on the screen.
 
 # OPTIONS
 
@@ -87,14 +87,12 @@ Mail contact: `cagebreak @ project-repo . co`
 
 GPG Fingerprints:
 
-- B15B92642760E11FE002DE168708D42451A94AB5
-- F8DD9F8DD12B85A28F5827C4678E34D2E753AA3C
-- 3ACEA46CCECD59E4C8222F791CBEB493681E8693
 - 0A268C188D7949FEB39FD1462F2AD980247E4918
+- 283D10F54201B0C6CCEE2C561DE04E4B056C749D
 
 # LICENSE
 
-Copyright (c) 2020-2023 The Cagebreak authors
+Copyright (c) 2020-2024 The Cagebreak authors
 
 Copyright (c) 2018-2020 Jente Hidskes
 

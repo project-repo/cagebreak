@@ -1,4 +1,4 @@
-// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// Copyright 2020 - 2024, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200812L
@@ -273,7 +273,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	server.scene_output_layout =
 	    wlr_scene_attach_output_layout(server.scene, server.output_layout);
 
-	compositor = wlr_compositor_create(server.wl_display, 5, server.renderer);
+	compositor = wlr_compositor_create(server.wl_display, 6, server.renderer);
 	if(!compositor) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots compositor");
 		ret = 1;

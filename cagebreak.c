@@ -1,4 +1,4 @@
-// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// Copyright 2020 - 2024, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _DEFAULT_SOURCE
@@ -18,6 +18,7 @@
 #include <wayland-client.h>
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
+#include <wlr/backend/headless.h>
 #include <wlr/render/allocator.h>
 #include <wlr/render/wlr_renderer.h>
 #include <wlr/types/wlr_compositor.h>
@@ -279,7 +280,6 @@ main(int argc, char *argv[]) {
 	struct wlr_viewporter *viewporter = NULL;
 	struct wlr_presentation *presentation = NULL;
 	struct wlr_xdg_output_manager_v1 *output_manager = NULL;
-	struct wlr_gamma_control_manager_v1 *gamma_control_manager = NULL;
 	struct wlr_xdg_shell *xdg_shell = NULL;
 	wl_list_init(&server.input_config);
 	wl_list_init(&server.output_config);
@@ -356,6 +356,7 @@ main(int argc, char *argv[]) {
 
 	server.message_config.display_time = 2;
 	server.message_config.font = strdup("pango:Monospace 10");
+	server.message_config.anchor = CG_MESSAGE_TOP_RIGHT;
 
 	event_loop = wl_display_get_event_loop(server.wl_display);
 	sigint_source =
@@ -369,6 +370,7 @@ main(int argc, char *argv[]) {
 	server.event_loop = event_loop;
 
 	backend = wlr_backend_autocreate(server.wl_display, &server.session);
+	server.headless_backend = wlr_headless_backend_create(server.wl_display);
 	if(!backend) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots backend");
 		ret = 1;
@@ -563,13 +565,17 @@ main(int argc, char *argv[]) {
 		goto end;
 	}
 
-	gamma_control_manager =
+	server.gamma_control =
 	    wlr_gamma_control_manager_v1_create(server.wl_display);
-	if(!gamma_control_manager) {
+	if(!server.gamma_control) {
 		wlr_log(WLR_ERROR, "Unable to create the gamma control manager");
 		ret = 1;
 		goto end;
 	}
+	server.gamma_control_set_gamma.notify =
+	    handle_output_gamma_control_set_gamma;
+	wl_signal_add(&server.gamma_control->events.set_gamma,
+	              &server.gamma_control_set_gamma);
 
 #if CG_HAS_XWAYLAND
 	server.xwayland = wlr_xwayland_create(server.wl_display, compositor, true);
@@ -671,6 +677,8 @@ main(int argc, char *argv[]) {
 		wl_list_init(&server.outputs);
 		struct cg_output *output, *output_tmp;
 		wl_list_for_each_safe(output, output_tmp, &tmp_list, link) {
+			wl_list_remove(&output->link);
+			output_insert(&server, output);
 			output_configure(&server, output);
 		}
 		server.curr_output =
@@ -692,10 +700,6 @@ main(int argc, char *argv[]) {
 
 end:
 	if(server.modes != NULL) {
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wanalyzer-double-free"
-#endif
 		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
 			free(server.modes[i]);
 		}
@@ -761,6 +765,3 @@ end:
 
 	return ret;
 }
-#if CG_HAS_FANALYZE
-#pragma GCC diagnostic pop
-#endif

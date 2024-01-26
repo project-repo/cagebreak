@@ -1,4 +1,4 @@
-// Copyright 2020 - 2023, project-repo and the cagebreak contributors
+// Copyright 2020 - 2024, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200812L
@@ -543,6 +543,10 @@ parse_output_config_keyword(char *key_str, enum output_status *status) {
 		*status = OUTPUT_DEFAULT;
 	} else if(strcmp(key_str, "enable") == 0) {
 		*status = OUTPUT_ENABLE;
+	} else if(strcmp(key_str, "permanent") == 0) {
+		*status = OUTPUT_DEFAULT;
+	} else if(strcmp(key_str, "peripheral") == 0) {
+		*status = OUTPUT_DEFAULT;
 	} else if(strcmp(key_str, "disable") == 0) {
 		*status = OUTPUT_DISABLE;
 	} else {
@@ -566,6 +570,7 @@ parse_output_config(char **saveptr, char **errstr) {
 	cfg->priority = -1;
 	cfg->scale = -1;
 	cfg->angle = -1;
+	cfg->role = OUTPUT_ROLE_DEFAULT;
 	char *name = strtok_r(NULL, " ", saveptr);
 	if(name == NULL) {
 		*errstr =
@@ -574,8 +579,9 @@ parse_output_config(char **saveptr, char **errstr) {
 	}
 	char *key_str = strtok_r(NULL, " ", saveptr);
 	if(parse_output_config_keyword(key_str, &(cfg->status)) != 0) {
-		*errstr = log_error("Expected keyword \"pos\", \"prio\", \"enable\" or "
-		                    "\"disable\" in output configuration for output %s",
+		*errstr = log_error("Expected keyword \"pos\", \"prio\", \"enable\", "
+		                    "\"disable\", \"permanent\" or \"peripheral\" in "
+		                    "output configuration for output %s",
 		                    name);
 		goto error;
 	}
@@ -619,6 +625,18 @@ parse_output_config(char **saveptr, char **errstr) {
 			goto error;
 		}
 		cfg->output_name = strdup(name);
+		return cfg;
+	}
+
+	if(strcmp(key_str, "peripheral") == 0) {
+		cfg->output_name = strdup(name);
+		cfg->role = OUTPUT_ROLE_PERIPHERAL;
+		return cfg;
+	}
+
+	if(strcmp(key_str, "permanent") == 0) {
+		cfg->output_name = strdup(name);
+		cfg->role = OUTPUT_ROLE_PERMANENT;
 		return cfg;
 	}
 
@@ -702,6 +720,7 @@ parse_message_config(char **saveptr, char **errstr) {
 	cfg->fg_color[0] = -1;
 	cfg->display_time = -1;
 	cfg->font = NULL;
+	cfg->anchor = CG_MESSAGE_NOPT;
 
 	char *setting = strtok_r(NULL, " ", saveptr);
 	if(setting == NULL) {
@@ -744,6 +763,22 @@ parse_message_config(char **saveptr, char **errstr) {
 				    "expected 4 float values separated by spaces");
 				goto error;
 			}
+		}
+	} else if(strcmp(setting, "anchor") == 0) {
+		char *anchors[] = {"top_left",    "top_center",    "top_right",
+		                   "bottom_left", "bottom_center", "bottom_right",
+		                   "center"};
+		for(int i = 0; i < 7; ++i) {
+			if(strcmp(*saveptr, anchors[i]) == 0) {
+				cfg->anchor = i;
+				break;
+			}
+		}
+		if(cfg->anchor == CG_MESSAGE_NOPT) {
+			*errstr =
+			    log_error("Error parsing command \"configure_message anchor\", "
+			              "the given anchor value is not a valid option");
+			goto error;
 		}
 	} else {
 		*errstr = log_error("Invalid option to command \"configure_message\"");

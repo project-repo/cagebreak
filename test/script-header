@@ -1,0 +1,17 @@
+#!/bin/bash
+# Copyright 2024, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+# Each example script must contain the header unmodified.
+
+# shellcheck disable=2164
+cd "${MESONCURRENTCONFIGDIR}"
+
+RESULT=0
+
+for file in example_scripts/*
+do
+	# shellcheck disable=2002
+	grep "$(cat test/testing-configurations/cb_script_header.sh | tail -n +3 | tr '\n' ' ' )" <(cat "$file" | tr '\n' ' ') || RESULT=1
+done
+
+exit $RESULT

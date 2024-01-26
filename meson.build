@@ -1,9 +1,9 @@
-# Copyright 2020 - 2023, project-repo and the cagebreak contributors
+# Copyright 2020 - 2024, project-repo and the cagebreak contributors
 # SPDX-License-Identifier: MIT
 project(
   'cagebreak',
   'c',
-version : '2.2.3',
+version : '2.3.0',
 license : 'MIT',
 default_options : ['c_std=c11', 'warning_level=3']
 )
@@ -204,12 +204,12 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.22.0',
   'wayland_cursor': '1.22.0',
-  'wlroots': '0.17.0',
+  'wlroots': '0.17.1',
   'xkbcommon': '1.6.0',
-  'fontconfig': '2.14.2',
-  'libinput': '1.24.0',
+  'fontconfig': '2.15.0',
+  'libinput': '1.25.0',
   'libevdev': '1.13.1',
-  'libudev': '254',
+  'libudev': '255',
   'pango': '1.51.0',
   'cairo': '1.18.0',
   'pangocairo': '1.51.0',
@@ -260,7 +260,7 @@ install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_nam
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1701768836
+  secssinceepoch = 1706213605
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
@@ -371,12 +371,16 @@ run_target('create-artefacts',
 # Test Suite
 
 test('Build without warnings', find_program('test/build-w-o-warnings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Example script header is consistent', find_program('test/script-header'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Script executability is consistent', find_program('test/script-header'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Man page consistency', find_program('test/man-pages'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
 test('Build without xwayland', find_program('test/build-w-o-xwayland'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
 test('Copyright and LICENSE', find_program('test/copyright-license'), args : [ cagebreak_main_file + cagebreak_source_strings + cagebreak_header_strings + fuzz_sources + fuzz_headers + fuzz_override_lib ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()), ''.join('MESONLICENSE=', meson.project_license())], suite: 'devel' )
-test('Clang-format (formatting check)', find_program('test/clang-format'), args : [ cagebreak_main_file + cagebreak_source_strings + cagebreak_header_strings + fuzz_sources + fuzz_headers + fuzz_override_lib ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
-test('Shellcheck (script linting)', find_program('test/shellcheck'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Formatting check (clang-format)', find_program('test/clang-format'), args : [ cagebreak_main_file + cagebreak_source_strings + cagebreak_header_strings + fuzz_sources + fuzz_headers + fuzz_override_lib ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Script linting (shellcheck)', find_program('test/shellcheck'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
 test('GPG key validity', find_program('test/gpg-validity'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
-test('Scan-build (static analysis)', find_program('test/scan-build'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel-long')
+test('Illegal Strings', find_program('test/illegal-strings'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel')
+test('Static analysis (scan-build)', find_program('test/scan-build'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'devel-long')
 test('Arguments', find_program('test/arguments'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
 test('Environment Variables', find_program('test/environment-variables'), env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'basic')
 test('Semantic versioning', find_program('test/versions'), args : [ meson.project_version() ], env : [ ''.join('MESONCURRENTCONFIGDIR=', meson.current_source_dir()) ], suite: 'release')
