@@ -1298,9 +1298,17 @@ accessibility.
 
 ## Issue 72
 
-  * github issue numner: N/A
+  * github issue number: N/A
   * Fixed: 2.3.0
 
 A Cagebreak version before 2.3.0 broke the gamma toolkit used to tune the
 monitor colors.
+
+## Issue 73
+
+  * github issue number: #73
+  * Fixed: 2.3.1
+
+After 2.3.0 cagebreak did not build on FreeBSD. Since the fix was trivial,
+this is fixed in 2.3.1. Thank to Jan Beich for pointing this out.
 
