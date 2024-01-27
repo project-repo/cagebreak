@@ -1254,7 +1254,7 @@ established behaviour.
 
 ## Issue 68
 
-  * github issue numner: #38
+  * github issue number: #38
   * Fixed: 2.3.0
 
 After extensive discussion of how to deal with turning off outputs, the
@@ -1265,7 +1265,7 @@ Thanks to sodface for the great cooperation.
 
 ## Issue 69
 
-  * github issue numner: #68
+  * github issue number: #68
   * Fixed: 2.3.0
 
 The config man page (5) was badly formatted up to version 2.3.0.
@@ -1275,7 +1275,7 @@ shown in the web browser view of our repo.
 
 ## Issue 70
 
-  * github issue numner: #62
+  * github issue number: #62
   * Fixed: 2.3.0
 
 The README contained a few non-intuitive phrases up to version 2.3.0.
@@ -1288,7 +1288,7 @@ To alleviate this, the following changes were made:
 
 ## Issue 71
 
-  * github issue numner: #60
+  * github issue number: #60
   * Fixed: 2.3.0
 
 Cagebreak up to 2.3.0 did not have configuration for the message location.
@@ -1311,4 +1311,13 @@ monitor colors.
 
 After 2.3.0 cagebreak did not build on FreeBSD. Since the fix was trivial,
 this is fixed in 2.3.1. Thank to Jan Beich for pointing this out.
+
+## Issue 74
+
+  * github issue number: #71
+  * Fixed. 2.3.0
+
+Before 2.3.0 there was an issue with rendering fullscreen applications, particularly
+under setups with multiple outputs applications spanned both outputs. Output ordering
+also did not work as advertised.
 
