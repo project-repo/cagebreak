@@ -42,7 +42,7 @@ Execute the following commands with the appropriate env vars:
 
 ```
 export XDG_SESSION_TYPE=wayland
-export XDG_CURRENT_DESKTIP=sway
+export XDG_CURRENT_DESKTOP=sway
 /usr/lib/xdg-desktop-portal -r
 /usr/lib/xdg-desktop-portal-wlr
 ```
