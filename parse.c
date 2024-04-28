@@ -1011,6 +1011,15 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			return -1;
 		}
 		keybinding->data.u = (unsigned int)mode_idx;
+	} else if(strcmp(action, "setmodecursor") == 0) {
+		keybinding->action = KEYBINDING_SETMODECURSOR;
+		char *cursor = strtok_r(NULL, " ", &saveptr);
+		if(cursor == NULL) {
+			*errstr = log_error(
+			    "Expected cursor name after \"setmodecursor\". Got nothing.");
+			return -1;
+		}
+		keybinding->data.c = strdup(cursor);
 	} else if(strcmp(action, "bind") == 0) {
 		keybinding->action = KEYBINDING_DEFINEKEY;
 		keybinding->data.kb =

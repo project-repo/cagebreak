@@ -78,6 +78,8 @@ struct cg_server;
                                                                                \
 	KEYBINDING(KEYBINDING_DEFINEKEY,                                           \
 	           definekey) /* data.kb is the keybinding definition */           \
+	KEYBINDING(KEYBINDING_SETMODECURSOR,                                       \
+	           setmodecursor) /* data.c is the name of ther cursor */          \
 	KEYBINDING(KEYBINDING_BACKGROUND,                                          \
 	           background) /* data.color is the background color */            \
 	KEYBINDING(KEYBINDING_DEFINEMODE,                                          \

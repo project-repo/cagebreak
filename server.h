@@ -65,6 +65,7 @@ struct cg_server {
 	bool bs;
 	bool running;
 	char **modes;
+	char *set_mode_cursor;
 	uint16_t nws;
 	float *bg_color;
 	uint32_t views_curr_id;

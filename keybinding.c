@@ -103,6 +103,10 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 			free(keybinding->data.c);
 		}
 		break;
+	case KEYBINDING_SETMODECURSOR:
+		if(keybinding->data.c != NULL) {
+			free(keybinding->data.c);
+		}
 	default:
 		break;
 	}
@@ -1740,10 +1744,11 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	case KEYBINDING_SWITCH_MODE:
 		if(data.u != server->seat->default_mode) {
 			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
-			if(server->seat->enable_cursor == true) {
+			if(server->seat->enable_cursor == true &&
+			   server->set_mode_cursor != NULL) {
 				wlr_cursor_set_xcursor(server->seat->cursor,
 				                       server->seat->xcursor_manager,
-				                       "dot_box_mask");
+				                       server->set_mode_cursor);
 			}
 		}
 		server->seat->mode = data.u;
@@ -1865,6 +1870,11 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_close_view(
 		    server->curr_output->workspaces[server->curr_output->curr_workspace]
 		        ->focused_tile->view);
+		break;
+	case KEYBINDING_SETMODECURSOR:
+		if(data.c != NULL) {
+			server->set_mode_cursor = strdup(data.c);
+		}
 		break;
 	default: {
 		wlr_log(WLR_ERROR,

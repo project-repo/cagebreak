@@ -287,6 +287,7 @@ main(int argc, char *argv[]) {
 
 	int ret = 0;
 	server.bs = 0;
+	server.set_mode_cursor = strdup("cell");
 
 	char *config_path = NULL;
 	if(!parse_args(&server, argc, argv, &config_path)) {
@@ -704,6 +705,10 @@ end:
 			free(server.modes[i]);
 		}
 		free(server.modes);
+	}
+	if(server.set_mode_cursor != NULL) {
+		free(server.set_mode_cursor);
+		server.set_mode_cursor = NULL;
 	}
 
 	if(config_path != NULL) {
