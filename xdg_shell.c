@@ -161,14 +161,17 @@ handle_xdg_shell_surface_request_fullscreen(struct wl_listener *listener,
 
 	/**
 	 * Certain clients do not like figuring out their own window geometry if
-	 * they display in fullscreen mode, so we set it here.
+	 * they display in fullscreen mode, so we set it here (if the view was
+	 * already mapped).
 	 */
-	struct wlr_box layout_box;
-	wlr_output_layout_get_box(
-	    xdg_shell_view->view.server->output_layout,
-	    xdg_shell_view->view.workspace->output->wlr_output, &layout_box);
-	wlr_xdg_toplevel_set_size(xdg_shell_view->xdg_surface->toplevel,
-	                          layout_box.width, layout_box.height);
+	if(xdg_shell_view->view.workspace != NULL) {
+		struct wlr_box layout_box;
+		wlr_output_layout_get_box(
+		    xdg_shell_view->view.server->output_layout,
+		    xdg_shell_view->view.workspace->output->wlr_output, &layout_box);
+		wlr_xdg_toplevel_set_size(xdg_shell_view->xdg_surface->toplevel,
+		                          layout_box.width, layout_box.height);
+	}
 
 	wlr_xdg_toplevel_set_fullscreen(
 	    xdg_shell_view->xdg_surface->toplevel,
