@@ -31,7 +31,7 @@ do
     fi
 done
 
-if head -3 README.md | tail -1 | grep -q "minversion=${newversion}"
+if head -6 README.md | tail -1 | grep -q "minversion=${newversion}"
 then
     echo "[x] README.md repology minversion"
 else
