@@ -204,15 +204,15 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.22.0',
   'wayland_cursor': '1.22.0',
-  'wlroots': '0.17.1',
-  'xkbcommon': '1.6.0',
+  'wlroots': '0.17.3',
+  'xkbcommon': '1.7.0',
   'fontconfig': '2.15.0',
   'libinput': '1.25.0',
   'libevdev': '1.13.1',
   'libudev': '255',
-  'pango': '1.51.0',
+  'pango': '1.52.2',
   'cairo': '1.18.0',
-  'pangocairo': '1.51.0',
+  'pangocairo': '1.52.2',
   'math': '-1'
 }
 
