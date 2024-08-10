@@ -1181,7 +1181,7 @@ print_input_device(struct cg_input_device *dev) {
 	    dev->wlr_device->type == WLR_INPUT_DEVICE_POINTER       ? "pointer"
 	    : dev->wlr_device->type == WLR_INPUT_DEVICE_SWITCH      ? "switch"
 	    : dev->wlr_device->type == WLR_INPUT_DEVICE_TABLET_PAD  ? "tablet pad"
-	    : dev->wlr_device->type == WLR_INPUT_DEVICE_TABLET_TOOL ? "tablet tool"
+	    : dev->wlr_device->type == WLR_INPUT_DEVICE_TABLET ? "tablet"
 	    : dev->wlr_device->type == WLR_INPUT_DEVICE_TOUCH       ? "touch"
 	    : dev->wlr_device->type == WLR_INPUT_DEVICE_KEYBOARD    ? "keyboard"
 	                                                            : "unknown");

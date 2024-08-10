@@ -9,6 +9,7 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/util/box.h>
 #include <wlr/util/log.h>
+#include <wlr/types/wlr_scene.h>
 #if CG_HAS_XWAYLAND
 #include <wlr/xwayland.h>
 #endif
@@ -69,7 +70,7 @@ static void
 activate(struct cg_view *view, bool activate) {
 	struct cg_xwayland_view *xwayland_view = xwayland_view_from_view(view);
 	wlr_xwayland_surface_activate(xwayland_view->xwayland_surface, activate);
-	if(activate) {
+	if(activate&&!xwayland_view->xwayland_surface->override_redirect) {
 		wlr_xwayland_surface_restack(xwayland_view->xwayland_surface, NULL,
 		                             XCB_STACK_MODE_ABOVE);
 	}
@@ -132,6 +133,7 @@ handle_xwayland_surface_unmap(struct wl_listener *listener, void *_data) {
 
 static void
 handle_xwayland_surface_map(struct wl_listener *listener, void *_data) {
+	fprintf(stderr,"HERE\n");
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, map);
 	struct cg_view *view = &xwayland_view->view;
@@ -145,6 +147,7 @@ handle_xwayland_surface_map(struct wl_listener *listener, void *_data) {
 	view_map(view, xwayland_view->xwayland_surface->surface,
 	         view->server->curr_output
 	             ->workspaces[view->server->curr_output->curr_workspace]);
+	xwayland_view->scene_tree = wlr_scene_subsurface_tree_create(view->scene_tree,xwayland_view->xwayland_surface->surface);
 }
 
 static void
@@ -202,8 +205,9 @@ handle_xwayland_surface_new(struct wl_listener *listener, void *data) {
 		return;
 	}
 
-	view_init(&xwayland_view->view, CG_XWAYLAND_VIEW, &xwayland_view_impl,
-	          server);
+	xwayland_view->scene_tree=NULL;
+
+	view_init(&xwayland_view->view, CG_XWAYLAND_VIEW, &xwayland_view_impl, server);
 	xwayland_view->xwayland_surface = xwayland_surface;
 
 	xwayland_view->associate.notify = handle_xwayland_surface_associate;

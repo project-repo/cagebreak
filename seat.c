@@ -451,7 +451,7 @@ seat_add_device(struct cg_seat *seat, struct cg_input_device *device) {
 	case WLR_INPUT_DEVICE_SWITCH:
 		wlr_log(WLR_DEBUG, "Switch input is not implemented");
 		return;
-	case WLR_INPUT_DEVICE_TABLET_TOOL:
+	case WLR_INPUT_DEVICE_TABLET:
 	case WLR_INPUT_DEVICE_TABLET_PAD:
 		wlr_log(WLR_DEBUG, "Tablet input is not implemented");
 		return;
@@ -520,7 +520,7 @@ seat_remove_device(struct cg_seat *seat, struct cg_input_device *device) {
 	case WLR_INPUT_DEVICE_SWITCH:
 		wlr_log(WLR_DEBUG, "Switch input is not implemented");
 		return;
-	case WLR_INPUT_DEVICE_TABLET_TOOL:
+	case WLR_INPUT_DEVICE_TABLET:
 	case WLR_INPUT_DEVICE_TABLET_PAD:
 		wlr_log(WLR_DEBUG, "Tablet input is not implemented");
 		return;
@@ -673,7 +673,7 @@ handle_cursor_axis(struct wl_listener *listener, void *data) {
 
 	wlr_seat_pointer_notify_axis(seat->seat, event->time_msec,
 	                             event->orientation, event->delta,
-	                             event->delta_discrete, event->source);
+	                             event->delta_discrete, event->source, event->relative_direction);
 	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
 

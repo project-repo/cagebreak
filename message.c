@@ -337,7 +337,9 @@ message_clear(struct cg_output *output) {
 		struct wlr_buffer *buf = message->message->buffer;
 		wlr_scene_node_destroy(&message->message->node);
 		free(message->position);
-		buf->impl->destroy(buf);
+		if(buf!=NULL) {
+			buf->impl->destroy(buf);
+		}
 		free(message);
 	}
 }

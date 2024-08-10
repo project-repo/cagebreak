@@ -228,13 +228,13 @@ handle_output_frame(struct wl_listener *listener, void *data) {
 }
 
 static int
-output_set_mode(struct wlr_output *output, int width, int height,
+output_set_mode(struct wlr_output *output, struct wlr_output_state* state, int width, int height,
                 float refresh_rate) {
 	int mhz = (int)(refresh_rate * 1000);
 
 	if(wl_list_empty(&output->modes)) {
 		wlr_log(WLR_DEBUG, "Assigning custom mode to %s", output->name);
-		wlr_output_set_custom_mode(output, width, height,
+		wlr_output_state_set_custom_mode(state, width, height,
 		                           refresh_rate > 0 ? mhz : 0);
 		return 0;
 	}
@@ -259,9 +259,9 @@ output_set_mode(struct wlr_output *output, int width, int height,
 	} else {
 		wlr_log(WLR_DEBUG, "Assigning configured mode to %s", output->name);
 	}
-	wlr_output_set_mode(output, best);
-	wlr_output_commit(output);
-	if(!wlr_output_test(output)) {
+	wlr_output_state_set_mode(state, best);
+	wlr_output_commit_state(output,state);
+	if(!wlr_output_test_state(output,state)) {
 		wlr_log(WLR_ERROR,
 		        "Unable to assign configured mode to %s, picking arbitrary "
 		        "available mode",
@@ -271,13 +271,13 @@ output_set_mode(struct wlr_output *output, int width, int height,
 			if(mode == best) {
 				continue;
 			}
-			wlr_output_set_mode(output, mode);
-			wlr_output_commit(output);
-			if(wlr_output_test(output)) {
+			wlr_output_state_set_mode(state, mode);
+			wlr_output_commit_state(output, state);
+			if(wlr_output_test_state(output, state)) {
 				break;
 			}
 		}
-		if(!wlr_output_test(output)) {
+		if(!wlr_output_test_state(output,state)) {
 			return 1;
 		}
 	}
@@ -312,6 +312,12 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
                     struct cg_output_config *config) {
 	struct wlr_output *wlr_output = output->wlr_output;
 
+	struct wlr_output_state *state=calloc(1, sizeof(*state));
+	if(!state) {
+		wlr_log(WLR_ERROR, "Could not allocate memory for output state, skipping output configuration.");
+		return;
+	}
+	wlr_output_state_init(state);
 	struct wlr_box prev_box;
 	prev_box.x = output->layout_box.x;
 	prev_box.y = output->layout_box.y;
@@ -324,6 +330,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		   (output->destroyed == true)) {
 			output_destroy(output);
 			wlr_output_destroy(wlr_output);
+			free(state);
 			return;
 		}
 	}
@@ -334,20 +341,21 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	}
 
 	if(config->angle != -1) {
-		wlr_output_set_transform(wlr_output, config->angle);
+		wlr_output_state_set_transform(state, config->angle);
 	}
 	if(config->scale != -1) {
 		wlr_log(WLR_INFO, "Setting output scale to %f", config->scale);
-		wlr_output_set_scale(wlr_output, config->scale);
+		wlr_output_state_set_scale(state, config->scale);
 	}
 	if(config->pos.x != -1) {
-		if(output_set_mode(wlr_output, config->pos.width, config->pos.height,
+		if(output_set_mode(wlr_output, state, config->pos.width, config->pos.height,
 		                   config->refresh_rate) != 0) {
 			wlr_log(WLR_ERROR, "Setting output mode failed, disabling output.");
 			output_clear(output);
 			wl_list_insert(&server->disabled_outputs, &output->link);
-			wlr_output_enable(wlr_output, false);
-			wlr_output_commit(wlr_output);
+			wlr_output_state_set_enabled(state, false);
+			wlr_output_commit_state(wlr_output, state);
+			free(state);
 			return;
 		}
 		if(wlr_box_empty(&output->layout_box)) {
@@ -407,7 +415,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		struct wlr_output_mode *preferred_mode =
 		    wlr_output_preferred_mode(wlr_output);
 		if(preferred_mode) {
-			wlr_output_set_mode(wlr_output, preferred_mode);
+			wlr_output_state_set_mode(state, preferred_mode);
 		}
 	}
 	/* Refuse to disable the only output */
@@ -415,15 +423,15 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	   wl_list_length(&server->outputs) > 1) {
 		output_clear(output);
 		wl_list_insert(&server->disabled_outputs, &output->link);
-		wlr_output_enable(wlr_output, false);
-		wlr_output_commit(wlr_output);
+		wlr_output_state_set_enabled(state, false);
+		wlr_output_commit_state(wlr_output, state);
 	} else {
 		if(prio_changed) {
 			wl_list_remove(&output->link);
 			output_insert(server, output);
 		}
-		wlr_output_enable(wlr_output, true);
-		wlr_output_commit(wlr_output);
+		wlr_output_state_set_enabled(state, true);
+		wlr_output_commit_state(wlr_output,state);
 	}
 
 	if(output->bg != NULL) {
@@ -433,6 +441,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	struct wlr_scene_output *scene_output =
 	    wlr_scene_get_scene_output(output->server->scene, output->wlr_output);
 	if(scene_output == NULL) {
+		free(state);
 		return;
 	}
 	output->bg = wlr_scene_rect_create(
@@ -441,6 +450,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	wlr_scene_node_set_position(&output->bg->node, scene_output->x,
 	                            scene_output->y);
 	wlr_scene_node_lower_to_bottom(&output->bg->node);
+	free(state);
 }
 
 struct cg_output_config *
@@ -609,7 +619,6 @@ void
 handle_new_output(struct wl_listener *listener, void *data) {
 	struct cg_server *server = wl_container_of(listener, server, new_output);
 	struct wlr_output *wlr_output = data;
-	wlr_output_enable(wlr_output, true);
 
 	if(!wlr_output_init_render(wlr_output, server->allocator,
 	                           server->renderer)) {
@@ -642,6 +651,12 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	output->destroyed = false;
 
 	if(!reinit) {
+		struct wlr_output_state *state = calloc(1,sizeof(*state));
+		wlr_output_state_init(state);
+		wlr_output_state_set_transform(state, WL_OUTPUT_TRANSFORM_NORMAL);
+		wlr_output_state_set_enabled(state, true);
+		wlr_output_commit_state(wlr_output,state);
+
 		output->server = server;
 		output->name = strdup(wlr_output->name);
 
@@ -653,7 +668,6 @@ handle_new_output(struct wl_listener *listener, void *data) {
 			}
 		}
 		output->priority = prio;
-		wlr_output_set_transform(wlr_output, WL_OUTPUT_TRANSFORM_NORMAL);
 		output->workspaces = NULL;
 
 		wl_list_init(&output->messages);
@@ -701,16 +715,19 @@ handle_new_output(struct wl_listener *listener, void *data) {
 
 		struct wlr_output_mode *preferred_mode =
 		    wlr_output_preferred_mode(wlr_output);
+		struct wlr_output_state *state = calloc(1,sizeof(*state));
+		wlr_output_state_init(state);
+		wlr_output_state_set_transform(state, WL_OUTPUT_TRANSFORM_NORMAL);
 		if(preferred_mode) {
-			wlr_output_set_mode(wlr_output, preferred_mode);
+			wlr_output_state_set_mode(state, preferred_mode);
 		}
-		wlr_output_set_transform(wlr_output, WL_OUTPUT_TRANSFORM_NORMAL);
 		wlr_scene_output_set_position(
 		    output->scene_output, output->layout_box.x, output->layout_box.y);
-		wlr_output_enable(wlr_output, true);
-		wlr_output_commit(wlr_output);
+		wlr_output_state_set_enabled(state, true);
+		wlr_output_commit_state(wlr_output, state);
 		output_configure(server, output);
 		output_get_layout_box(output);
+		free(state);
 	}
 
 	wlr_cursor_set_xcursor(server->seat->cursor, server->seat->xcursor_manager,

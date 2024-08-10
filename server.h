@@ -48,7 +48,8 @@ struct cg_server {
 	struct wlr_scene *scene;
 
 	struct wl_listener xdg_toplevel_decoration;
-	struct wl_listener new_xdg_shell_surface;
+	struct wl_listener new_xdg_shell_toplevel;
+	struct wl_list xdg_decorations;
 #if CG_HAS_XWAYLAND
 	struct wl_listener new_xwayland_surface;
 	struct wlr_xwayland *xwayland;
