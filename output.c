@@ -177,7 +177,7 @@ output_destroy(struct cg_output *output) {
 		wlr_log(WLR_ERROR,
 		        "Failed to allocate memory for output name in output_destroy");
 	}
-	if(wl_list_empty(&server->outputs)) {
+	if(wl_list_empty(&server->outputs)&&server->running) {
 		wl_display_terminate(server->wl_display);
 	}
 }
