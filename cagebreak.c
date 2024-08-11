@@ -295,6 +295,7 @@ main(int argc, char *argv[]) {
 	int ret = 0;
 	server.bs = 0;
 	server.set_mode_cursor = strdup("cell");
+	server.message_config.enabled=true;
 
 	char *config_path = NULL;
 	if(!parse_args(&server, argc, argv, &config_path)) {

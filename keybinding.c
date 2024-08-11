@@ -844,7 +844,7 @@ print_message_conf(struct cg_message_config *config) {
 	struct dyn_str outp_str;
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
-	uint32_t nmemb = 7;
+	uint32_t nmemb = 8;
 	outp_str.str_arr = calloc(nmemb, sizeof(char *));
 	print_str(&outp_str, "\"message_config\": {");
 	print_str(&outp_str, "\"font\": \"%s\",\n", config->font);
@@ -853,6 +853,7 @@ print_message_conf(struct cg_message_config *config) {
 	          config->bg_color[1], config->bg_color[2], config->bg_color[3]);
 	print_str(&outp_str, "\"fg_color\": [%f,%f,%f,%f],\n", config->fg_color[0],
 	          config->fg_color[1], config->fg_color[2], config->fg_color[3]);
+	print_str(&outp_str, "\"enabled\": %d,\n",config->enabled==1);
 	switch(config->anchor) {
 	case CG_MESSAGE_TOP_LEFT:
 		print_str(&outp_str, "\"anchor\": \"top_left\"\n", config->font);
@@ -1672,6 +1673,9 @@ keybinding_configure_message(struct cg_server *server,
 	}
 	if(config->anchor != CG_MESSAGE_NOPT) {
 		server->message_config.anchor = config->anchor;
+	}
+	if(config->enabled != -1) {
+		server->message_config.enabled = config->enabled;
 	}
 	ipc_send_event(server, "{\"event_name\":\"configure_message\"}");
 }

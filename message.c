@@ -252,7 +252,7 @@ message_set_output(struct cg_output *output, const char *string,
 
 void
 message_printf(struct cg_output *output, const char *fmt, ...) {
-	if(output->destroyed) {
+	if(output->destroyed||output->server->message_config.enabled==0) {
 		return;
 	}
 	va_list ap;
@@ -315,7 +315,7 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 void
 message_printf_pos(struct cg_output *output, struct wlr_box *position,
                    const enum cg_message_anchor anchor, const char *fmt, ...) {
-	if(output->destroyed) {
+	if(output->destroyed||output->server->message_config.enabled==0) {
 		free(position);
 		return;
 	}

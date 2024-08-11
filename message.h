@@ -27,6 +27,7 @@ struct cg_message_config {
 	int display_time;
 	float bg_color[4];
 	float fg_color[4];
+	int enabled;
 	enum cg_message_anchor anchor;
 };
 

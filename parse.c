@@ -719,6 +719,7 @@ parse_message_config(char **saveptr, char **errstr) {
 	cfg->display_time = -1;
 	cfg->font = NULL;
 	cfg->anchor = CG_MESSAGE_NOPT;
+	cfg->enabled = -1;
 
 	char *setting = strtok_r(NULL, " ", saveptr);
 	if(setting == NULL) {
@@ -778,7 +779,12 @@ parse_message_config(char **saveptr, char **errstr) {
 			              "the given anchor value is not a valid option");
 			goto error;
 		}
-	} else {
+	} else if(strcmp(setting, "enable") == 0) {
+		cfg->enabled=1;
+	} else if(strcmp(setting, "disable") == 0) {
+		cfg->enabled=0;
+	}
+	else {
 		*errstr = log_error("Invalid option to command \"configure_message\"");
 		goto error;
 	}
