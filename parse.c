@@ -474,8 +474,7 @@ parse_escape(char **saveptr, char **errstr) {
 	}
 	char *key = strtok_r(NULL, " ", saveptr);
 	if(parse_key(keybinding, key, errstr) != 0) {
-		*errstr = log_error(
-		    "Could not parse key definition \"%s\" for \"escape\"", key);
+		wlr_log(WLR_ERROR, "Could not parse key definition \"%s\" for \"escape\"", key);
 		free(keybinding);
 		return NULL;
 	}

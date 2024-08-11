@@ -29,7 +29,6 @@
 #include <wlr/types/wlr_idle_notify_v1.h>
 #include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/types/wlr_output_layout.h>
-#include <wlr/types/wlr_presentation_time.h>
 #include <wlr/types/wlr_primary_selection_v1.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_screencopy_v1.h>
@@ -123,7 +122,6 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	struct wlr_screencopy_manager_v1 *screencopy_manager = NULL;
 	struct wlr_data_control_manager_v1 *data_control_manager = NULL;
 	struct wlr_viewporter *viewporter = NULL;
-	struct wlr_presentation *presentation = NULL;
 	struct wlr_xdg_output_manager_v1 *output_manager = NULL;
 	struct wlr_gamma_control_manager_v1 *gamma_control_manager = NULL;
 	struct wlr_xdg_shell *xdg_shell = NULL;
@@ -202,7 +200,8 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	server.message_config.display_time = 2;
 	server.message_config.font = strdup("pango:Monospace 10");
 
-	backend = wlr_multi_backend_create(server.wl_display);
+	server.event_loop=wl_display_get_event_loop(server.wl_display);
+	backend = wlr_multi_backend_create(server.event_loop);
 	if(!backend) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots multi backend");
 		ret = 1;
@@ -211,7 +210,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	server.backend = backend;
 
 	struct wlr_backend *headless_backend =
-	    wlr_headless_backend_create(server.wl_display);
+	    wlr_headless_backend_create(server.event_loop);
 	if(!headless_backend) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots headless backend");
 		ret = 1;
@@ -251,7 +250,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	wlr_renderer_init_wl_display(server.renderer, server.wl_display);
 
 	server.bg_color = calloc(4, sizeof(float *));
-	server.output_layout = wlr_output_layout_create();
+	server.output_layout = wlr_output_layout_create(server.wl_display);
 	if(!server.output_layout) {
 		wlr_log(WLR_ERROR, "Unable to create output layout");
 		ret = 1;
@@ -303,7 +302,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	server.new_output.notify = handle_new_output;
 	wl_signal_add(&backend->events.new_output, &server.new_output);
 
-	server.seat = seat_create(&server, backend);
+	server.seat = seat_create(&server);
 	if(!server.seat) {
 		wlr_log(WLR_ERROR, "Unable to create the seat");
 		ret = 1;
@@ -334,9 +333,9 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		ret = 1;
 		goto end;
 	}
-	server.new_xdg_shell_surface.notify = handle_xdg_shell_surface_new;
+	server.new_xdg_shell_toplevel.notify = handle_xdg_shell_toplevel_new;
 	wl_signal_add(&xdg_shell->events.new_surface,
-	              &server.new_xdg_shell_surface);
+	              &server.new_xdg_shell_toplevel);
 
 	xdg_decoration_manager =
 	    wlr_xdg_decoration_manager_v1_create(server.wl_display);
@@ -365,14 +364,6 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		ret = 1;
 		goto end;
 	}
-
-	presentation = wlr_presentation_create(server.wl_display, server.backend);
-	if(!presentation) {
-		wlr_log(WLR_ERROR, "Unable to create the presentation interface");
-		ret = 1;
-		goto end;
-	}
-	wlr_scene_set_presentation(server.scene, presentation);
 
 	export_dmabuf_manager =
 	    wlr_export_dmabuf_manager_v1_create(server.wl_display);

@@ -1873,6 +1873,9 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_SETMODECURSOR:
 		if(data.c != NULL) {
+			if(server->set_mode_cursor!=NULL) {
+				free(server->set_mode_cursor);
+			}
 			server->set_mode_cursor = strdup(data.c);
 		}
 		break;
