@@ -240,6 +240,7 @@ message_set_output(struct cg_output *output, const char *string,
 	}
 	message->message =
 	    wlr_scene_buffer_create(&scene_output->scene->tree, &buf->base);
+	message->buf=buf;
 	wlr_scene_node_raise_to_top(&message->message->node);
 	wlr_scene_node_set_enabled(&message->message->node, true);
 	wlr_scene_buffer_set_dest_size(message->message, width, height);
@@ -336,11 +337,10 @@ message_clear(struct cg_output *output) {
 	struct cg_message *message, *tmp;
 	wl_list_for_each_safe(message, tmp, &output->messages, link) {
 		wl_list_remove(&message->link);
-		struct wlr_buffer *buf = message->message->buffer;
 		wlr_scene_node_destroy(&message->message->node);
 		free(message->position);
-		if(buf != NULL) {
-			buf->impl->destroy(buf);
+		if(message->buf != NULL) {
+			msg_buffer_destroy(&message->buf->base);
 		}
 		free(message);
 	}

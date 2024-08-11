@@ -135,7 +135,6 @@ handle_xwayland_surface_unmap(struct wl_listener *listener,
 static void
 handle_xwayland_surface_map(struct wl_listener *listener,
                             __attribute__((unused)) void *_data) {
-	fprintf(stderr, "HERE\n");
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, map);
 	struct cg_view *view = &xwayland_view->view;

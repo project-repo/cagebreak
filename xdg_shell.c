@@ -28,6 +28,7 @@ xdg_decoration_handle_destroy(struct wl_listener *listener,
 
 	wl_list_remove(&xdg_decoration->destroy.link);
 	wl_list_remove(&xdg_decoration->request_mode.link);
+	wl_list_remove(&xdg_decoration->link);
 	free(xdg_decoration);
 }
 

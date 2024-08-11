@@ -235,7 +235,6 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 				wlr_log(WLR_DEBUG, "failed to set key repeat timer");
 			}
 		}
-		message_clear(group->seat->server->curr_output);
 		run_action((*keybinding)->action, server, (*keybinding)->data);
 		wlr_idle_notifier_v1_notify_activity(server->idle, server->seat->seat);
 		return true;
@@ -489,6 +488,7 @@ remove_keyboard(struct cg_seat *seat, struct cg_input_device *keyboard) {
 			wl_list_remove(&group->link);
 			wl_list_remove(&group->key.link);
 			wl_list_remove(&group->modifiers.link);
+			wl_event_source_remove(group->key_repeat_timer);
 			if(group->identifier != NULL) {
 				free(group->identifier);
 			}

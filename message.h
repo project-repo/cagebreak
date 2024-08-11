@@ -34,6 +34,7 @@ struct cg_message {
 	struct wlr_box *position;
 	struct wlr_scene_buffer *message;
 	struct wl_surface *surface;
+	struct msg_buffer *buf;
 	struct wl_list link;
 };
 
