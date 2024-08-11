@@ -240,7 +240,7 @@ message_set_output(struct cg_output *output, const char *string,
 	}
 	message->message =
 	    wlr_scene_buffer_create(&scene_output->scene->tree, &buf->base);
-	message->buf=buf;
+	message->buf = buf;
 	wlr_scene_node_raise_to_top(&message->message->node);
 	wlr_scene_node_set_enabled(&message->message->node, true);
 	wlr_scene_buffer_set_dest_size(message->message, width, height);
