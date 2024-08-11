@@ -474,7 +474,8 @@ parse_escape(char **saveptr, char **errstr) {
 	}
 	char *key = strtok_r(NULL, " ", saveptr);
 	if(parse_key(keybinding, key, errstr) != 0) {
-		wlr_log(WLR_ERROR, "Could not parse key definition \"%s\" for \"escape\"", key);
+		wlr_log(WLR_ERROR,
+		        "Could not parse key definition \"%s\" for \"escape\"", key);
 		free(keybinding);
 		return NULL;
 	}
@@ -780,11 +781,10 @@ parse_message_config(char **saveptr, char **errstr) {
 			goto error;
 		}
 	} else if(strcmp(setting, "enable") == 0) {
-		cfg->enabled=1;
+		cfg->enabled = 1;
 	} else if(strcmp(setting, "disable") == 0) {
-		cfg->enabled=0;
-	}
-	else {
+		cfg->enabled = 0;
+	} else {
 		*errstr = log_error("Invalid option to command \"configure_message\"");
 		goto error;
 	}

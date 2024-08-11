@@ -853,7 +853,7 @@ print_message_conf(struct cg_message_config *config) {
 	          config->bg_color[1], config->bg_color[2], config->bg_color[3]);
 	print_str(&outp_str, "\"fg_color\": [%f,%f,%f,%f],\n", config->fg_color[0],
 	          config->fg_color[1], config->fg_color[2], config->fg_color[3]);
-	print_str(&outp_str, "\"enabled\": %d,\n",config->enabled==1);
+	print_str(&outp_str, "\"enabled\": %d,\n", config->enabled == 1);
 	switch(config->anchor) {
 	case CG_MESSAGE_TOP_LEFT:
 		print_str(&outp_str, "\"anchor\": \"top_left\"\n", config->font);
@@ -1877,7 +1877,7 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	case KEYBINDING_SETMODECURSOR:
 		if(data.c != NULL) {
-			if(server->set_mode_cursor!=NULL) {
+			if(server->set_mode_cursor != NULL) {
 				free(server->set_mode_cursor);
 			}
 			server->set_mode_cursor = strdup(data.c);

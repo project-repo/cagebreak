@@ -200,7 +200,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	server.message_config.display_time = 2;
 	server.message_config.font = strdup("pango:Monospace 10");
 
-	server.event_loop=wl_display_get_event_loop(server.wl_display);
+	server.event_loop = wl_display_get_event_loop(server.wl_display);
 	backend = wlr_multi_backend_create(server.event_loop);
 	if(!backend) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots multi backend");

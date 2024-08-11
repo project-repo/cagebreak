@@ -7,6 +7,7 @@
 
 #include <fontconfig/fontconfig.h>
 #include <getopt.h>
+#include <grp.h>
 #include <pango.h>
 #include <pango/pangocairo.h>
 #include <signal.h>
@@ -14,7 +15,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
-#include <grp.h>
 #include <unistd.h>
 #include <wayland-client.h>
 #include <wayland-server-core.h>
@@ -83,14 +83,15 @@ set_sig_handler(int sig, void (*action)(int)) {
 static bool
 drop_permissions(void) {
 	if(getuid() != geteuid() || getgid() != getegid()) {
-		//Drop ancillary groups
-		gid_t gid=getgid();
-		setgroups(1,&gid);
+		// Drop ancillary groups
+		gid_t gid = getgid();
+		setgroups(1, &gid);
 		// Set gid before uid
 #ifdef linux
 		if(setgid(getgid()) != 0 || setuid(getuid()) != 0) {
 #else
-		if(setregid(getgid(),getgid()) != 0 || setreuid(getuid(),getuid()) != 0) {
+		if(setregid(getgid(), getgid()) != 0 ||
+		   setreuid(getuid(), getuid()) != 0) {
 #endif
 			wlr_log(WLR_ERROR, "Unable to drop root, refusing to start");
 			return false;
@@ -295,7 +296,7 @@ main(int argc, char *argv[]) {
 	int ret = 0;
 	server.bs = 0;
 	server.set_mode_cursor = strdup("cell");
-	server.message_config.enabled=true;
+	server.message_config.enabled = true;
 
 	char *config_path = NULL;
 	if(!parse_args(&server, argc, argv, &config_path)) {
