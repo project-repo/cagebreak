@@ -304,12 +304,6 @@ We have found code path discovery to increase rapidly when the fuzzer is supplie
 with an initial config file. We are working on improving our fuzzing coverage to
 find bugs in other areas of the code.
 
-### Caveat
-
-Currently, there are memory leaks which do not seem to stem from our code but rather
-the code of wlroots or some other library we depend on. We are working on the problem.
-In the meantime, add `-Db_detect-leaks=0` to the meson command to exclude memory leaks.
-
 ## Reproducible Builds
 
 Cagebreak offers reproducible builds given the exact library versions specified
