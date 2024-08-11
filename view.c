@@ -156,7 +156,7 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	struct cg_output *output = ws->output;
 	view->wlr_surface = surface;
 
-	wlr_scene_node_reparent(&view->scene_tree->node,ws->scene);
+	wlr_scene_node_reparent(&view->scene_tree->node, ws->scene);
 	if(!view->scene_tree) {
 		wl_resource_post_no_memory(surface->resource);
 		return;
@@ -217,5 +217,7 @@ view_init(struct cg_view *view, enum cg_view_type type,
 	view->impl = impl;
 	view->id = server->views_curr_id;
 	++server->views_curr_id;
-	view->scene_tree = wlr_scene_tree_create(server->curr_output->workspaces[server->curr_output->curr_workspace]->scene);
+	view->scene_tree = wlr_scene_tree_create(
+	    server->curr_output->workspaces[server->curr_output->curr_workspace]
+	        ->scene);
 }

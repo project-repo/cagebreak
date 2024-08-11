@@ -35,7 +35,7 @@ struct cg_xdg_decoration {
 	struct cg_server *server;
 	struct wl_listener destroy;
 	struct wl_listener request_mode;
-	struct wl_list link;//server::xdg_decorations
+	struct wl_list link; // server::xdg_decorations
 };
 
 void

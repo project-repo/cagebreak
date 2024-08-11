@@ -581,7 +581,8 @@ main(int argc, char *argv[]) {
 	              &server.new_xwayland_surface);
 
 	if(setenv("DISPLAY", server.xwayland->display_name, true) < 0) {
-		wlr_log_errno(WLR_ERROR, "Unable to set DISPLAY for XWayland. Clients may not be able to connect");
+		wlr_log_errno(WLR_ERROR, "Unable to set DISPLAY for XWayland. Clients "
+		                         "may not be able to connect");
 	} else {
 		wlr_log(WLR_DEBUG, "XWayland is running on display %s",
 		        server.xwayland->display_name);
@@ -612,7 +613,8 @@ main(int argc, char *argv[]) {
 	}
 
 	if(setenv("WAYLAND_DISPLAY", socket, true) < 0) {
-		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY. Clients may not be able to connect");
+		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY. Clients may "
+		                         "not be able to connect");
 	} else {
 		fprintf(stdout,
 		        "Cagebreak " CG_VERSION " is running on Wayland display %s\n",

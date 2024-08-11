@@ -37,7 +37,8 @@ msg_buffer_destroy(struct wlr_buffer *wlr_buffer) {
 }
 
 static bool
-msg_buffer_begin_data_ptr_access(struct wlr_buffer *wlr_buffer,__attribute__ ((unused)) uint32_t flags,
+msg_buffer_begin_data_ptr_access(struct wlr_buffer *wlr_buffer,
+                                 __attribute__((unused)) uint32_t flags,
                                  void **data, uint32_t *format,
                                  size_t *stride) {
 	struct msg_buffer *buffer = wl_container_of(wlr_buffer, buffer, base);
@@ -54,7 +55,8 @@ msg_buffer_begin_data_ptr_access(struct wlr_buffer *wlr_buffer,__attribute__ ((u
 }
 
 static void
-msg_buffer_end_data_ptr_access(__attribute__ ((unused)) struct wlr_buffer *wlr_buffer) {
+msg_buffer_end_data_ptr_access(
+    __attribute__((unused)) struct wlr_buffer *wlr_buffer) {
 	// This space is intentionally left blank
 }
 
@@ -337,7 +339,7 @@ message_clear(struct cg_output *output) {
 		struct wlr_buffer *buf = message->message->buffer;
 		wlr_scene_node_destroy(&message->message->node);
 		free(message->position);
-		if(buf!=NULL) {
+		if(buf != NULL) {
 			buf->impl->destroy(buf);
 		}
 		free(message);

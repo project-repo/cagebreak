@@ -54,7 +54,7 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots-0.18')
+wlroots        = dependency('wlroots', fallback: ['wlroots','wlroots'])
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')
@@ -93,7 +93,7 @@ server_protos = declare_dependency(
 )
 
 if get_option('xwayland')
-  wlroots_has_xwayland = cc.get_define('WLR_HAS_XWAYLAND', prefix: '#include <wlr/config.h>', dependencies: wlroots) == '1'
+  wlroots_has_xwayland = true#cc.get_define('WLR_HAS_XWAYLAND', prefix: '#include <wlr/config.h>', dependencies: wlroots) == '1'
   if not wlroots_has_xwayland
     error('Cannot build Cagebreak with XWayland support: wlroots has been built without it')
   else

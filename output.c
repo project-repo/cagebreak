@@ -179,13 +179,14 @@ output_destroy(struct cg_output *output) {
 		wlr_log(WLR_ERROR,
 		        "Failed to allocate memory for output name in output_destroy");
 	}
-	if(wl_list_empty(&server->outputs)&&server->running) {
+	if(wl_list_empty(&server->outputs) && server->running) {
 		wl_display_terminate(server->wl_display);
 	}
 }
 
 static void
-handle_output_destroy(struct wl_listener *listener, __attribute__((unused)) void *data) {
+handle_output_destroy(struct wl_listener *listener,
+                      __attribute__((unused)) void *data) {
 	struct cg_output *output = wl_container_of(listener, output, destroy);
 	output_destroy(output);
 }
@@ -212,7 +213,8 @@ handle_output_gamma_control_set_gamma(struct wl_listener *listener,
 }
 
 static void
-handle_output_frame(struct wl_listener *listener, __attribute__((unused)) void *data) {
+handle_output_frame(struct wl_listener *listener,
+                    __attribute__((unused)) void *data) {
 	struct cg_output *output = wl_container_of(listener, output, frame);
 	if(!output->wlr_output->enabled) {
 		return;
@@ -230,14 +232,14 @@ handle_output_frame(struct wl_listener *listener, __attribute__((unused)) void *
 }
 
 static int
-output_set_mode(struct wlr_output *output, struct wlr_output_state* state, int width, int height,
-                float refresh_rate) {
+output_set_mode(struct wlr_output *output, struct wlr_output_state *state,
+                int width, int height, float refresh_rate) {
 	int mhz = (int)(refresh_rate * 1000);
 
 	if(wl_list_empty(&output->modes)) {
 		wlr_log(WLR_DEBUG, "Assigning custom mode to %s", output->name);
 		wlr_output_state_set_custom_mode(state, width, height,
-		                           refresh_rate > 0 ? mhz : 0);
+		                                 refresh_rate > 0 ? mhz : 0);
 		return 0;
 	}
 
@@ -262,8 +264,8 @@ output_set_mode(struct wlr_output *output, struct wlr_output_state* state, int w
 		wlr_log(WLR_DEBUG, "Assigning configured mode to %s", output->name);
 	}
 	wlr_output_state_set_mode(state, best);
-	wlr_output_commit_state(output,state);
-	if(!wlr_output_test_state(output,state)) {
+	wlr_output_commit_state(output, state);
+	if(!wlr_output_test_state(output, state)) {
 		wlr_log(WLR_ERROR,
 		        "Unable to assign configured mode to %s, picking arbitrary "
 		        "available mode",
@@ -279,7 +281,7 @@ output_set_mode(struct wlr_output *output, struct wlr_output_state* state, int w
 				break;
 			}
 		}
-		if(!wlr_output_test_state(output,state)) {
+		if(!wlr_output_test_state(output, state)) {
 			return 1;
 		}
 	}
@@ -314,9 +316,10 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
                     struct cg_output_config *config) {
 	struct wlr_output *wlr_output = output->wlr_output;
 
-	struct wlr_output_state *state=calloc(1, sizeof(*state));
+	struct wlr_output_state *state = calloc(1, sizeof(*state));
 	if(!state) {
-		wlr_log(WLR_ERROR, "Could not allocate memory for output state, skipping output configuration.");
+		wlr_log(WLR_ERROR, "Could not allocate memory for output state, "
+		                   "skipping output configuration.");
 		return;
 	}
 	wlr_output_state_init(state);
@@ -350,8 +353,8 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		wlr_output_state_set_scale(state, config->scale);
 	}
 	if(config->pos.x != -1) {
-		if(output_set_mode(wlr_output, state, config->pos.width, config->pos.height,
-		                   config->refresh_rate) != 0) {
+		if(output_set_mode(wlr_output, state, config->pos.width,
+		                   config->pos.height, config->refresh_rate) != 0) {
 			wlr_log(WLR_ERROR, "Setting output mode failed, disabling output.");
 			output_clear(output);
 			wl_list_insert(&server->disabled_outputs, &output->link);
@@ -433,7 +436,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 			output_insert(server, output);
 		}
 		wlr_output_state_set_enabled(state, true);
-		wlr_output_commit_state(wlr_output,state);
+		wlr_output_commit_state(wlr_output, state);
 	}
 
 	if(output->bg != NULL) {
@@ -652,11 +655,11 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	output->destroyed = false;
 
 	if(!reinit) {
-		struct wlr_output_state *state = calloc(1,sizeof(*state));
+		struct wlr_output_state *state = calloc(1, sizeof(*state));
 		wlr_output_state_init(state);
 		wlr_output_state_set_transform(state, WL_OUTPUT_TRANSFORM_NORMAL);
 		wlr_output_state_set_enabled(state, true);
-		wlr_output_commit_state(wlr_output,state);
+		wlr_output_commit_state(wlr_output, state);
 		free(state);
 
 		output->server = server;
@@ -717,7 +720,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 
 		struct wlr_output_mode *preferred_mode =
 		    wlr_output_preferred_mode(wlr_output);
-		struct wlr_output_state *state = calloc(1,sizeof(*state));
+		struct wlr_output_state *state = calloc(1, sizeof(*state));
 		wlr_output_state_init(state);
 		wlr_output_state_set_transform(state, WL_OUTPUT_TRANSFORM_NORMAL);
 		if(preferred_mode) {

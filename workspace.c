@@ -67,8 +67,8 @@ full_screen_workspace(struct cg_output *output) {
 	workspace->server = output->server;
 	workspace->num = -1;
 	workspace->scene = wlr_scene_tree_create(&scene_output->scene->tree);
-	if(full_screen_workspace_tiles(workspace,
-	                               &output->server->tiles_curr_id) != 0) {
+	if(full_screen_workspace_tiles(workspace, &output->server->tiles_curr_id) !=
+	   0) {
 		free(workspace);
 		return NULL;
 	}
