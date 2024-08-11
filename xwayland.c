@@ -113,7 +113,7 @@ destroy(struct cg_view *view) {
 
 static void
 handle_xwayland_surface_request_fullscreen(struct wl_listener *listener,
-                                           void *data) {
+                                           __attribute__((unused)) void *data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, request_fullscreen);
 	struct wlr_xwayland_surface *xwayland_surface =
@@ -123,7 +123,7 @@ handle_xwayland_surface_request_fullscreen(struct wl_listener *listener,
 }
 
 static void
-handle_xwayland_surface_unmap(struct wl_listener *listener, void *_data) {
+handle_xwayland_surface_unmap(struct wl_listener *listener, __attribute__((unused)) void *_data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, unmap);
 	struct cg_view *view = &xwayland_view->view;
@@ -132,7 +132,7 @@ handle_xwayland_surface_unmap(struct wl_listener *listener, void *_data) {
 }
 
 static void
-handle_xwayland_surface_map(struct wl_listener *listener, void *_data) {
+handle_xwayland_surface_map(struct wl_listener *listener, __attribute__((unused)) void *_data) {
 	fprintf(stderr,"HERE\n");
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, map);
@@ -151,7 +151,7 @@ handle_xwayland_surface_map(struct wl_listener *listener, void *_data) {
 }
 
 static void
-handle_xwayland_surface_destroy(struct wl_listener *listener, void *_data) {
+handle_xwayland_surface_destroy(struct wl_listener *listener, __attribute__((unused)) void *_data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, destroy);
 	struct cg_view *view = &xwayland_view->view;
@@ -174,7 +174,7 @@ static const struct cg_view_impl xwayland_view_impl = {
 };
 
 static void
-handle_xwayland_surface_associate(struct wl_listener *listener, void *data) {
+handle_xwayland_surface_associate(struct wl_listener *listener, __attribute__((unused)) void *data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, associate);
 	struct wlr_xwayland_surface *xsurface = xwayland_view->xwayland_surface;
@@ -185,7 +185,7 @@ handle_xwayland_surface_associate(struct wl_listener *listener, void *data) {
 }
 
 static void
-handle_xwayland_surface_dissociate(struct wl_listener *listener, void *data) {
+handle_xwayland_surface_dissociate(struct wl_listener *listener, __attribute__((unused)) void *data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, dissociate);
 	wl_list_remove(&xwayland_view->map.link);

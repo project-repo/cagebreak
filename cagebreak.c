@@ -470,7 +470,7 @@ main(int argc, char *argv[]) {
 	server.new_output.notify = handle_new_output;
 	wl_signal_add(&backend->events.new_output, &server.new_output);
 
-	server.seat = seat_create(&server, backend);
+	server.seat = seat_create(&server);
 	if(!server.seat) {
 		wlr_log(WLR_ERROR, "Unable to create the seat");
 		ret = 1;
@@ -745,6 +745,16 @@ end:
 	   with a proper wl_display. */
 	if(server.wl_display != NULL) {
 		wl_display_destroy(server.wl_display);
+	}
+
+	if(server.allocator != NULL) {
+		wlr_allocator_destroy(server.allocator);
+	}
+	if(server.renderer != NULL) {
+		wlr_renderer_destroy(server.renderer);
+	}
+	if(server.scene != NULL) {
+		wlr_scene_node_destroy(&server.scene->tree.node);
 	}
 
 	if(server.input != NULL) {

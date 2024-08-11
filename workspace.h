@@ -32,8 +32,7 @@ struct cg_workspace {
 struct cg_workspace *
 full_screen_workspace(struct cg_output *output);
 int
-full_screen_workspace_tiles(struct wlr_output_layout *layout,
-                            struct cg_workspace *workspace,
+full_screen_workspace_tiles(struct cg_workspace *workspace,
                             uint32_t *tiles_curr_id);
 void
 workspace_free_tiles(struct cg_workspace *workspace);

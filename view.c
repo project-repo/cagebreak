@@ -109,8 +109,6 @@ view_unmap(struct cg_view *view) {
 		tile_id = view->tile->id;
 	}
 
-	wlr_scene_node_destroy(&view->scene_tree->node);
-
 #if CG_HAS_XWAYLAND
 	if((view->type != CG_XWAYLAND_VIEW || xwayland_view_should_manage(view)))
 #endif
@@ -139,6 +137,8 @@ view_unmap(struct cg_view *view) {
 		}
 	}
 #endif
+
+	wlr_scene_node_destroy(&view->scene_tree->node);
 
 	wl_list_remove(&view->link);
 

@@ -143,7 +143,7 @@ output_destroy(struct cg_output *output) {
 	}
 	output->destroyed = true;
 	enum output_role role = output->role;
-	if(role == OUTPUT_ROLE_PERMANENT) {
+	if(role == OUTPUT_ROLE_PERMANENT && server->running) {
 		output->wlr_output = wlr_headless_add_output(server->headless_backend,
 		                                             output->layout_box.width,
 		                                             output->layout_box.height);
@@ -158,6 +158,8 @@ output_destroy(struct cg_output *output) {
 	} else {
 
 		output_clear(output);
+
+		wlr_scene_node_destroy(&output->bg->node);
 
 		for(unsigned int i = 0; i < server->nws; ++i) {
 			workspace_free(output->workspaces[i]);
@@ -183,7 +185,7 @@ output_destroy(struct cg_output *output) {
 }
 
 static void
-handle_output_destroy(struct wl_listener *listener, void *data) {
+handle_output_destroy(struct wl_listener *listener, __attribute__((unused)) void *data) {
 	struct cg_output *output = wl_container_of(listener, output, destroy);
 	output_destroy(output);
 }
@@ -210,7 +212,7 @@ handle_output_gamma_control_set_gamma(struct wl_listener *listener,
 }
 
 static void
-handle_output_frame(struct wl_listener *listener, void *data) {
+handle_output_frame(struct wl_listener *listener, __attribute__((unused)) void *data) {
 	struct cg_output *output = wl_container_of(listener, output, frame);
 	if(!output->wlr_output->enabled) {
 		return;
@@ -596,8 +598,7 @@ output_make_workspace_fullscreen(struct cg_output *output, int ws) {
 	}
 
 	workspace_free_tiles(output->workspaces[ws]);
-	if(full_screen_workspace_tiles(server->output_layout,
-	                               output->workspaces[ws],
+	if(full_screen_workspace_tiles(output->workspaces[ws],
 	                               &server->tiles_curr_id) != 0) {
 		wlr_log(WLR_ERROR, "Failed to allocate space for fullscreen workspace");
 		return;
@@ -656,6 +657,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		wlr_output_state_set_transform(state, WL_OUTPUT_TRANSFORM_NORMAL);
 		wlr_output_state_set_enabled(state, true);
 		wlr_output_commit_state(wlr_output,state);
+		free(state);
 
 		output->server = server;
 		output->name = strdup(wlr_output->name);

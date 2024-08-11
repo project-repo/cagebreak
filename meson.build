@@ -5,7 +5,7 @@ project(
   'c',
 version : '2.3.1',
 license : 'MIT',
-default_options : ['c_std=c11', 'warning_level=3']
+default_options : ['c_std=c23', 'warning_level=3']
 )
 
 add_project_arguments(
@@ -13,7 +13,6 @@ add_project_arguments(
     '-DWLR_USE_UNSTABLE',
     '-Werror=implicit-function-declaration',
     '-Wundef',
-    '-Wno-unused-parameter',
   ],
   language: 'c',
 )

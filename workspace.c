@@ -30,8 +30,7 @@ workspace_tile_update_view(struct cg_tile *tile, struct cg_view *view) {
 }
 
 int
-full_screen_workspace_tiles(struct wlr_output_layout *layout,
-                            struct cg_workspace *workspace,
+full_screen_workspace_tiles(struct cg_workspace *workspace,
                             uint32_t *tiles_curr_id) {
 	workspace->focused_tile = calloc(1, sizeof(struct cg_tile));
 	if(!workspace->focused_tile) {
@@ -68,7 +67,7 @@ full_screen_workspace(struct cg_output *output) {
 	workspace->server = output->server;
 	workspace->num = -1;
 	workspace->scene = wlr_scene_tree_create(&scene_output->scene->tree);
-	if(full_screen_workspace_tiles(output->server->output_layout, workspace,
+	if(full_screen_workspace_tiles(workspace,
 	                               &output->server->tiles_curr_id) != 0) {
 		free(workspace);
 		return NULL;
@@ -106,6 +105,7 @@ workspace_free_tiles(struct cg_workspace *workspace) {
 
 void
 workspace_free(struct cg_workspace *workspace) {
+	wlr_scene_node_destroy(&workspace->scene->node);
 	workspace_free_tiles(workspace);
 	free(workspace);
 }

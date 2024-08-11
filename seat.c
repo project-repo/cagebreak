@@ -321,7 +321,7 @@ handle_keyboard_group_key(struct wl_listener *listener, void *data) {
 }
 
 static void
-handle_keyboard_group_modifiers(struct wl_listener *listener, void *_data) {
+handle_keyboard_group_modifiers(struct wl_listener *listener, __attribute__((unused)) void *_data) {
 	struct cg_keyboard_group *group =
 	    wl_container_of(listener, group, modifiers);
 	handle_modifier_event(&group->wlr_group->keyboard.base, group->seat);
@@ -659,7 +659,7 @@ handle_touch_motion(struct wl_listener *listener, void *data) {
 }
 
 static void
-handle_cursor_frame(struct wl_listener *listener, void *_data) {
+handle_cursor_frame(struct wl_listener *listener, __attribute__((unused)) void *_data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, cursor_frame);
 
 	wlr_seat_pointer_notify_frame(seat->seat);
@@ -816,7 +816,7 @@ drag_icon_update_position(struct cg_drag_icon *drag_icon) {
 }
 
 static void
-handle_drag_icon_destroy(struct wl_listener *listener, void *_data) {
+handle_drag_icon_destroy(struct wl_listener *listener, __attribute__((unused)) void *_data) {
 	struct cg_drag_icon *drag_icon =
 	    wl_container_of(listener, drag_icon, destroy);
 
@@ -883,7 +883,7 @@ handle_start_drag(struct wl_listener *listener, void *data) {
 }
 
 static void
-handle_destroy(struct wl_listener *listener, void *_data) {
+handle_destroy(struct wl_listener *listener, __attribute__((unused)) void *_data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, destroy);
 	wl_list_remove(&seat->destroy.link);
 
@@ -923,7 +923,7 @@ handle_destroy(struct wl_listener *listener, void *_data) {
 }
 
 struct cg_seat *
-seat_create(struct cg_server *server, struct wlr_backend *backend) {
+seat_create(struct cg_server *server) {
 	struct cg_seat *seat = calloc(1, sizeof(struct cg_seat));
 	if(!seat) {
 		wlr_log(WLR_ERROR, "Cannot allocate seat");

@@ -430,7 +430,7 @@ parse_definekey(struct cg_server *server, char **saveptr, char **errstr,
 }
 
 int
-parse_background(struct cg_server *server, float *color, char **saveptr,
+parse_background(float *color, char **saveptr,
                  char **errstr) {
 	/* Read rgb numbers */
 	for(unsigned int i = 0; i < 3; ++i) {
@@ -475,8 +475,7 @@ parse_escape(char **saveptr, char **errstr) {
 	}
 	char *key = strtok_r(NULL, " ", saveptr);
 	if(parse_key(keybinding, key, errstr) != 0) {
-		wlr_log(WLR_ERROR,
-		        "Could not parse key definition \"%s\" for \"escape\"", key);
+		*errstr = log_error("Could not parse key definition \"%s\" for \"escape\"", key);
 		free(keybinding);
 		return NULL;
 	}
@@ -493,8 +492,7 @@ parse_cursor(char **saveptr, char **errstr) {
 	} else if(strcmp(*saveptr, "disable") == 0) {
 		return 0;
 	} else {
-		wlr_log(WLR_ERROR,
-		        "Invalid option \"%s\" for \"cursor\". Expected \"enable\" or "
+		*errstr=log_error("Invalid option \"%s\" for \"cursor\". Expected \"enable\" or "
 		        "\"disable\".",
 		        *saveptr);
 		return -1;
@@ -1036,7 +1034,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 	} else if(strcmp(action, "background") == 0) {
 		keybinding->action = KEYBINDING_BACKGROUND;
-		if(parse_background(server, keybinding->data.color, &saveptr, errstr) !=
+		if(parse_background(keybinding->data.color, &saveptr, errstr) !=
 		   0) {
 			return -1;
 		}

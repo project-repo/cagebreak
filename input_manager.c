@@ -78,7 +78,7 @@ input_device_get_identifier(struct wlr_input_device *device) {
 }
 
 void
-input_manager_handle_device_destroy(struct wl_listener *listener, void *data) {
+input_manager_handle_device_destroy(struct wl_listener *listener, __attribute__((unused)) void *data) {
 	struct cg_input_device *input_device =
 	    wl_container_of(listener, input_device, device_destroy);
 

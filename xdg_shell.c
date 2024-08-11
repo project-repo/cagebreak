@@ -21,7 +21,7 @@
 #include "xdg_shell.h"
 
 static void
-xdg_decoration_handle_destroy(struct wl_listener *listener, void *data) {
+xdg_decoration_handle_destroy(struct wl_listener *listener, __attribute__((unused)) void *data) {
 	struct cg_xdg_decoration *xdg_decoration =
 	    wl_container_of(listener, xdg_decoration, destroy);
 
@@ -31,7 +31,7 @@ xdg_decoration_handle_destroy(struct wl_listener *listener, void *data) {
 }
 
 static void
-xdg_decoration_handle_request_mode(struct wl_listener *listener, void *_data) {
+xdg_decoration_handle_request_mode(struct wl_listener *listener, __attribute__((unused)) void *_data) {
 	struct cg_xdg_decoration *xdg_decoration =
 	    wl_container_of(listener, xdg_decoration, request_mode);
 
@@ -131,7 +131,7 @@ destroy(struct cg_view *view) {
 
 static void
 handle_xdg_shell_surface_request_fullscreen(struct wl_listener *listener,
-                                            void *data) {
+                                            __attribute__((unused)) void *data) {
 	struct cg_xdg_shell_view *xdg_shell_view =
 	    wl_container_of(listener, xdg_shell_view, request_fullscreen);
 
@@ -155,7 +155,7 @@ handle_xdg_shell_surface_request_fullscreen(struct wl_listener *listener,
 }
 
 static void
-handle_xdg_shell_surface_unmap(struct wl_listener *listener, void *_data) {
+handle_xdg_shell_surface_unmap(struct wl_listener *listener, __attribute__((unused)) void *_data) {
 	struct cg_xdg_shell_view *xdg_shell_view =
 	    wl_container_of(listener, xdg_shell_view, unmap);
 	struct cg_view *view = &xdg_shell_view->view;
@@ -175,7 +175,7 @@ struct cg_xdg_decoration *xdg_decoration_from_surface(
 }
 
 static void
-handle_xdg_shell_surface_map(struct wl_listener *listener, void *_data) {
+handle_xdg_shell_surface_map(struct wl_listener *listener, __attribute__((unused)) void *_data) {
 	struct cg_xdg_shell_view *xdg_shell_view =
 	    wl_container_of(listener, xdg_shell_view, map);
 	struct cg_view *view = &xdg_shell_view->view;
@@ -186,7 +186,7 @@ handle_xdg_shell_surface_map(struct wl_listener *listener, void *_data) {
 }
 
 static void
-handle_xdg_shell_surface_destroy(struct wl_listener *listener, void *_data) {
+handle_xdg_shell_surface_destroy(struct wl_listener *listener, __attribute__((unused)) void *_data) {
 	struct cg_xdg_shell_view *xdg_shell_view =
 	    wl_container_of(listener, xdg_shell_view, destroy);
 	struct cg_view *view = &xdg_shell_view->view;
@@ -211,7 +211,7 @@ static const struct cg_view_impl xdg_shell_view_impl = {.get_pid = get_pid,
                                                         .destroy = destroy};
 
 void
-handle_xdg_shell_toplevel_commit(struct wl_listener *listener, void *data) {
+handle_xdg_shell_toplevel_commit(struct wl_listener *listener, __attribute__((unused)) void *data) {
 	struct cg_xdg_shell_view *xdg_shell_view = wl_container_of(listener, xdg_shell_view, commit);
 	struct cg_view *view = &xdg_shell_view->view;
 	struct wlr_xdg_surface *xdg_surface = xdg_shell_view->toplevel->base;
@@ -268,7 +268,7 @@ handle_xdg_shell_toplevel_new(struct wl_listener *listener, void *data) {
 }
 
 static void
-handle_xdg_shell_popup_destroy(struct wl_listener *listener, void *data) {
+handle_xdg_shell_popup_destroy(struct wl_listener *listener, __attribute__((unused)) void *data) {
 	struct cg_xdg_shell_popup *popup = wl_container_of(listener, popup, destroy);
 
 	wl_list_remove(&popup->new_popup.link);
@@ -280,7 +280,7 @@ handle_xdg_shell_popup_destroy(struct wl_listener *listener, void *data) {
 }
 
 static void
-handle_xdg_shell_popup_commit(struct wl_listener *listener, void *data) {
+handle_xdg_shell_popup_commit(struct wl_listener *listener, __attribute__((unused)) void *data) {
 	struct cg_xdg_shell_popup *popup = wl_container_of(listener, popup, commit);
 	if(popup->wlr_popup->base->initial_commit) {
 		popup_unconstrain(popup);
@@ -288,7 +288,7 @@ handle_xdg_shell_popup_commit(struct wl_listener *listener, void *data) {
 }
 
 static void
-handle_xdg_shell_popup_reposition(struct wl_listener *listener, void *data) {
+handle_xdg_shell_popup_reposition(struct wl_listener *listener, __attribute__((unused)) void *data) {
 	struct cg_xdg_shell_popup *popup = wl_container_of(listener, popup, commit);
 	popup_unconstrain(popup);
 }

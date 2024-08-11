@@ -23,7 +23,7 @@ static const char ipc_magic[] = {'c', 'g', '-', 'i', 'p', 'c'};
 #define IPC_HEADER_SIZE sizeof(ipc_magic)
 
 static void
-handle_display_destroy(struct wl_listener *listener, void *data) {
+handle_display_destroy(struct wl_listener *listener, __attribute__((unused)) void *data) {
 	struct cg_ipc_handle *ipc = wl_container_of(listener, ipc, display_destroy);
 	if(ipc->event_source != NULL) {
 		wl_event_source_remove(ipc->event_source);
@@ -114,7 +114,7 @@ ipc_init(struct cg_server *server) {
 }
 
 int
-ipc_client_handle_writable(int client_fd, uint32_t mask, void *data) {
+ipc_client_handle_writable(__attribute__((unused)) int client_fd, uint32_t mask, void *data) {
 	struct cg_ipc_client *client = data;
 
 	if(mask & WL_EVENT_ERROR) {

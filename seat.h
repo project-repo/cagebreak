@@ -103,7 +103,7 @@ struct cg_drag_icon {
 };
 
 struct cg_seat *
-seat_create(struct cg_server *server, struct wlr_backend *backend);
+seat_create(struct cg_server *server);
 void
 seat_destroy(struct cg_seat *seat);
 struct cg_view *
