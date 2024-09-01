@@ -278,6 +278,49 @@ swap_tile_bottom(struct cg_tile *tile) {
 }
 
 void
+move_tile(struct cg_tile *tile,
+		  struct cg_tile *(*find_tile)(const struct cg_tile *)) {
+	struct cg_tile *move_tile = find_tile(tile);
+	if(move_tile == NULL || move_tile == tile) {
+		return;
+	}
+	workspace_tile_update_view(move_tile, tile->view);
+	workspace_tile_update_view(tile, NULL);
+	struct cg_server *server = move_tile->workspace->server;
+	workspace_focus_tile(
+		server->curr_output->workspaces[server->curr_output->curr_workspace],
+		move_tile);
+	seat_set_focus(server->seat, move_tile->view);
+	ipc_send_event(
+		move_tile->workspace->output->server,
+		"{\"event_name\":\"move_tile\",\"tile_id\":%d,\"move_"
+		"tile_id\":%d,\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
+		move_tile->id, move_tile->workspace->num + 1,
+		move_tile->workspace->output->wlr_output->name,
+		output_get_num(move_tile->workspace->output));
+}
+
+void
+move_tile_left(struct cg_tile *tile) {
+	move_tile(tile, find_left_tile);
+}
+
+void
+move_tile_right(struct cg_tile *tile) {
+	move_tile(tile, find_right_tile);
+}
+
+void
+move_tile_top(struct cg_tile *tile) {
+	move_tile(tile, find_top_tile);
+}
+
+void
+move_tile_bottom(struct cg_tile *tile) {
+	move_tile(tile, find_bottom_tile);
+}
+
+void
 focus_tile(struct cg_tile *tile,
            struct cg_tile *(*find_tile)(const struct cg_tile *tile)) {
 	struct cg_tile *new_tile = find_tile(tile);
@@ -1817,6 +1860,30 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	}
 	case KEYBINDING_SWAP_BOTTOM: {
 		swap_tile_bottom(
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile);
+		break;
+	}
+	case KEYBINDING_MOVE_LEFT: {
+		move_tile_left(
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile);
+		break;
+	}
+	case KEYBINDING_MOVE_RIGHT: {
+		move_tile_right(
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile);
+		break;
+	}
+	case KEYBINDING_MOVE_TOP: {
+		move_tile_top(
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile);
+		break;
+	}
+	case KEYBINDING_MOVE_BOTTOM: {
+		move_tile_bottom(
 		    server->curr_output->workspaces[server->curr_output->curr_workspace]
 		        ->focused_tile);
 		break;

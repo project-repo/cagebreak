@@ -963,6 +963,14 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_SWAP_TOP;
 	} else if(strcmp(action, "exchangedown") == 0) {
 		keybinding->action = KEYBINDING_SWAP_BOTTOM;
+	} else if(strcmp(action, "moveleft") == 0) {
+		keybinding->action = KEYBINDING_MOVE_LEFT;
+	} else if(strcmp(action, "moveright") == 0) {
+		keybinding->action = KEYBINDING_MOVE_RIGHT;
+	} else if(strcmp(action, "moveup") == 0) {
+		keybinding->action = KEYBINDING_MOVE_TOP;
+	} else if(strcmp(action, "movedown") == 0) {
+		keybinding->action = KEYBINDING_MOVE_BOTTOM;
 	} else if(strcmp(action, "focusleft") == 0) {
 		keybinding->action = KEYBINDING_FOCUS_LEFT;
 	} else if(strcmp(action, "focusright") == 0) {
