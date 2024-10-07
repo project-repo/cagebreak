@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <wayland-server-core.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_scene.h>
 #include <wlr/util/box.h>
 #include <wlr/util/log.h>
 #if CG_HAS_XWAYLAND
@@ -69,7 +70,7 @@ static void
 activate(struct cg_view *view, bool activate) {
 	struct cg_xwayland_view *xwayland_view = xwayland_view_from_view(view);
 	wlr_xwayland_surface_activate(xwayland_view->xwayland_surface, activate);
-	if(activate) {
+	if(activate && !xwayland_view->xwayland_surface->override_redirect) {
 		wlr_xwayland_surface_restack(xwayland_view->xwayland_surface, NULL,
 		                             XCB_STACK_MODE_ABOVE);
 	}
@@ -112,7 +113,7 @@ destroy(struct cg_view *view) {
 
 static void
 handle_xwayland_surface_request_fullscreen(struct wl_listener *listener,
-                                           void *data) {
+                                           __attribute__((unused)) void *data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, request_fullscreen);
 	struct wlr_xwayland_surface *xwayland_surface =
@@ -122,7 +123,8 @@ handle_xwayland_surface_request_fullscreen(struct wl_listener *listener,
 }
 
 static void
-handle_xwayland_surface_unmap(struct wl_listener *listener, void *_data) {
+handle_xwayland_surface_unmap(struct wl_listener *listener,
+                              __attribute__((unused)) void *_data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, unmap);
 	struct cg_view *view = &xwayland_view->view;
@@ -131,7 +133,8 @@ handle_xwayland_surface_unmap(struct wl_listener *listener, void *_data) {
 }
 
 static void
-handle_xwayland_surface_map(struct wl_listener *listener, void *_data) {
+handle_xwayland_surface_map(struct wl_listener *listener,
+                            __attribute__((unused)) void *_data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, map);
 	struct cg_view *view = &xwayland_view->view;
@@ -145,10 +148,13 @@ handle_xwayland_surface_map(struct wl_listener *listener, void *_data) {
 	view_map(view, xwayland_view->xwayland_surface->surface,
 	         view->server->curr_output
 	             ->workspaces[view->server->curr_output->curr_workspace]);
+	xwayland_view->scene_tree = wlr_scene_subsurface_tree_create(
+	    view->scene_tree, xwayland_view->xwayland_surface->surface);
 }
 
 static void
-handle_xwayland_surface_destroy(struct wl_listener *listener, void *_data) {
+handle_xwayland_surface_destroy(struct wl_listener *listener,
+                                __attribute__((unused)) void *_data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, destroy);
 	struct cg_view *view = &xwayland_view->view;
@@ -171,7 +177,8 @@ static const struct cg_view_impl xwayland_view_impl = {
 };
 
 static void
-handle_xwayland_surface_associate(struct wl_listener *listener, void *data) {
+handle_xwayland_surface_associate(struct wl_listener *listener,
+                                  __attribute__((unused)) void *data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, associate);
 	struct wlr_xwayland_surface *xsurface = xwayland_view->xwayland_surface;
@@ -182,7 +189,8 @@ handle_xwayland_surface_associate(struct wl_listener *listener, void *data) {
 }
 
 static void
-handle_xwayland_surface_dissociate(struct wl_listener *listener, void *data) {
+handle_xwayland_surface_dissociate(struct wl_listener *listener,
+                                   __attribute__((unused)) void *data) {
 	struct cg_xwayland_view *xwayland_view =
 	    wl_container_of(listener, xwayland_view, dissociate);
 	wl_list_remove(&xwayland_view->map.link);
@@ -201,6 +209,8 @@ handle_xwayland_surface_new(struct wl_listener *listener, void *data) {
 		wlr_log(WLR_ERROR, "Failed to allocate XWayland view");
 		return;
 	}
+
+	xwayland_view->scene_tree = NULL;
 
 	view_init(&xwayland_view->view, CG_XWAYLAND_VIEW, &xwayland_view_impl,
 	          server);

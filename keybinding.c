@@ -103,6 +103,10 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 			free(keybinding->data.c);
 		}
 		break;
+	case KEYBINDING_SETMODECURSOR:
+		if(keybinding->data.c != NULL) {
+			free(keybinding->data.c);
+		}
 	default:
 		break;
 	}
@@ -840,7 +844,7 @@ print_message_conf(struct cg_message_config *config) {
 	struct dyn_str outp_str;
 	outp_str.len = 0;
 	outp_str.cur_pos = 0;
-	uint32_t nmemb = 7;
+	uint32_t nmemb = 8;
 	outp_str.str_arr = calloc(nmemb, sizeof(char *));
 	print_str(&outp_str, "\"message_config\": {");
 	print_str(&outp_str, "\"font\": \"%s\",\n", config->font);
@@ -849,6 +853,7 @@ print_message_conf(struct cg_message_config *config) {
 	          config->bg_color[1], config->bg_color[2], config->bg_color[3]);
 	print_str(&outp_str, "\"fg_color\": [%f,%f,%f,%f],\n", config->fg_color[0],
 	          config->fg_color[1], config->fg_color[2], config->fg_color[3]);
+	print_str(&outp_str, "\"enabled\": %d,\n", config->enabled == 1);
 	switch(config->anchor) {
 	case CG_MESSAGE_TOP_LEFT:
 		print_str(&outp_str, "\"anchor\": \"top_left\"\n", config->font);
@@ -1172,15 +1177,15 @@ print_input_device(struct cg_input_device *dev) {
 		print_str(&outp_str, "\"NULL\": {\n");
 	}
 	print_str(&outp_str, "\"is_virtual\": %d,\n", dev->is_virtual);
-	print_str(
-	    &outp_str, "\"type\": \"%s\"\n",
-	    dev->wlr_device->type == WLR_INPUT_DEVICE_POINTER       ? "pointer"
-	    : dev->wlr_device->type == WLR_INPUT_DEVICE_SWITCH      ? "switch"
-	    : dev->wlr_device->type == WLR_INPUT_DEVICE_TABLET_PAD  ? "tablet pad"
-	    : dev->wlr_device->type == WLR_INPUT_DEVICE_TABLET_TOOL ? "tablet tool"
-	    : dev->wlr_device->type == WLR_INPUT_DEVICE_TOUCH       ? "touch"
-	    : dev->wlr_device->type == WLR_INPUT_DEVICE_KEYBOARD    ? "keyboard"
-	                                                            : "unknown");
+	print_str(&outp_str, "\"type\": \"%s\"\n",
+	          dev->wlr_device->type == WLR_INPUT_DEVICE_POINTER  ? "pointer"
+	          : dev->wlr_device->type == WLR_INPUT_DEVICE_SWITCH ? "switch"
+	          : dev->wlr_device->type == WLR_INPUT_DEVICE_TABLET_PAD
+	              ? "tablet pad"
+	          : dev->wlr_device->type == WLR_INPUT_DEVICE_TABLET   ? "tablet"
+	          : dev->wlr_device->type == WLR_INPUT_DEVICE_TOUCH    ? "touch"
+	          : dev->wlr_device->type == WLR_INPUT_DEVICE_KEYBOARD ? "keyboard"
+	                                                               : "unknown");
 	print_str(&outp_str, "}");
 	return dyn_str_to_str(&outp_str);
 }
@@ -1669,6 +1674,9 @@ keybinding_configure_message(struct cg_server *server,
 	if(config->anchor != CG_MESSAGE_NOPT) {
 		server->message_config.anchor = config->anchor;
 	}
+	if(config->enabled != -1) {
+		server->message_config.enabled = config->enabled;
+	}
 	ipc_send_event(server, "{\"event_name\":\"configure_message\"}");
 }
 
@@ -1740,10 +1748,11 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	case KEYBINDING_SWITCH_MODE:
 		if(data.u != server->seat->default_mode) {
 			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
-			if(server->seat->enable_cursor == true) {
+			if(server->seat->enable_cursor == true &&
+			   server->set_mode_cursor != NULL) {
 				wlr_cursor_set_xcursor(server->seat->cursor,
 				                       server->seat->xcursor_manager,
-				                       "dot_box_mask");
+				                       server->set_mode_cursor);
 			}
 		}
 		server->seat->mode = data.u;
@@ -1865,6 +1874,14 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_close_view(
 		    server->curr_output->workspaces[server->curr_output->curr_workspace]
 		        ->focused_tile->view);
+		break;
+	case KEYBINDING_SETMODECURSOR:
+		if(data.c != NULL) {
+			if(server->set_mode_cursor != NULL) {
+				free(server->set_mode_cursor);
+			}
+			server->set_mode_cursor = strdup(data.c);
+		}
 		break;
 	default: {
 		wlr_log(WLR_ERROR,

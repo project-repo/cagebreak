@@ -7,6 +7,7 @@
 
 #include <fontconfig/fontconfig.h>
 #include <getopt.h>
+#include <grp.h>
 #include <pango.h>
 #include <pango/pangocairo.h>
 #include <signal.h>
@@ -30,7 +31,6 @@
 #include <wlr/types/wlr_idle_inhibit_v1.h>
 #include <wlr/types/wlr_idle_notify_v1.h>
 #include <wlr/types/wlr_output_layout.h>
-#include <wlr/types/wlr_presentation_time.h>
 #include <wlr/types/wlr_primary_selection_v1.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_screencopy_v1.h>
@@ -83,8 +83,16 @@ set_sig_handler(int sig, void (*action)(int)) {
 static bool
 drop_permissions(void) {
 	if(getuid() != geteuid() || getgid() != getegid()) {
+		// Drop ancillary groups
+		gid_t gid = getgid();
+		setgroups(1, &gid);
 		// Set gid before uid
+#ifdef linux
 		if(setgid(getgid()) != 0 || setuid(getuid()) != 0) {
+#else
+		if(setregid(getgid(), getgid()) != 0 ||
+		   setreuid(getuid(), getuid()) != 0) {
+#endif
 			wlr_log(WLR_ERROR, "Unable to drop root, refusing to start");
 			return false;
 		}
@@ -278,15 +286,17 @@ main(int argc, char *argv[]) {
 	struct wlr_screencopy_manager_v1 *screencopy_manager = NULL;
 	struct wlr_data_control_manager_v1 *data_control_manager = NULL;
 	struct wlr_viewporter *viewporter = NULL;
-	struct wlr_presentation *presentation = NULL;
 	struct wlr_xdg_output_manager_v1 *output_manager = NULL;
 	struct wlr_xdg_shell *xdg_shell = NULL;
 	wl_list_init(&server.input_config);
 	wl_list_init(&server.output_config);
 	wl_list_init(&server.output_priorities);
+	wl_list_init(&server.xdg_decorations);
 
 	int ret = 0;
 	server.bs = 0;
+	server.set_mode_cursor = strdup("cell");
+	server.message_config.enabled = true;
 
 	char *config_path = NULL;
 	if(!parse_args(&server, argc, argv, &config_path)) {
@@ -369,8 +379,8 @@ main(int argc, char *argv[]) {
 	    wl_event_loop_add_signal(event_loop, SIGPIPE, handle_signal, &server);
 	server.event_loop = event_loop;
 
-	backend = wlr_backend_autocreate(server.wl_display, &server.session);
-	server.headless_backend = wlr_headless_backend_create(server.wl_display);
+	backend = wlr_backend_autocreate(event_loop, &server.session);
+	server.headless_backend = wlr_headless_backend_create(event_loop);
 	if(!backend) {
 		wlr_log(WLR_ERROR, "Unable to create the wlroots backend");
 		ret = 1;
@@ -411,7 +421,7 @@ main(int argc, char *argv[]) {
 	wl_list_init(&server.outputs);
 	wl_list_init(&server.disabled_outputs);
 
-	server.output_layout = wlr_output_layout_create();
+	server.output_layout = wlr_output_layout_create(server.wl_display);
 	if(!server.output_layout) {
 		wlr_log(WLR_ERROR, "Unable to create output layout");
 		ret = 1;
@@ -470,7 +480,7 @@ main(int argc, char *argv[]) {
 	server.new_output.notify = handle_new_output;
 	wl_signal_add(&backend->events.new_output, &server.new_output);
 
-	server.seat = seat_create(&server, backend);
+	server.seat = seat_create(&server);
 	if(!server.seat) {
 		wlr_log(WLR_ERROR, "Unable to create the seat");
 		ret = 1;
@@ -489,15 +499,15 @@ main(int argc, char *argv[]) {
 	              &server.new_idle_inhibitor_v1);
 	wl_list_init(&server.inhibitors);
 
-	xdg_shell = wlr_xdg_shell_create(server.wl_display, 3);
+	xdg_shell = wlr_xdg_shell_create(server.wl_display, 5);
 	if(!xdg_shell) {
 		wlr_log(WLR_ERROR, "Unable to create the XDG shell interface");
 		ret = 1;
 		goto end;
 	}
-	server.new_xdg_shell_surface.notify = handle_xdg_shell_surface_new;
-	wl_signal_add(&xdg_shell->events.new_surface,
-	              &server.new_xdg_shell_surface);
+	server.new_xdg_shell_toplevel.notify = handle_xdg_shell_toplevel_new;
+	wl_signal_add(&xdg_shell->events.new_toplevel,
+	              &server.new_xdg_shell_toplevel);
 
 	xdg_decoration_manager =
 	    wlr_xdg_decoration_manager_v1_create(server.wl_display);
@@ -526,14 +536,6 @@ main(int argc, char *argv[]) {
 		ret = 1;
 		goto end;
 	}
-
-	presentation = wlr_presentation_create(server.wl_display, server.backend);
-	if(!presentation) {
-		wlr_log(WLR_ERROR, "Unable to create the presentation interface");
-		ret = 1;
-		goto end;
-	}
-	wlr_scene_set_presentation(server.scene, presentation);
 
 	export_dmabuf_manager =
 	    wlr_export_dmabuf_manager_v1_create(server.wl_display);
@@ -589,8 +591,8 @@ main(int argc, char *argv[]) {
 	              &server.new_xwayland_surface);
 
 	if(setenv("DISPLAY", server.xwayland->display_name, true) < 0) {
-		wlr_log_errno(WLR_ERROR, "Unable to set DISPLAY for XWayland.",
-		              "Clients may not be able to connect");
+		wlr_log_errno(WLR_ERROR, "Unable to set DISPLAY for XWayland. Clients "
+		                         "may not be able to connect");
 	} else {
 		wlr_log(WLR_DEBUG, "XWayland is running on display %s",
 		        server.xwayland->display_name);
@@ -621,8 +623,8 @@ main(int argc, char *argv[]) {
 	}
 
 	if(setenv("WAYLAND_DISPLAY", socket, true) < 0) {
-		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY.",
-		              "Clients may not be able to connect");
+		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY. Clients may "
+		                         "not be able to connect");
 	} else {
 		fprintf(stdout,
 		        "Cagebreak " CG_VERSION " is running on Wayland display %s\n",
@@ -705,6 +707,10 @@ end:
 		}
 		free(server.modes);
 	}
+	if(server.set_mode_cursor != NULL) {
+		free(server.set_mode_cursor);
+		server.set_mode_cursor = NULL;
+	}
 
 	if(config_path != NULL) {
 		free(config_path);
@@ -752,8 +758,15 @@ end:
 	if(server.wl_display != NULL) {
 		wl_display_destroy(server.wl_display);
 	}
-	if(server.output_layout != NULL) {
-		wlr_output_layout_destroy(server.output_layout);
+
+	if(server.allocator != NULL) {
+		wlr_allocator_destroy(server.allocator);
+	}
+	if(server.renderer != NULL) {
+		wlr_renderer_destroy(server.renderer);
+	}
+	if(server.scene != NULL) {
+		wlr_scene_node_destroy(&server.scene->tree.node);
 	}
 
 	if(server.input != NULL) {

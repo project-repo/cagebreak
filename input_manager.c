@@ -18,9 +18,9 @@
 #include <string.h>
 #include <wayland-server-core.h>
 #include <wlr/backend/libinput.h>
+#include <wlr/config.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_input_device.h>
-#include <wlr/types/wlr_input_inhibitor.h>
 #include <wlr/types/wlr_keyboard_group.h>
 #include <wlr/types/wlr_virtual_keyboard_v1.h>
 #include <wlr/types/wlr_virtual_pointer_v1.h>
@@ -42,8 +42,16 @@ strip_whitespace(char *str) {
 
 char *
 input_device_get_identifier(struct wlr_input_device *device) {
-	int vendor = device->vendor;
-	int product = device->product;
+	int vendor = 0;
+	int product = 0;
+#if WLR_HAS_LIBINPUT_BACKEND
+	if(wlr_input_device_is_libinput(device)) {
+		struct libinput_device *libinput_dev =
+		    wlr_libinput_get_device_handle(device);
+		vendor = libinput_device_get_id_vendor(libinput_dev);
+		product = libinput_device_get_id_product(libinput_dev);
+	}
+#endif
 	char *name = strdup(device->name ? device->name : "");
 	strip_whitespace(name);
 
@@ -71,7 +79,8 @@ input_device_get_identifier(struct wlr_input_device *device) {
 }
 
 void
-input_manager_handle_device_destroy(struct wl_listener *listener, void *data) {
+input_manager_handle_device_destroy(struct wl_listener *listener,
+                                    __attribute__((unused)) void *data) {
 	struct cg_input_device *input_device =
 	    wl_container_of(listener, input_device, device_destroy);
 

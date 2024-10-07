@@ -37,7 +37,8 @@ msg_buffer_destroy(struct wlr_buffer *wlr_buffer) {
 }
 
 static bool
-msg_buffer_begin_data_ptr_access(struct wlr_buffer *wlr_buffer, uint32_t flags,
+msg_buffer_begin_data_ptr_access(struct wlr_buffer *wlr_buffer,
+                                 __attribute__((unused)) uint32_t flags,
                                  void **data, uint32_t *format,
                                  size_t *stride) {
 	struct msg_buffer *buffer = wl_container_of(wlr_buffer, buffer, base);
@@ -54,7 +55,8 @@ msg_buffer_begin_data_ptr_access(struct wlr_buffer *wlr_buffer, uint32_t flags,
 }
 
 static void
-msg_buffer_end_data_ptr_access(struct wlr_buffer *wlr_buffer) {
+msg_buffer_end_data_ptr_access(
+    __attribute__((unused)) struct wlr_buffer *wlr_buffer) {
 	// This space is intentionally left blank
 }
 
@@ -238,6 +240,7 @@ message_set_output(struct cg_output *output, const char *string,
 	}
 	message->message =
 	    wlr_scene_buffer_create(&scene_output->scene->tree, &buf->base);
+	message->buf = buf;
 	wlr_scene_node_raise_to_top(&message->message->node);
 	wlr_scene_node_set_enabled(&message->message->node, true);
 	wlr_scene_buffer_set_dest_size(message->message, width, height);
@@ -249,7 +252,7 @@ message_set_output(struct cg_output *output, const char *string,
 
 void
 message_printf(struct cg_output *output, const char *fmt, ...) {
-	if(output->destroyed) {
+	if(output->destroyed || output->server->message_config.enabled == 0) {
 		return;
 	}
 	va_list ap;
@@ -312,7 +315,7 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 void
 message_printf_pos(struct cg_output *output, struct wlr_box *position,
                    const enum cg_message_anchor anchor, const char *fmt, ...) {
-	if(output->destroyed) {
+	if(output->destroyed || output->server->message_config.enabled == 0) {
 		free(position);
 		return;
 	}
@@ -334,10 +337,11 @@ message_clear(struct cg_output *output) {
 	struct cg_message *message, *tmp;
 	wl_list_for_each_safe(message, tmp, &output->messages, link) {
 		wl_list_remove(&message->link);
-		struct wlr_buffer *buf = message->message->buffer;
 		wlr_scene_node_destroy(&message->message->node);
 		free(message->position);
-		buf->impl->destroy(buf);
+		if(message->buf != NULL) {
+			msg_buffer_destroy(&message->buf->base);
+		}
 		free(message);
 	}
 }

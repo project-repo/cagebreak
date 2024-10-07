@@ -430,8 +430,7 @@ parse_definekey(struct cg_server *server, char **saveptr, char **errstr,
 }
 
 int
-parse_background(struct cg_server *server, float *color, char **saveptr,
-                 char **errstr) {
+parse_background(float *color, char **saveptr, char **errstr) {
 	/* Read rgb numbers */
 	for(unsigned int i = 0; i < 3; ++i) {
 		char *nstr = strtok_r(NULL, " \n", saveptr);
@@ -493,10 +492,10 @@ parse_cursor(char **saveptr, char **errstr) {
 	} else if(strcmp(*saveptr, "disable") == 0) {
 		return 0;
 	} else {
-		wlr_log(WLR_ERROR,
-		        "Invalid option \"%s\" for \"cursor\". Expected \"enable\" or "
-		        "\"disable\".",
-		        *saveptr);
+		*errstr = log_error(
+		    "Invalid option \"%s\" for \"cursor\". Expected \"enable\" or "
+		    "\"disable\".",
+		    *saveptr);
 		return -1;
 	}
 }
@@ -721,6 +720,7 @@ parse_message_config(char **saveptr, char **errstr) {
 	cfg->display_time = -1;
 	cfg->font = NULL;
 	cfg->anchor = CG_MESSAGE_NOPT;
+	cfg->enabled = -1;
 
 	char *setting = strtok_r(NULL, " ", saveptr);
 	if(setting == NULL) {
@@ -780,6 +780,10 @@ parse_message_config(char **saveptr, char **errstr) {
 			              "the given anchor value is not a valid option");
 			goto error;
 		}
+	} else if(strcmp(setting, "enable") == 0) {
+		cfg->enabled = 1;
+	} else if(strcmp(setting, "disable") == 0) {
+		cfg->enabled = 0;
 	} else {
 		*errstr = log_error("Invalid option to command \"configure_message\"");
 		goto error;
@@ -1011,6 +1015,15 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			return -1;
 		}
 		keybinding->data.u = (unsigned int)mode_idx;
+	} else if(strcmp(action, "setmodecursor") == 0) {
+		keybinding->action = KEYBINDING_SETMODECURSOR;
+		char *cursor = strtok_r(NULL, " ", &saveptr);
+		if(cursor == NULL) {
+			*errstr = log_error(
+			    "Expected cursor name after \"setmodecursor\". Got nothing.");
+			return -1;
+		}
+		keybinding->data.c = strdup(cursor);
 	} else if(strcmp(action, "bind") == 0) {
 		keybinding->action = KEYBINDING_DEFINEKEY;
 		keybinding->data.kb =
@@ -1027,8 +1040,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 	} else if(strcmp(action, "background") == 0) {
 		keybinding->action = KEYBINDING_BACKGROUND;
-		if(parse_background(server, keybinding->data.color, &saveptr, errstr) !=
-		   0) {
+		if(parse_background(keybinding->data.color, &saveptr, errstr) != 0) {
 			return -1;
 		}
 	} else if(strcmp(action, "escape") == 0) {

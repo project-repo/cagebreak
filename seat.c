@@ -154,7 +154,6 @@ handle_keyboard_repeat(void *data) {
 				wlr_log(WLR_DEBUG, "failed to update key repeat timer");
 			}
 		}
-
 		run_action((*cg_group->repeat_keybinding)->action,
 		           cg_group->seat->server,
 		           (*cg_group->repeat_keybinding)->data);
@@ -321,7 +320,8 @@ handle_keyboard_group_key(struct wl_listener *listener, void *data) {
 }
 
 static void
-handle_keyboard_group_modifiers(struct wl_listener *listener, void *_data) {
+handle_keyboard_group_modifiers(struct wl_listener *listener,
+                                __attribute__((unused)) void *_data) {
 	struct cg_keyboard_group *group =
 	    wl_container_of(listener, group, modifiers);
 	handle_modifier_event(&group->wlr_group->keyboard.base, group->seat);
@@ -451,7 +451,7 @@ seat_add_device(struct cg_seat *seat, struct cg_input_device *device) {
 	case WLR_INPUT_DEVICE_SWITCH:
 		wlr_log(WLR_DEBUG, "Switch input is not implemented");
 		return;
-	case WLR_INPUT_DEVICE_TABLET_TOOL:
+	case WLR_INPUT_DEVICE_TABLET:
 	case WLR_INPUT_DEVICE_TABLET_PAD:
 		wlr_log(WLR_DEBUG, "Tablet input is not implemented");
 		return;
@@ -488,6 +488,7 @@ remove_keyboard(struct cg_seat *seat, struct cg_input_device *keyboard) {
 			wl_list_remove(&group->link);
 			wl_list_remove(&group->key.link);
 			wl_list_remove(&group->modifiers.link);
+			wl_event_source_remove(group->key_repeat_timer);
 			if(group->identifier != NULL) {
 				free(group->identifier);
 			}
@@ -520,7 +521,7 @@ seat_remove_device(struct cg_seat *seat, struct cg_input_device *device) {
 	case WLR_INPUT_DEVICE_SWITCH:
 		wlr_log(WLR_DEBUG, "Switch input is not implemented");
 		return;
-	case WLR_INPUT_DEVICE_TABLET_TOOL:
+	case WLR_INPUT_DEVICE_TABLET:
 	case WLR_INPUT_DEVICE_TABLET_PAD:
 		wlr_log(WLR_DEBUG, "Tablet input is not implemented");
 		return;
@@ -659,7 +660,8 @@ handle_touch_motion(struct wl_listener *listener, void *data) {
 }
 
 static void
-handle_cursor_frame(struct wl_listener *listener, void *_data) {
+handle_cursor_frame(struct wl_listener *listener,
+                    __attribute__((unused)) void *_data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, cursor_frame);
 
 	wlr_seat_pointer_notify_frame(seat->seat);
@@ -671,9 +673,9 @@ handle_cursor_axis(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, cursor_axis);
 	struct wlr_pointer_axis_event *event = data;
 
-	wlr_seat_pointer_notify_axis(seat->seat, event->time_msec,
-	                             event->orientation, event->delta,
-	                             event->delta_discrete, event->source);
+	wlr_seat_pointer_notify_axis(
+	    seat->seat, event->time_msec, event->orientation, event->delta,
+	    event->delta_discrete, event->source, event->relative_direction);
 	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
 
@@ -816,7 +818,8 @@ drag_icon_update_position(struct cg_drag_icon *drag_icon) {
 }
 
 static void
-handle_drag_icon_destroy(struct wl_listener *listener, void *_data) {
+handle_drag_icon_destroy(struct wl_listener *listener,
+                         __attribute__((unused)) void *_data) {
 	struct cg_drag_icon *drag_icon =
 	    wl_container_of(listener, drag_icon, destroy);
 
@@ -883,7 +886,8 @@ handle_start_drag(struct wl_listener *listener, void *data) {
 }
 
 static void
-handle_destroy(struct wl_listener *listener, void *_data) {
+handle_destroy(struct wl_listener *listener,
+               __attribute__((unused)) void *_data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, destroy);
 	wl_list_remove(&seat->destroy.link);
 
@@ -923,7 +927,7 @@ handle_destroy(struct wl_listener *listener, void *_data) {
 }
 
 struct cg_seat *
-seat_create(struct cg_server *server, struct wlr_backend *backend) {
+seat_create(struct cg_server *server) {
 	struct cg_seat *seat = calloc(1, sizeof(struct cg_seat));
 	if(!seat) {
 		wlr_log(WLR_ERROR, "Cannot allocate seat");

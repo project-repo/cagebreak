@@ -27,6 +27,7 @@ struct cg_message_config {
 	int display_time;
 	float bg_color[4];
 	float fg_color[4];
+	int enabled;
 	enum cg_message_anchor anchor;
 };
 
@@ -34,6 +35,7 @@ struct cg_message {
 	struct wlr_box *position;
 	struct wlr_scene_buffer *message;
 	struct wl_surface *surface;
+	struct msg_buffer *buf;
 	struct wl_list link;
 };
 

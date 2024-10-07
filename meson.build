@@ -3,9 +3,9 @@
 project(
   'cagebreak',
   'c',
-version : '2.3.1',
+version : '2.4.0',
 license : 'MIT',
-default_options : ['c_std=c11', 'warning_level=3']
+default_options : ['c_std=c23', 'warning_level=3']
 )
 
 add_project_arguments(
@@ -13,7 +13,6 @@ add_project_arguments(
     '-DWLR_USE_UNSTABLE',
     '-Werror=implicit-function-declaration',
     '-Wundef',
-    '-Wno-unused-parameter',
   ],
   language: 'c',
 )
@@ -55,7 +54,7 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots', version: ['>=0.17.0', '< 0.18.0'])
+wlroots        = dependency('wlroots-0.18')
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')
@@ -202,17 +201,17 @@ cagebreak_dependencies_dict = {
 reproducible_build_versions = { 
   'server_protos': '-1',
   'wayland_server': '1.19.0',
-  'wayland_client': '1.22.0',
-  'wayland_cursor': '1.22.0',
-  'wlroots': '0.17.1',
-  'xkbcommon': '1.6.0',
+  'wayland_client': '1.23.1',
+  'wayland_cursor': '1.23.1',
+  'wlroots': '0.18.1',
+  'xkbcommon': '1.7.0',
   'fontconfig': '2.15.0',
-  'libinput': '1.25.0',
-  'libevdev': '1.13.1',
-  'libudev': '255',
-  'pango': '1.51.0',
-  'cairo': '1.18.0',
-  'pangocairo': '1.51.0',
+  'libinput': '1.26.2',
+  'libevdev': '1.13.3',
+  'libudev': '256',
+  'pango': '1.54.0',
+  'cairo': '1.18.2',
+  'pangocairo': '1.54.0',
   'math': '-1'
 }
 
@@ -238,7 +237,7 @@ foreach name, dep : cagebreak_dependencies_dict
 endforeach
 
 reproducible_build_compiler = 'gcc'
-reproducible_build_compiler_version = '13.2.1'
+reproducible_build_compiler_version = '14.2.1'
 
 if cc.get_id() != reproducible_build_compiler
   warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in Hashes.md (' + reproducible_build_compiler + ').')
@@ -260,7 +259,7 @@ install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_nam
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1706350970
+  secssinceepoch = 1728318420
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')

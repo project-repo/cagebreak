@@ -3,11 +3,9 @@
 // This file is used by the fuzzer in order to prevent executing shell commands.
 
 #define _GNU_SOURCE
-#include "../output.h"
 #include <cairo.h>
 #include <cairo/cairo.h>
 #include <stdlib.h>
-#include <wlr/render/wlr_renderer.h>
 
 int
 fork(void) {

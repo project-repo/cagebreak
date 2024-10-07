@@ -24,7 +24,8 @@ idle_inhibit_v1_check_active(struct cg_server *server) {
 }
 
 static void
-handle_destroy(struct wl_listener *listener, void *data) {
+handle_destroy(struct wl_listener *listener,
+               __attribute__((unused)) void *data) {
 	struct cg_idle_inhibitor_v1 *inhibitor =
 	    wl_container_of(listener, inhibitor, destroy);
 	struct cg_server *server = inhibitor->server;

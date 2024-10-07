@@ -109,8 +109,6 @@ view_unmap(struct cg_view *view) {
 		tile_id = view->tile->id;
 	}
 
-	wlr_scene_node_destroy(&view->scene_tree->node);
-
 #if CG_HAS_XWAYLAND
 	if((view->type != CG_XWAYLAND_VIEW || xwayland_view_should_manage(view)))
 #endif
@@ -140,6 +138,8 @@ view_unmap(struct cg_view *view) {
 	}
 #endif
 
+	wlr_scene_node_destroy(&view->scene_tree->node);
+
 	wl_list_remove(&view->link);
 
 	view->wlr_surface = NULL;
@@ -156,7 +156,7 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	struct cg_output *output = ws->output;
 	view->wlr_surface = surface;
 
-	view->scene_tree = wlr_scene_subsurface_tree_create(ws->scene, surface);
+	wlr_scene_node_reparent(&view->scene_tree->node, ws->scene);
 	if(!view->scene_tree) {
 		wl_resource_post_no_memory(surface->resource);
 		return;
@@ -217,4 +217,7 @@ view_init(struct cg_view *view, enum cg_view_type type,
 	view->impl = impl;
 	view->id = server->views_curr_id;
 	++server->views_curr_id;
+	view->scene_tree = wlr_scene_tree_create(
+	    server->curr_output->workspaces[server->curr_output->curr_workspace]
+	        ->scene);
 }
