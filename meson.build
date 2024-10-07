@@ -3,7 +3,7 @@
 project(
   'cagebreak',
   'c',
-version : '2.3.1',
+version : '2.4.0',
 license : 'MIT',
 default_options : ['c_std=c23', 'warning_level=3']
 )
@@ -201,16 +201,16 @@ cagebreak_dependencies_dict = {
 reproducible_build_versions = { 
   'server_protos': '-1',
   'wayland_server': '1.19.0',
-  'wayland_client': '1.23.0',
-  'wayland_cursor': '1.23.0',
-  'wlroots': '0.18.0',
+  'wayland_client': '1.23.1',
+  'wayland_cursor': '1.23.1',
+  'wlroots': '0.18.1',
   'xkbcommon': '1.7.0',
   'fontconfig': '2.15.0',
-  'libinput': '1.26.1',
-  'libevdev': '1.13.2',
+  'libinput': '1.26.2',
+  'libevdev': '1.13.3',
   'libudev': '256',
   'pango': '1.54.0',
-  'cairo': '1.18.0',
+  'cairo': '1.18.2',
   'pangocairo': '1.54.0',
   'math': '-1'
 }
@@ -259,7 +259,7 @@ install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_nam
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1706350970
+  secssinceepoch = 1728318420
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
