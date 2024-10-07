@@ -154,7 +154,6 @@ handle_keyboard_repeat(void *data) {
 				wlr_log(WLR_DEBUG, "failed to update key repeat timer");
 			}
 		}
-
 		run_action((*cg_group->repeat_keybinding)->action,
 		           cg_group->seat->server,
 		           (*cg_group->repeat_keybinding)->data);
@@ -235,6 +234,7 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 				wlr_log(WLR_DEBUG, "failed to set key repeat timer");
 			}
 		}
+		message_clear(group->seat->server->curr_output);
 		run_action((*keybinding)->action, server, (*keybinding)->data);
 		wlr_idle_notifier_v1_notify_activity(server->idle, server->seat->seat);
 		return true;
