@@ -104,8 +104,11 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 		}
 		break;
 	case KEYBINDING_SETMODECURSOR:
-		if(keybinding->data.c != NULL) {
-			free(keybinding->data.c);
+		if(keybinding->data.cs[0] != NULL) {
+			free(keybinding->data.cs[0]);
+		}
+		if(keybinding->data.cs[1] != NULL) {
+			free(keybinding->data.cs[1]);
 		}
 	default:
 		break;
@@ -1429,12 +1432,15 @@ keybinding_definemode(struct cg_server *server, char *mode) {
 	while(server->modes[length++] != NULL)
 		;
 	char **tmp = realloc(server->modes, (length + 1) * sizeof(char *));
-	if(tmp == NULL) {
+	char **tmp2 = realloc(server->modecursors, (length + 1) * sizeof(char *));
+	if(tmp == NULL || tmp2 == NULL) {
 		wlr_log(WLR_ERROR, "Could not allocate memory for storing modes.");
 		return;
 	}
 	server->modes = tmp;
+	server->modecursors = tmp2;
 	server->modes[length] = NULL;
+	server->modecursors[length] = NULL;
 
 	server->modes[length - 1] = strdup(mode);
 	ipc_send_event(server, "{\"event_name\":\"definemode\",\"mode\":\"%s\"}",
@@ -1825,13 +1831,17 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_switch_output(server, data.u);
 		break;
 	case KEYBINDING_SWITCH_MODE:
-		if(data.u != server->seat->default_mode) {
+		uint32_t n_modes=0;
+		while(server->modes[n_modes]!=NULL) {
+			++n_modes;
+		}
+		if(data.u != server->seat->default_mode&&data.u<n_modes) {
 			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
 			if(server->seat->enable_cursor == true &&
-			   server->set_mode_cursor != NULL) {
+			   server->modecursors[data.u] != NULL) {
 				wlr_cursor_set_xcursor(server->seat->cursor,
 				                       server->seat->xcursor_manager,
-				                       server->set_mode_cursor);
+				                       server->modecursors[data.u]);
 			}
 		}
 		server->seat->mode = data.u;
@@ -1842,6 +1852,23 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		               "\"%s\",\"mode\":\"%s\"}",
 		               get_mode_name(server->modes, server->seat->default_mode),
 		               get_mode_name(server->modes, data.u));
+		uint32_t n_modes2=0;
+		while(server->modes[n_modes2]!=NULL) {
+			++n_modes2;
+		}
+		if(data.u != server->seat->default_mode&&data.u<n_modes2) {
+			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
+			if(server->seat->enable_cursor == true) {
+			   if(server->modecursors[data.u] != NULL) {
+					fprintf(stderr,"HERE\n");
+				wlr_cursor_set_xcursor(server->seat->cursor,
+				                       server->seat->xcursor_manager,
+				                       server->modecursors[data.u]);
+				} else {
+					wlr_cursor_set_xcursor(server->seat->cursor, server->seat->xcursor_manager, DEFAULT_XCURSOR);
+				}
+			}
+		}
 		server->seat->mode = data.u;
 		server->seat->default_mode = data.u;
 		break;
@@ -1986,11 +2013,13 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		        ->focused_tile->view);
 		break;
 	case KEYBINDING_SETMODECURSOR:
-		if(data.c != NULL) {
-			if(server->set_mode_cursor != NULL) {
-				free(server->set_mode_cursor);
+		for(int i=0;server->modes[i]!=NULL;++i) {
+			if(strcmp(server->modes[i],data.cs[0])==0) {
+				if(server->modecursors[i]!=NULL) {
+					free(server->modecursors[i]);
+				}
+				server->modecursors[i]=strdup(data.cs[1]);
 			}
-			server->set_mode_cursor = strdup(data.c);
 		}
 		break;
 	default: {

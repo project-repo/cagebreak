@@ -1228,13 +1228,20 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->data.u = (unsigned int)mode_idx;
 	} else if(strcmp(action, "setmodecursor") == 0) {
 		keybinding->action = KEYBINDING_SETMODECURSOR;
+		char *mode = strtok_r(NULL, " ", &saveptr);
+		if(mode == NULL) {
+			*errstr = log_error(
+			    "Expected mode name and cursor name after \"setmodecursor\". Got nothing.");
+			return -1;
+		}
 		char *cursor = strtok_r(NULL, " ", &saveptr);
 		if(cursor == NULL) {
 			*errstr = log_error(
-			    "Expected cursor name after \"setmodecursor\". Got nothing.");
+			    "Expected mode name and cursor name after \"setmodecursor\". Got nothing.");
 			return -1;
 		}
-		keybinding->data.c = strdup(cursor);
+		keybinding->data.cs[0] = strdup(mode);
+		keybinding->data.cs[1] = strdup(cursor);
 	} else if(strcmp(action, "bind") == 0) {
 		keybinding->action = KEYBINDING_DEFINEKEY;
 		keybinding->data.kb =

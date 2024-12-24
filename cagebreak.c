@@ -295,7 +295,6 @@ main(int argc, char *argv[]) {
 
 	int ret = 0;
 	server.bs = 0;
-	server.set_mode_cursor = strdup("cell");
 	server.message_config.enabled = true;
 
 	char *config_path = NULL;
@@ -310,7 +309,8 @@ main(int argc, char *argv[]) {
 #endif
 
 	server.modes = malloc(4 * sizeof(char *));
-	if(!server.modes) {
+	server.modecursors = malloc(4 * sizeof(int *));
+	if(!server.modes|| !server.modecursors) {
 		wlr_log(WLR_ERROR, "Error allocating mode array");
 		goto end;
 	}
@@ -325,6 +325,7 @@ main(int argc, char *argv[]) {
 		wlr_log(WLR_ERROR, "Cannot allocate a Wayland display");
 		free(server.modes);
 		server.modes = NULL;
+		server.modecursors = NULL;
 		goto end;
 	}
 
@@ -345,8 +346,13 @@ main(int argc, char *argv[]) {
 	server.modes[1] = strdup("root");
 	server.modes[2] = strdup("resize");
 	server.modes[3] = NULL;
+
+	server.modecursors[0] = NULL;
+	server.modecursors[1] = strdup("cell");
+	server.modecursors[2] = NULL;
+	server.modecursors[3] = NULL;
 	if(server.modes[0] == NULL || server.modes[1] == NULL ||
-	   server.modes[2] == NULL) {
+	   server.modes[2] == NULL || server.modecursors[1] == NULL) {
 		wlr_log(WLR_ERROR, "Error allocating default modes");
 		goto end;
 	}
@@ -701,15 +707,18 @@ main(int argc, char *argv[]) {
 	wl_display_destroy_clients(server.wl_display);
 
 end:
+	if(server.modecursors != NULL) {
+		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
+			free(server.modecursors[i]);
+		}
+		free(server.modecursors);
+	}
+
 	if(server.modes != NULL) {
 		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
 			free(server.modes[i]);
 		}
 		free(server.modes);
-	}
-	if(server.set_mode_cursor != NULL) {
-		free(server.set_mode_cursor);
-		server.set_mode_cursor = NULL;
 	}
 
 	if(config_path != NULL) {

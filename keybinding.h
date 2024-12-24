@@ -113,6 +113,7 @@ extern char *keybinding_action_string[];
 
 union keybinding_params {
 	char *c;
+	char *cs[2];
 	uint32_t u;
 	uint32_t us[3];
 	int32_t i;
