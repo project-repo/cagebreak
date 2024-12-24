@@ -921,8 +921,138 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			return -1;
 		}
 		keybinding->data.u = ws - 1;
-	} else if(strcmp(action, "movetoscreen") == 0) {
+	} else if(strcmp(action, "moveviewtoscreen") == 0) {
 		keybinding->action = KEYBINDING_MOVE_VIEW_TO_OUTPUT;
+		char *view_id_str = strtok_r(NULL, " ", &saveptr);
+		if(view_id_str == NULL) {
+			*errstr = log_error(
+			    "Expected argument for \"moveviewtoscreen\" action, got none.");
+			return -1;
+		}
+
+		long view_id = strtol(view_id_str, NULL, 10);
+		if(view_id < 1) {
+			*errstr = log_error("View id must be an integer larger or "
+			                    "equal to 1. Got %ld",
+			                    view_id);
+			return -1;
+		}
+		char *noutp_str = strtok_r(NULL, " ", &saveptr);
+		if(noutp_str == NULL) {
+			*errstr = log_error(
+			    "Expected two arguments for \"movetoscreen\" action, got one.");
+			return -1;
+		}
+
+		long outp = strtol(noutp_str, NULL, 10);
+		if(outp < 1) {
+			*errstr = log_error("Output number must be an integer larger or "
+			                    "equal to 1. Got %ld",
+			                    outp);
+			return -1;
+		}
+
+		long follow=1;
+		char *follow_str = strtok_r(NULL, " ", &saveptr);
+		if(follow_str != NULL) {
+			follow = strtol(follow_str, NULL, 10);
+			if(follow!=0 && follow!=1) {
+				*errstr = log_error("The value of \"follow\" must be 0 or 1, got %ld",
+						follow);
+				return -1;
+			}
+		}
+		keybinding->data.us[0] = view_id;
+		keybinding->data.us[1] = outp;
+		keybinding->data.us[2] = follow;
+	} else if(strcmp(action, "moveviewtoworkspace") == 0) {
+		keybinding->action = KEYBINDING_MOVE_VIEW_TO_WORKSPACE;
+		char *view_id_str = strtok_r(NULL, " ", &saveptr);
+		if(view_id_str == NULL) {
+			*errstr = log_error(
+			    "Expected argument for \"moveviewtoworkspace\" action, got none.");
+			return -1;
+		}
+
+		long view_id = strtol(view_id_str, NULL, 10);
+		if(view_id < 1) {
+			*errstr = log_error("View id number must be an integer larger or "
+			                    "equal to 1. Got %ld",
+			                    view_id);
+			return -1;
+		}
+		char *nws_str = strtok_r(NULL, " ", &saveptr);
+		if(nws_str == NULL) {
+			*errstr = log_error(
+			    "Expected argument for \"moveviewtoworkspace\" action, got none.");
+			return -1;
+		}
+
+		long ws = strtol(nws_str, NULL, 10);
+		if(ws < 1) {
+			*errstr = log_error("Workspace number must be an integer larger or "
+			                    "equal to 1. Got %ld",
+			                    ws);
+			return -1;
+		}
+		long follow=1;
+		char *follow_str = strtok_r(NULL, " ", &saveptr);
+		if(follow_str != NULL) {
+			follow = strtol(follow_str, NULL, 10);
+			if(follow!=0 && follow!=1) {
+				*errstr = log_error("The value of \"follow\" must be 0 or 1, got %ld",
+					 follow);
+				return -1;
+			}
+		}
+		keybinding->data.us[0] = view_id;
+		keybinding->data.us[1] = ws - 1;
+		keybinding->data.us[2] = follow;
+	} else if(strcmp(action, "moveviewtotile") == 0) {
+		keybinding->action = KEYBINDING_MOVE_VIEW_TO_TILE;
+		char *view_id_str = strtok_r(NULL, " ", &saveptr);
+		if(view_id_str == NULL) {
+			*errstr = log_error(
+			    "Expected argument for \"moveviewtotile\" action, got none.");
+			return -1;
+		}
+
+		long view_id = strtol(view_id_str, NULL, 10);
+		if(view_id < 1) {
+			*errstr = log_error("View id number must be an integer larger or "
+			                    "equal to 1. Got %ld",
+			                    view_id);
+			return -1;
+		}
+		char *tile_id_str = strtok_r(NULL, " ", &saveptr);
+		if(tile_id_str == NULL) {
+			*errstr = log_error(
+			    "Expected argument for \"moveviewtoworkspace\" action, got none.");
+			return -1;
+		}
+
+		long tile_id = strtol(tile_id_str, NULL, 10);
+		if(tile_id < 1) {
+			*errstr = log_error("Tile id must be an integer larger or "
+			                    "equal to 1. Got %ld",
+			                    tile_id);
+			return -1;
+		}
+		long follow=1;
+		char *follow_str = strtok_r(NULL, " ", &saveptr);
+		if(follow_str != NULL) {
+			follow = strtol(follow_str, NULL, 10);
+			if(follow!=0 && follow!=1) {
+				*errstr = log_error("The value of \"follow\" must be 0 or 1, got %ld",
+						follow);
+				return -1;
+			}
+		}
+		keybinding->data.us[0] = view_id;
+		keybinding->data.us[1] = tile_id;
+		keybinding->data.us[2] = follow;
+	} else if(strcmp(action, "movetoscreen") == 0) {
+		keybinding->action = KEYBINDING_MOVE_TO_OUTPUT;
 		char *noutp_str = strtok_r(NULL, " ", &saveptr);
 		if(noutp_str == NULL) {
 			*errstr = log_error(
@@ -937,9 +1067,20 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			                    outp);
 			return -1;
 		}
-		keybinding->data.u = outp;
+		long follow=1;
+		char *follow_str = strtok_r(NULL, " ", &saveptr);
+		if(follow_str != NULL) {
+			follow = strtol(follow_str, NULL, 10);
+			if(follow!=0 && follow!=1) {
+				*errstr = log_error("The value of \"follow\" must be 0 or 1, got %ld",
+						follow);
+				return -1;
+			}
+		}
+		keybinding->data.us[0] = outp;
+		keybinding->data.us[1] = follow;
 	} else if(strcmp(action, "movetoworkspace") == 0) {
-		keybinding->action = KEYBINDING_MOVE_VIEW_TO_WORKSPACE;
+		keybinding->action = KEYBINDING_MOVE_TO_WORKSPACE;
 		char *nws_str = strtok_r(NULL, " ", &saveptr);
 		if(nws_str == NULL) {
 			*errstr = log_error(
@@ -954,7 +1095,46 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			                    ws);
 			return -1;
 		}
-		keybinding->data.u = ws - 1;
+		long follow=1;
+		char *follow_str = strtok_r(NULL, " ", &saveptr);
+		if(follow_str != NULL) {
+			follow = strtol(follow_str, NULL, 10);
+			if(follow!=0 && follow!=1) {
+				*errstr = log_error("The value of \"follow\" must be 0 or 1, got %ld",
+						follow);
+				return -1;
+			}
+		}
+		keybinding->data.us[0] = ws - 1;
+		keybinding->data.us[1] = follow;
+	} else if(strcmp(action, "movetotile") == 0) {
+		keybinding->action = KEYBINDING_MOVE_TO_TILE;
+		char *tile_str = strtok_r(NULL, " ", &saveptr);
+		if(tile_str == NULL) {
+			*errstr = log_error(
+			    "Expected argument for \"movetotile\" action, got none.");
+			return -1;
+		}
+
+		long tile = strtol(tile_str, NULL, 10);
+		if(tile < 1) {
+			*errstr = log_error("Tile number must be an integer larger or "
+			                    "equal to 1. Got %ld",
+			                    tile);
+			return -1;
+		}
+		long follow=1;
+		char *follow_str = strtok_r(NULL, " ", &saveptr);
+		if(follow_str != NULL) {
+			follow = strtol(follow_str, NULL, 10);
+			if(follow!=0 && follow!=1) {
+				*errstr = log_error("The value of \"follow\" must be 0 or 1, got %ld",
+						follow);
+				return -1;
+			}
+		}
+		keybinding->data.us[0] = tile;
+		keybinding->data.us[1] = follow;
 	} else if(strcmp(action, "exchangeleft") == 0) {
 		keybinding->action = KEYBINDING_SWAP_LEFT;
 	} else if(strcmp(action, "exchangeright") == 0) {
