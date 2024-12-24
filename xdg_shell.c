@@ -49,10 +49,11 @@ static void
 popup_unconstrain(struct cg_xdg_shell_popup *popup) {
 	struct cg_view *view = popup->view;
 
-	struct wlr_box output_toplevel_box = {.x = -view->ox,
-	                                      .y = -view->oy,
-	                                      .width = view->workspace->output->wlr_output->width,
-	                                      .height = view->workspace->output->wlr_output->height};
+	struct wlr_box output_toplevel_box = {
+	    .x = -view->ox,
+	    .y = -view->oy,
+	    .width = view->workspace->output->wlr_output->width,
+	    .height = view->workspace->output->wlr_output->height};
 
 	wlr_xdg_popup_unconstrain_from_box(popup->wlr_popup, &output_toplevel_box);
 }
@@ -297,7 +298,8 @@ handle_xdg_shell_popup_commit(struct wl_listener *listener,
 static void
 handle_xdg_shell_popup_reposition(struct wl_listener *listener,
                                   __attribute__((unused)) void *data) {
-	struct cg_xdg_shell_popup *popup = wl_container_of(listener, popup, reposition);
+	struct cg_xdg_shell_popup *popup =
+	    wl_container_of(listener, popup, reposition);
 	popup_unconstrain(popup);
 }
 

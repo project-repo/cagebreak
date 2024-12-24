@@ -681,12 +681,15 @@ keybinding_cycle_outputs(struct cg_server *server, bool reverse,
 
 /* Cycle through views, whereby the workspace does not change */
 void
-keybinding_cycle_views(struct cg_server *server, struct cg_tile *tile, bool reverse, bool ipc) {
-	if(tile==NULL) {
-		tile=server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile;
+keybinding_cycle_views(struct cg_server *server, struct cg_tile *tile,
+                       bool reverse, bool ipc) {
+	if(tile == NULL) {
+		tile =
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile;
 	}
 	struct cg_view *current_view = tile->view;
-	struct cg_workspace *ws=tile->workspace;
+	struct cg_workspace *ws = tile->workspace;
 
 	struct cg_view *it_view, *next_view = NULL;
 	if(reverse) {
@@ -710,14 +713,15 @@ keybinding_cycle_views(struct cg_server *server, struct cg_tile *tile, bool reve
 	}
 
 	workspace_tile_update_view(tile, next_view);
-	if(tile==server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile) {
+	if(tile ==
+	   server->curr_output->workspaces[server->curr_output->curr_workspace]
+	       ->focused_tile) {
 		seat_set_focus(server->seat, next_view);
 	}
 	if(ipc) {
 		int curr_id = -1;
 		int curr_pid = -1;
-		if(current_view != NULL &&
-		   current_view->link.next != ws->views.next) {
+		if(current_view != NULL && current_view->link.next != ws->views.next) {
 			curr_id = current_view->id;
 			curr_pid = current_view->impl->get_pid(current_view);
 		}
@@ -729,8 +733,7 @@ keybinding_cycle_views(struct cg_server *server, struct cg_tile *tile, bool reve
 		    "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 		    curr_id, curr_pid, next_view == NULL ? -1 : (int)next_view->id,
 		    next_view == NULL ? -1 : (int)next_view->impl->get_pid(next_view),
-		    next_view->tile->id, ws->num + 1,
-		    ws->output->name,
+		    next_view->tile->id, ws->num + 1, ws->output->name,
 		    output_get_num(ws->output));
 	}
 }
@@ -1466,7 +1469,8 @@ keybinding_set_background(struct cg_server *server, float *bg) {
 	}
 }
 
-struct cg_output *output_from_num(struct cg_server *server, int num) {
+struct cg_output *
+output_from_num(struct cg_server *server, int num) {
 	struct cg_output *it;
 	int count = 1;
 	wl_list_for_each(it, &server->outputs, link) {
@@ -1482,56 +1486,59 @@ void
 keybinding_switch_output(struct cg_server *server, int output) {
 	struct cg_output *old_outp = server->curr_output;
 	struct cg_output *new_outp = output_from_num(server, output);
-	if(new_outp!=NULL) {
+	if(new_outp != NULL) {
 		set_output(server, new_outp);
 		ipc_send_event(server,
-				 "{\"event_name\":\"switch_output\",\"old_output\":"
-				 "\"%s\",\"old_output_id\":%d,\"new_output\":\"%s\","
-				 "\"new_output_id\":%d}",
-				 old_outp->name, output_get_num(old_outp), new_outp->name,
-				 output_get_num(new_outp));
+		               "{\"event_name\":\"switch_output\",\"old_output\":"
+		               "\"%s\",\"old_output_id\":%d,\"new_output\":\"%s\","
+		               "\"new_output_id\":%d}",
+		               old_outp->name, output_get_num(old_outp), new_outp->name,
+		               output_get_num(new_outp));
 		return;
 	}
 	message_printf(server->curr_output, "Output %d does not exist", output);
 	return;
 }
 
-struct cg_view *view_from_id(struct cg_server *server,uint32_t id) {
-	struct cg_view *view=NULL;
+struct cg_view *
+view_from_id(struct cg_server *server, uint32_t id) {
+	struct cg_view *view = NULL;
 	struct cg_output *outp_it;
 	wl_list_for_each(outp_it, &server->outputs, link) {
-		for(unsigned int i=0;i<server->nws&&view==NULL;++i) {
+		for(unsigned int i = 0; i < server->nws && view == NULL; ++i) {
 			struct cg_view *view_it;
 			wl_list_for_each(view_it, &outp_it->workspaces[i]->views, link) {
-				if(id==view_it->id) {
-					view=view_it;
+				if(id == view_it->id) {
+					view = view_it;
 					break;
 				}
 			}
 		}
-		if(view!=NULL) {
+		if(view != NULL) {
 			break;
 		}
 	}
 	return view;
 }
 
-struct cg_tile *tile_from_id(struct cg_server *server,uint32_t id) {
-	struct cg_tile *tile=NULL;
+struct cg_tile *
+tile_from_id(struct cg_server *server, uint32_t id) {
+	struct cg_tile *tile = NULL;
 	struct cg_output *outp_it;
 	wl_list_for_each(outp_it, &server->outputs, link) {
-		for(unsigned int i=0;i<server->nws&&tile==NULL;++i) {
+		for(unsigned int i = 0; i < server->nws && tile == NULL; ++i) {
 			bool first = true;
 			for(struct cg_tile *tile_it = outp_it->workspaces[i]->focused_tile;
-			first || tile_it != outp_it->workspaces[i]->focused_tile; tile_it = tile_it->next) {
+			    first || tile_it != outp_it->workspaces[i]->focused_tile;
+			    tile_it = tile_it->next) {
 				first = false;
-				if(id==tile_it->id) {
-					tile=tile_it;
+				if(id == tile_it->id) {
+					tile = tile_it;
 					break;
 				}
 			}
 		}
-		if(tile!=NULL) {
+		if(tile != NULL) {
 			break;
 		}
 	}
@@ -1539,21 +1546,25 @@ struct cg_tile *tile_from_id(struct cg_server *server,uint32_t id) {
 }
 
 void
-keybinding_move_view_to_tile(struct cg_server *server, uint32_t view_id, uint32_t tile_id, bool follow) {
-	struct cg_view *view=view_from_id(server, view_id);
-	struct cg_tile *tile=tile_from_id(server, tile_id);
-	struct cg_tile *old_tile=view?view->tile:NULL;
-	struct cg_output *old_outp=view?view->workspace->output:NULL;
-	int old_workspace=view?(int )view->workspace->num:-1;
-	if(tile==NULL) {
+keybinding_move_view_to_tile(struct cg_server *server, uint32_t view_id,
+                             uint32_t tile_id, bool follow) {
+	struct cg_view *view = view_from_id(server, view_id);
+	struct cg_tile *tile = tile_from_id(server, tile_id);
+	struct cg_tile *old_tile = view ? view->tile : NULL;
+	struct cg_output *old_outp = view ? view->workspace->output : NULL;
+	int old_workspace = view ? (int)view->workspace->num : -1;
+	if(tile == NULL) {
 		return;
 	}
 	if(view != NULL) {
-		if(old_tile!=NULL) {
+		if(old_tile != NULL) {
 			workspace_tile_update_view(old_tile, NULL);
 			wl_list_remove(&view->link);
 			keybinding_cycle_views(server, old_tile, false, false);
-			if(old_tile->view == NULL&&old_tile==server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile) {
+			if(old_tile->view == NULL &&
+			   old_tile == server->curr_output
+			                   ->workspaces[server->curr_output->curr_workspace]
+			                   ->focused_tile) {
 				seat_set_focus(server->seat, NULL);
 			}
 		} else {
@@ -1566,49 +1577,65 @@ keybinding_move_view_to_tile(struct cg_server *server, uint32_t view_id, uint32_
 		view->workspace = ws;
 		wl_list_insert(&ws->views, &view->link);
 		wlr_scene_node_reparent(&view->scene_tree->node, ws->scene);
-		view->tile=tile;
-		tile->view=view;
-		if(tile==server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile) {
+		view->tile = tile;
+		tile->view = view;
+		if(tile ==
+		   server->curr_output->workspaces[server->curr_output->curr_workspace]
+		       ->focused_tile) {
 			seat_set_focus(server->seat, view);
 		}
 	} else {
-		tile->view->tile=NULL;
-		tile->view=NULL;
+		tile->view->tile = NULL;
+		tile->view = NULL;
 	}
 	if(follow) {
-		if(server->curr_output!=tile->workspace->output) {
+		if(server->curr_output != tile->workspace->output) {
 			set_output(server, tile->workspace->output);
 		}
-		if(server->curr_output->curr_workspace!=(int) tile->workspace->num) {
+		if(server->curr_output->curr_workspace != (int)tile->workspace->num) {
 			keybinding_switch_ws(server, tile->workspace->num);
 		}
-		if(tile->workspace->focused_tile!=tile) {
+		if(tile->workspace->focused_tile != tile) {
 			keybinding_focus_tile(server, tile->id);
 		}
 	}
 	ipc_send_event(
 	    server,
-	    "{\"event_name\":\"move_view\",\"view_id\":%d,\"old_output\":\"%s\",\"old_workspace\":\"%d\",\"old_tile\":\"%d\",\"new_output\":\"%s\",\"new_workspace\":\"%d\",\"new_tile\":\"%d\"}",
-	    view_id, old_outp?old_outp->name:"", old_workspace, old_tile?(int )old_tile->id:-1, server->curr_output->name, tile->workspace->num, tile->id);
+	    "{\"event_name\":\"move_view\",\"view_id\":%d,\"old_output\":\"%s\","
+	    "\"old_workspace\":\"%d\",\"old_tile\":\"%d\",\"new_output\":\"%s\","
+	    "\"new_workspace\":\"%d\",\"new_tile\":\"%d\"}",
+	    view_id, old_outp ? old_outp->name : "", old_workspace,
+	    old_tile ? (int)old_tile->id : -1, server->curr_output->name,
+	    tile->workspace->num, tile->id);
 }
 
 void
-keybinding_move_view_to_output(struct cg_server *server, int view_id, int output_num, bool follow) {
-	struct cg_output *outp=output_from_num(server, output_num);
-	if(outp!=NULL) {
-		keybinding_move_view_to_tile(server,view_id,outp->workspaces[outp->curr_workspace]->focused_tile->id, follow);
+keybinding_move_view_to_output(struct cg_server *server, int view_id,
+                               int output_num, bool follow) {
+	struct cg_output *outp = output_from_num(server, output_num);
+	if(outp != NULL) {
+		keybinding_move_view_to_tile(
+		    server, view_id,
+		    outp->workspaces[outp->curr_workspace]->focused_tile->id, follow);
 	} else {
-		message_printf(server->curr_output, "Output number %d not found.",output_num);
+		message_printf(server->curr_output, "Output number %d not found.",
+		               output_num);
 	}
 }
 
 void
-keybinding_move_view_to_workspace(struct cg_server *server, int view_id, uint32_t ws, bool follow) {
-	if(ws>=server->nws) {
-		message_printf(server->curr_output, "Attempting to move view to workspace %d, but there are only %d workspaces.",ws+1,server->nws);
+keybinding_move_view_to_workspace(struct cg_server *server, int view_id,
+                                  uint32_t ws, bool follow) {
+	if(ws >= server->nws) {
+		message_printf(server->curr_output,
+		               "Attempting to move view to workspace %d, but there are "
+		               "only %d workspaces.",
+		               ws + 1, server->nws);
 		return;
 	}
-	keybinding_move_view_to_tile(server,view_id,server->curr_output->workspaces[ws]->focused_tile->id, follow);
+	keybinding_move_view_to_tile(
+	    server, view_id, server->curr_output->workspaces[ws]->focused_tile->id,
+	    follow);
 }
 
 void
@@ -1841,29 +1868,42 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		resize_tile(server, 0, data.i);
 		break;
 	case KEYBINDING_MOVE_TO_TILE: {
-		keybinding_move_view_to_tile(server, server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile->view->id,data.us[0],data.us[1]>0);
+		keybinding_move_view_to_tile(
+		    server,
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile->view->id,
+		    data.us[0], data.us[1] > 0);
 		break;
 	}
 	case KEYBINDING_MOVE_TO_WORKSPACE: {
-		struct cg_view *view=server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile->view;
-		keybinding_move_view_to_workspace(server, view?(int) view->id:-1, data.us[0],data.us[1]>0);
+		struct cg_view *view =
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile->view;
+		keybinding_move_view_to_workspace(server, view ? (int)view->id : -1,
+		                                  data.us[0], data.us[1] > 0);
 		break;
 	}
 	case KEYBINDING_MOVE_TO_OUTPUT: {
-			struct cg_view *view=server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile->view;
-		keybinding_move_view_to_output(server, view?(int) view->id:-1, data.us[0],data.us[1]>0);
+		struct cg_view *view =
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile->view;
+		keybinding_move_view_to_output(server, view ? (int)view->id : -1,
+		                               data.us[0], data.us[1] > 0);
 		break;
 	}
 	case KEYBINDING_MOVE_VIEW_TO_TILE: {
-		keybinding_move_view_to_tile(server, data.us[0],data.us[1],data.us[2]>0);
+		keybinding_move_view_to_tile(server, data.us[0], data.us[1],
+		                             data.us[2] > 0);
 		break;
 	}
 	case KEYBINDING_MOVE_VIEW_TO_WORKSPACE: {
-		keybinding_move_view_to_workspace(server, data.us[0], data.us[1],data.us[2]>0);
+		keybinding_move_view_to_workspace(server, data.us[0], data.us[1],
+		                                  data.us[2] > 0);
 		break;
 	}
 	case KEYBINDING_MOVE_VIEW_TO_OUTPUT: {
-		keybinding_move_view_to_output(server, data.us[0], data.us[1],data.us[2]>0);
+		keybinding_move_view_to_output(server, data.us[0], data.us[1],
+		                               data.us[2] > 0);
 		break;
 	}
 	case KEYBINDING_SWAP_LEFT: {

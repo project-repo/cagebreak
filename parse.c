@@ -952,13 +952,13 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			return -1;
 		}
 
-		long follow=1;
+		long follow = 1;
 		char *follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
 			follow = strtol(follow_str, NULL, 10);
-			if(follow!=0 && follow!=1) {
-				*errstr = log_error("The value of \"follow\" must be 0 or 1, got %ld",
-						follow);
+			if(follow != 0 && follow != 1) {
+				*errstr = log_error(
+				    "The value of \"follow\" must be 0 or 1, got %ld", follow);
 				return -1;
 			}
 		}
@@ -969,8 +969,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_MOVE_VIEW_TO_WORKSPACE;
 		char *view_id_str = strtok_r(NULL, " ", &saveptr);
 		if(view_id_str == NULL) {
-			*errstr = log_error(
-			    "Expected argument for \"moveviewtoworkspace\" action, got none.");
+			*errstr = log_error("Expected argument for \"moveviewtoworkspace\" "
+			                    "action, got none.");
 			return -1;
 		}
 
@@ -983,8 +983,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 		char *nws_str = strtok_r(NULL, " ", &saveptr);
 		if(nws_str == NULL) {
-			*errstr = log_error(
-			    "Expected argument for \"moveviewtoworkspace\" action, got none.");
+			*errstr = log_error("Expected argument for \"moveviewtoworkspace\" "
+			                    "action, got none.");
 			return -1;
 		}
 
@@ -995,13 +995,13 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			                    ws);
 			return -1;
 		}
-		long follow=1;
+		long follow = 1;
 		char *follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
 			follow = strtol(follow_str, NULL, 10);
-			if(follow!=0 && follow!=1) {
-				*errstr = log_error("The value of \"follow\" must be 0 or 1, got %ld",
-					 follow);
+			if(follow != 0 && follow != 1) {
+				*errstr = log_error(
+				    "The value of \"follow\" must be 0 or 1, got %ld", follow);
 				return -1;
 			}
 		}
@@ -1026,8 +1026,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 		char *tile_id_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_id_str == NULL) {
-			*errstr = log_error(
-			    "Expected argument for \"moveviewtoworkspace\" action, got none.");
+			*errstr = log_error("Expected argument for \"moveviewtoworkspace\" "
+			                    "action, got none.");
 			return -1;
 		}
 
@@ -1038,13 +1038,13 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			                    tile_id);
 			return -1;
 		}
-		long follow=1;
+		long follow = 1;
 		char *follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
 			follow = strtol(follow_str, NULL, 10);
-			if(follow!=0 && follow!=1) {
-				*errstr = log_error("The value of \"follow\" must be 0 or 1, got %ld",
-						follow);
+			if(follow != 0 && follow != 1) {
+				*errstr = log_error(
+				    "The value of \"follow\" must be 0 or 1, got %ld", follow);
 				return -1;
 			}
 		}
@@ -1067,13 +1067,13 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			                    outp);
 			return -1;
 		}
-		long follow=1;
+		long follow = 1;
 		char *follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
 			follow = strtol(follow_str, NULL, 10);
-			if(follow!=0 && follow!=1) {
-				*errstr = log_error("The value of \"follow\" must be 0 or 1, got %ld",
-						follow);
+			if(follow != 0 && follow != 1) {
+				*errstr = log_error(
+				    "The value of \"follow\" must be 0 or 1, got %ld", follow);
 				return -1;
 			}
 		}
@@ -1095,13 +1095,13 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			                    ws);
 			return -1;
 		}
-		long follow=1;
+		long follow = 1;
 		char *follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
 			follow = strtol(follow_str, NULL, 10);
-			if(follow!=0 && follow!=1) {
-				*errstr = log_error("The value of \"follow\" must be 0 or 1, got %ld",
-						follow);
+			if(follow != 0 && follow != 1) {
+				*errstr = log_error(
+				    "The value of \"follow\" must be 0 or 1, got %ld", follow);
 				return -1;
 			}
 		}
@@ -1123,13 +1123,13 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			                    tile);
 			return -1;
 		}
-		long follow=1;
+		long follow = 1;
 		char *follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
 			follow = strtol(follow_str, NULL, 10);
-			if(follow!=0 && follow!=1) {
-				*errstr = log_error("The value of \"follow\" must be 0 or 1, got %ld",
-						follow);
+			if(follow != 0 && follow != 1) {
+				*errstr = log_error(
+				    "The value of \"follow\" must be 0 or 1, got %ld", follow);
 				return -1;
 			}
 		}
