@@ -815,8 +815,39 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 	keybinding->data = (union keybinding_params){.c = NULL};
 	if(strcmp(action, "vsplit") == 0) {
 		keybinding->action = KEYBINDING_SPLIT_VERTICAL;
+		char *percentage_string = strtok_r(NULL, " ", &saveptr);
+		if(percentage_string==NULL) {
+			keybinding->data.f=0.5;
+		} else {
+			float percentage = strtof(percentage_string, NULL);
+			if(percentage == NAN || percentage == INFINITY || errno == ERANGE) {
+				wlr_log(WLR_ERROR, "Error parsing float.");
+				return -1;
+			}
+			if(percentage>=1.0 || percentage <= 0.0) {
+				wlr_log(WLR_ERROR, "Expected a float between 0 and 1, got %f.",percentage);
+				return -1;
+			}
+			keybinding->data.f=percentage;
+		}
+
 	} else if(strcmp(action, "hsplit") == 0) {
 		keybinding->action = KEYBINDING_SPLIT_HORIZONTAL;
+		char *percentage_string = strtok_r(NULL, " ", &saveptr);
+		if(percentage_string==NULL) {
+			keybinding->data.f=0.5;
+		} else {
+			float percentage = strtof(percentage_string, NULL);
+			if(percentage == NAN || percentage == INFINITY || errno == ERANGE) {
+				wlr_log(WLR_ERROR, "Error parsing float.");
+				return -1;
+			}
+			if(percentage>=1.0 || percentage <= 0.0) {
+				wlr_log(WLR_ERROR, "Expected a float between 0 and 1, got %f.",percentage);
+				return -1;
+			}
+			keybinding->data.f=percentage;
+		}
 	} else if(strcmp(action, "quit") == 0) {
 		keybinding->action = KEYBINDING_QUIT;
 	} else if(strcmp(action, "dump") == 0) {

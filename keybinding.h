@@ -117,6 +117,7 @@ union keybinding_params {
 	uint32_t us[3];
 	int32_t i;
 	bool b;
+	float f;
 	float color[3];
 	struct keybinding *kb;
 	struct cg_output_config *o_cfg;

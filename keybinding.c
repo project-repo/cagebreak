@@ -526,7 +526,8 @@ keybinding_switch_vt(struct cg_server *server, unsigned int vt) {
  * Important: Do not attempt to perform mathematical simplifications in this
  * function without taking rounding errors into account. */
 static void
-keybinding_split_output(struct cg_output *output, bool vertical) {
+keybinding_split_output(struct cg_output *output, bool vertical,
+                        float percentage) {
 	struct cg_view *original_view = seat_get_focus(output->server->seat);
 	struct cg_workspace *curr_workspace =
 	    output->workspaces[output->curr_workspace];
@@ -537,11 +538,11 @@ keybinding_split_output(struct cg_output *output, bool vertical) {
 	int32_t new_width, new_height;
 
 	if(vertical) {
-		new_width = width / 2;
+		new_width = (int)(((float)width) * percentage);
 		new_height = height;
 	} else {
 		new_width = width;
-		new_height = height / 2;
+		new_height = (int)(((float)height) * percentage);
 	}
 	if(new_width < 1 || new_height < 1) {
 		return;
@@ -623,13 +624,13 @@ keybinding_close_view(struct cg_view *view) {
 }
 
 static void
-keybinding_split_vertical(struct cg_server *server) {
-	keybinding_split_output(server->curr_output, true);
+keybinding_split_vertical(struct cg_server *server, float percentage) {
+	keybinding_split_output(server->curr_output, true, percentage);
 }
 
 static void
-keybinding_split_horizontal(struct cg_server *server) {
-	keybinding_split_output(server->curr_output, false);
+keybinding_split_horizontal(struct cg_server *server, float percentage) {
+	keybinding_split_output(server->curr_output, false, percentage);
 }
 
 static void
@@ -1788,10 +1789,10 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_workspace_fullscreen(server);
 		break;
 	case KEYBINDING_SPLIT_HORIZONTAL:
-		keybinding_split_horizontal(server);
+		keybinding_split_horizontal(server, data.f);
 		break;
 	case KEYBINDING_SPLIT_VERTICAL:
-		keybinding_split_vertical(server);
+		keybinding_split_vertical(server, data.f);
 		break;
 	case KEYBINDING_RUN_COMMAND: {
 		int pid;
