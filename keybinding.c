@@ -7,6 +7,7 @@
 #include <string.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <unistd.h>
 #include <wayland-server-core.h>
 #include <wlr/backend/multi.h>
 #include <wlr/backend/session.h>
@@ -235,6 +236,54 @@ find_bottom_tile(const struct cg_tile *tile) {
 	return NULL;
 }
 
+int *
+get_compl_coord(struct cg_tile *tile, int *(*get_coord)(struct cg_tile *tile)) {
+	if(get_coord(tile)==&tile->tile.x) {
+		return &tile->tile.y;
+	} else {
+		return &tile->tile.x;
+	}
+}
+
+int *
+get_compl_dim(struct cg_tile *tile, int *(*get_dim)(struct cg_tile *tile)) {
+	if(get_dim(tile)==&tile->tile.height) {
+		return &tile->tile.width;
+	} else {
+		return &tile->tile.height;
+	}
+}
+
+/* find_tile is the direction in which to search, get_dim returns the dimension which must be equal
+ * for merging to be possible and get_coord returns the coordinate which must be equal for merging to be possible. */
+void
+merge_tile(struct cg_tile *tile,
+          struct cg_tile *(*find_tile)(const struct cg_tile *),int *(*get_dim)(struct cg_tile *tile), int *(*get_coord)(struct cg_tile *tile)) {
+	struct cg_tile *merge_tile = find_tile(tile);
+	if(merge_tile == NULL || merge_tile == tile || *get_dim(tile)!=*get_dim(merge_tile) || *get_coord(tile)!=*get_coord(merge_tile)) {
+		return;
+	}
+	// There are at least two tiles once we reach this point, since merge_tile != tile
+	int merge_tile_id = merge_tile->id;
+	workspace_tile_update_view(merge_tile, NULL);
+	merge_tile->prev->next=merge_tile->next;
+	merge_tile->next->prev=merge_tile->prev;
+	if(merge_tile->workspace->focused_tile==merge_tile) {
+		merge_tile->workspace->focused_tile=tile;
+	}
+	*get_compl_dim(tile, get_dim)=*get_compl_dim(merge_tile, get_dim)+*get_compl_dim(tile, get_dim);
+	*get_compl_coord(tile, get_coord)=fmin(*get_compl_coord(merge_tile, get_coord),*get_compl_coord(tile, get_coord));
+	free(merge_tile);
+	if(tile->view != NULL) {
+		view_maximize(tile->view, tile);
+	}
+	ipc_send_event(
+	    tile->workspace->output->server,
+	    "{\"event_name\":\"merge_tile\",\"tile_id\":%d,\"merge_tile_id\":%d,\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
+	    tile->id, merge_tile_id, tile->workspace->num + 1,
+	    tile->workspace->output->name, output_get_num(tile->workspace->output));
+}
+
 void
 swap_tile(struct cg_tile *tile,
           struct cg_tile *(*find_tile)(const struct cg_tile *)) {
@@ -258,6 +307,46 @@ swap_tile(struct cg_tile *tile,
 	    "tile_id\":%d,\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 	    tile->id, swap_tile->id, tile->workspace->num + 1,
 	    tile->workspace->output->name, output_get_num(tile->workspace->output));
+}
+
+int *
+get_width(struct cg_tile *tile) {
+	return &tile->tile.width;
+}
+
+int *
+get_height(struct cg_tile *tile) {
+	return &tile->tile.height;
+}
+
+int *
+get_x(struct cg_tile *tile) {
+	return &tile->tile.x;
+}
+
+int *
+get_y(struct cg_tile *tile) {
+	return &tile->tile.y;
+}
+
+void
+merge_tile_left(struct cg_tile *tile) {
+	merge_tile(tile, find_left_tile, get_height, get_y);
+}
+
+void
+merge_tile_right(struct cg_tile *tile) {
+	merge_tile(tile, find_right_tile, get_height, get_y);
+}
+
+void
+merge_tile_top(struct cg_tile *tile) {
+	merge_tile(tile, find_top_tile, get_width, get_x);
+}
+
+void
+merge_tile_bottom(struct cg_tile *tile) {
+	merge_tile(tile, find_bottom_tile, get_width, get_x);
 }
 
 void
@@ -312,16 +401,6 @@ focus_tile_bottom(struct cg_tile *tile) {
 	focus_tile(tile, find_bottom_tile);
 }
 
-int
-get_compl_coord(struct cg_tile *tile, int *(*get_coord)(struct cg_tile *tile)) {
-	return tile->tile.x + tile->tile.y - *get_coord(tile);
-}
-
-int
-get_compl_dim(struct cg_tile *tile, int *(*get_dim)(struct cg_tile *tile)) {
-	return tile->tile.width + tile->tile.height - *get_dim(tile);
-}
-
 bool
 intervalls_intersect(int x1, int x2, int y1, int y2) {
 	return y2 > x1 && y1 < x2;
@@ -345,10 +424,10 @@ resize_allowed(struct cg_tile *tile, const struct cg_tile *parent,
 			continue;
 		}
 		if(intervalls_intersect(
-		       get_compl_coord(tile, get_coord),
-		       get_compl_coord(tile, get_coord) + get_compl_dim(tile, get_dim),
-		       get_compl_coord(it, get_coord),
-		       get_compl_coord(it, get_coord) + get_compl_dim(it, get_dim))) {
+		       *get_compl_coord(tile, get_coord),
+		       *get_compl_coord(tile, get_coord) + *get_compl_dim(tile, get_dim),
+		       *get_compl_coord(it, get_coord),
+		       *get_compl_coord(it, get_coord) + *get_compl_dim(it, get_dim))) {
 			if(*get_coord(it) == *get_coord(tile) + *get_dim(tile)) {
 				if(!resize_allowed(it, tile, dim_offset + coord_offset,
 				                   -dim_offset - coord_offset, get_coord,
@@ -380,10 +459,10 @@ resize(struct cg_tile *tile, const struct cg_tile *parent, int coord_offset,
 			continue;
 		}
 		if(intervalls_intersect(
-		       get_compl_coord(tile, get_coord),
-		       get_compl_coord(tile, get_coord) + get_compl_dim(tile, get_dim),
-		       get_compl_coord(it, get_coord),
-		       get_compl_coord(it, get_coord) + get_compl_dim(it, get_dim))) {
+		       *get_compl_coord(tile, get_coord),
+		       *get_compl_coord(tile, get_coord) + *get_compl_dim(tile, get_dim),
+		       *get_compl_coord(it, get_coord),
+		       *get_compl_coord(it, get_coord) + *get_compl_dim(it, get_dim))) {
 			if(*get_coord(it) == *get_coord(tile) + *get_dim(tile)) {
 				resize(it, tile, dim_offset + coord_offset,
 				       -dim_offset - coord_offset, get_coord, get_dim, orig);
@@ -409,26 +488,6 @@ resize(struct cg_tile *tile, const struct cg_tile *parent, int coord_offset,
 	               tile->tile.y, tile->tile.height, tile->tile.width,
 	               tile->workspace->num + 1, tile->workspace->output->name,
 	               output_get_num(tile->workspace->output));
-}
-
-int *
-get_width(struct cg_tile *tile) {
-	return &tile->tile.width;
-}
-
-int *
-get_height(struct cg_tile *tile) {
-	return &tile->tile.height;
-}
-
-int *
-get_x(struct cg_tile *tile) {
-	return &tile->tile.x;
-}
-
-int *
-get_y(struct cg_tile *tile) {
-	return &tile->tile.y;
 }
 
 bool
@@ -1932,6 +1991,30 @@ run_action(enum keybinding_action action, struct cg_server *server,
 	case KEYBINDING_MOVE_VIEW_TO_OUTPUT: {
 		keybinding_move_view_to_output(server, data.us[0], data.us[1],
 		                               data.us[2] > 0);
+		break;
+	}
+	case KEYBINDING_MERGE_LEFT: {
+		merge_tile_left(
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile);
+		break;
+	}
+	case KEYBINDING_MERGE_RIGHT: {
+		merge_tile_right(
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile);
+		break;
+	}
+	case KEYBINDING_MERGE_TOP: {
+		merge_tile_top(
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile);
+		break;
+	}
+	case KEYBINDING_MERGE_BOTTOM: {
+		merge_tile_bottom(
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile);
 		break;
 	}
 	case KEYBINDING_SWAP_LEFT: {

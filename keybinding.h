@@ -85,6 +85,11 @@ struct cg_server;
 	KEYBINDING(KEYBINDING_SWAP_TOP, exchangeup)                                \
 	KEYBINDING(KEYBINDING_SWAP_BOTTOM, exchangedown)                           \
                                                                                \
+	KEYBINDING(KEYBINDING_MERGE_LEFT, exchangeleft)                            \
+	KEYBINDING(KEYBINDING_MERGE_RIGHT, exchangeright)                          \
+	KEYBINDING(KEYBINDING_MERGE_TOP, exchangeup)                               \
+	KEYBINDING(KEYBINDING_MERGE_BOTTOM, exchangedown)                          \
+                                                                               \
 	KEYBINDING(KEYBINDING_FOCUS_LEFT, focusleft)                               \
 	KEYBINDING(KEYBINDING_FOCUS_RIGHT, focusright)                             \
 	KEYBINDING(KEYBINDING_FOCUS_TOP, focusup)                                  \

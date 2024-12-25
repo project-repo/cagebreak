@@ -1166,6 +1166,14 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 		keybinding->data.us[0] = tile;
 		keybinding->data.us[1] = follow;
+	} else if(strcmp(action, "mergeleft") == 0) {
+		keybinding->action = KEYBINDING_MERGE_LEFT;
+	} else if(strcmp(action, "mergeright") == 0) {
+		keybinding->action = KEYBINDING_MERGE_RIGHT;
+	} else if(strcmp(action, "mergeup") == 0) {
+		keybinding->action = KEYBINDING_MERGE_TOP;
+	} else if(strcmp(action, "mergedown") == 0) {
+		keybinding->action = KEYBINDING_MERGE_BOTTOM;
 	} else if(strcmp(action, "exchangeleft") == 0) {
 		keybinding->action = KEYBINDING_SWAP_LEFT;
 	} else if(strcmp(action, "exchangeright") == 0) {
