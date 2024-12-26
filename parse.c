@@ -1375,6 +1375,45 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_SWAP_TOP;
 	} else if(strcmp(action, "exchangedown") == 0) {
 		keybinding->action = KEYBINDING_SWAP_BOTTOM;
+	} else if(strcmp(action, "exchange") == 0) {
+		keybinding->action = KEYBINDING_SWAP;
+		char *tile1_str = strtok_r(NULL, " ", &saveptr);
+		keybinding->data.us[2]=1;
+		if(tile1_str == NULL) {
+			*errstr = log_error("\"exchange\" requires two arguments, but none were provided");
+			return -1;
+		}
+		long tile1_id = strtol(tile1_str, NULL, 10);
+		if(tile1_id < 1) {
+			*errstr = log_error("The tile id must be an integer number "
+					   "larger or equal to 1. Got %ld",
+					   tile1_id);
+			return -1;
+		}
+		keybinding->data.us[0] = tile1_id;
+
+		char *tile2_str = strtok_r(NULL, " ", &saveptr);
+		if(tile2_str == NULL) {
+			*errstr = log_error("\"exchange\" requires two arguments, but only one was provided");
+			return -1;
+		}
+
+		if(tile2_str != NULL) {
+			long tile2_id = strtol(tile2_str, NULL, 10);
+			if(tile2_id < 1) {
+				*errstr = log_error("The tile id must be an integer number "
+						"larger or equal to 1. Got %ld",
+						tile2_id);
+				return -1;
+			}
+			keybinding->data.us[1] = tile2_id;
+		}
+
+		char *follow_str = strtok_r(NULL, " ", &saveptr);
+		if(follow_str != NULL) {
+				long follow = strtol(follow_str, NULL, 10);
+				keybinding->data.us[2] = (follow != 0);
+		}
 	} else if(strcmp(action, "focusleft") == 0) {
 		keybinding->action = KEYBINDING_FOCUS_LEFT;
 	} else if(strcmp(action, "focusright") == 0) {
