@@ -628,6 +628,9 @@ keybinding_workspace_fullscreen(struct cg_server *server, uint32_t screen, uint3
 		output=output_from_num(server, screen);
 		ws=workspace;
 	}
+	if(output==NULL) {
+		return;
+	}
 	output_make_workspace_fullscreen(output, ws);
 	ipc_send_event(server,
 	               "{\"event_name\":\"fullscreen\",\"tile_id\":%d,"
