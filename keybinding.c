@@ -350,10 +350,10 @@ keybinding_focus_tile(struct cg_server *server, uint32_t tile_id);
 
 void
 swap_tiles(struct cg_tile *tile, struct cg_tile *swap_tile, bool follow) {
-	struct cg_server *server = tile->workspace->server;
 	if(swap_tile == NULL || tile == NULL | swap_tile == tile) {
 		return;
 	}
+	struct cg_server *server = tile->workspace->server;
 	struct cg_view *tmp_view = tile->view;
 	struct cg_view *tmp_swap_view = swap_tile->view;
 	workspace_tile_update_view(tile, NULL);
