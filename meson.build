@@ -5,7 +5,7 @@ project(
   'c',
 version : '2.4.0',
 license : 'MIT',
-default_options : ['c_std=c23', 'warning_level=3']
+default_options : ['c_std=c23,c11', 'warning_level=3']
 )
 
 add_project_arguments(
