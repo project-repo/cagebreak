@@ -1898,7 +1898,7 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		while(server->modes[n_modes]!=NULL) {
 			++n_modes;
 		}
-		if(data.u != server->seat->default_mode&&data.u<n_modes) {
+		if(data.u != server->seat->default_mode&&data.u<n_modes&&server->seat->num_pointers>0) {
 			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
 			if(server->seat->enable_cursor == true &&
 			   server->modecursors[data.u] != NULL) {
@@ -1921,9 +1921,8 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		}
 		if(data.u != server->seat->default_mode&&data.u<n_modes2) {
 			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
-			if(server->seat->enable_cursor == true) {
+			if(server->seat->enable_cursor == true&&server->seat->num_pointers>0) {
 			   if(server->modecursors[data.u] != NULL) {
-					fprintf(stderr,"HERE\n");
 				wlr_cursor_set_xcursor(server->seat->cursor,
 				                       server->seat->xcursor_manager,
 				                       server->modecursors[data.u]);
