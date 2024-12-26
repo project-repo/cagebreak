@@ -135,8 +135,8 @@ definekey top <key> mode root
 *exec <command\>*
 	Execute <command\> using *sh -c*
 
-*focus*
-	Focus next tile
+*focus [<tile_id\>]*
+	If <tile_id\> is provided, focus it, else focus next tile
 
 *focusdown*
 	Focus tile to the bottom
@@ -153,8 +153,9 @@ definekey top <key> mode root
 *focusup*
 	Focus tile to the top
 
-*hsplit*
-	Split current tile horizontally
+*hsplit [<percentage\>]*
+	Split current tile horizontally, optionally give a float between 0.0
+	and 1.0 as a percentage of the screen size to split
 
 *input <identifier\> <setting\> <value\>*
 	Set <setting\> to <value\> for device <identifier\> -
@@ -263,15 +264,47 @@ message <text\>
 	Move currently focused window to <n\>-th workspace
 	See *output* for differences between screen and output.
 
-*next*
-	Focus next window in current tile
+*moveviewtotile <view_id\> <tile_id\> [<follow_focus\>]*
+	Move view with <view_id\> to tile with <tile_id\>, optionally set
+	<follow_focus\> to 0 to disable following the view with the focus.
+
+*moveviewtoworkspace <view_id\> <workspace\> [<follow_focus\>]*
+	Move view with <view_id\> to workspace number <workspace\>,
+	optionally set <follow_focus\> to 0 to disable following the view
+	with the focus.
+
+*moveviewtoscreen <view_id\> <screen\> [<follow_focus\>]*
+	Move view with <view_id\> to screen number <screen\>, optionally
+	set <follow_focus\> to 0 to disable following the view with the
+	focus.
+
+*mergeleft [<tile_id\>]*
+	Merge tile to the left, relative to the focussed tile by default,
+	the specified <tile_id\> otherwise.
+
+*mergeright [<tile_id\>]*
+	Merge tile to the right, relative to the focussed tile by default,
+	the specified <tile_id\> otherwise.
+
+*mergeup [<tile_id\>*
+	Merge tile to the top, relative to the focussed tile by default,
+	the specified <tile_id\> otherwise.
+
+*mergedown [<tile_id\>*
+	Merge tile to the bottom, relative to the focussed tile by default,
+	the specified <tile_id\> otherwise.
+
+*next [<view_id\>]*
+	If given a <view_id\>, focus it else focus next
 
 *nextscreen*
 	Focus next screen
 	See *output* for differences between screen and output.
 
-*only*
-	Remove all splits and make current window fill the entire screen
+*only [<screen\> <workspace\>]*
+	Remove all splits and make current view fill the entire screen
+	on current screen and workspace by default or <screen\> and <workspace\>
+	if given.
 
 *output <name\> [[pos <xpos\> <ypos\> res <width\>x<height\> rate <rate\> [scale <scale\>]] | enable | disable | [permanent|peripheral] | prio <n\> | rotate <n\>]*
 	Configure output "<name\>" -
@@ -332,17 +365,21 @@ output DP-1 rotate 3
 *quit*
 	Exit cagebreak
 
-*resizedown*
-	Resize current tile towards the bottom
+*resizedown [<pixels\> [<tile_id\>]]*
+	Resize towards the bottom, by 10 pixels by default and <pixels\> if given, on
+	the focussed tile by default and <tile_id\> if given.
 
-*resizeleft*
-	Resize current tile towards the left
+*resizeleft [<pixels\> [<tile_id\>]]*
+	Resize towards the left, by 10 pixels by default and <pixels\> if given, on
+	the focussed tile by default and <tile_id\> if given.
 
-*resizeright*
-	Resize current tile towards the right
+*resizeright [<pixels\> [<tile_id\>]]*
+	Resize towards the right, by 10 pixels by default and <pixels\> if given, on
+	the focussed tile by default and <tile_id\> if given.
 
-*resizeup*
-	Resize current tile towards the top
+*resizeup [<pixels\> [<tile_id\>]]*
+	Resize towards the top, by 10 pixels by default and <pixels\> if given, on
+	the focussed tile by default and <tile_id\> if given.
 
 *screen <n\>*
 	Change to <n\>-th screen
@@ -355,14 +392,18 @@ output DP-1 rotate 3
 *setmode <mode\>*
 	Set default mode to <mode\>
 
+*setmodecursor <mode\> <cursor\>*
+	Set cursor to be <cursor\> when in mode <mode\>
+
 *switchvt <n\>*
 	Switch to tty <n\>
 
 *time*
 	Display time
 
-*vsplit*
-	Split current tile vertically
+*vsplit [<percentage\>]*
+	Split current tile vertically, optionally give a float between 0.0
+	and 1.0 as a percentage of the screen size to split
 
 *workspace <n\>*
 	Change to <n\>-th workspace
