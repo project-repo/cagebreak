@@ -1313,12 +1313,60 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->data.us[1] = follow;
 	} else if(strcmp(action, "mergeleft") == 0) {
 		keybinding->action = KEYBINDING_MERGE_LEFT;
+		keybinding->data.u=0;
+		char *tile_str = strtok_r(NULL, " ", &saveptr);
+		if(tile_str != NULL) {
+			long tile_id = strtol(tile_str, NULL, 10);
+			if(tile_id < 1) {
+				*errstr = log_error("The tile id must be an integer number "
+						"larger or equal to 1. Got %ld",
+						tile_id);
+				return -1;
+			}
+			keybinding->data.u = tile_id;
+		}
 	} else if(strcmp(action, "mergeright") == 0) {
 		keybinding->action = KEYBINDING_MERGE_RIGHT;
+		keybinding->data.u=0;
+		char *tile_str = strtok_r(NULL, " ", &saveptr);
+		if(tile_str != NULL) {
+			long tile_id = strtol(tile_str, NULL, 10);
+			if(tile_id < 1) {
+				*errstr = log_error("The tile id must be an integer number "
+						"larger or equal to 1. Got %ld",
+						tile_id);
+				return -1;
+			}
+			keybinding->data.u = tile_id;
+		}
 	} else if(strcmp(action, "mergeup") == 0) {
 		keybinding->action = KEYBINDING_MERGE_TOP;
+		keybinding->data.u=0;
+		char *tile_str = strtok_r(NULL, " ", &saveptr);
+		if(tile_str != NULL) {
+			long tile_id = strtol(tile_str, NULL, 10);
+			if(tile_id < 1) {
+				*errstr = log_error("The tile id must be an integer number "
+						"larger or equal to 1. Got %ld",
+						tile_id);
+				return -1;
+			}
+			keybinding->data.u = tile_id;
+		}
 	} else if(strcmp(action, "mergedown") == 0) {
 		keybinding->action = KEYBINDING_MERGE_BOTTOM;
+		keybinding->data.u=0;
+		char *tile_str = strtok_r(NULL, " ", &saveptr);
+		if(tile_str != NULL) {
+			long tile_id = strtol(tile_str, NULL, 10);
+			if(tile_id < 1) {
+				*errstr = log_error("The tile id must be an integer number "
+						"larger or equal to 1. Got %ld",
+						tile_id);
+				return -1;
+			}
+			keybinding->data.u = tile_id;
+		}
 	} else if(strcmp(action, "exchangeleft") == 0) {
 		keybinding->action = KEYBINDING_SWAP_LEFT;
 	} else if(strcmp(action, "exchangeright") == 0) {

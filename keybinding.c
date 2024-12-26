@@ -2018,27 +2018,43 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	}
 	case KEYBINDING_MERGE_LEFT: {
-		merge_tile_left(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile);
+		struct cg_tile *tile=server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile;
+		if(data.u!=0) {
+			tile=tile_from_id(server, data.u);
+		}
+		if(tile!=NULL) {
+			merge_tile_left(tile);
+		}
 		break;
 	}
 	case KEYBINDING_MERGE_RIGHT: {
-		merge_tile_right(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile);
+		struct cg_tile *tile=server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile;
+		if(data.u!=0) {
+			tile=tile_from_id(server, data.u);
+		}
+		if(tile!=NULL) {
+			merge_tile_right(tile);
+		}
 		break;
 	}
 	case KEYBINDING_MERGE_TOP: {
-		merge_tile_top(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile);
+		struct cg_tile *tile=server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile;
+		if(data.u!=0) {
+			tile=tile_from_id(server, data.u);
+		}
+		if(tile!=NULL) {
+			merge_tile_top(tile);
+		}
 		break;
 	}
 	case KEYBINDING_MERGE_BOTTOM: {
-		merge_tile_bottom(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile);
+		struct cg_tile *tile=server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile;
+		if(data.u!=0) {
+			tile=tile_from_id(server, data.u);
+		}
+		if(tile!=NULL) {
+			merge_tile_bottom(tile);
+		}
 		break;
 	}
 	case KEYBINDING_SWAP_LEFT: {

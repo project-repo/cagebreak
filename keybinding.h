@@ -85,10 +85,10 @@ struct cg_server;
 	KEYBINDING(KEYBINDING_SWAP_TOP, exchangeup)                                                                  \
 	KEYBINDING(KEYBINDING_SWAP_BOTTOM, exchangedown)                                                             \
                                                                                                                  \
-	KEYBINDING(KEYBINDING_MERGE_LEFT, exchangeleft)                                                              \
-	KEYBINDING(KEYBINDING_MERGE_RIGHT, exchangeright)                                                            \
-	KEYBINDING(KEYBINDING_MERGE_TOP, exchangeup)                                                                 \
-	KEYBINDING(KEYBINDING_MERGE_BOTTOM, exchangedown)                                                            \
+	KEYBINDING(KEYBINDING_MERGE_LEFT, exchangeleft) /* data.u is the tile id */                                  \
+	KEYBINDING(KEYBINDING_MERGE_RIGHT, exchangeright) /* data.u is the tile id */                                \
+	KEYBINDING(KEYBINDING_MERGE_TOP, exchangeup) /* data.u is the tile id */                                     \
+	KEYBINDING(KEYBINDING_MERGE_BOTTOM, exchangedown) /* data.u is the tile id */                                \
                                                                                                                  \
 	KEYBINDING(KEYBINDING_FOCUS_LEFT, focusleft)                                                                 \
 	KEYBINDING(KEYBINDING_FOCUS_RIGHT, focusright)                                                               \
