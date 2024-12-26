@@ -877,10 +877,23 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->data.is[1] = -1;
 	} else if(strcmp(action, "next") == 0) {
 		keybinding->action = KEYBINDING_CYCLE_VIEWS;
-		keybinding->data.b = false;
+		keybinding->data.is[0] = 0;
+		keybinding->data.is[1] = -1;
+		char *view_str = strtok_r(NULL, " ", &saveptr);
+		if(view_str != NULL) {
+			long view_id = strtol(view_str, NULL, 10);
+			if(view_id < 1) {
+				*errstr = log_error("View id must be an integer number "
+						"larger or equal to 1. Got %ld",
+						view_id);
+				return -1;
+			}
+			keybinding->data.is[1] = view_id;
+		}
 	} else if(strcmp(action, "prev") == 0) {
 		keybinding->action = KEYBINDING_CYCLE_VIEWS;
-		keybinding->data.b = true;
+		keybinding->data.is[0] = 1;
+		keybinding->data.is[1] = -1;
 	} else if(strcmp(action, "only") == 0) {
 		keybinding->action = KEYBINDING_LAYOUT_FULLSCREEN;
 	} else if(strcmp(action, "abort") == 0) {

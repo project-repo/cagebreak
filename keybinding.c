@@ -192,6 +192,27 @@ tile_from_id(struct cg_server *server, uint32_t id) {
 	return tile;
 }
 
+struct cg_view *
+view_from_id(struct cg_server *server, uint32_t id) {
+	struct cg_view *view = NULL;
+	struct cg_output *outp_it;
+	wl_list_for_each(outp_it, &server->outputs, link) {
+		for(unsigned int i = 0; i < server->nws && view == NULL; ++i) {
+			struct cg_view *view_it;
+			wl_list_for_each(view_it, &outp_it->workspaces[i]->views, link) {
+				if(id == view_it->id) {
+					view = view_it;
+					break;
+				}
+			}
+		}
+		if(view != NULL) {
+			break;
+		}
+	}
+	return view;
+}
+
 struct cg_tile *
 find_right_tile(const struct cg_tile *tile) {
 	struct cg_tile *it = tile->next;
@@ -772,7 +793,7 @@ keybinding_cycle_outputs(struct cg_server *server, bool reverse,
 /* Cycle through views, whereby the workspace does not change */
 void
 keybinding_cycle_views(struct cg_server *server, struct cg_tile *tile,
-                       bool reverse, bool ipc) {
+                       int view_id, bool reverse, bool ipc) {
 	if(tile == NULL) {
 		tile =
 		    server->curr_output->workspaces[server->curr_output->curr_workspace]
@@ -782,19 +803,26 @@ keybinding_cycle_views(struct cg_server *server, struct cg_tile *tile,
 	struct cg_workspace *ws = tile->workspace;
 
 	struct cg_view *it_view, *next_view = NULL;
-	if(reverse) {
-		wl_list_for_each(it_view, &ws->views, link) {
-			if(!view_is_visible(it_view)) {
-				next_view = it_view;
-				break;
+	if(view_id==-1) {
+		if(reverse) {
+			wl_list_for_each(it_view, &ws->views, link) {
+				if(!view_is_visible(it_view)) {
+					next_view = it_view;
+					break;
+				}
+			}
+		} else {
+			wl_list_for_each_reverse(it_view, &ws->views, link) {
+				if(!view_is_visible(it_view)) {
+					next_view = it_view;
+					break;
+				}
 			}
 		}
 	} else {
-		wl_list_for_each_reverse(it_view, &ws->views, link) {
-			if(!view_is_visible(it_view)) {
-				next_view = it_view;
-				break;
-			}
+		next_view=view_from_id(server, view_id);
+		if(next_view==NULL || view_is_visible(next_view)) {
+			return;
 		}
 	}
 
@@ -1422,7 +1450,7 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 		wl_list_remove(&view->link);
 		server->curr_output->workspaces[server->curr_output->curr_workspace]
 		    ->focused_tile->view = NULL;
-		keybinding_cycle_views(server, NULL, false, false);
+		keybinding_cycle_views(server, NULL, -1, false, false);
 		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
 		       ->focused_tile->view == NULL) {
 			seat_set_focus(server->seat, NULL);
@@ -1595,27 +1623,6 @@ keybinding_switch_output(struct cg_server *server, int output) {
 	return;
 }
 
-struct cg_view *
-view_from_id(struct cg_server *server, uint32_t id) {
-	struct cg_view *view = NULL;
-	struct cg_output *outp_it;
-	wl_list_for_each(outp_it, &server->outputs, link) {
-		for(unsigned int i = 0; i < server->nws && view == NULL; ++i) {
-			struct cg_view *view_it;
-			wl_list_for_each(view_it, &outp_it->workspaces[i]->views, link) {
-				if(id == view_it->id) {
-					view = view_it;
-					break;
-				}
-			}
-		}
-		if(view != NULL) {
-			break;
-		}
-	}
-	return view;
-}
-
 void
 keybinding_move_view_to_tile(struct cg_server *server, uint32_t view_id,
                              uint32_t tile_id, bool follow) {
@@ -1631,7 +1638,7 @@ keybinding_move_view_to_tile(struct cg_server *server, uint32_t view_id,
 		if(old_tile != NULL) {
 			workspace_tile_update_view(old_tile, NULL);
 			wl_list_remove(&view->link);
-			keybinding_cycle_views(server, old_tile, false, false);
+			keybinding_cycle_views(server, old_tile, -1, false, false);
 			if(old_tile->view == NULL &&
 			   old_tile == server->curr_output
 			                   ->workspaces[server->curr_output->curr_workspace]
@@ -1878,7 +1885,7 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		}
 	} break;
 	case KEYBINDING_CYCLE_VIEWS:
-		keybinding_cycle_views(server, NULL, data.b, true);
+		keybinding_cycle_views(server, NULL, data.is[1], data.is[0], true);
 		break;
 	case KEYBINDING_CYCLE_TILES:
 			if(data.is[1]==-1) {
