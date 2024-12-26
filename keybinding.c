@@ -633,7 +633,7 @@ keybinding_workspace_fullscreen(struct cg_server *server, uint32_t screen, uint3
 		output=output_from_num(server, screen);
 		ws=workspace;
 	}
-	if(output==NULL) {
+	if(output==NULL || ws>=server->nws) {
 		return;
 	}
 	output_make_workspace_fullscreen(output, ws);
