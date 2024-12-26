@@ -1310,7 +1310,7 @@ monitor colors.
   * Fixed: 2.3.1
 
 After 2.3.0 cagebreak did not build on FreeBSD. Since the fix was trivial,
-this is fixed in 2.3.1. Thank to Jan Beich for pointing this out.
+this is fixed in 2.3.1. Thanks to Jan Beich for pointing this out.
 
 ## Issue 74
 
