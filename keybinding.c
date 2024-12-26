@@ -213,6 +213,19 @@ view_from_id(struct cg_server *server, uint32_t id) {
 	return view;
 }
 
+struct cg_output *
+output_from_num(struct cg_server *server, int num) {
+	struct cg_output *it;
+	int count = 1;
+	wl_list_for_each(it, &server->outputs, link) {
+		if(count == num) {
+			return it;
+		}
+		++count;
+	}
+	return NULL;
+}
+
 struct cg_tile *
 find_right_tile(const struct cg_tile *tile) {
 	struct cg_tile *it = tile->next;
@@ -608,15 +621,19 @@ resize_tile(struct cg_server *server, int hpixs, int vpixs) {
 }
 
 void
-keybinding_workspace_fullscreen(struct cg_server *server) {
-	output_make_workspace_fullscreen(server->curr_output,
-	                                 server->curr_output->curr_workspace);
-	struct cg_output *output = server->curr_output;
+keybinding_workspace_fullscreen(struct cg_server *server, uint32_t screen, uint32_t workspace) {
+	struct cg_output *output=server->curr_output;
+	int ws=output->curr_workspace;
+	if(screen!=0) {
+		output=output_from_num(server, screen);
+		ws=workspace;
+	}
+	output_make_workspace_fullscreen(output, ws);
 	ipc_send_event(server,
 	               "{\"event_name\":\"fullscreen\",\"tile_id\":%d,"
 	               "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
-	               output->workspaces[output->curr_workspace]->focused_tile->id,
-	               output->workspaces[output->curr_workspace]->num + 1,
+	               output->workspaces[ws]->focused_tile->id,
+	               output->workspaces[ws]->num + 1,
 	               output->name, output_get_num(output));
 }
 
@@ -1592,19 +1609,6 @@ keybinding_set_background(struct cg_server *server, float *bg) {
 	}
 }
 
-struct cg_output *
-output_from_num(struct cg_server *server, int num) {
-	struct cg_output *it;
-	int count = 1;
-	wl_list_for_each(it, &server->outputs, link) {
-		if(count == num) {
-			return it;
-		}
-		++count;
-	}
-	return NULL;
-}
-
 void
 keybinding_switch_output(struct cg_server *server, int output) {
 	struct cg_output *old_outp = server->curr_output;
@@ -1861,7 +1865,7 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		set_cursor(data.i, server->seat);
 		break;
 	case KEYBINDING_LAYOUT_FULLSCREEN:
-		keybinding_workspace_fullscreen(server);
+		keybinding_workspace_fullscreen(server, data.us[0], data.us[1]);
 		break;
 	case KEYBINDING_SPLIT_HORIZONTAL:
 		keybinding_split_horizontal(server, data.f);
@@ -1885,13 +1889,13 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		}
 	} break;
 	case KEYBINDING_CYCLE_VIEWS:
-		keybinding_cycle_views(server, NULL, data.is[1], data.is[0], true);
+		keybinding_cycle_views(server, NULL, data.us[1], data.us[0], true);
 		break;
 	case KEYBINDING_CYCLE_TILES:
-			if(data.is[1]==-1) {
-				keybinding_cycle_tiles(server, data.is[0]);
+			if(data.us[1]==0) {
+				keybinding_cycle_tiles(server, data.us[0]);
 			} else {
-				keybinding_focus_tile(server,data.is[1]);
+				keybinding_focus_tile(server,data.us[1]);
 			}
 		break;
 	case KEYBINDING_CYCLE_OUTPUT:

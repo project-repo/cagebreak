@@ -858,8 +858,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_CLOSE_VIEW;
 	} else if(strcmp(action, "focus") == 0) {
 		keybinding->action = KEYBINDING_CYCLE_TILES;
-		keybinding->data.is[0] = 0;
-		keybinding->data.is[1] = -1;
+		keybinding->data.us[0] = 0;
+		keybinding->data.us[1] = 0;
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
 			long tile_id = strtol(tile_str, NULL, 10);
@@ -869,16 +869,16 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 						tile_id);
 				return -1;
 			}
-			keybinding->data.is[1] = tile_id;
+			keybinding->data.us[1] = tile_id;
 		}
 	} else if(strcmp(action, "focusprev") == 0) {
 		keybinding->action = KEYBINDING_CYCLE_TILES;
-		keybinding->data.is[0] = 1;
-		keybinding->data.is[1] = -1;
+		keybinding->data.us[0] = 1;
+		keybinding->data.us[1] = 0;
 	} else if(strcmp(action, "next") == 0) {
 		keybinding->action = KEYBINDING_CYCLE_VIEWS;
-		keybinding->data.is[0] = 0;
-		keybinding->data.is[1] = -1;
+		keybinding->data.us[0] = 0;
+		keybinding->data.us[1] = 0;
 		char *view_str = strtok_r(NULL, " ", &saveptr);
 		if(view_str != NULL) {
 			long view_id = strtol(view_str, NULL, 10);
@@ -888,14 +888,41 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 						view_id);
 				return -1;
 			}
-			keybinding->data.is[1] = view_id;
+			keybinding->data.us[1] = view_id;
 		}
 	} else if(strcmp(action, "prev") == 0) {
 		keybinding->action = KEYBINDING_CYCLE_VIEWS;
-		keybinding->data.is[0] = 1;
-		keybinding->data.is[1] = -1;
+		keybinding->data.us[0] = 1;
+		keybinding->data.us[1] = 0;
 	} else if(strcmp(action, "only") == 0) {
 		keybinding->action = KEYBINDING_LAYOUT_FULLSCREEN;
+		keybinding->data.us[0] = 0;
+		keybinding->data.us[1] = 0;
+		char *screen_str = strtok_r(NULL, " ", &saveptr);
+		if(screen_str != NULL) {
+			long screen = strtol(screen_str, NULL, 10);
+			if(screen < 1) {
+				*errstr = log_error("Screen must be an integer number "
+						"larger or equal to 1. Got %ld",
+						screen);
+				return -1;
+			}
+			keybinding->data.us[0] = screen;
+
+			char *workspace_str = strtok_r(NULL, " ", &saveptr);
+			if(workspace_str==NULL) {
+				*errstr = log_error("\"only\" requires either none or two arguments, got one");
+				return -1;
+			}
+			long workspace = strtol(workspace_str, NULL, 10);
+			if(workspace < 1) {
+				*errstr = log_error("Workspace must be an integer number "
+						"larger or equal to 1. Got %ld",
+						workspace);
+				return -1;
+			}
+			keybinding->data.us[1]=workspace-1;
+		}
 	} else if(strcmp(action, "abort") == 0) {
 		keybinding->action = KEYBINDING_NOOP;
 	} else if(strcmp(action, "message") == 0) {
