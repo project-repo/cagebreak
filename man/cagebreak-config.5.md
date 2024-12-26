@@ -51,7 +51,7 @@ definekey root <key> <command>
 	Close current window - This may be useful for windows of
 	applications which do not offer any method of closing them.
 
-*configure_message [font <font description\>|[f|b]g_color <r\> <g\> <b\> <a\>|display_time <n\>|anchor <position\>]*
+*configure_message [font <font description\>|[f|b]g_color <r\> <g\> <b\> <a\>|display_time <n\>|anchor <position\>|[enable|disable]]*
 	Configure message characteristics -
 	- font <font description\> sets the font of the message.
 	  Here, <font description\> is either
@@ -62,6 +62,7 @@ definekey root <key> <command>
 	- display_time <n\> sets the display time in seconds
 	- anchor <position\> sets the position of the message.
       <position\> may be one of {top,bottom}\_{left,center,right} or center.
+	- [enable|disable] Enable or disable messages
 
 ```
 # Set font
