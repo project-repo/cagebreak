@@ -1960,11 +1960,10 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		resize_tile(server, 0, data.i);
 		break;
 	case KEYBINDING_MOVE_TO_TILE: {
-		keybinding_move_view_to_tile(
-		    server,
+		struct cg_view *view =
 		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile->view->id,
-		    data.us[0], data.us[1] > 0);
+		        ->focused_tile->view;
+		keybinding_move_view_to_tile(server, view ? (int)view->id : -1, data.us[0], data.us[1] > 0);
 		break;
 	}
 	case KEYBINDING_MOVE_TO_WORKSPACE: {
