@@ -169,6 +169,30 @@ is_between_strict(int a, int b, int x) {
 }
 
 struct cg_tile *
+tile_from_id(struct cg_server *server, uint32_t id) {
+	struct cg_tile *tile = NULL;
+	struct cg_output *outp_it;
+	wl_list_for_each(outp_it, &server->outputs, link) {
+		for(unsigned int i = 0; i < server->nws && tile == NULL; ++i) {
+			bool first = true;
+			for(struct cg_tile *tile_it = outp_it->workspaces[i]->focused_tile;
+			    first || tile_it != outp_it->workspaces[i]->focused_tile;
+			    tile_it = tile_it->next) {
+				first = false;
+				if(id == tile_it->id) {
+					tile = tile_it;
+					break;
+				}
+			}
+		}
+		if(tile != NULL) {
+			break;
+		}
+	}
+	return tile;
+}
+
+struct cg_tile *
 find_right_tile(const struct cg_tile *tile) {
 	struct cg_tile *it = tile->next;
 	int center = tile->tile.y + tile->tile.height / 2;
@@ -804,41 +828,6 @@ keybinding_cycle_views(struct cg_server *server, struct cg_tile *tile,
 	}
 }
 
-void
-keybinding_focus_tile(struct cg_server *server, uint32_t tile_id) {
-	struct cg_output *output = server->curr_output;
-	struct cg_workspace *workspace = output->workspaces[output->curr_workspace];
-	struct cg_tile *old_tile = workspace->focused_tile;
-	bool first = true;
-	for(struct cg_tile *tile = workspace->focused_tile;
-	    first || tile != workspace->focused_tile; tile = tile->next) {
-		first = false;
-		if(tile->id == tile_id) {
-			workspace_focus_tile(workspace, tile);
-			struct cg_view *next_view = workspace->focused_tile->view;
-			seat_set_focus(server->seat, next_view);
-			ipc_send_event(
-			    output->server,
-			    "{\"event_name\":\"focus_tile\",\"old_tile_id\":%d,\"new_tile_"
-			    "id\":%d,\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
-			    old_tile->id, workspace->focused_tile->id, workspace->num + 1,
-			    output->name, output_get_num(output));
-			break;
-		}
-	}
-}
-
-void
-keybinding_cycle_tiles(struct cg_server *server, bool reverse) {
-	struct cg_output *output = server->curr_output;
-	struct cg_workspace *workspace = output->workspaces[output->curr_workspace];
-	if(reverse) {
-		keybinding_focus_tile(server, workspace->focused_tile->prev->id);
-	} else {
-		keybinding_focus_tile(server, workspace->focused_tile->next->id);
-	}
-}
-
 int
 keybinding_switch_ws(struct cg_server *server, uint32_t ws) {
 	if(ws >= server->nws) {
@@ -858,6 +847,43 @@ keybinding_switch_ws(struct cg_server *server, uint32_t ws) {
 	               "\"new_workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 	               old_ws + 1, ws + 1, output->name, output_get_num(output));
 	return 0;
+}
+
+void
+keybinding_focus_tile(struct cg_server *server, uint32_t tile_id) {
+	struct cg_output *output = server->curr_output;
+	struct cg_workspace *workspace = output->workspaces[output->curr_workspace];
+	struct cg_tile *old_tile = workspace->focused_tile;
+	struct cg_tile *tile=tile_from_id(server, tile_id);
+	if(tile==NULL) {
+		return;
+	}
+	if(server->curr_output != tile->workspace->output) {
+		set_output(server, tile->workspace->output);
+	}
+	if(server->curr_output->curr_workspace != (int)tile->workspace->num) {
+		keybinding_switch_ws(server, tile->workspace->num);
+	}
+	workspace_focus_tile(tile->workspace, tile);
+	struct cg_view *next_view = tile->workspace->focused_tile->view;
+	seat_set_focus(server->seat, next_view);
+	ipc_send_event(
+		output->server,
+		"{\"event_name\":\"focus_tile\",\"old_tile_id\":%d,\"new_tile_"
+		"id\":%d,\"old_workspace\":%d,\"new_workspace\":%d,\"old_output\":\"%s\",\"old_output_id\":%d,\"output\":\"%s\",\"output_id\":%d}",
+		old_tile->id, tile->workspace->focused_tile->id, workspace->num+1, tile->workspace->num + 1,
+		output->name, output_get_num(output),tile->workspace->output->name, output_get_num(tile->workspace->output));
+}
+
+void
+keybinding_cycle_tiles(struct cg_server *server, bool reverse) {
+	struct cg_output *output = server->curr_output;
+	struct cg_workspace *workspace = output->workspaces[output->curr_workspace];
+	if(reverse) {
+		keybinding_focus_tile(server, workspace->focused_tile->prev->id);
+	} else {
+		keybinding_focus_tile(server, workspace->focused_tile->next->id);
+	}
 }
 
 void
@@ -1590,30 +1616,6 @@ view_from_id(struct cg_server *server, uint32_t id) {
 	return view;
 }
 
-struct cg_tile *
-tile_from_id(struct cg_server *server, uint32_t id) {
-	struct cg_tile *tile = NULL;
-	struct cg_output *outp_it;
-	wl_list_for_each(outp_it, &server->outputs, link) {
-		for(unsigned int i = 0; i < server->nws && tile == NULL; ++i) {
-			bool first = true;
-			for(struct cg_tile *tile_it = outp_it->workspaces[i]->focused_tile;
-			    first || tile_it != outp_it->workspaces[i]->focused_tile;
-			    tile_it = tile_it->next) {
-				first = false;
-				if(id == tile_it->id) {
-					tile = tile_it;
-					break;
-				}
-			}
-		}
-		if(tile != NULL) {
-			break;
-		}
-	}
-	return tile;
-}
-
 void
 keybinding_move_view_to_tile(struct cg_server *server, uint32_t view_id,
                              uint32_t tile_id, bool follow) {
@@ -1660,15 +1662,7 @@ keybinding_move_view_to_tile(struct cg_server *server, uint32_t view_id,
 		}
 	}
 	if(follow) {
-		if(server->curr_output != tile->workspace->output) {
-			set_output(server, tile->workspace->output);
-		}
-		if(server->curr_output->curr_workspace != (int)tile->workspace->num) {
-			keybinding_switch_ws(server, tile->workspace->num);
-		}
-		if(tile->workspace->focused_tile != tile) {
-			keybinding_focus_tile(server, tile->id);
-		}
+		keybinding_focus_tile(server, tile->id);
 	} else {
 		if(tile->view != NULL) {
 			workspace_tile_update_view(tile, tile->view);
@@ -1887,7 +1881,11 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_cycle_views(server, NULL, data.b, true);
 		break;
 	case KEYBINDING_CYCLE_TILES:
-		keybinding_cycle_tiles(server, data.b);
+			if(data.is[1]==-1) {
+				keybinding_cycle_tiles(server, data.is[0]);
+			} else {
+				keybinding_focus_tile(server,data.is[1]);
+			}
 		break;
 	case KEYBINDING_CYCLE_OUTPUT:
 		keybinding_cycle_outputs(server, data.b, true);

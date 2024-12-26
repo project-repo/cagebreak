@@ -858,10 +858,23 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_CLOSE_VIEW;
 	} else if(strcmp(action, "focus") == 0) {
 		keybinding->action = KEYBINDING_CYCLE_TILES;
-		keybinding->data.b = false;
+		keybinding->data.is[0] = 0;
+		keybinding->data.is[1] = -1;
+		char *tile_str = strtok_r(NULL, " ", &saveptr);
+		if(tile_str != NULL) {
+			long tile_id = strtol(tile_str, NULL, 10);
+			if(tile_id < 1) {
+				*errstr = log_error("Tile id must be an integer number "
+						"larger or equal to 1. Got %ld",
+						tile_id);
+				return -1;
+			}
+			keybinding->data.is[1] = tile_id;
+		}
 	} else if(strcmp(action, "focusprev") == 0) {
 		keybinding->action = KEYBINDING_CYCLE_TILES;
-		keybinding->data.b = true;
+		keybinding->data.is[0] = 1;
+		keybinding->data.is[1] = -1;
 	} else if(strcmp(action, "next") == 0) {
 		keybinding->action = KEYBINDING_CYCLE_VIEWS;
 		keybinding->data.b = false;
