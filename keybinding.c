@@ -346,11 +346,12 @@ merge_tile(struct cg_tile *tile,
 }
 
 void
-swap_tile(struct cg_tile *tile,
-          struct cg_tile *(*find_tile)(const struct cg_tile *)) {
-	struct cg_tile *swap_tile = find_tile(tile);
+keybinding_focus_tile(struct cg_server *server, uint32_t tile_id);
+
+void
+swap_tiles(struct cg_tile *tile, struct cg_tile *swap_tile, bool follow) {
 	struct cg_server *server = tile->workspace->server;
-	if(swap_tile == NULL || swap_tile == tile) {
+	if(swap_tile == NULL || tile == NULL | swap_tile == tile) {
 		return;
 	}
 	struct cg_view *tmp_view = tile->view;
@@ -358,16 +359,22 @@ swap_tile(struct cg_tile *tile,
 	workspace_tile_update_view(tile, NULL);
 	workspace_tile_update_view(swap_tile, tmp_view);
 	workspace_tile_update_view(tile, tmp_swap_view);
-	workspace_focus_tile(
-	    server->curr_output->workspaces[server->curr_output->curr_workspace],
-	    swap_tile);
-	seat_set_focus(server->seat, swap_tile->view);
+	if(follow) {
+		keybinding_focus_tile(server, swap_tile->id);
+	}
 	ipc_send_event(
 	    tile->workspace->output->server,
 	    "{\"event_name\":\"swap_tile\",\"tile_id\":%d,\"swap_"
 	    "tile_id\":%d,\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 	    tile->id, swap_tile->id, tile->workspace->num + 1,
 	    tile->workspace->output->name, output_get_num(tile->workspace->output));
+}
+
+void
+swap_tile(struct cg_tile *tile,
+          struct cg_tile *(*find_tile)(const struct cg_tile *)) {
+	struct cg_tile *swap_tile = find_tile(tile);
+	swap_tiles(tile,swap_tile, true);
 }
 
 int *
@@ -2079,6 +2086,10 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		swap_tile_bottom(
 		    server->curr_output->workspaces[server->curr_output->curr_workspace]
 		        ->focused_tile);
+		break;
+	}
+	case KEYBINDING_SWAP: {
+		swap_tiles(tile_from_id(server, data.us[0]),tile_from_id(server, data.us[1]),data.us[2]==1);
 		break;
 	}
 	case KEYBINDING_FOCUS_LEFT: {

@@ -84,6 +84,7 @@ struct cg_server;
 	KEYBINDING(KEYBINDING_SWAP_RIGHT, exchangeright)                                                             \
 	KEYBINDING(KEYBINDING_SWAP_TOP, exchangeup)                                                                  \
 	KEYBINDING(KEYBINDING_SWAP_BOTTOM, exchangedown)                                                             \
+	KEYBINDING(KEYBINDING_SWAP, exchangedown) /* data.us[0] and data.us[1] are the tile ids */                   \
                                                                                                                  \
 	KEYBINDING(KEYBINDING_MERGE_LEFT, exchangeleft) /* data.u is the tile id */                                  \
 	KEYBINDING(KEYBINDING_MERGE_RIGHT, exchangeright) /* data.u is the tile id */                                \
