@@ -68,6 +68,8 @@ LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 	}
 	server.modes[3] = NULL;
 	server.modes = realloc(server.modes, 4 * sizeof(char *));
+	server.modecursors[3] = NULL;
+	server.modecursors = realloc(server.modecursors, 4 * sizeof(char *));
 
 	struct cg_output_config *output_config, *output_config_tmp;
 	wl_list_for_each_safe(output_config, output_config_tmp,

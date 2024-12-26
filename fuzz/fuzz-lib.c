@@ -143,7 +143,9 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 #endif
 
 	server.modes = malloc(4 * sizeof(char *));
-	if(!server.modes) {
+	server.modecursors = malloc(4 * sizeof(char *));
+
+	if(!server.modes || ! server.modecursors) {
 		wlr_log(WLR_ERROR, "Error allocating mode array");
 		goto end;
 	}
@@ -158,6 +160,8 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 		wlr_log(WLR_ERROR, "Cannot allocate a Wayland display");
 		free(server.modes);
 		server.modes = NULL;
+		free(server.modecursors);
+		server.modecursors = NULL;
 		goto end;
 	}
 
@@ -178,8 +182,13 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	server.modes[1] = strdup("root");
 	server.modes[2] = strdup("resize");
 	server.modes[3] = NULL;
+
+	server.modecursors[0] = NULL;
+	server.modecursors[1] = strdup("cell");
+	server.modecursors[2] = NULL;
+	server.modecursors[3] = NULL;
 	if(server.modes[0] == NULL || server.modes[1] == NULL ||
-	   server.modes[2] == NULL) {
+	   server.modes[2] == NULL || server.modecursors[1] == NULL) {
 		wlr_log(WLR_ERROR, "Error allocating default modes");
 		goto end;
 	}

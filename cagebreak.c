@@ -309,7 +309,7 @@ main(int argc, char *argv[]) {
 #endif
 
 	server.modes = malloc(4 * sizeof(char *));
-	server.modecursors = malloc(4 * sizeof(int *));
+	server.modecursors = malloc(4 * sizeof(char *));
 	if(!server.modes|| !server.modecursors) {
 		wlr_log(WLR_ERROR, "Error allocating mode array");
 		goto end;
