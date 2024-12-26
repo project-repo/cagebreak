@@ -120,6 +120,10 @@ escape <key>
 definekey top <key> mode root
 ```
 
+*exchange <tile_id 1\> <tile_id 2\> [<follow_focus\>]*
+	Exchange tile ids <tile_id 1\> and <tile_id 2\>, optionally set
+	follow_focus to 0 to disable to focus following.
+
 *exchangedown*
 	Exchange current window with window in the tile to the bottom
 
