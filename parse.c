@@ -962,15 +962,59 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 	} else if(strcmp(action, "resizeleft") == 0) {
 		keybinding->action = KEYBINDING_RESIZE_TILE_HORIZONTAL;
 		keybinding->data.i = -10;
+		char *str = strtok_r(NULL, " ", &saveptr);
+		if(str != NULL) {
+			long n_pixels = strtol(str, NULL, 10);
+			if(n_pixels < 1) {
+				*errstr = log_error("Number of pixels must be an integer number "
+						"larger or equal to 1. Got %ld",
+						n_pixels);
+				return -1;
+			}
+			keybinding->data.i = -n_pixels;
+		}
 	} else if(strcmp(action, "resizeright") == 0) {
 		keybinding->action = KEYBINDING_RESIZE_TILE_HORIZONTAL;
 		keybinding->data.i = 10;
+		char *str = strtok_r(NULL, " ", &saveptr);
+		if(str != NULL) {
+			long n_pixels = strtol(str, NULL, 10);
+			if(n_pixels < 1) {
+				*errstr = log_error("Number of pixels must be an integer number "
+						"larger or equal to 1. Got %ld",
+						n_pixels);
+				return -1;
+			}
+			keybinding->data.i = n_pixels;
+		}
 	} else if(strcmp(action, "resizedown") == 0) {
 		keybinding->action = KEYBINDING_RESIZE_TILE_VERTICAL;
 		keybinding->data.i = 10;
+		char *str = strtok_r(NULL, " ", &saveptr);
+		if(str != NULL) {
+			long n_pixels = strtol(str, NULL, 10);
+			if(n_pixels < 1) {
+				*errstr = log_error("Number of pixels must be an integer number "
+						"larger or equal to 1. Got %ld",
+						n_pixels);
+				return -1;
+			}
+			keybinding->data.i = n_pixels;
+		}
 	} else if(strcmp(action, "resizeup") == 0) {
 		keybinding->action = KEYBINDING_RESIZE_TILE_VERTICAL;
 		keybinding->data.i = -10;
+		char *str = strtok_r(NULL, " ", &saveptr);
+		if(str != NULL) {
+			long n_pixels = strtol(str, NULL, 10);
+			if(n_pixels < 1) {
+				*errstr = log_error("Number of pixels must be an integer number "
+						"larger or equal to 1. Got %ld",
+						n_pixels);
+				return -1;
+			}
+			keybinding->data.i = -n_pixels;
+		}
 	} else if(strcmp(action, "screen") == 0) {
 		keybinding->action = KEYBINDING_SWITCH_OUTPUT;
 		char *noutp_str = strtok_r(NULL, " ", &saveptr);

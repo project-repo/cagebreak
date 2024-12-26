@@ -475,7 +475,7 @@ resize_allowed(struct cg_tile *tile, const struct cg_tile *parent,
 
 	if(coord_offset == 0 && dim_offset == 0) {
 		return true;
-	} else if(*get_dim(tile) - coord_offset + dim_offset <= 0) {
+	} else if(*get_dim(tile) + dim_offset <= 0) {
 		return false;
 	}
 
