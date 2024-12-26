@@ -273,6 +273,9 @@ merge_tile(struct cg_tile *tile,
 	}
 	*get_compl_dim(tile, get_dim)=*get_compl_dim(merge_tile, get_dim)+*get_compl_dim(tile, get_dim);
 	*get_compl_coord(tile, get_coord)=fmin(*get_compl_coord(merge_tile, get_coord),*get_compl_coord(tile, get_coord));
+	if(tile->workspace->server->seat->cursor_tile==merge_tile) {
+		tile->workspace->server->seat->cursor_tile=tile;
+	}
 	free(merge_tile);
 	if(tile->view != NULL) {
 		view_maximize(tile->view, tile);
