@@ -1651,8 +1651,10 @@ keybinding_move_view_to_tile(struct cg_server *server, uint32_t view_id,
 			seat_set_focus(server->seat, view);
 		}
 	} else {
-		tile->view->tile = NULL;
-		tile->view = NULL;
+		if(tile->view) {
+			tile->view->tile = NULL;
+			tile->view = NULL;
+		}
 	}
 	if(follow) {
 		if(server->curr_output != tile->workspace->output) {
