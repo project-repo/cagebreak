@@ -1,8 +1,8 @@
 # Copyright 2020 - 2024, project-repo and the cagebreak contributors
 # SPDX-License-Identifier: MIT
-option('xwayland', type: 'boolean', value: 'false', description: 'Enable support for X11 applications')
-option('man-pages', type: 'boolean', value: 'false', description: 'Build man pages (requires pandoc)')
-option('fuzz', type: 'boolean', value: 'false', description: 'Enable building fuzzer targets')
+option('xwayland', type: 'boolean', value: false, description: 'Enable support for X11 applications')
+option('man-pages', type: 'boolean', value: false, description: 'Build man pages (requires pandoc)')
+option('fuzz', type: 'boolean', value: false, description: 'Enable building fuzzer targets')
 option('version_override', type: 'string', description: 'Set the project version to the string specified. Used for creating hashes for reproducible builds.')
 option('corpus', type: 'string', value: 'fuzz_corpus',  description: 'Set fuzzing corpus directory')
 option('gpg_id', type: 'string', value: '438C27DDB5D174673DF4D67B451205B3528C7C63',  description: 'Set gpg signing key for cagebreak')

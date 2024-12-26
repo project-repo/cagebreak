@@ -21,7 +21,6 @@ if get_option('buildtype').startswith('debug')
   add_project_arguments(
 	[
 	  '-DDEBUG',
-	  '-g',
 	],
 	language : 'c',
 )
@@ -69,7 +68,7 @@ libevdev       = dependency('libevdev')
 libudev       = dependency('libudev')
 math           = cc.find_library('m')
 
-wl_protocol_dir = wayland_protos.get_pkgconfig_variable('pkgdatadir')
+wl_protocol_dir = wayland_protos.get_variable(pkgconfig : 'pkgdatadir')
 wayland_scanner = find_program('wayland-scanner')
 wayland_scanner_server = generator(
   wayland_scanner,
@@ -203,12 +202,12 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.23.1',
   'wayland_cursor': '1.23.1',
-  'wlroots': '0.18.1',
+  'wlroots': '0.18.2',
   'xkbcommon': '1.7.0',
   'fontconfig': '2.15.0',
-  'libinput': '1.26.2',
+  'libinput': '1.27.0',
   'libevdev': '1.13.3',
-  'libudev': '256',
+  'libudev': '257',
   'pango': '1.54.0',
   'cairo': '1.18.2',
   'pangocairo': '1.54.0',
@@ -260,7 +259,7 @@ install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_nam
 if get_option('man-pages')
   scdoc = find_program('scdoc')
   secssinceepoch = 1728318420
-  shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.path())
+  shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.full_path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
   mandir5 = join_paths(get_option('mandir'), 'man5')
