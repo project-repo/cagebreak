@@ -46,11 +46,11 @@ struct cg_server;
 	           setmode) /* data.u is the desired mode */                                                         \
 	KEYBINDING(                                                                                                  \
 	    KEYBINDING_RESIZE_TILE_HORIZONTAL,                                                                       \
-	    resize_tile_horizontal) /* data.i is the number of pixels to add */                                      \
+	    resize_tile_horizontal) /* data.is[0] is the number of pixels to add, data.is[1] is the tile id */       \
                                                                                                                  \
 	KEYBINDING(                                                                                                  \
 	    KEYBINDING_RESIZE_TILE_VERTICAL,                                                                         \
-	    resize_tile_vertical) /* data.i is the number of pixels to add to */                                     \
+	    resize_tile_vertical) /* data.is[0] is the number of pixels to add, data.is[1] is the tile id */         \
                                                                                                                  \
 	KEYBINDING(KEYBINDING_MOVE_TO_TILE,                                                                          \
 	           movetoworkspace) /* data.us is the desired tile and whether or                                    \
@@ -120,6 +120,7 @@ union keybinding_params {
 	char *c;
 	char *cs[2];
 	uint32_t u;
+	uint32_t is[2];
 	uint32_t us[3];
 	int32_t i;
 	bool b;

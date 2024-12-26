@@ -580,42 +580,47 @@ resize_vertical(struct cg_tile *tile, struct cg_tile *parent, int y_offset,
 /* hpixs: positiv -> right, negative -> left; vpixs: positiv -> down, negative
  * -> up */
 void
-resize_tile(struct cg_server *server, int hpixs, int vpixs) {
+resize_tile(struct cg_server *server, int hpixs, int vpixs, int tile_id) {
 	struct cg_output *output = server->curr_output;
 
-	struct cg_tile *focused =
-	    output->workspaces[output->curr_workspace]->focused_tile;
+	struct cg_tile *tile = output->workspaces[output->curr_workspace]->focused_tile;
+	if(tile_id!=0) {
+		tile=tile_from_id(server, tile_id);
+	}
+	if(tile==NULL) {
+		return;
+	}
 	/* First do the horizontal adjustment */
 	if(hpixs != 0 &&
-	   focused->tile.width < output_get_layout_box(output).width &&
+	   tile->tile.width < output_get_layout_box(output).width &&
 	   is_between_strict(0, output_get_layout_box(output).width,
-	                     focused->tile.width + hpixs)) {
+	                     tile->tile.width + hpixs)) {
 		int x_offset = 0;
 		/* In case we are on the total right, move the left edge of the tile */
-		if(focused->tile.x + focused->tile.width ==
+		if(tile->tile.x + tile->tile.width ==
 		   output_get_layout_box(output).width) {
 			x_offset = -hpixs;
 		}
 		bool resize_allowed =
-		    resize_allowed_horizontal(focused, NULL, x_offset, hpixs);
+		    resize_allowed_horizontal(tile, NULL, x_offset, hpixs);
 		if(resize_allowed) {
-			resize_horizontal(focused, NULL, x_offset, hpixs);
+			resize_horizontal(tile, NULL, x_offset, hpixs);
 		}
 	}
 	/* Repeat for vertical */
 	if(vpixs != 0 &&
-	   focused->tile.height < output_get_layout_box(output).height &&
+	   tile->tile.height < output_get_layout_box(output).height &&
 	   is_between_strict(0, output_get_layout_box(output).height,
-	                     focused->tile.height + vpixs)) {
+	                     tile->tile.height + vpixs)) {
 		int y_offset = 0;
-		if(focused->tile.y + focused->tile.height ==
+		if(tile->tile.y + tile->tile.height ==
 		   output_get_layout_box(output).height) {
 			y_offset = -vpixs;
 		}
 		bool resize_allowed =
-		    resize_allowed_vertical(focused, NULL, y_offset, vpixs);
+		    resize_allowed_vertical(tile, NULL, y_offset, vpixs);
 		if(resize_allowed) {
-			resize_vertical(focused, NULL, y_offset, vpixs);
+			resize_vertical(tile, NULL, y_offset, vpixs);
 		}
 	}
 }
@@ -1969,10 +1974,10 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_send_custom_event(server, data.c);
 		break;
 	case KEYBINDING_RESIZE_TILE_HORIZONTAL:
-		resize_tile(server, data.i, 0);
+		resize_tile(server, data.is[0], 0, data.is[1]);
 		break;
 	case KEYBINDING_RESIZE_TILE_VERTICAL:
-		resize_tile(server, 0, data.i);
+		resize_tile(server, 0, data.is[0], data.is[1]);
 		break;
 	case KEYBINDING_MOVE_TO_TILE: {
 		struct cg_view *view =

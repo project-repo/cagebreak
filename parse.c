@@ -961,7 +961,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->data.c = strdup(saveptr);
 	} else if(strcmp(action, "resizeleft") == 0) {
 		keybinding->action = KEYBINDING_RESIZE_TILE_HORIZONTAL;
-		keybinding->data.i = -10;
+		keybinding->data.is[0] = -10;
+		keybinding->data.is[1] = 0;
 		char *str = strtok_r(NULL, " ", &saveptr);
 		if(str != NULL) {
 			long n_pixels = strtol(str, NULL, 10);
@@ -971,11 +972,23 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 						n_pixels);
 				return -1;
 			}
-			keybinding->data.i = -n_pixels;
+			keybinding->data.is[0] = -n_pixels;
+		}
+		char *tile_str = strtok_r(NULL, " ", &saveptr);
+		if(tile_str != NULL) {
+			long tile_id = strtol(tile_str, NULL, 10);
+			if(tile_id < 1) {
+				*errstr = log_error("The tile id must be an integer number "
+						"larger or equal to 1. Got %ld",
+						tile_id);
+				return -1;
+			}
+			keybinding->data.is[1] = tile_id;
 		}
 	} else if(strcmp(action, "resizeright") == 0) {
 		keybinding->action = KEYBINDING_RESIZE_TILE_HORIZONTAL;
-		keybinding->data.i = 10;
+		keybinding->data.is[0] = 10;
+		keybinding->data.is[1] = 0;
 		char *str = strtok_r(NULL, " ", &saveptr);
 		if(str != NULL) {
 			long n_pixels = strtol(str, NULL, 10);
@@ -985,11 +998,23 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 						n_pixels);
 				return -1;
 			}
-			keybinding->data.i = n_pixels;
+			keybinding->data.is[0] = n_pixels;
+		}
+		char *tile_str = strtok_r(NULL, " ", &saveptr);
+		if(tile_str != NULL) {
+			long tile_id = strtol(tile_str, NULL, 10);
+			if(tile_id < 1) {
+				*errstr = log_error("The tile id must be an integer number "
+						"larger or equal to 1. Got %ld",
+						tile_id);
+				return -1;
+			}
+			keybinding->data.is[1] = tile_id;
 		}
 	} else if(strcmp(action, "resizedown") == 0) {
 		keybinding->action = KEYBINDING_RESIZE_TILE_VERTICAL;
-		keybinding->data.i = 10;
+		keybinding->data.is[0] = 10;
+		keybinding->data.is[1] = 0;
 		char *str = strtok_r(NULL, " ", &saveptr);
 		if(str != NULL) {
 			long n_pixels = strtol(str, NULL, 10);
@@ -999,11 +1024,23 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 						n_pixels);
 				return -1;
 			}
-			keybinding->data.i = n_pixels;
+			keybinding->data.is[0] = n_pixels;
+		}
+		char *tile_str = strtok_r(NULL, " ", &saveptr);
+		if(tile_str != NULL) {
+			long tile_id = strtol(tile_str, NULL, 10);
+			if(tile_id < 1) {
+				*errstr = log_error("The tile id must be an integer number "
+						"larger or equal to 1. Got %ld",
+						tile_id);
+				return -1;
+			}
+			keybinding->data.is[1] = tile_id;
 		}
 	} else if(strcmp(action, "resizeup") == 0) {
 		keybinding->action = KEYBINDING_RESIZE_TILE_VERTICAL;
-		keybinding->data.i = -10;
+		keybinding->data.is[0] = -10;
+		keybinding->data.is[1] = 0;
 		char *str = strtok_r(NULL, " ", &saveptr);
 		if(str != NULL) {
 			long n_pixels = strtol(str, NULL, 10);
@@ -1013,7 +1050,18 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 						n_pixels);
 				return -1;
 			}
-			keybinding->data.i = -n_pixels;
+			keybinding->data.is[0] = -n_pixels;
+		}
+		char *tile_str = strtok_r(NULL, " ", &saveptr);
+		if(tile_str != NULL) {
+			long tile_id = strtol(tile_str, NULL, 10);
+			if(tile_id < 1) {
+				*errstr = log_error("The tile id must be an integer number "
+						"larger or equal to 1. Got %ld",
+						tile_id);
+				return -1;
+			}
+			keybinding->data.is[1] = tile_id;
 		}
 	} else if(strcmp(action, "screen") == 0) {
 		keybinding->action = KEYBINDING_SWITCH_OUTPUT;
