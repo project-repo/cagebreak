@@ -1664,6 +1664,10 @@ keybinding_move_view_to_tile(struct cg_server *server, uint32_t view_id,
 		if(tile->workspace->focused_tile != tile) {
 			keybinding_focus_tile(server, tile->id);
 		}
+	} else {
+		if(tile->view != NULL) {
+			workspace_tile_update_view(tile, tile->view);
+		}
 	}
 	ipc_send_event(
 	    server,
