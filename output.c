@@ -236,7 +236,7 @@ static int
 output_set_mode(struct wlr_output *output, struct wlr_output_state *state,
                 int width, int height, float refresh_rate) {
 	if(refresh_rate * 1000 > (float) INT_MAX || refresh_rate * 1000 < 0) {
-		return 1;
+		refresh_rate=0;
 	}
 	int mhz = (int)(refresh_rate * 1000);
 
