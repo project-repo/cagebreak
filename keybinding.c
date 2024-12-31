@@ -361,6 +361,8 @@ swap_tiles(struct cg_tile *tile, struct cg_tile *swap_tile, bool follow) {
 	workspace_tile_update_view(tile, tmp_swap_view);
 	if(follow) {
 		keybinding_focus_tile(server, swap_tile->id);
+	} else {
+		seat_set_focus(server->seat, server->curr_output->workspaces[server->curr_output->curr_workspace]->focused_tile->view);
 	}
 	ipc_send_event(
 	    tile->workspace->output->server,
@@ -371,10 +373,18 @@ swap_tiles(struct cg_tile *tile, struct cg_tile *swap_tile, bool follow) {
 }
 
 void
-swap_tile(struct cg_tile *tile,
-          struct cg_tile *(*find_tile)(const struct cg_tile *)) {
-	struct cg_tile *swap_tile = find_tile(tile);
-	swap_tiles(tile,swap_tile, true);
+swap_tile(struct cg_server *server, uint32_t tile_id,
+          struct cg_tile *(*find_tile)(const struct cg_tile *), bool follow) {
+	struct cg_tile *tile = NULL;
+	if(tile_id==0) {
+		tile=server->curr_output->workspaces[server->curr_output->curr_workspace] ->focused_tile;
+	} else {
+		tile=tile_from_id(server, tile_id);
+	}
+	if(tile!=NULL) {
+		struct cg_tile *swap_tile = find_tile(tile);
+		swap_tiles(tile,swap_tile, follow);
+	}
 }
 
 int *
@@ -418,23 +428,23 @@ merge_tile_bottom(struct cg_tile *tile) {
 }
 
 void
-swap_tile_left(struct cg_tile *tile) {
-	swap_tile(tile, find_left_tile);
+swap_tile_left(struct cg_server *server, uint32_t tile_id, bool follow) {
+	swap_tile(server, tile_id, find_left_tile, follow);
 }
 
 void
-swap_tile_right(struct cg_tile *tile) {
-	swap_tile(tile, find_right_tile);
+swap_tile_right(struct cg_server *server, uint32_t tile_id, bool follow) {
+	swap_tile(server, tile_id, find_right_tile, follow);
 }
 
 void
-swap_tile_top(struct cg_tile *tile) {
-	swap_tile(tile, find_top_tile);
+swap_tile_top(struct cg_server *server, uint32_t tile_id, bool follow) {
+	swap_tile(server, tile_id, find_top_tile, follow);
 }
 
 void
-swap_tile_bottom(struct cg_tile *tile) {
-	swap_tile(tile, find_bottom_tile);
+swap_tile_bottom(struct cg_server *server, uint32_t tile_id, bool follow) {
+	swap_tile(server, tile_id, find_bottom_tile, follow);
 }
 
 void
@@ -2065,27 +2075,19 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		break;
 	}
 	case KEYBINDING_SWAP_LEFT: {
-		swap_tile_left(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile);
+		swap_tile_left(server, data.us[0], data.us[1]==1);
 		break;
 	}
 	case KEYBINDING_SWAP_RIGHT: {
-		swap_tile_right(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile);
+		swap_tile_right(server, data.us[0], data.us[1]==1);
 		break;
 	}
 	case KEYBINDING_SWAP_TOP: {
-		swap_tile_top(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile);
+		swap_tile_top(server, data.us[0], data.us[1]==1);
 		break;
 	}
 	case KEYBINDING_SWAP_BOTTOM: {
-		swap_tile_bottom(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile);
+		swap_tile_bottom(server, data.us[0], data.us[1]==1);
 		break;
 	}
 	case KEYBINDING_SWAP: {
