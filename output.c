@@ -621,7 +621,7 @@ output_make_workspace_fullscreen(struct cg_output *output, uint32_t ws) {
 
 	workspace_tile_update_view(output->workspaces[ws]->focused_tile,
 	                           current_view);
-	if((ws == output->curr_workspace) && (output == server->curr_output)) {
+	if((ws == (uint32_t) output->curr_workspace) && (output == server->curr_output)) {
 		seat_set_focus(server->seat, current_view);
 	}
 }
