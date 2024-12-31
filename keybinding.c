@@ -645,7 +645,7 @@ resize_tile(struct cg_server *server, int hpixs, int vpixs, int tile_id) {
 void
 keybinding_workspace_fullscreen(struct cg_server *server, uint32_t screen, uint32_t workspace) {
 	struct cg_output *output=server->curr_output;
-	int ws=output->curr_workspace;
+	uint32_t ws=output->curr_workspace;
 	if(screen!=0) {
 		output=output_from_num(server, screen);
 		ws=workspace;

@@ -590,7 +590,7 @@ handle_output_commit(struct wl_listener *listener, void *data) {
 }
 
 void
-output_make_workspace_fullscreen(struct cg_output *output, int ws) {
+output_make_workspace_fullscreen(struct cg_output *output, uint32_t ws) {
 	struct cg_server *server = output->server;
 	if(ws>=server->nws) {
 		return;
