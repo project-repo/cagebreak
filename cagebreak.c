@@ -217,6 +217,7 @@ set_configuration(struct cg_server *server,
 			if(line == NULL) {
 				wlr_log(WLR_ERROR, "Could not allocate buffer for reading "
 				                   "configuration file.");
+				fclose(config_file);
 				return 2;
 			}
 		}
@@ -311,7 +312,15 @@ main(int argc, char *argv[]) {
 	server.modes = malloc(4 * sizeof(char *));
 	server.modecursors = malloc(4 * sizeof(char *));
 	if(!server.modes || !server.modecursors) {
-		wlr_log(WLR_ERROR, "Error allocating mode array");
+		if(server.modes != NULL) {
+			free(server.modes);
+			server.modes = NULL;
+		}
+		if(server.modecursors != NULL) {
+			free(server.modecursors);
+			server.modecursors = NULL;
+		}
+		wlr_log(WLR_ERROR, "Error allocating mode arrays");
 		goto end;
 	}
 

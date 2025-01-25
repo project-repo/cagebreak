@@ -1610,6 +1610,12 @@ keybinding_definemode(struct cg_server *server, char *mode) {
 	char **tmp = realloc(server->modes, (length + 1) * sizeof(char *));
 	char **tmp2 = realloc(server->modecursors, (length + 1) * sizeof(char *));
 	if(tmp == NULL || tmp2 == NULL) {
+		if(tmp != NULL) {
+			free(tmp);
+		}
+		if(tmp2 != NULL) {
+			free(tmp2);
+		}
 		wlr_log(WLR_ERROR, "Could not allocate memory for storing modes.");
 		return;
 	}
