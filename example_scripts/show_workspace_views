@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2020 - 2024, project-repo and the cagebreak contributors
+# Copyright 2020 - 2025, project-repo and the cagebreak contributors
 # SPDX-License-Identifier: MIT
 #
 # This script displays the process names of the views on the current workspace.

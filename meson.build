@@ -1,9 +1,9 @@
-# Copyright 2020 - 2024, project-repo and the cagebreak contributors
+# Copyright 2020 - 2025, project-repo and the cagebreak contributors
 # SPDX-License-Identifier: MIT
 project(
   'cagebreak',
   'c',
-version : '2.4.0',
+version : '3.0.0',
 license : 'MIT',
 default_options : ['c_std=c23,c11', 'warning_level=3']
 )
@@ -259,7 +259,7 @@ install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_nam
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1728318420
+  secssinceepoch = 1737821913
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.full_path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
