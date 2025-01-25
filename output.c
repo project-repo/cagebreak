@@ -6,9 +6,9 @@
 #include "config.h"
 #include <wlr/config.h>
 
+#include <limits.h>
 #include <string.h>
 #include <unistd.h>
-#include <limits.h>
 #include <wayland-server-core.h>
 #include <wlr/backend.h>
 #include <wlr/backend/wayland.h>
@@ -235,8 +235,8 @@ handle_output_frame(struct wl_listener *listener,
 static int
 output_set_mode(struct wlr_output *output, struct wlr_output_state *state,
                 int width, int height, float refresh_rate) {
-	if(refresh_rate * 1000 > (float) INT_MAX || refresh_rate * 1000 < 0) {
-		refresh_rate=0;
+	if(refresh_rate * 1000 > (float)INT_MAX || refresh_rate * 1000 < 0) {
+		refresh_rate = 0;
 	}
 	int mhz = (int)(refresh_rate * 1000);
 
@@ -592,7 +592,7 @@ handle_output_commit(struct wl_listener *listener, void *data) {
 void
 output_make_workspace_fullscreen(struct cg_output *output, uint32_t ws) {
 	struct cg_server *server = output->server;
-	if(ws>=server->nws) {
+	if(ws >= server->nws) {
 		return;
 	}
 	struct cg_view *current_view = output->workspaces[ws]->focused_tile->view;
@@ -621,7 +621,8 @@ output_make_workspace_fullscreen(struct cg_output *output, uint32_t ws) {
 
 	workspace_tile_update_view(output->workspaces[ws]->focused_tile,
 	                           current_view);
-	if((ws == (uint32_t) output->curr_workspace) && (output == server->curr_output)) {
+	if((ws == (uint32_t)output->curr_workspace) &&
+	   (output == server->curr_output)) {
 		seat_set_focus(server->seat, current_view);
 	}
 }

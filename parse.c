@@ -816,37 +816,39 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 	if(strcmp(action, "vsplit") == 0) {
 		keybinding->action = KEYBINDING_SPLIT_VERTICAL;
 		char *percentage_string = strtok_r(NULL, " ", &saveptr);
-		if(percentage_string==NULL) {
-			keybinding->data.f=0.5;
+		if(percentage_string == NULL) {
+			keybinding->data.f = 0.5;
 		} else {
 			float percentage = strtof(percentage_string, NULL);
 			if(percentage == NAN || percentage == INFINITY || errno == ERANGE) {
 				wlr_log(WLR_ERROR, "Error parsing float.");
 				return -1;
 			}
-			if(percentage>=1.0 || percentage <= 0.0) {
-				wlr_log(WLR_ERROR, "Expected a float between 0 and 1, got %f.",percentage);
+			if(percentage >= 1.0 || percentage <= 0.0) {
+				wlr_log(WLR_ERROR, "Expected a float between 0 and 1, got %f.",
+				        percentage);
 				return -1;
 			}
-			keybinding->data.f=percentage;
+			keybinding->data.f = percentage;
 		}
 
 	} else if(strcmp(action, "hsplit") == 0) {
 		keybinding->action = KEYBINDING_SPLIT_HORIZONTAL;
 		char *percentage_string = strtok_r(NULL, " ", &saveptr);
-		if(percentage_string==NULL) {
-			keybinding->data.f=0.5;
+		if(percentage_string == NULL) {
+			keybinding->data.f = 0.5;
 		} else {
 			float percentage = strtof(percentage_string, NULL);
 			if(percentage == NAN || percentage == INFINITY || errno == ERANGE) {
 				wlr_log(WLR_ERROR, "Error parsing float.");
 				return -1;
 			}
-			if(percentage>=1.0 || percentage <= 0.0) {
-				wlr_log(WLR_ERROR, "Expected a float between 0 and 1, got %f.",percentage);
+			if(percentage >= 1.0 || percentage <= 0.0) {
+				wlr_log(WLR_ERROR, "Expected a float between 0 and 1, got %f.",
+				        percentage);
 				return -1;
 			}
-			keybinding->data.f=percentage;
+			keybinding->data.f = percentage;
 		}
 	} else if(strcmp(action, "quit") == 0) {
 		keybinding->action = KEYBINDING_QUIT;
@@ -865,8 +867,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			long tile_id = strtol(tile_str, NULL, 10);
 			if(tile_id < 1) {
 				*errstr = log_error("Tile id must be an integer number "
-						"larger or equal to 1. Got %ld",
-						tile_id);
+				                    "larger or equal to 1. Got %ld",
+				                    tile_id);
 				return -1;
 			}
 			keybinding->data.us[1] = tile_id;
@@ -884,8 +886,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			long view_id = strtol(view_str, NULL, 10);
 			if(view_id < 1) {
 				*errstr = log_error("View id must be an integer number "
-						"larger or equal to 1. Got %ld",
-						view_id);
+				                    "larger or equal to 1. Got %ld",
+				                    view_id);
 				return -1;
 			}
 			keybinding->data.us[1] = view_id;
@@ -903,25 +905,26 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			long screen = strtol(screen_str, NULL, 10);
 			if(screen < 1) {
 				*errstr = log_error("Screen must be an integer number "
-						"larger or equal to 1. Got %ld",
-						screen);
+				                    "larger or equal to 1. Got %ld",
+				                    screen);
 				return -1;
 			}
 			keybinding->data.us[0] = screen;
 
 			char *workspace_str = strtok_r(NULL, " ", &saveptr);
-			if(workspace_str==NULL) {
-				*errstr = log_error("\"only\" requires either none or two arguments, got one");
+			if(workspace_str == NULL) {
+				*errstr = log_error(
+				    "\"only\" requires either none or two arguments, got one");
 				return -1;
 			}
 			long workspace = strtol(workspace_str, NULL, 10);
 			if(workspace < 1) {
 				*errstr = log_error("Workspace must be an integer number "
-						"larger or equal to 1. Got %ld",
-						workspace);
+				                    "larger or equal to 1. Got %ld",
+				                    workspace);
 				return -1;
 			}
-			keybinding->data.us[1]=workspace-1;
+			keybinding->data.us[1] = workspace - 1;
 		}
 	} else if(strcmp(action, "abort") == 0) {
 		keybinding->action = KEYBINDING_NOOP;
@@ -967,9 +970,10 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		if(str != NULL) {
 			long n_pixels = strtol(str, NULL, 10);
 			if(n_pixels < 1) {
-				*errstr = log_error("Number of pixels must be an integer number "
-						"larger or equal to 1. Got %ld",
-						n_pixels);
+				*errstr =
+				    log_error("Number of pixels must be an integer number "
+				              "larger or equal to 1. Got %ld",
+				              n_pixels);
 				return -1;
 			}
 			keybinding->data.is[0] = -n_pixels;
@@ -979,8 +983,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			long tile_id = strtol(tile_str, NULL, 10);
 			if(tile_id < 1) {
 				*errstr = log_error("The tile id must be an integer number "
-						"larger or equal to 1. Got %ld",
-						tile_id);
+				                    "larger or equal to 1. Got %ld",
+				                    tile_id);
 				return -1;
 			}
 			keybinding->data.is[1] = tile_id;
@@ -993,9 +997,10 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		if(str != NULL) {
 			long n_pixels = strtol(str, NULL, 10);
 			if(n_pixels < 1) {
-				*errstr = log_error("Number of pixels must be an integer number "
-						"larger or equal to 1. Got %ld",
-						n_pixels);
+				*errstr =
+				    log_error("Number of pixels must be an integer number "
+				              "larger or equal to 1. Got %ld",
+				              n_pixels);
 				return -1;
 			}
 			keybinding->data.is[0] = n_pixels;
@@ -1005,8 +1010,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			long tile_id = strtol(tile_str, NULL, 10);
 			if(tile_id < 1) {
 				*errstr = log_error("The tile id must be an integer number "
-						"larger or equal to 1. Got %ld",
-						tile_id);
+				                    "larger or equal to 1. Got %ld",
+				                    tile_id);
 				return -1;
 			}
 			keybinding->data.is[1] = tile_id;
@@ -1019,9 +1024,10 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		if(str != NULL) {
 			long n_pixels = strtol(str, NULL, 10);
 			if(n_pixels < 1) {
-				*errstr = log_error("Number of pixels must be an integer number "
-						"larger or equal to 1. Got %ld",
-						n_pixels);
+				*errstr =
+				    log_error("Number of pixels must be an integer number "
+				              "larger or equal to 1. Got %ld",
+				              n_pixels);
 				return -1;
 			}
 			keybinding->data.is[0] = n_pixels;
@@ -1031,8 +1037,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			long tile_id = strtol(tile_str, NULL, 10);
 			if(tile_id < 1) {
 				*errstr = log_error("The tile id must be an integer number "
-						"larger or equal to 1. Got %ld",
-						tile_id);
+				                    "larger or equal to 1. Got %ld",
+				                    tile_id);
 				return -1;
 			}
 			keybinding->data.is[1] = tile_id;
@@ -1045,9 +1051,10 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		if(str != NULL) {
 			long n_pixels = strtol(str, NULL, 10);
 			if(n_pixels < 1) {
-				*errstr = log_error("Number of pixels must be an integer number "
-						"larger or equal to 1. Got %ld",
-						n_pixels);
+				*errstr =
+				    log_error("Number of pixels must be an integer number "
+				              "larger or equal to 1. Got %ld",
+				              n_pixels);
 				return -1;
 			}
 			keybinding->data.is[0] = -n_pixels;
@@ -1057,8 +1064,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			long tile_id = strtol(tile_str, NULL, 10);
 			if(tile_id < 1) {
 				*errstr = log_error("The tile id must be an integer number "
-						"larger or equal to 1. Got %ld",
-						tile_id);
+				                    "larger or equal to 1. Got %ld",
+				                    tile_id);
 				return -1;
 			}
 			keybinding->data.is[1] = tile_id;
@@ -1115,8 +1122,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 		char *noutp_str = strtok_r(NULL, " ", &saveptr);
 		if(noutp_str == NULL) {
-			*errstr = log_error(
-			    "Expected two arguments for \"moveviewtoscreen\" action, got one.");
+			*errstr = log_error("Expected two arguments for "
+			                    "\"moveviewtoscreen\" action, got one.");
 			return -1;
 		}
 
@@ -1131,13 +1138,14 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		long follow = 1;
 		char *follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
-			if(strcmp(follow_str,"true")==0) {
-				follow=1;
-			} else if(strcmp(follow_str, "false")==0) {
-				follow=0;
+			if(strcmp(follow_str, "true") == 0) {
+				follow = 1;
+			} else if(strcmp(follow_str, "false") == 0) {
+				follow = 0;
 			} else {
-				*errstr = log_error(
-				    "The value of \"follow\" must be \"true\" or \"false\", got %s", follow_str);
+				*errstr = log_error("The value of \"follow\" must be \"true\" "
+				                    "or \"false\", got %s",
+				                    follow_str);
 				return -1;
 			}
 		}
@@ -1177,13 +1185,14 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		long follow = 1;
 		char *follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
-			if(strcmp(follow_str,"true")==0) {
-				follow=1;
-			} else if(strcmp(follow_str, "false")==0) {
-				follow=0;
+			if(strcmp(follow_str, "true") == 0) {
+				follow = 1;
+			} else if(strcmp(follow_str, "false") == 0) {
+				follow = 0;
 			} else {
-				*errstr = log_error(
-				    "The value of \"follow\" must be \"true\" or \"false\", got %s", follow_str);
+				*errstr = log_error("The value of \"follow\" must be \"true\" "
+				                    "or \"false\", got %s",
+				                    follow_str);
 				return -1;
 			}
 		}
@@ -1223,13 +1232,14 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		long follow = 1;
 		char *follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
-			if(strcmp(follow_str,"true")==0) {
-				follow=1;
-			} else if(strcmp(follow_str, "false")==0) {
-				follow=0;
+			if(strcmp(follow_str, "true") == 0) {
+				follow = 1;
+			} else if(strcmp(follow_str, "false") == 0) {
+				follow = 0;
 			} else {
-				*errstr = log_error(
-				    "The value of \"follow\" must be \"true\" or \"false\", got %s", follow_str);
+				*errstr = log_error("The value of \"follow\" must be \"true\" "
+				                    "or \"false\", got %s",
+				                    follow_str);
 				return -1;
 			}
 		}
@@ -1255,13 +1265,14 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		long follow = 1;
 		char *follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
-			if(strcmp(follow_str,"true")==0) {
-				follow=1;
-			} else if(strcmp(follow_str, "false")==0) {
-				follow=0;
+			if(strcmp(follow_str, "true") == 0) {
+				follow = 1;
+			} else if(strcmp(follow_str, "false") == 0) {
+				follow = 0;
 			} else {
-				*errstr = log_error(
-				    "The value of \"follow\" must be \"true\" or \"false\", got %s", follow_str);
+				*errstr = log_error("The value of \"follow\" must be \"true\" "
+				                    "or \"false\", got %s",
+				                    follow_str);
 				return -1;
 			}
 		}
@@ -1286,13 +1297,14 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		long follow = 1;
 		char *follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
-			if(strcmp(follow_str,"true")==0) {
-				follow=1;
-			} else if(strcmp(follow_str, "false")==0) {
-				follow=0;
+			if(strcmp(follow_str, "true") == 0) {
+				follow = 1;
+			} else if(strcmp(follow_str, "false") == 0) {
+				follow = 0;
 			} else {
-				*errstr = log_error(
-				    "The value of \"follow\" must be \"true\" or \"false\", got %s", follow_str);
+				*errstr = log_error("The value of \"follow\" must be \"true\" "
+				                    "or \"false\", got %s",
+				                    follow_str);
 				return -1;
 			}
 		}
@@ -1317,13 +1329,14 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		long follow = 1;
 		char *follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
-			if(strcmp(follow_str,"true")==0) {
-				follow=1;
-			} else if(strcmp(follow_str, "false")==0) {
-				follow=0;
+			if(strcmp(follow_str, "true") == 0) {
+				follow = 1;
+			} else if(strcmp(follow_str, "false") == 0) {
+				follow = 0;
 			} else {
-				*errstr = log_error(
-				    "The value of \"follow\" must be \"true\" or \"false\", got %s", follow_str);
+				*errstr = log_error("The value of \"follow\" must be \"true\" "
+				                    "or \"false\", got %s",
+				                    follow_str);
 				return -1;
 			}
 		}
@@ -1331,172 +1344,180 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->data.us[1] = follow;
 	} else if(strcmp(action, "mergeleft") == 0) {
 		keybinding->action = KEYBINDING_MERGE_LEFT;
-		keybinding->data.u=0;
+		keybinding->data.u = 0;
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
 			long tile_id = strtol(tile_str, NULL, 10);
 			if(tile_id < 1) {
 				*errstr = log_error("The tile id must be an integer number "
-						"larger or equal to 1. Got %ld",
-						tile_id);
+				                    "larger or equal to 1. Got %ld",
+				                    tile_id);
 				return -1;
 			}
 			keybinding->data.u = tile_id;
 		}
 	} else if(strcmp(action, "mergeright") == 0) {
 		keybinding->action = KEYBINDING_MERGE_RIGHT;
-		keybinding->data.u=0;
+		keybinding->data.u = 0;
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
 			long tile_id = strtol(tile_str, NULL, 10);
 			if(tile_id < 1) {
 				*errstr = log_error("The tile id must be an integer number "
-						"larger or equal to 1. Got %ld",
-						tile_id);
+				                    "larger or equal to 1. Got %ld",
+				                    tile_id);
 				return -1;
 			}
 			keybinding->data.u = tile_id;
 		}
 	} else if(strcmp(action, "mergeup") == 0) {
 		keybinding->action = KEYBINDING_MERGE_TOP;
-		keybinding->data.u=0;
+		keybinding->data.u = 0;
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
 			long tile_id = strtol(tile_str, NULL, 10);
 			if(tile_id < 1) {
 				*errstr = log_error("The tile id must be an integer number "
-						"larger or equal to 1. Got %ld",
-						tile_id);
+				                    "larger or equal to 1. Got %ld",
+				                    tile_id);
 				return -1;
 			}
 			keybinding->data.u = tile_id;
 		}
 	} else if(strcmp(action, "mergedown") == 0) {
 		keybinding->action = KEYBINDING_MERGE_BOTTOM;
-		keybinding->data.u=0;
+		keybinding->data.u = 0;
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
 			long tile_id = strtol(tile_str, NULL, 10);
 			if(tile_id < 1) {
 				*errstr = log_error("The tile id must be an integer number "
-						"larger or equal to 1. Got %ld",
-						tile_id);
+				                    "larger or equal to 1. Got %ld",
+				                    tile_id);
 				return -1;
 			}
 			keybinding->data.u = tile_id;
 		}
 	} else if(strcmp(action, "exchangeleft") == 0) {
 		keybinding->action = KEYBINDING_SWAP_LEFT;
-		keybinding->data.us[0]=0;
-		keybinding->data.us[1]=1;
+		keybinding->data.us[0] = 0;
+		keybinding->data.us[1] = 1;
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
-			if(strcmp(tile_str, "true")!=0 && strcmp(tile_str, "false")!=0) {
+			if(strcmp(tile_str, "true") != 0 &&
+			   strcmp(tile_str, "false") != 0) {
 				long tile_id = strtol(tile_str, NULL, 10);
 				if(tile_id < 1) {
 					*errstr = log_error("The tile id must be an integer number "
-						 "larger or equal to 1. Got %ld",
-						 tile_id);
+					                    "larger or equal to 1. Got %ld",
+					                    tile_id);
 					return -1;
 				}
 				keybinding->data.us[0] = tile_id;
 				tile_str = strtok_r(NULL, " ", &saveptr);
 			}
 			if(tile_str != NULL) {
-				if(strcmp(tile_str,"true")==0) {
-					keybinding->data.us[1]=1;
-				} else if(strcmp(tile_str, "false")==0) {
-					keybinding->data.us[1]=0;
+				if(strcmp(tile_str, "true") == 0) {
+					keybinding->data.us[1] = 1;
+				} else if(strcmp(tile_str, "false") == 0) {
+					keybinding->data.us[1] = 0;
 				} else {
-					*errstr = log_error(
-						"The value of \"follow\" must be \"true\" or \"false\", got %s", tile_str);
+					*errstr = log_error("The value of \"follow\" must be "
+					                    "\"true\" or \"false\", got %s",
+					                    tile_str);
 					return -1;
 				}
 			}
 		}
 	} else if(strcmp(action, "exchangeright") == 0) {
 		keybinding->action = KEYBINDING_SWAP_RIGHT;
-		keybinding->data.us[0]=0;
-		keybinding->data.us[1]=1;
+		keybinding->data.us[0] = 0;
+		keybinding->data.us[1] = 1;
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
-			if(strcmp(tile_str, "true")!=0 && strcmp(tile_str, "false")!=0) {
+			if(strcmp(tile_str, "true") != 0 &&
+			   strcmp(tile_str, "false") != 0) {
 				long tile_id = strtol(tile_str, NULL, 10);
 				if(tile_id < 1) {
 					*errstr = log_error("The tile id must be an integer number "
-						 "larger or equal to 1. Got %ld",
-						 tile_id);
+					                    "larger or equal to 1. Got %ld",
+					                    tile_id);
 					return -1;
 				}
 				keybinding->data.us[0] = tile_id;
 				tile_str = strtok_r(NULL, " ", &saveptr);
 			}
 			if(tile_str != NULL) {
-				if(strcmp(tile_str,"true")==0) {
-					keybinding->data.us[1]=1;
-				} else if(strcmp(tile_str, "false")==0) {
-					keybinding->data.us[1]=0;
+				if(strcmp(tile_str, "true") == 0) {
+					keybinding->data.us[1] = 1;
+				} else if(strcmp(tile_str, "false") == 0) {
+					keybinding->data.us[1] = 0;
 				} else {
-					*errstr = log_error(
-						"The value of \"follow\" must be \"true\" or \"false\", got %s", tile_str);
+					*errstr = log_error("The value of \"follow\" must be "
+					                    "\"true\" or \"false\", got %s",
+					                    tile_str);
 					return -1;
 				}
 			}
 		}
 	} else if(strcmp(action, "exchangeup") == 0) {
 		keybinding->action = KEYBINDING_SWAP_TOP;
-		keybinding->data.us[0]=0;
-		keybinding->data.us[1]=1;
+		keybinding->data.us[0] = 0;
+		keybinding->data.us[1] = 1;
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
-			if(strcmp(tile_str, "true")!=0 && strcmp(tile_str, "false")!=0) {
+			if(strcmp(tile_str, "true") != 0 &&
+			   strcmp(tile_str, "false") != 0) {
 				long tile_id = strtol(tile_str, NULL, 10);
 				if(tile_id < 1) {
 					*errstr = log_error("The tile id must be an integer number "
-						 "larger or equal to 1. Got %ld",
-						 tile_id);
+					                    "larger or equal to 1. Got %ld",
+					                    tile_id);
 					return -1;
 				}
 				keybinding->data.us[0] = tile_id;
 				tile_str = strtok_r(NULL, " ", &saveptr);
 			}
 			if(tile_str != NULL) {
-				if(strcmp(tile_str,"true")==0) {
-					keybinding->data.us[1]=1;
-				} else if(strcmp(tile_str, "false")==0) {
-					keybinding->data.us[1]=0;
+				if(strcmp(tile_str, "true") == 0) {
+					keybinding->data.us[1] = 1;
+				} else if(strcmp(tile_str, "false") == 0) {
+					keybinding->data.us[1] = 0;
 				} else {
-					*errstr = log_error(
-						"The value of \"follow\" must be \"true\" or \"false\", got %s", tile_str);
+					*errstr = log_error("The value of \"follow\" must be "
+					                    "\"true\" or \"false\", got %s",
+					                    tile_str);
 					return -1;
 				}
 			}
 		}
 	} else if(strcmp(action, "exchangedown") == 0) {
 		keybinding->action = KEYBINDING_SWAP_BOTTOM;
-		keybinding->data.us[0]=0;
-		keybinding->data.us[1]=1;
+		keybinding->data.us[0] = 0;
+		keybinding->data.us[1] = 1;
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
-			if(strcmp(tile_str, "true")!=0 && strcmp(tile_str, "false")!=0) {
+			if(strcmp(tile_str, "true") != 0 &&
+			   strcmp(tile_str, "false") != 0) {
 				long tile_id = strtol(tile_str, NULL, 10);
 				if(tile_id < 1) {
 					*errstr = log_error("The tile id must be an integer number "
-						 "larger or equal to 1. Got %ld",
-						 tile_id);
+					                    "larger or equal to 1. Got %ld",
+					                    tile_id);
 					return -1;
 				}
 				keybinding->data.us[0] = tile_id;
 				tile_str = strtok_r(NULL, " ", &saveptr);
 			}
 			if(tile_str != NULL) {
-				if(strcmp(tile_str,"true")==0) {
-					keybinding->data.us[1]=1;
-				} else if(strcmp(tile_str, "false")==0) {
-					keybinding->data.us[1]=0;
+				if(strcmp(tile_str, "true") == 0) {
+					keybinding->data.us[1] = 1;
+				} else if(strcmp(tile_str, "false") == 0) {
+					keybinding->data.us[1] = 0;
 				} else {
-					*errstr = log_error(
-						"The value of \"follow\" must be \"true\" or \"false\", got %s", tile_str);
+					*errstr = log_error("The value of \"follow\" must be "
+					                    "\"true\" or \"false\", got %s",
+					                    tile_str);
 					return -1;
 				}
 			}
@@ -1504,32 +1525,33 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 	} else if(strcmp(action, "exchange") == 0) {
 		keybinding->action = KEYBINDING_SWAP;
 		char *tile1_str = strtok_r(NULL, " ", &saveptr);
-		keybinding->data.us[2]=1;
+		keybinding->data.us[2] = 1;
 		if(tile1_str == NULL) {
-			*errstr = log_error("\"exchange\" requires two arguments, but none were provided");
+			*errstr = log_error(
+			    "\"exchange\" requires two arguments, but none were provided");
 			return -1;
 		}
 		long tile1_id = strtol(tile1_str, NULL, 10);
 		if(tile1_id < 1) {
 			*errstr = log_error("The tile id must be an integer number "
-					   "larger or equal to 1. Got %ld",
-					   tile1_id);
+			                    "larger or equal to 1. Got %ld",
+			                    tile1_id);
 			return -1;
 		}
 		keybinding->data.us[0] = tile1_id;
 
 		char *tile2_str = strtok_r(NULL, " ", &saveptr);
 		if(tile2_str == NULL) {
-			*errstr = log_error("\"exchange\" requires two arguments, but only one was provided");
+			*errstr = log_error("\"exchange\" requires two arguments, but only "
+			                    "one was provided");
 			return -1;
 		}
-
 
 		long tile2_id = strtol(tile2_str, NULL, 10);
 		if(tile2_id < 1) {
 			*errstr = log_error("The tile id must be an integer number "
-					   "larger or equal to 1. Got %ld",
-					   tile2_id);
+			                    "larger or equal to 1. Got %ld",
+			                    tile2_id);
 			return -1;
 		}
 		keybinding->data.us[1] = tile2_id;
@@ -1537,14 +1559,15 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		char *follow_str = NULL;
 		follow_str = strtok_r(NULL, " ", &saveptr);
 		if(follow_str != NULL) {
-			if(strcmp(follow_str,"true")==0) {
+			if(strcmp(follow_str, "true") == 0) {
 				keybinding->data.us[2] = 1;
 
-			} else if(strcmp(follow_str, "false")==0) {
+			} else if(strcmp(follow_str, "false") == 0) {
 				keybinding->data.us[2] = 0;
 			} else {
-				*errstr = log_error(
-				    "The value of \"follow\" must be \"true\" or \"false\", got %s", follow_str);
+				*errstr = log_error("The value of \"follow\" must be \"true\" "
+				                    "or \"false\", got %s",
+				                    follow_str);
 				return -1;
 			}
 		}
@@ -1604,14 +1627,14 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		keybinding->action = KEYBINDING_SETMODECURSOR;
 		char *mode = strtok_r(NULL, " ", &saveptr);
 		if(mode == NULL) {
-			*errstr = log_error(
-			    "Expected mode name and cursor name after \"setmodecursor\". Got nothing.");
+			*errstr = log_error("Expected mode name and cursor name after "
+			                    "\"setmodecursor\". Got nothing.");
 			return -1;
 		}
 		char *cursor = strtok_r(NULL, " ", &saveptr);
 		if(cursor == NULL) {
-			*errstr = log_error(
-			    "Expected mode name and cursor name after \"setmodecursor\". Got nothing.");
+			*errstr = log_error("Expected mode name and cursor name after "
+			                    "\"setmodecursor\". Got nothing.");
 			return -1;
 		}
 		keybinding->data.cs[0] = strdup(mode);

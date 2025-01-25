@@ -551,7 +551,8 @@ handle_request_set_selection(struct wl_listener *listener, void *data) {
 static void
 handle_request_set_cursor(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, request_set_cursor);
-	if(seat->enable_cursor == false || seat->server->modecursors[seat->mode]!=NULL) {
+	if(seat->enable_cursor == false ||
+	   seat->server->modecursors[seat->mode] != NULL) {
 		return;
 	}
 	struct wlr_seat_pointer_request_set_cursor_event *event = data;

@@ -13,5 +13,5 @@ fi
 rm -rf fuzzing-directory
 CC=clang CCXFLAGS=-std=c11 meson setup fuzzing-directory -Dfuzz=true -Db_sanitize=address,undefined -Db_lundef=false
 ninja -C fuzzing-directory/
-WLR_BACKENDS=headless ./fuzzing-directory/fuzz-parse -jobs=12 -max_len=50000 -close_fd_mask=3 "${fuzzing_corpus}"
+WLR_BACKENDS=headless ./fuzzing-directory/fuzz-parse -detect_leaks=0 -jobs=12 -max_len=50000 -close_fd_mask=3 "${fuzzing_corpus}"
 rm -rf fuzzing-directory

@@ -145,7 +145,7 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	server.modes = malloc(4 * sizeof(char *));
 	server.modecursors = malloc(4 * sizeof(char *));
 
-	if(!server.modes || ! server.modecursors) {
+	if(!server.modes || !server.modecursors) {
 		wlr_log(WLR_ERROR, "Error allocating mode array");
 		goto end;
 	}
@@ -455,7 +455,8 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 	}
 
 	if(setenv("WAYLAND_DISPLAY", socket, true) < 0) {
-		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY. Clients may not be able to connect");
+		wlr_log_errno(WLR_ERROR, "Unable to set WAYLAND_DISPLAY. Clients may "
+		                         "not be able to connect");
 	} else {
 		fprintf(stderr,
 		        "Cagebreak " CG_VERSION " is running on Wayland display %s\n",

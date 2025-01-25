@@ -13,6 +13,7 @@ add_project_arguments(
     '-DWLR_USE_UNSTABLE',
     '-Werror=implicit-function-declaration',
     '-Wundef',
+    '-D_FORTIFY_SOURCE=3',
   ],
   language: 'c',
 )
@@ -204,13 +205,13 @@ reproducible_build_versions = {
   'wayland_cursor': '1.23.1',
   'wlroots': '0.18.2',
   'xkbcommon': '1.7.0',
-  'fontconfig': '2.15.0',
-  'libinput': '1.27.0',
+  'fontconfig': '2.16.0',
+  'libinput': '1.27.1',
   'libevdev': '1.13.3',
   'libudev': '257',
-  'pango': '1.54.0',
+  'pango': '1.56.1',
   'cairo': '1.18.2',
-  'pangocairo': '1.54.0',
+  'pangocairo': '1.56.1',
   'math': '-1'
 }
 
