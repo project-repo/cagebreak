@@ -851,7 +851,7 @@ keybinding_cycle_outputs(struct cg_server *server, bool reverse,
 /* Cycle through views, whereby the workspace does not change */
 void
 keybinding_cycle_views(struct cg_server *server, struct cg_tile *tile,
-                       int view_id, bool reverse, bool ipc) {
+                       uint32_t view_id, bool reverse, bool ipc) {
 	if(tile == NULL) {
 		tile =
 		    server->curr_output->workspaces[server->curr_output->curr_workspace]
@@ -861,7 +861,7 @@ keybinding_cycle_views(struct cg_server *server, struct cg_tile *tile,
 	struct cg_workspace *ws = tile->workspace;
 
 	struct cg_view *it_view, *next_view = NULL;
-	if(view_id == -1) {
+	if(view_id == 0) {
 		if(reverse) {
 			wl_list_for_each(it_view, &ws->views, link) {
 				if(!view_is_visible(it_view)) {
@@ -1510,7 +1510,7 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 		wl_list_remove(&view->link);
 		server->curr_output->workspaces[server->curr_output->curr_workspace]
 		    ->focused_tile->view = NULL;
-		keybinding_cycle_views(server, NULL, -1, false, false);
+		keybinding_cycle_views(server, NULL, 0, false, false);
 		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
 		       ->focused_tile->view == NULL) {
 			seat_set_focus(server->seat, NULL);
@@ -1691,7 +1691,7 @@ keybinding_move_view_to_tile(struct cg_server *server, uint32_t view_id,
 		if(old_tile != NULL) {
 			workspace_tile_update_view(old_tile, NULL);
 			wl_list_remove(&view->link);
-			keybinding_cycle_views(server, old_tile, -1, false, false);
+			keybinding_cycle_views(server, old_tile, 0, false, false);
 			if(old_tile->view == NULL &&
 			   old_tile == server->curr_output
 			                   ->workspaces[server->curr_output->curr_workspace]
