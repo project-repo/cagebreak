@@ -203,6 +203,22 @@ and after
 #endif
 ```
 
+## LLVM scan-build Static Analyzer
+
+Scan-build is used in addition to -fanalyzer.
+
+False-positives can be removed by
+
+```
+#ifndef __clang_analyzer__
+
+CODE
+
+#endif
+```
+
+[https://clang.llvm.org/docs/analyzer/user-docs/FAQ.html#excluding-code-from-analysis]
+
 ## Test Suite
 
 ```

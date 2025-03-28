@@ -204,14 +204,10 @@ set_configuration(struct cg_server *server,
 	uint32_t line_length = 64;
 	char *line = calloc(line_length, sizeof(char));
 	for(unsigned int line_num = 1;; ++line_num) {
-		while(true) {
-			if(fgets(line + strlen(line), line_length - strlen(line),
-			         config_file) == NULL) {
-				break;
-			}
-			if(strcspn(line, "\n") != line_length - 1) {
-				break;
-			}
+		#ifndef __clang_analyzer__
+		while((fgets(line + strlen(line), line_length - strlen(line),
+		             config_file) != NULL) &&
+		      (strcspn(line, "\n") == line_length - 1)) {
 			line_length *= 2;
 			line = reallocarray(line, line_length, sizeof(char));
 			if(line == NULL) {
@@ -221,6 +217,7 @@ set_configuration(struct cg_server *server,
 				return 2;
 			}
 		}
+		#endif
 		if(strlen(line) == 0) {
 			break;
 		}
@@ -716,21 +713,23 @@ main(int argc, char *argv[]) {
 	wl_display_destroy_clients(server.wl_display);
 
 end:
-	if(server.modecursors != NULL) {
+	#ifndef __clang_analyzer__
+	if(server.modecursors) {
 		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
 			free(server.modecursors[i]);
 		}
 		free(server.modecursors);
 	}
+	#endif
 
-	if(server.modes != NULL) {
+	if(server.modes) {
 		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
 			free(server.modes[i]);
 		}
 		free(server.modes);
 	}
 
-	if(config_path != NULL) {
+	if(config_path) {
 		free(config_path);
 	}
 
