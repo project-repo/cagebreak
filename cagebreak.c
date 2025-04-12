@@ -204,7 +204,7 @@ set_configuration(struct cg_server *server,
 	uint32_t line_length = 64;
 	char *line = calloc(line_length, sizeof(char));
 	for(unsigned int line_num = 1;; ++line_num) {
-		#ifndef __clang_analyzer__
+#ifndef __clang_analyzer__
 		while((fgets(line + strlen(line), line_length - strlen(line),
 		             config_file) != NULL) &&
 		      (strcspn(line, "\n") == line_length - 1)) {
@@ -217,7 +217,7 @@ set_configuration(struct cg_server *server,
 				return 2;
 			}
 		}
-		#endif
+#endif
 		if(strlen(line) == 0) {
 			break;
 		}
@@ -713,14 +713,14 @@ main(int argc, char *argv[]) {
 	wl_display_destroy_clients(server.wl_display);
 
 end:
-	#ifndef __clang_analyzer__
+#ifndef __clang_analyzer__
 	if(server.modecursors) {
 		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
 			free(server.modecursors[i]);
 		}
 		free(server.modecursors);
 	}
-	#endif
+#endif
 
 	if(server.modes) {
 		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
