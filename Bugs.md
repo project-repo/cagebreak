@@ -1242,7 +1242,7 @@ Thanks to Oliver Friedmann for providing a pull request.
   * Fixed 2.2.3
 
 In Cagebreak 2.2.2 the compatible wlroots versions were wrongly specified.
-To stop this from reoccurring, we  have added a check to our release checks.
+To stop this from reoccurring, we have added a check to our release checks.
 
 ## Issue 67
 
@@ -1310,7 +1310,7 @@ monitor colors.
   * Fixed: 2.3.1
 
 After 2.3.0 cagebreak did not build on FreeBSD. Since the fix was trivial,
-this is fixed in 2.3.1. Thank to Jan Beich for pointing this out.
+this is fixed in 2.3.1. Thanks to Jan Beich for pointing this out.
 
 ## Issue 74
 
@@ -1320,4 +1320,21 @@ this is fixed in 2.3.1. Thank to Jan Beich for pointing this out.
 Before 2.3.0 there was an issue with rendering fullscreen applications, particularly
 under setups with multiple outputs applications spanned both outputs. Output ordering
 also did not work as advertised.
+
+## Issue 75
+
+  * github issue number: #84
+  * Fixed. 3.0.0
+
+In 2.4.0, -std=c23 was required by the meson build script to compile cagebreak even
+though the code itself can be compiled with -std=c11. Thanks to Jan Beich for pointing
+this out.
+
+## Issue 76
+
+  * github issue number: N/A
+  * Fixed. 3.0.0
+
+Before 3.0.0, opening a popup window could lead to a crash of cagebreak under certain
+circumstances.
 

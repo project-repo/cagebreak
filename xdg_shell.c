@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2025, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
@@ -48,22 +48,12 @@ xdg_decoration_handle_request_mode(struct wl_listener *listener,
 static void
 popup_unconstrain(struct cg_xdg_shell_popup *popup) {
 	struct cg_view *view = popup->view;
-	struct wlr_box *popup_box = &popup->wlr_popup->current.geometry;
 
-	struct wlr_output_layout *output_layout = view->server->output_layout;
-	struct wlr_output *wlr_output = wlr_output_layout_output_at(
-	    output_layout,
-	    output_get_layout_box(view->workspace->output).x + view->ox +
-	        popup_box->x,
-	    output_get_layout_box(view->workspace->output).y + view->oy +
-	        popup_box->y);
-	struct wlr_box output_box;
-	wlr_output_layout_get_box(output_layout, wlr_output, &output_box);
-
-	struct wlr_box output_toplevel_box = {.x = -view->ox,
-	                                      .y = -view->oy,
-	                                      .width = output_box.width,
-	                                      .height = output_box.height};
+	struct wlr_box output_toplevel_box = {
+	    .x = -view->ox,
+	    .y = -view->oy,
+	    .width = view->workspace->output->wlr_output->width,
+	    .height = view->workspace->output->wlr_output->height};
 
 	wlr_xdg_popup_unconstrain_from_box(popup->wlr_popup, &output_toplevel_box);
 }
@@ -202,6 +192,7 @@ handle_xdg_shell_surface_destroy(struct wl_listener *listener,
 	wl_list_remove(&xdg_shell_view->destroy.link);
 	wl_list_remove(&xdg_shell_view->new_popup.link);
 	wl_list_remove(&xdg_shell_view->request_fullscreen.link);
+	wl_list_remove(&xdg_shell_view->commit.link);
 	xdg_shell_view->toplevel = NULL;
 
 	view_destroy(view);
@@ -308,7 +299,8 @@ handle_xdg_shell_popup_commit(struct wl_listener *listener,
 static void
 handle_xdg_shell_popup_reposition(struct wl_listener *listener,
                                   __attribute__((unused)) void *data) {
-	struct cg_xdg_shell_popup *popup = wl_container_of(listener, popup, commit);
+	struct cg_xdg_shell_popup *popup =
+	    wl_container_of(listener, popup, reposition);
 	popup_unconstrain(popup);
 }
 

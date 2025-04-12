@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2023 - 2024, project-repo and the cagebreak contributors
+# Copyright 2023 - 2025, project-repo and the cagebreak contributors
 # SPDX-License-Identifier: MIT
 
 RESULT=0
@@ -8,7 +8,7 @@ RESULT=0
 cd "${MESONCURRENTCONFIGDIR}"
 
 # Check that no TODO statements remain in the release directory
-if grep --exclude='test/illegal-strings' --exclude-dir='build' -Rn "TODO" ./**
+if grep --exclude='test/illegal-strings' --exclude-dir='build' --exclude-dir='test' --exclude-dir='fuzz_corpus' -Rn "TODO" ./**
 then
 	echo "[x] TODO"
 else

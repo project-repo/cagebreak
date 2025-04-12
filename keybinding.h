@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2025, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #ifndef KEYBINDING_H
@@ -19,12 +19,15 @@ struct cg_server;
 	KEYBINDING(KEYBINDING_CLOSE_VIEW, close)                                   \
 	KEYBINDING(KEYBINDING_SPLIT_VERTICAL, vsplit)                              \
 	KEYBINDING(KEYBINDING_SPLIT_HORIZONTAL, hsplit)                            \
-	KEYBINDING(KEYBINDING_CHANGE_TTY, switchvt) /*data.u is the desired tty*/  \
-	KEYBINDING(KEYBINDING_LAYOUT_FULLSCREEN, only)                             \
+	KEYBINDING(KEYBINDING_CHANGE_TTY, switchvt) /*data.u is the desired tty */ \
+	KEYBINDING(                                                                \
+	    KEYBINDING_LAYOUT_FULLSCREEN,                                          \
+	    only) /*data.us[0] is the screen and data.us[1] is the workspace */    \
 	KEYBINDING(KEYBINDING_CYCLE_VIEWS,                                         \
 	           cycle_views) /* data.b is 0 if forward, 1 if reverse */         \
 	KEYBINDING(KEYBINDING_CYCLE_TILES,                                         \
-	           cycle_tiles) /* data.b is 0 if forward, 1 if reverse */         \
+	           cycle_tiles) /* data.us[0] is whether to reverse, data.us[1] is \
+	                           tile id */                                      \
 	KEYBINDING(KEYBINDING_CYCLE_OUTPUT,                                        \
 	           cycle_outputs) /* data.b is 0 if forward, 1 if reverse */       \
 	KEYBINDING(KEYBINDING_CONFIGURE_OUTPUT,                                    \
@@ -44,18 +47,32 @@ struct cg_server;
 	KEYBINDING(KEYBINDING_SWITCH_MODE, mode) /* data.u is the desired mode */  \
 	KEYBINDING(KEYBINDING_SWITCH_DEFAULT_MODE,                                 \
 	           setmode) /* data.u is the desired mode */                       \
-	KEYBINDING(                                                                \
-	    KEYBINDING_RESIZE_TILE_HORIZONTAL,                                     \
-	    resize_tile_horizontal) /* data.i is the number of pixels to add */    \
+	KEYBINDING(KEYBINDING_RESIZE_TILE_HORIZONTAL,                              \
+	           resize_tile_horizontal) /* data.is[0] is the number of pixels   \
+	                                      to add, data.is[1] is the tile id */ \
                                                                                \
-	KEYBINDING(                                                                \
-	    KEYBINDING_RESIZE_TILE_VERTICAL,                                       \
-	    resize_tile_vertical) /* data.i is the number of pixels to add to */   \
+	KEYBINDING(KEYBINDING_RESIZE_TILE_VERTICAL,                                \
+	           resize_tile_vertical) /* data.is[0] is the number of pixels to  \
+	                                    add, data.is[1] is the tile id */      \
                                                                                \
+	KEYBINDING(KEYBINDING_MOVE_TO_TILE,                                        \
+	           movetoworkspace) /* data.us is the desired tile and whether or  \
+	                               not to follow the focus */                  \
+	KEYBINDING(KEYBINDING_MOVE_TO_WORKSPACE,                                   \
+	           movetoworkspace) /* data.us is the desired workspace and        \
+	                               whether or not to follow the focus */       \
+	KEYBINDING(KEYBINDING_MOVE_TO_OUTPUT,                                      \
+	           movetoscreen) /* data.us is the desired output and whether or   \
+	                            not to follow the focus*/                      \
+	KEYBINDING(KEYBINDING_MOVE_VIEW_TO_TILE,                                   \
+	           movetoworkspace) /* data.us contains the view_id and tile_id    \
+	                               and whether or not to follow the focus */   \
 	KEYBINDING(KEYBINDING_MOVE_VIEW_TO_WORKSPACE,                              \
-	           movetoworkspace) /* data.u is the desired workspace */          \
+	           movetoworkspace) /* data.us contains the view_id, workspace and \
+	                               whether or not to follow the focus */       \
 	KEYBINDING(KEYBINDING_MOVE_VIEW_TO_OUTPUT,                                 \
-	           movetoscreen) /* data.u is the desired output */                \
+	           movetoscreen) /* data.u is the view_id, output and whether or   \
+	                            not to follow the focus */                     \
 	KEYBINDING(KEYBINDING_MOVE_VIEW_TO_CYCLE_OUTPUT,                           \
 	           move_view_to_cycle_output) /* data.b is 0 if forward, 1 if */   \
                                                                                \
@@ -70,6 +87,16 @@ struct cg_server;
 	KEYBINDING(KEYBINDING_SWAP_RIGHT, exchangeright)                           \
 	KEYBINDING(KEYBINDING_SWAP_TOP, exchangeup)                                \
 	KEYBINDING(KEYBINDING_SWAP_BOTTOM, exchangedown)                           \
+	KEYBINDING(KEYBINDING_SWAP,                                                \
+	           exchangedown) /* data.us[0] and data.us[1] are the tile ids */  \
+                                                                               \
+	KEYBINDING(KEYBINDING_MERGE_LEFT,                                          \
+	           exchangeleft) /* data.u is the tile id */                       \
+	KEYBINDING(KEYBINDING_MERGE_RIGHT,                                         \
+	           exchangeright)                    /* data.u is the tile id */   \
+	KEYBINDING(KEYBINDING_MERGE_TOP, exchangeup) /* data.u is the tile id */   \
+	KEYBINDING(KEYBINDING_MERGE_BOTTOM,                                        \
+	           exchangedown) /* data.u is the tile id */                       \
                                                                                \
 	KEYBINDING(KEYBINDING_FOCUS_LEFT, focusleft)                               \
 	KEYBINDING(KEYBINDING_FOCUS_RIGHT, focusright)                             \
@@ -99,9 +126,13 @@ extern char *keybinding_action_string[];
 
 union keybinding_params {
 	char *c;
+	char *cs[2];
 	uint32_t u;
+	uint32_t is[2];
+	uint32_t us[3];
 	int32_t i;
 	bool b;
+	float f;
 	float color[3];
 	struct keybinding *kb;
 	struct cg_output_config *o_cfg;

@@ -1,4 +1,4 @@
-cagebreak-config(5) "Version 2.4.0" "Cagebreak Manual"
+cagebreak-config(5) "Version 3.0.0" "Cagebreak Manual"
 
 # NAME
 
@@ -51,7 +51,7 @@ definekey root <key> <command>
 	Close current window - This may be useful for windows of
 	applications which do not offer any method of closing them.
 
-*configure_message [font <font description\>|[f|b]g_color <r\> <g\> <b\> <a\>|display_time <n\>|anchor <position\>]*
+*configure_message [font <font description\>|[f|b]g_color <r\> <g\> <b\> <a\>|display_time <n\>|anchor <position\>|[enable|disable]]*
 	Configure message characteristics -
 	- font <font description\> sets the font of the message.
 	  Here, <font description\> is either
@@ -62,6 +62,7 @@ definekey root <key> <command>
 	- display_time <n\> sets the display time in seconds
 	- anchor <position\> sets the position of the message.
       <position\> may be one of {top,bottom}\_{left,center,right} or center.
+	- [enable|disable] Enable or disable messages
 
 ```
 # Set font
@@ -119,6 +120,10 @@ escape <key>
 definekey top <key> mode root
 ```
 
+*exchange <tile_id 1\> <tile_id 2\> [<follow_focus\>]*
+	Exchange tile ids <tile_id 1\> and <tile_id 2\>, optionally set
+	follow_focus to 0 to disable to focus following.
+
 *exchangedown*
 	Exchange current window with window in the tile to the bottom
 
@@ -134,8 +139,8 @@ definekey top <key> mode root
 *exec <command\>*
 	Execute <command\> using *sh -c*
 
-*focus*
-	Focus next tile
+*focus [<tile_id\>]*
+	If <tile_id\> is provided, focus it, else focus next tile
 
 *focusdown*
 	Focus tile to the bottom
@@ -152,8 +157,9 @@ definekey top <key> mode root
 *focusup*
 	Focus tile to the top
 
-*hsplit*
-	Split current tile horizontally
+*hsplit [<percentage\>]*
+	Split current tile horizontally, optionally give a float between 0.0
+	and 1.0 as a percentage of the screen size to split
 
 *input <identifier\> <setting\> <value\>*
 	Set <setting\> to <value\> for device <identifier\> -
@@ -262,15 +268,47 @@ message <text\>
 	Move currently focused window to <n\>-th workspace
 	See *output* for differences between screen and output.
 
-*next*
-	Focus next window in current tile
+*moveviewtotile <view_id\> <tile_id\> [<follow_focus\>]*
+	Move view with <view_id\> to tile with <tile_id\>, optionally set
+	<follow_focus\> to 0 to disable following the view with the focus.
+
+*moveviewtoworkspace <view_id\> <workspace\> [<follow_focus\>]*
+	Move view with <view_id\> to workspace number <workspace\>,
+	optionally set <follow_focus\> to 0 to disable following the view
+	with the focus.
+
+*moveviewtoscreen <view_id\> <screen\> [<follow_focus\>]*
+	Move view with <view_id\> to screen number <screen\>, optionally
+	set <follow_focus\> to 0 to disable following the view with the
+	focus.
+
+*mergeleft [<tile_id\>]*
+	Merge tile to the left, relative to the focussed tile by default,
+	the specified <tile_id\> otherwise.
+
+*mergeright [<tile_id\>]*
+	Merge tile to the right, relative to the focussed tile by default,
+	the specified <tile_id\> otherwise.
+
+*mergeup [<tile_id\>*
+	Merge tile to the top, relative to the focussed tile by default,
+	the specified <tile_id\> otherwise.
+
+*mergedown [<tile_id\>*
+	Merge tile to the bottom, relative to the focussed tile by default,
+	the specified <tile_id\> otherwise.
+
+*next [<view_id\>]*
+	If given a <view_id\>, focus it else focus next
 
 *nextscreen*
 	Focus next screen
 	See *output* for differences between screen and output.
 
-*only*
-	Remove all splits and make current window fill the entire screen
+*only [<screen\> <workspace\>]*
+	Remove all splits and make current view fill the entire screen
+	on current screen and workspace by default or <screen\> and <workspace\>
+	if given.
 
 *output <name\> [[pos <xpos\> <ypos\> res <width\>x<height\> rate <rate\> [scale <scale\>]] | enable | disable | [permanent|peripheral] | prio <n\> | rotate <n\>]*
 	Configure output "<name\>" -
@@ -331,17 +369,21 @@ output DP-1 rotate 3
 *quit*
 	Exit cagebreak
 
-*resizedown*
-	Resize current tile towards the bottom
+*resizedown [<pixels\> [<tile_id\>]]*
+	Resize towards the bottom, by 10 pixels by default and <pixels\> if given, on
+	the focussed tile by default and <tile_id\> if given.
 
-*resizeleft*
-	Resize current tile towards the left
+*resizeleft [<pixels\> [<tile_id\>]]*
+	Resize towards the left, by 10 pixels by default and <pixels\> if given, on
+	the focussed tile by default and <tile_id\> if given.
 
-*resizeright*
-	Resize current tile towards the right
+*resizeright [<pixels\> [<tile_id\>]]*
+	Resize towards the right, by 10 pixels by default and <pixels\> if given, on
+	the focussed tile by default and <tile_id\> if given.
 
-*resizeup*
-	Resize current tile towards the top
+*resizeup [<pixels\> [<tile_id\>]]*
+	Resize towards the top, by 10 pixels by default and <pixels\> if given, on
+	the focussed tile by default and <tile_id\> if given.
 
 *screen <n\>*
 	Change to <n\>-th screen
@@ -354,14 +396,18 @@ output DP-1 rotate 3
 *setmode <mode\>*
 	Set default mode to <mode\>
 
+*setmodecursor <mode\> <cursor\>*
+	Set cursor to be <cursor\> when in mode <mode\>
+
 *switchvt <n\>*
 	Switch to tty <n\>
 
 *time*
 	Display time
 
-*vsplit*
-	Split current tile vertically
+*vsplit [<percentage\>]*
+	Split current tile vertically, optionally give a float between 0.0
+	and 1.0 as a percentage of the screen size to split
 
 *workspace <n\>*
 	Change to <n\>-th workspace

@@ -1,5 +1,26 @@
 # Changelog
 
+## Release 3.0.0
+
+BREAKING CHANGES:
+- Add option to set cursor in arbitrary mode
+- Add feature to remove message display
+
+New Features:
+- Add merging tiles
+- Add option for splitting by percentage
+- Add focus with optional tile id
+- Add next with optional view id
+- Add numeric only command
+- Add numeric resize with tile id
+- Add numeric exchange
+- moveviewtotile
+- moveviewtoworkspace
+
+Fixes:
+- Fix Issue 75 - 76 in Bugs.md
+
+
 ## Release 2.3.0
 
 Functionality:

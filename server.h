@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2025, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #ifndef CG_SERVER_H
@@ -66,7 +66,7 @@ struct cg_server {
 	bool bs;
 	bool running;
 	char **modes;
-	char *set_mode_cursor;
+	char **modecursors;
 	uint16_t nws;
 	float *bg_color;
 	uint32_t views_curr_id;

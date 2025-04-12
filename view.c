@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2025, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
@@ -91,7 +91,6 @@ view_maximize(struct cg_view *view, struct cg_tile *tile) {
 
 void
 view_unmap(struct cg_view *view) {
-
 	uint32_t id = view->id;
 	uint32_t tile_id = 0;
 	uint32_t ws = view->workspace->num;
@@ -137,8 +136,6 @@ view_unmap(struct cg_view *view) {
 		}
 	}
 #endif
-
-	wlr_scene_node_destroy(&view->scene_tree->node);
 
 	wl_list_remove(&view->link);
 
@@ -200,6 +197,8 @@ view_destroy(struct cg_view *view) {
 	if(view->wlr_surface != NULL) {
 		view_unmap(view);
 	}
+
+	wlr_scene_node_destroy(&view->scene_tree->node);
 
 	view->impl->destroy(view);
 	view_activate(curr_output->workspaces[curr_output->curr_workspace]

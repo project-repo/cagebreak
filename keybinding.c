@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2025, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
@@ -104,8 +104,11 @@ keybinding_free(struct keybinding *keybinding, bool recursive) {
 		}
 		break;
 	case KEYBINDING_SETMODECURSOR:
-		if(keybinding->data.c != NULL) {
-			free(keybinding->data.c);
+		if(keybinding->data.cs[0] != NULL) {
+			free(keybinding->data.cs[0]);
+		}
+		if(keybinding->data.cs[1] != NULL) {
+			free(keybinding->data.cs[1]);
 		}
 	default:
 		break;
@@ -162,6 +165,64 @@ keybinding_list_free(struct keybinding_list *list) {
 bool
 is_between_strict(int a, int b, int x) {
 	return a < x && x < b;
+}
+
+struct cg_tile *
+tile_from_id(struct cg_server *server, uint32_t id) {
+	struct cg_tile *tile = NULL;
+	struct cg_output *outp_it;
+	wl_list_for_each(outp_it, &server->outputs, link) {
+		for(unsigned int i = 0; i < server->nws && tile == NULL; ++i) {
+			bool first = true;
+			for(struct cg_tile *tile_it = outp_it->workspaces[i]->focused_tile;
+			    first || tile_it != outp_it->workspaces[i]->focused_tile;
+			    tile_it = tile_it->next) {
+				first = false;
+				if(id == tile_it->id) {
+					tile = tile_it;
+					break;
+				}
+			}
+		}
+		if(tile != NULL) {
+			break;
+		}
+	}
+	return tile;
+}
+
+struct cg_view *
+view_from_id(struct cg_server *server, uint32_t id) {
+	struct cg_view *view = NULL;
+	struct cg_output *outp_it;
+	wl_list_for_each(outp_it, &server->outputs, link) {
+		for(unsigned int i = 0; i < server->nws && view == NULL; ++i) {
+			struct cg_view *view_it;
+			wl_list_for_each(view_it, &outp_it->workspaces[i]->views, link) {
+				if(id == view_it->id) {
+					view = view_it;
+					break;
+				}
+			}
+		}
+		if(view != NULL) {
+			break;
+		}
+	}
+	return view;
+}
+
+struct cg_output *
+output_from_num(struct cg_server *server, int num) {
+	struct cg_output *it;
+	int count = 1;
+	wl_list_for_each(it, &server->outputs, link) {
+		if(count == num) {
+			return it;
+		}
+		++count;
+	}
+	return NULL;
 }
 
 struct cg_tile *
@@ -232,23 +293,89 @@ find_bottom_tile(const struct cg_tile *tile) {
 	return NULL;
 }
 
+int *
+get_compl_coord(struct cg_tile *tile, int *(*get_coord)(struct cg_tile *tile)) {
+	if(get_coord(tile) == &tile->tile.x) {
+		return &tile->tile.y;
+	} else {
+		return &tile->tile.x;
+	}
+}
+
+int *
+get_compl_dim(struct cg_tile *tile, int *(*get_dim)(struct cg_tile *tile)) {
+	if(get_dim(tile) == &tile->tile.height) {
+		return &tile->tile.width;
+	} else {
+		return &tile->tile.height;
+	}
+}
+
+/* find_tile is the direction in which to search, get_dim returns the dimension
+ * which must be equal for merging to be possible and get_coord returns the
+ * coordinate which must be equal for merging to be possible. */
 void
-swap_tile(struct cg_tile *tile,
-          struct cg_tile *(*find_tile)(const struct cg_tile *)) {
-	struct cg_tile *swap_tile = find_tile(tile);
-	struct cg_server *server = tile->workspace->server;
-	if(swap_tile == NULL || swap_tile == tile) {
+merge_tile(struct cg_tile *tile,
+           struct cg_tile *(*find_tile)(const struct cg_tile *),
+           int *(*get_dim)(struct cg_tile *tile),
+           int *(*get_coord)(struct cg_tile *tile)) {
+	struct cg_tile *merge_tile = find_tile(tile);
+	if(merge_tile == NULL || merge_tile == tile ||
+	   *get_dim(tile) != *get_dim(merge_tile) ||
+	   *get_coord(tile) != *get_coord(merge_tile)) {
 		return;
 	}
+	// There are at least two tiles once we reach this point, since merge_tile
+	// != tile
+	int merge_tile_id = merge_tile->id;
+	workspace_tile_update_view(merge_tile, NULL);
+	merge_tile->prev->next = merge_tile->next;
+	merge_tile->next->prev = merge_tile->prev;
+	if(merge_tile->workspace->focused_tile == merge_tile) {
+		merge_tile->workspace->focused_tile = tile;
+	}
+	*get_compl_dim(tile, get_dim) =
+	    *get_compl_dim(merge_tile, get_dim) + *get_compl_dim(tile, get_dim);
+	*get_compl_coord(tile, get_coord) =
+	    fmin(*get_compl_coord(merge_tile, get_coord),
+	         *get_compl_coord(tile, get_coord));
+	if(tile->workspace->server->seat->cursor_tile == merge_tile) {
+		tile->workspace->server->seat->cursor_tile = tile;
+	}
+	free(merge_tile);
+	if(tile->view != NULL) {
+		view_maximize(tile->view, tile);
+	}
+	ipc_send_event(
+	    tile->workspace->output->server,
+	    "{\"event_name\":\"merge_tile\",\"tile_id\":%d,\"merge_tile_id\":%d,"
+	    "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
+	    tile->id, merge_tile_id, tile->workspace->num + 1,
+	    tile->workspace->output->name, output_get_num(tile->workspace->output));
+}
+
+void
+keybinding_focus_tile(struct cg_server *server, uint32_t tile_id);
+
+void
+swap_tiles(struct cg_tile *tile, struct cg_tile *swap_tile, bool follow) {
+	if(swap_tile == NULL || tile == NULL || swap_tile == tile) {
+		return;
+	}
+	struct cg_server *server = tile->workspace->server;
 	struct cg_view *tmp_view = tile->view;
 	struct cg_view *tmp_swap_view = swap_tile->view;
 	workspace_tile_update_view(tile, NULL);
 	workspace_tile_update_view(swap_tile, tmp_view);
 	workspace_tile_update_view(tile, tmp_swap_view);
-	workspace_focus_tile(
-	    server->curr_output->workspaces[server->curr_output->curr_workspace],
-	    swap_tile);
-	seat_set_focus(server->seat, swap_tile->view);
+	if(follow) {
+		keybinding_focus_tile(server, swap_tile->id);
+	} else {
+		seat_set_focus(
+		    server->seat,
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile->view);
+	}
 	ipc_send_event(
 	    tile->workspace->output->server,
 	    "{\"event_name\":\"swap_tile\",\"tile_id\":%d,\"swap_"
@@ -258,23 +385,80 @@ swap_tile(struct cg_tile *tile,
 }
 
 void
-swap_tile_left(struct cg_tile *tile) {
-	swap_tile(tile, find_left_tile);
+swap_tile(struct cg_server *server, uint32_t tile_id,
+          struct cg_tile *(*find_tile)(const struct cg_tile *), bool follow) {
+	struct cg_tile *tile = NULL;
+	if(tile_id == 0) {
+		tile =
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile;
+	} else {
+		tile = tile_from_id(server, tile_id);
+	}
+	if(tile != NULL) {
+		struct cg_tile *swap_tile = find_tile(tile);
+		swap_tiles(tile, swap_tile, follow);
+	}
+}
+
+int *
+get_width(struct cg_tile *tile) {
+	return &tile->tile.width;
+}
+
+int *
+get_height(struct cg_tile *tile) {
+	return &tile->tile.height;
+}
+
+int *
+get_x(struct cg_tile *tile) {
+	return &tile->tile.x;
+}
+
+int *
+get_y(struct cg_tile *tile) {
+	return &tile->tile.y;
 }
 
 void
-swap_tile_right(struct cg_tile *tile) {
-	swap_tile(tile, find_right_tile);
+merge_tile_left(struct cg_tile *tile) {
+	merge_tile(tile, find_left_tile, get_height, get_y);
 }
 
 void
-swap_tile_top(struct cg_tile *tile) {
-	swap_tile(tile, find_top_tile);
+merge_tile_right(struct cg_tile *tile) {
+	merge_tile(tile, find_right_tile, get_height, get_y);
 }
 
 void
-swap_tile_bottom(struct cg_tile *tile) {
-	swap_tile(tile, find_bottom_tile);
+merge_tile_top(struct cg_tile *tile) {
+	merge_tile(tile, find_top_tile, get_width, get_x);
+}
+
+void
+merge_tile_bottom(struct cg_tile *tile) {
+	merge_tile(tile, find_bottom_tile, get_width, get_x);
+}
+
+void
+swap_tile_left(struct cg_server *server, uint32_t tile_id, bool follow) {
+	swap_tile(server, tile_id, find_left_tile, follow);
+}
+
+void
+swap_tile_right(struct cg_server *server, uint32_t tile_id, bool follow) {
+	swap_tile(server, tile_id, find_right_tile, follow);
+}
+
+void
+swap_tile_top(struct cg_server *server, uint32_t tile_id, bool follow) {
+	swap_tile(server, tile_id, find_top_tile, follow);
+}
+
+void
+swap_tile_bottom(struct cg_server *server, uint32_t tile_id, bool follow) {
+	swap_tile(server, tile_id, find_bottom_tile, follow);
 }
 
 void
@@ -309,16 +493,6 @@ focus_tile_bottom(struct cg_tile *tile) {
 	focus_tile(tile, find_bottom_tile);
 }
 
-int
-get_compl_coord(struct cg_tile *tile, int *(*get_coord)(struct cg_tile *tile)) {
-	return tile->tile.x + tile->tile.y - *get_coord(tile);
-}
-
-int
-get_compl_dim(struct cg_tile *tile, int *(*get_dim)(struct cg_tile *tile)) {
-	return tile->tile.width + tile->tile.height - *get_dim(tile);
-}
-
 bool
 intervalls_intersect(int x1, int x2, int y1, int y2) {
 	return y2 > x1 && y1 < x2;
@@ -332,7 +506,7 @@ resize_allowed(struct cg_tile *tile, const struct cg_tile *parent,
 
 	if(coord_offset == 0 && dim_offset == 0) {
 		return true;
-	} else if(*get_dim(tile) - coord_offset + dim_offset <= 0) {
+	} else if(*get_dim(tile) + dim_offset <= 0) {
 		return false;
 	}
 
@@ -341,11 +515,12 @@ resize_allowed(struct cg_tile *tile, const struct cg_tile *parent,
 		if(it == parent || it == orig) {
 			continue;
 		}
-		if(intervalls_intersect(
-		       get_compl_coord(tile, get_coord),
-		       get_compl_coord(tile, get_coord) + get_compl_dim(tile, get_dim),
-		       get_compl_coord(it, get_coord),
-		       get_compl_coord(it, get_coord) + get_compl_dim(it, get_dim))) {
+		if(intervalls_intersect(*get_compl_coord(tile, get_coord),
+		                        *get_compl_coord(tile, get_coord) +
+		                            *get_compl_dim(tile, get_dim),
+		                        *get_compl_coord(it, get_coord),
+		                        *get_compl_coord(it, get_coord) +
+		                            *get_compl_dim(it, get_dim))) {
 			if(*get_coord(it) == *get_coord(tile) + *get_dim(tile)) {
 				if(!resize_allowed(it, tile, dim_offset + coord_offset,
 				                   -dim_offset - coord_offset, get_coord,
@@ -376,11 +551,12 @@ resize(struct cg_tile *tile, const struct cg_tile *parent, int coord_offset,
 		if(it == parent || it == orig) {
 			continue;
 		}
-		if(intervalls_intersect(
-		       get_compl_coord(tile, get_coord),
-		       get_compl_coord(tile, get_coord) + get_compl_dim(tile, get_dim),
-		       get_compl_coord(it, get_coord),
-		       get_compl_coord(it, get_coord) + get_compl_dim(it, get_dim))) {
+		if(intervalls_intersect(*get_compl_coord(tile, get_coord),
+		                        *get_compl_coord(tile, get_coord) +
+		                            *get_compl_dim(tile, get_dim),
+		                        *get_compl_coord(it, get_coord),
+		                        *get_compl_coord(it, get_coord) +
+		                            *get_compl_dim(it, get_dim))) {
 			if(*get_coord(it) == *get_coord(tile) + *get_dim(tile)) {
 				resize(it, tile, dim_offset + coord_offset,
 				       -dim_offset - coord_offset, get_coord, get_dim, orig);
@@ -406,26 +582,6 @@ resize(struct cg_tile *tile, const struct cg_tile *parent, int coord_offset,
 	               tile->tile.y, tile->tile.height, tile->tile.width,
 	               tile->workspace->num + 1, tile->workspace->output->name,
 	               output_get_num(tile->workspace->output));
-}
-
-int *
-get_width(struct cg_tile *tile) {
-	return &tile->tile.width;
-}
-
-int *
-get_height(struct cg_tile *tile) {
-	return &tile->tile.height;
-}
-
-int *
-get_x(struct cg_tile *tile) {
-	return &tile->tile.x;
-}
-
-int *
-get_y(struct cg_tile *tile) {
-	return &tile->tile.y;
 }
 
 bool
@@ -457,57 +613,69 @@ resize_vertical(struct cg_tile *tile, struct cg_tile *parent, int y_offset,
 /* hpixs: positiv -> right, negative -> left; vpixs: positiv -> down, negative
  * -> up */
 void
-resize_tile(struct cg_server *server, int hpixs, int vpixs) {
+resize_tile(struct cg_server *server, int hpixs, int vpixs, int tile_id) {
 	struct cg_output *output = server->curr_output;
 
-	struct cg_tile *focused =
+	struct cg_tile *tile =
 	    output->workspaces[output->curr_workspace]->focused_tile;
+	if(tile_id != 0) {
+		tile = tile_from_id(server, tile_id);
+	}
+	if(tile == NULL) {
+		return;
+	}
 	/* First do the horizontal adjustment */
-	if(hpixs != 0 &&
-	   focused->tile.width < output_get_layout_box(output).width &&
+	if(hpixs != 0 && tile->tile.width < output_get_layout_box(output).width &&
 	   is_between_strict(0, output_get_layout_box(output).width,
-	                     focused->tile.width + hpixs)) {
+	                     tile->tile.width + hpixs)) {
 		int x_offset = 0;
 		/* In case we are on the total right, move the left edge of the tile */
-		if(focused->tile.x + focused->tile.width ==
+		if(tile->tile.x + tile->tile.width ==
 		   output_get_layout_box(output).width) {
 			x_offset = -hpixs;
 		}
 		bool resize_allowed =
-		    resize_allowed_horizontal(focused, NULL, x_offset, hpixs);
+		    resize_allowed_horizontal(tile, NULL, x_offset, hpixs);
 		if(resize_allowed) {
-			resize_horizontal(focused, NULL, x_offset, hpixs);
+			resize_horizontal(tile, NULL, x_offset, hpixs);
 		}
 	}
 	/* Repeat for vertical */
-	if(vpixs != 0 &&
-	   focused->tile.height < output_get_layout_box(output).height &&
+	if(vpixs != 0 && tile->tile.height < output_get_layout_box(output).height &&
 	   is_between_strict(0, output_get_layout_box(output).height,
-	                     focused->tile.height + vpixs)) {
+	                     tile->tile.height + vpixs)) {
 		int y_offset = 0;
-		if(focused->tile.y + focused->tile.height ==
+		if(tile->tile.y + tile->tile.height ==
 		   output_get_layout_box(output).height) {
 			y_offset = -vpixs;
 		}
 		bool resize_allowed =
-		    resize_allowed_vertical(focused, NULL, y_offset, vpixs);
+		    resize_allowed_vertical(tile, NULL, y_offset, vpixs);
 		if(resize_allowed) {
-			resize_vertical(focused, NULL, y_offset, vpixs);
+			resize_vertical(tile, NULL, y_offset, vpixs);
 		}
 	}
 }
 
 void
-keybinding_workspace_fullscreen(struct cg_server *server) {
-	output_make_workspace_fullscreen(server->curr_output,
-	                                 server->curr_output->curr_workspace);
+keybinding_workspace_fullscreen(struct cg_server *server, uint32_t screen,
+                                uint32_t workspace) {
 	struct cg_output *output = server->curr_output;
+	uint32_t ws = output->curr_workspace;
+	if(screen != 0) {
+		output = output_from_num(server, screen);
+		ws = workspace;
+	}
+	if(output == NULL || ws >= server->nws) {
+		return;
+	}
+	output_make_workspace_fullscreen(output, ws);
 	ipc_send_event(server,
 	               "{\"event_name\":\"fullscreen\",\"tile_id\":%d,"
 	               "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
-	               output->workspaces[output->curr_workspace]->focused_tile->id,
-	               output->workspaces[output->curr_workspace]->num + 1,
-	               output->name, output_get_num(output));
+	               output->workspaces[ws]->focused_tile->id,
+	               output->workspaces[ws]->num + 1, output->name,
+	               output_get_num(output));
 }
 
 // Switch to a differerent virtual terminal
@@ -526,7 +694,8 @@ keybinding_switch_vt(struct cg_server *server, unsigned int vt) {
  * Important: Do not attempt to perform mathematical simplifications in this
  * function without taking rounding errors into account. */
 static void
-keybinding_split_output(struct cg_output *output, bool vertical) {
+keybinding_split_output(struct cg_output *output, bool vertical,
+                        float percentage) {
 	struct cg_view *original_view = seat_get_focus(output->server->seat);
 	struct cg_workspace *curr_workspace =
 	    output->workspaces[output->curr_workspace];
@@ -537,11 +706,11 @@ keybinding_split_output(struct cg_output *output, bool vertical) {
 	int32_t new_width, new_height;
 
 	if(vertical) {
-		new_width = width / 2;
+		new_width = (int)(((float)width) * percentage);
 		new_height = height;
 	} else {
 		new_width = width;
-		new_height = height / 2;
+		new_height = (int)(((float)height) * percentage);
 	}
 	if(new_width < 1 || new_height < 1) {
 		return;
@@ -623,13 +792,13 @@ keybinding_close_view(struct cg_view *view) {
 }
 
 static void
-keybinding_split_vertical(struct cg_server *server) {
-	keybinding_split_output(server->curr_output, true);
+keybinding_split_vertical(struct cg_server *server, float percentage) {
+	keybinding_split_output(server->curr_output, true, percentage);
 }
 
 static void
-keybinding_split_horizontal(struct cg_server *server) {
-	keybinding_split_output(server->curr_output, false);
+keybinding_split_horizontal(struct cg_server *server, float percentage) {
+	keybinding_split_output(server->curr_output, false, percentage);
 }
 
 static void
@@ -681,25 +850,37 @@ keybinding_cycle_outputs(struct cg_server *server, bool reverse,
 
 /* Cycle through views, whereby the workspace does not change */
 void
-keybinding_cycle_views(struct cg_server *server, bool reverse, bool ipc) {
-	struct cg_workspace *curr_workspace =
-	    server->curr_output->workspaces[server->curr_output->curr_workspace];
-	struct cg_view *current_view = curr_workspace->focused_tile->view;
+keybinding_cycle_views(struct cg_server *server, struct cg_tile *tile,
+                       uint32_t view_id, bool reverse, bool ipc) {
+	if(tile == NULL) {
+		tile =
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile;
+	}
+	struct cg_view *current_view = tile->view;
+	struct cg_workspace *ws = tile->workspace;
 
 	struct cg_view *it_view, *next_view = NULL;
-	if(reverse) {
-		wl_list_for_each(it_view, &curr_workspace->views, link) {
-			if(!view_is_visible(it_view)) {
-				next_view = it_view;
-				break;
+	if(view_id == 0) {
+		if(reverse) {
+			wl_list_for_each(it_view, &ws->views, link) {
+				if(!view_is_visible(it_view)) {
+					next_view = it_view;
+					break;
+				}
+			}
+		} else {
+			wl_list_for_each_reverse(it_view, &ws->views, link) {
+				if(!view_is_visible(it_view)) {
+					next_view = it_view;
+					break;
+				}
 			}
 		}
 	} else {
-		wl_list_for_each_reverse(it_view, &curr_workspace->views, link) {
-			if(!view_is_visible(it_view)) {
-				next_view = it_view;
-				break;
-			}
+		next_view = view_from_id(server, view_id);
+		if(next_view == NULL || view_is_visible(next_view)) {
+			return;
 		}
 	}
 
@@ -707,61 +888,29 @@ keybinding_cycle_views(struct cg_server *server, bool reverse, bool ipc) {
 		return;
 	}
 
-	seat_set_focus(server->seat, next_view);
+	workspace_tile_update_view(tile, next_view);
+	if(tile ==
+	   server->curr_output->workspaces[server->curr_output->curr_workspace]
+	       ->focused_tile) {
+		seat_set_focus(server->seat, next_view);
+	}
 	if(ipc) {
 		int curr_id = -1;
 		int curr_pid = -1;
-		if(current_view != NULL &&
-		   current_view->link.next != curr_workspace->views.next) {
+		if(current_view != NULL && current_view->link.next != ws->views.next) {
 			curr_id = current_view->id;
 			curr_pid = current_view->impl->get_pid(current_view);
 		}
 		ipc_send_event(
-		    curr_workspace->output->server,
+		    ws->output->server,
 		    "{\"event_name\":\"cycle_views\",\"old_view_id\":%d,\"old_view_"
 		    "pid\":%d,"
 		    "\"new_view_id\":%d,\"new_view_pid\":%d,\"tile_id\":%d,"
 		    "\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 		    curr_id, curr_pid, next_view == NULL ? -1 : (int)next_view->id,
 		    next_view == NULL ? -1 : (int)next_view->impl->get_pid(next_view),
-		    next_view->tile->id, curr_workspace->num + 1,
-		    curr_workspace->output->name,
-		    output_get_num(curr_workspace->output));
-	}
-}
-
-void
-keybinding_focus_tile(struct cg_server *server, uint32_t tile_id) {
-	struct cg_output *output = server->curr_output;
-	struct cg_workspace *workspace = output->workspaces[output->curr_workspace];
-	struct cg_tile *old_tile = workspace->focused_tile;
-	bool first = true;
-	for(struct cg_tile *tile = workspace->focused_tile;
-	    first || tile != workspace->focused_tile; tile = tile->next) {
-		first = false;
-		if(tile->id == tile_id) {
-			workspace_focus_tile(workspace, tile);
-			struct cg_view *next_view = workspace->focused_tile->view;
-			seat_set_focus(server->seat, next_view);
-			ipc_send_event(
-			    output->server,
-			    "{\"event_name\":\"focus_tile\",\"old_tile_id\":%d,\"new_tile_"
-			    "id\":%d,\"workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
-			    old_tile->id, workspace->focused_tile->id, workspace->num + 1,
-			    output->name, output_get_num(output));
-			break;
-		}
-	}
-}
-
-void
-keybinding_cycle_tiles(struct cg_server *server, bool reverse) {
-	struct cg_output *output = server->curr_output;
-	struct cg_workspace *workspace = output->workspaces[output->curr_workspace];
-	if(reverse) {
-		keybinding_focus_tile(server, workspace->focused_tile->prev->id);
-	} else {
-		keybinding_focus_tile(server, workspace->focused_tile->next->id);
+		    next_view->tile->id, ws->num + 1, ws->output->name,
+		    output_get_num(ws->output));
 	}
 }
 
@@ -784,6 +933,45 @@ keybinding_switch_ws(struct cg_server *server, uint32_t ws) {
 	               "\"new_workspace\":%d,\"output\":\"%s\",\"output_id\":%d}",
 	               old_ws + 1, ws + 1, output->name, output_get_num(output));
 	return 0;
+}
+
+void
+keybinding_focus_tile(struct cg_server *server, uint32_t tile_id) {
+	struct cg_output *output = server->curr_output;
+	struct cg_workspace *workspace = output->workspaces[output->curr_workspace];
+	struct cg_tile *old_tile = workspace->focused_tile;
+	struct cg_tile *tile = tile_from_id(server, tile_id);
+	if(tile == NULL) {
+		return;
+	}
+	if(server->curr_output != tile->workspace->output) {
+		set_output(server, tile->workspace->output);
+	}
+	if(server->curr_output->curr_workspace != (int)tile->workspace->num) {
+		keybinding_switch_ws(server, tile->workspace->num);
+	}
+	workspace_focus_tile(tile->workspace, tile);
+	struct cg_view *next_view = tile->workspace->focused_tile->view;
+	seat_set_focus(server->seat, next_view);
+	ipc_send_event(
+	    output->server,
+	    "{\"event_name\":\"focus_tile\",\"old_tile_id\":%d,\"new_tile_"
+	    "id\":%d,\"old_workspace\":%d,\"new_workspace\":%d,\"old_output\":\"%"
+	    "s\",\"old_output_id\":%d,\"output\":\"%s\",\"output_id\":%d}",
+	    old_tile->id, tile->workspace->focused_tile->id, workspace->num + 1,
+	    tile->workspace->num + 1, output->name, output_get_num(output),
+	    tile->workspace->output->name, output_get_num(tile->workspace->output));
+}
+
+void
+keybinding_cycle_tiles(struct cg_server *server, bool reverse) {
+	struct cg_output *output = server->curr_output;
+	struct cg_workspace *workspace = output->workspaces[output->curr_workspace];
+	if(reverse) {
+		keybinding_focus_tile(server, workspace->focused_tile->prev->id);
+	} else {
+		keybinding_focus_tile(server, workspace->focused_tile->next->id);
+	}
 }
 
 void
@@ -1322,7 +1510,7 @@ keybinding_move_view_to_cycle_output(struct cg_server *server, bool reverse) {
 		wl_list_remove(&view->link);
 		server->curr_output->workspaces[server->curr_output->curr_workspace]
 		    ->focused_tile->view = NULL;
-		keybinding_cycle_views(server, false, false);
+		keybinding_cycle_views(server, NULL, 0, false, false);
 		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
 		       ->focused_tile->view == NULL) {
 			seat_set_focus(server->seat, NULL);
@@ -1420,12 +1608,21 @@ keybinding_definemode(struct cg_server *server, char *mode) {
 	while(server->modes[length++] != NULL)
 		;
 	char **tmp = realloc(server->modes, (length + 1) * sizeof(char *));
-	if(tmp == NULL) {
+	char **tmp2 = realloc(server->modecursors, (length + 1) * sizeof(char *));
+	if(tmp == NULL || tmp2 == NULL) {
+		if(tmp != NULL) {
+			free(tmp);
+		}
+		if(tmp2 != NULL) {
+			free(tmp2);
+		}
 		wlr_log(WLR_ERROR, "Could not allocate memory for storing modes.");
 		return;
 	}
 	server->modes = tmp;
+	server->modecursors = tmp2;
 	server->modes[length] = NULL;
+	server->modecursors[length] = NULL;
 
 	server->modes[length - 1] = strdup(mode);
 	ipc_send_event(server, "{\"event_name\":\"definemode\",\"mode\":\"%s\"}",
@@ -1464,100 +1661,110 @@ keybinding_set_background(struct cg_server *server, float *bg) {
 void
 keybinding_switch_output(struct cg_server *server, int output) {
 	struct cg_output *old_outp = server->curr_output;
-	struct cg_output *it;
-	int count = 1;
-	wl_list_for_each(it, &server->outputs, link) {
-		if(count == output) {
-			set_output(server, it);
-			ipc_send_event(server,
-			               "{\"event_name\":\"switch_output\",\"old_output\":"
-			               "\"%s\",\"old_output_id\":%d,\"new_output\":\"%s\","
-			               "\"new_output_id\":%d}",
-			               old_outp->name, output_get_num(old_outp), it->name,
-			               output_get_num(it));
-			return;
-		}
-		++count;
+	struct cg_output *new_outp = output_from_num(server, output);
+	if(new_outp != NULL) {
+		set_output(server, new_outp);
+		ipc_send_event(server,
+		               "{\"event_name\":\"switch_output\",\"old_output\":"
+		               "\"%s\",\"old_output_id\":%d,\"new_output\":\"%s\","
+		               "\"new_output_id\":%d}",
+		               old_outp->name, output_get_num(old_outp), new_outp->name,
+		               output_get_num(new_outp));
+		return;
 	}
 	message_printf(server->curr_output, "Output %d does not exist", output);
 	return;
 }
 
 void
-keybinding_move_view_to_output(struct cg_server *server, int output_num) {
-	struct cg_output *old_outp = server->curr_output;
-	struct cg_view *view =
-	    server->curr_output->workspaces[server->curr_output->curr_workspace]
-	        ->focused_tile->view;
+keybinding_move_view_to_tile(struct cg_server *server, uint32_t view_id,
+                             uint32_t tile_id, bool follow) {
+	struct cg_view *view = view_from_id(server, view_id);
+	struct cg_tile *tile = tile_from_id(server, tile_id);
+	struct cg_tile *old_tile = view ? view->tile : NULL;
+	struct cg_output *old_outp = view ? view->workspace->output : NULL;
+	int old_workspace = view ? (int)view->workspace->num : -1;
+	if(tile == NULL) {
+		return;
+	}
 	if(view != NULL) {
-		workspace_tile_update_view(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile,
-		    NULL);
-		wl_list_remove(&view->link);
-		keybinding_cycle_views(server, false, false);
-		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
-		       ->focused_tile->view == NULL) {
-			seat_set_focus(server->seat, NULL);
+		if(old_tile != NULL) {
+			workspace_tile_update_view(old_tile, NULL);
+			wl_list_remove(&view->link);
+			keybinding_cycle_views(server, old_tile, 0, false, false);
+			if(old_tile->view == NULL &&
+			   old_tile == server->curr_output
+			                   ->workspaces[server->curr_output->curr_workspace]
+			                   ->focused_tile) {
+				seat_set_focus(server->seat, NULL);
+			}
+		} else {
+			wl_list_remove(&view->link);
 		}
 	}
-	keybinding_switch_output(server, output_num);
+
 	if(view != NULL) {
-		struct cg_workspace *ws =
-		    server->curr_output
-		        ->workspaces[server->curr_output->curr_workspace];
+		struct cg_workspace *ws = tile->workspace;
 		view->workspace = ws;
 		wl_list_insert(&ws->views, &view->link);
 		wlr_scene_node_reparent(&view->scene_tree->node, ws->scene);
-		workspace_tile_update_view(ws->focused_tile, view);
-		seat_set_focus(server->seat, view);
+		view->tile = tile;
+		tile->view = view;
+		if(tile ==
+		   server->curr_output->workspaces[server->curr_output->curr_workspace]
+		       ->focused_tile) {
+			seat_set_focus(server->seat, view);
+		}
+	} else {
+		if(tile->view) {
+			tile->view->tile = NULL;
+			tile->view = NULL;
+		}
 	}
-	int view_id = -1;
-	if(view != NULL) {
-		view_id = view->id;
+	if(follow) {
+		keybinding_focus_tile(server, tile->id);
+	} else {
+		if(tile->view != NULL) {
+			workspace_tile_update_view(tile, tile->view);
+		}
 	}
 	ipc_send_event(
 	    server,
-	    "{\"event_name\":\"move_view_to_output\",\"view_id\":%d,\"old_"
-	    "output\":\"%s\",\"new_output\":\"%s\"}",
-	    view_id, old_outp->name, server->curr_output->name);
+	    "{\"event_name\":\"move_view\",\"view_id\":%d,\"old_output\":\"%s\","
+	    "\"old_workspace\":\"%d\",\"old_tile\":\"%d\",\"new_output\":\"%s\","
+	    "\"new_workspace\":\"%d\",\"new_tile\":\"%d\"}",
+	    view_id, old_outp ? old_outp->name : "", old_workspace,
+	    old_tile ? (int)old_tile->id : -1, server->curr_output->name,
+	    tile->workspace->num, tile->id);
 }
 
 void
-keybinding_move_view_to_workspace(struct cg_server *server, uint32_t ws) {
-	uint32_t old_ws = server->curr_output->curr_workspace;
-	struct cg_view *view =
-	    server->curr_output->workspaces[server->curr_output->curr_workspace]
-	        ->focused_tile->view;
-	if(view != NULL) {
-		wl_list_remove(&view->link);
-		server->curr_output->workspaces[server->curr_output->curr_workspace]
-		    ->focused_tile->view = NULL;
-		keybinding_cycle_views(server, false, false);
-		if(server->curr_output->workspaces[server->curr_output->curr_workspace]
-		       ->focused_tile->view == NULL) {
-			seat_set_focus(server->seat, NULL);
-		}
+keybinding_move_view_to_output(struct cg_server *server, int view_id,
+                               int output_num, bool follow) {
+	struct cg_output *outp = output_from_num(server, output_num);
+	if(outp != NULL) {
+		keybinding_move_view_to_tile(
+		    server, view_id,
+		    outp->workspaces[outp->curr_workspace]->focused_tile->id, follow);
+	} else {
+		message_printf(server->curr_output, "Output number %d not found.",
+		               output_num);
 	}
-	keybinding_switch_ws(server, ws);
-	if(view != NULL) {
-		struct cg_workspace *ws =
-		    server->curr_output
-		        ->workspaces[server->curr_output->curr_workspace];
-		view->workspace = ws;
-		wl_list_insert(&ws->views, &view->link);
-		wlr_scene_node_reparent(&view->scene_tree->node, ws->scene);
-		workspace_tile_update_view(ws->focused_tile, view);
-		seat_set_focus(server->seat, view);
+}
+
+void
+keybinding_move_view_to_workspace(struct cg_server *server, int view_id,
+                                  uint32_t ws, bool follow) {
+	if(ws >= server->nws) {
+		message_printf(server->curr_output,
+		               "Attempting to move view to workspace %d, but there are "
+		               "only %d workspaces.",
+		               ws + 1, server->nws);
+		return;
 	}
-	ipc_send_event(server,
-	               "{\"event_name\":\"move_view_to_ws\",\"view_id\":%d,"
-	               "\"old_workspace\":%d,\"new_workspace\":%d,"
-	               "\"output\":\"%s\",\"output_id\":%d,\"view_pid\":%d}",
-	               view == NULL ? -1 : (int)view->id, old_ws + 1, ws + 1,
-	               server->curr_output->name,
-	               output_get_num(server->curr_output),
-	               view == NULL ? 0 : view->impl->get_pid(view));
+	keybinding_move_view_to_tile(
+	    server, view_id, server->curr_output->workspaces[ws]->focused_tile->id,
+	    follow);
 }
 
 void
@@ -1707,13 +1914,13 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		set_cursor(data.i, server->seat);
 		break;
 	case KEYBINDING_LAYOUT_FULLSCREEN:
-		keybinding_workspace_fullscreen(server);
+		keybinding_workspace_fullscreen(server, data.us[0], data.us[1]);
 		break;
 	case KEYBINDING_SPLIT_HORIZONTAL:
-		keybinding_split_horizontal(server);
+		keybinding_split_horizontal(server, data.f);
 		break;
 	case KEYBINDING_SPLIT_VERTICAL:
-		keybinding_split_vertical(server);
+		keybinding_split_vertical(server, data.f);
 		break;
 	case KEYBINDING_RUN_COMMAND: {
 		int pid;
@@ -1731,10 +1938,14 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		}
 	} break;
 	case KEYBINDING_CYCLE_VIEWS:
-		keybinding_cycle_views(server, data.b, true);
+		keybinding_cycle_views(server, NULL, data.us[1], data.us[0], true);
 		break;
 	case KEYBINDING_CYCLE_TILES:
-		keybinding_cycle_tiles(server, data.b);
+		if(data.us[1] == 0) {
+			keybinding_cycle_tiles(server, data.us[0]);
+		} else {
+			keybinding_focus_tile(server, data.us[1]);
+		}
 		break;
 	case KEYBINDING_CYCLE_OUTPUT:
 		keybinding_cycle_outputs(server, data.b, true);
@@ -1746,13 +1957,18 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_switch_output(server, data.u);
 		break;
 	case KEYBINDING_SWITCH_MODE:
-		if(data.u != server->seat->default_mode) {
+		uint32_t n_modes = 0;
+		while(server->modes[n_modes] != NULL) {
+			++n_modes;
+		}
+		if(data.u != server->seat->default_mode && data.u < n_modes &&
+		   server->seat->num_pointers > 0) {
 			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
 			if(server->seat->enable_cursor == true &&
-			   server->set_mode_cursor != NULL) {
+			   server->modecursors[data.u] != NULL) {
 				wlr_cursor_set_xcursor(server->seat->cursor,
 				                       server->seat->xcursor_manager,
-				                       server->set_mode_cursor);
+				                       server->modecursors[data.u]);
 			}
 		}
 		server->seat->mode = data.u;
@@ -1763,6 +1979,25 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		               "\"%s\",\"mode\":\"%s\"}",
 		               get_mode_name(server->modes, server->seat->default_mode),
 		               get_mode_name(server->modes, data.u));
+		uint32_t n_modes2 = 0;
+		while(server->modes[n_modes2] != NULL) {
+			++n_modes2;
+		}
+		if(data.u != server->seat->default_mode && data.u < n_modes2) {
+			wlr_seat_pointer_notify_clear_focus(server->seat->seat);
+			if(server->seat->enable_cursor == true &&
+			   server->seat->num_pointers > 0) {
+				if(server->modecursors[data.u] != NULL) {
+					wlr_cursor_set_xcursor(server->seat->cursor,
+					                       server->seat->xcursor_manager,
+					                       server->modecursors[data.u]);
+				} else {
+					wlr_cursor_set_xcursor(server->seat->cursor,
+					                       server->seat->xcursor_manager,
+					                       DEFAULT_XCURSOR);
+				}
+			}
+		}
 		server->seat->mode = data.u;
 		server->seat->default_mode = data.u;
 		break;
@@ -1784,41 +2019,117 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		keybinding_send_custom_event(server, data.c);
 		break;
 	case KEYBINDING_RESIZE_TILE_HORIZONTAL:
-		resize_tile(server, data.i, 0);
+		resize_tile(server, data.is[0], 0, data.is[1]);
 		break;
 	case KEYBINDING_RESIZE_TILE_VERTICAL:
-		resize_tile(server, 0, data.i);
+		resize_tile(server, 0, data.is[0], data.is[1]);
 		break;
+	case KEYBINDING_MOVE_TO_TILE: {
+		struct cg_view *view =
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile->view;
+		keybinding_move_view_to_tile(server, view ? (int)view->id : -1,
+		                             data.us[0], data.us[1] > 0);
+		break;
+	}
+	case KEYBINDING_MOVE_TO_WORKSPACE: {
+		struct cg_view *view =
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile->view;
+		keybinding_move_view_to_workspace(server, view ? (int)view->id : -1,
+		                                  data.us[0], data.us[1] > 0);
+		break;
+	}
+	case KEYBINDING_MOVE_TO_OUTPUT: {
+		struct cg_view *view =
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile->view;
+		keybinding_move_view_to_output(server, view ? (int)view->id : -1,
+		                               data.us[0], data.us[1] > 0);
+		break;
+	}
+	case KEYBINDING_MOVE_VIEW_TO_TILE: {
+		keybinding_move_view_to_tile(server, data.us[0], data.us[1],
+		                             data.us[2] > 0);
+		break;
+	}
 	case KEYBINDING_MOVE_VIEW_TO_WORKSPACE: {
-		keybinding_move_view_to_workspace(server, data.u);
+		keybinding_move_view_to_workspace(server, data.us[0], data.us[1],
+		                                  data.us[2] > 0);
 		break;
 	}
 	case KEYBINDING_MOVE_VIEW_TO_OUTPUT: {
-		keybinding_move_view_to_output(server, data.u);
+		keybinding_move_view_to_output(server, data.us[0], data.us[1],
+		                               data.us[2] > 0);
+		break;
+	}
+	case KEYBINDING_MERGE_LEFT: {
+		struct cg_tile *tile =
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile;
+		if(data.u != 0) {
+			tile = tile_from_id(server, data.u);
+		}
+		if(tile != NULL) {
+			merge_tile_left(tile);
+		}
+		break;
+	}
+	case KEYBINDING_MERGE_RIGHT: {
+		struct cg_tile *tile =
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile;
+		if(data.u != 0) {
+			tile = tile_from_id(server, data.u);
+		}
+		if(tile != NULL) {
+			merge_tile_right(tile);
+		}
+		break;
+	}
+	case KEYBINDING_MERGE_TOP: {
+		struct cg_tile *tile =
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile;
+		if(data.u != 0) {
+			tile = tile_from_id(server, data.u);
+		}
+		if(tile != NULL) {
+			merge_tile_top(tile);
+		}
+		break;
+	}
+	case KEYBINDING_MERGE_BOTTOM: {
+		struct cg_tile *tile =
+		    server->curr_output->workspaces[server->curr_output->curr_workspace]
+		        ->focused_tile;
+		if(data.u != 0) {
+			tile = tile_from_id(server, data.u);
+		}
+		if(tile != NULL) {
+			merge_tile_bottom(tile);
+		}
 		break;
 	}
 	case KEYBINDING_SWAP_LEFT: {
-		swap_tile_left(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile);
+		swap_tile_left(server, data.us[0], data.us[1] == 1);
 		break;
 	}
 	case KEYBINDING_SWAP_RIGHT: {
-		swap_tile_right(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile);
+		swap_tile_right(server, data.us[0], data.us[1] == 1);
 		break;
 	}
 	case KEYBINDING_SWAP_TOP: {
-		swap_tile_top(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile);
+		swap_tile_top(server, data.us[0], data.us[1] == 1);
 		break;
 	}
 	case KEYBINDING_SWAP_BOTTOM: {
-		swap_tile_bottom(
-		    server->curr_output->workspaces[server->curr_output->curr_workspace]
-		        ->focused_tile);
+		swap_tile_bottom(server, data.us[0], data.us[1] == 1);
+		break;
+	}
+	case KEYBINDING_SWAP: {
+		swap_tiles(tile_from_id(server, data.us[0]),
+		           tile_from_id(server, data.us[1]), data.us[2] == 1);
 		break;
 	}
 	case KEYBINDING_FOCUS_LEFT: {
@@ -1876,11 +2187,13 @@ run_action(enum keybinding_action action, struct cg_server *server,
 		        ->focused_tile->view);
 		break;
 	case KEYBINDING_SETMODECURSOR:
-		if(data.c != NULL) {
-			if(server->set_mode_cursor != NULL) {
-				free(server->set_mode_cursor);
+		for(int i = 0; server->modes[i] != NULL; ++i) {
+			if(strcmp(server->modes[i], data.cs[0]) == 0) {
+				if(server->modecursors[i] != NULL) {
+					free(server->modecursors[i]);
+				}
+				server->modecursors[i] = strdup(data.cs[1]);
 			}
-			server->set_mode_cursor = strdup(data.c);
 		}
 		break;
 	default: {
