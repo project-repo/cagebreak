@@ -362,15 +362,7 @@ handle_xdg_shell_popup_new(struct wl_listener *listener, void *data) {
 	    wl_container_of(listener, xdg_shell_view, new_popup);
 	struct wlr_xdg_popup *xdg_popup = data;
 
-	struct cg_xdg_shell_popup *popup = create_xdg_popup(
-	    xdg_popup, &xdg_shell_view->view, xdg_shell_view->view.scene_tree);
-	if(!popup) {
-		return;
-	}
-
-	int lx, ly;
-	wlr_scene_node_coords(&popup->view->scene_tree->node, &lx, &ly);
-	wlr_scene_node_set_position(&popup->scene_tree->node, lx, ly);
+	create_xdg_popup(xdg_popup, &xdg_shell_view->view, xdg_shell_view->view.scene_tree);
 	return;
 }
 
