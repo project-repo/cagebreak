@@ -362,7 +362,8 @@ handle_xdg_shell_popup_new(struct wl_listener *listener, void *data) {
 	    wl_container_of(listener, xdg_shell_view, new_popup);
 	struct wlr_xdg_popup *xdg_popup = data;
 
-	create_xdg_popup(xdg_popup, &xdg_shell_view->view, xdg_shell_view->view.scene_tree);
+	create_xdg_popup(xdg_popup, &xdg_shell_view->view,
+	                 xdg_shell_view->view.scene_tree);
 	return;
 }
 
