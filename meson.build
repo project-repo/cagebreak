@@ -202,8 +202,8 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.23.1',
   'wayland_cursor': '1.23.1',
-  'wlroots': '0.18.2',
-  'xkbcommon': '1.8.1',
+  'wlroots': '0.19.0',
+  'xkbcommon': '1.10.0',
   'fontconfig': '2.16.2',
   'libinput': '1.28.1',
   'libevdev': '1.13.4',
@@ -236,7 +236,7 @@ foreach name, dep : cagebreak_dependencies_dict
 endforeach
 
 reproducible_build_compiler = 'gcc'
-reproducible_build_compiler_version = '14.2.1'
+reproducible_build_compiler_version = '15.1.1'
 
 if cc.get_id() != reproducible_build_compiler
   warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in Hashes.md (' + reproducible_build_compiler + ').')
