@@ -1338,3 +1338,11 @@ this out.
 Before 3.0.0, opening a popup window could lead to a crash of cagebreak under certain
 circumstances.
 
+## Issue 77
+
+  * github issue number: N/A
+  * Fixed: 3.0.1
+
+Before 3.0.1 there was a bug in the popup positioning code, where popups where positioned
+relative to the workspace instead of the view.
+
