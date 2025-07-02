@@ -152,7 +152,8 @@ handle_xdg_shell_surface_unmap(struct wl_listener *listener,
 	struct cg_xdg_shell_view *xdg_shell_view =
 	    wl_container_of(listener, xdg_shell_view, unmap);
 	struct cg_view *view = &xdg_shell_view->view;
-
+	wl_list_remove(&xdg_shell_view->new_popup.link);
+	wl_list_remove(&xdg_shell_view->request_fullscreen.link);
 	view_unmap(view);
 }
 
@@ -190,8 +191,6 @@ handle_xdg_shell_surface_destroy(struct wl_listener *listener,
 	wl_list_remove(&xdg_shell_view->map.link);
 	wl_list_remove(&xdg_shell_view->unmap.link);
 	wl_list_remove(&xdg_shell_view->destroy.link);
-	wl_list_remove(&xdg_shell_view->new_popup.link);
-	wl_list_remove(&xdg_shell_view->request_fullscreen.link);
 	wl_list_remove(&xdg_shell_view->commit.link);
 	xdg_shell_view->toplevel = NULL;
 
