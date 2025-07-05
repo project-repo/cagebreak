@@ -204,13 +204,13 @@ reproducible_build_versions = {
   'wayland_cursor': '1.23.1',
   'wlroots': '0.19.0',
   'xkbcommon': '1.10.0',
-  'fontconfig': '2.16.2',
+  'fontconfig': '2.17.1',
   'libinput': '1.28.1',
   'libevdev': '1.13.4',
   'libudev': '257',
-  'pango': '1.56.3',
+  'pango': '1.56.4',
   'cairo': '1.18.4',
-  'pangocairo': '1.56.3',
+  'pangocairo': '1.56.4',
   'math': '-1'
 }
 
@@ -258,7 +258,7 @@ install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_nam
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1750795364
+  secssinceepoch = 1751745126
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.full_path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')
