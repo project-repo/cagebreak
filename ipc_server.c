@@ -260,6 +260,11 @@ ipc_client_handle_readable(int client_fd, uint32_t mask, void *data) {
 		ipc_client_disconnect(client);
 		return 0;
 	}
+	// Client hung up
+	if(!received) {
+		ipc_client_disconnect(client);
+		return 0;
+	}
 	client->read_buf_len += received;
 
 	ipc_client_handle_command(client);
