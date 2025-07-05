@@ -706,6 +706,7 @@ main(int argc, char *argv[]) {
 
 #if CG_HAS_XWAYLAND
 	if(server.xwayland != NULL) {
+		wl_list_remove(&server.new_xwayland_surface.link);
 		wlr_xwayland_destroy(server.xwayland);
 	}
 #endif

@@ -152,7 +152,8 @@ handle_xdg_shell_surface_unmap(struct wl_listener *listener,
 	struct cg_xdg_shell_view *xdg_shell_view =
 	    wl_container_of(listener, xdg_shell_view, unmap);
 	struct cg_view *view = &xdg_shell_view->view;
-
+	wl_list_remove(&xdg_shell_view->new_popup.link);
+	wl_list_remove(&xdg_shell_view->request_fullscreen.link);
 	view_unmap(view);
 }
 
@@ -175,6 +176,13 @@ handle_xdg_shell_surface_map(struct wl_listener *listener,
 	    wl_container_of(listener, xdg_shell_view, map);
 	struct cg_view *view = &xdg_shell_view->view;
 
+	xdg_shell_view->new_popup.notify = handle_xdg_shell_popup_new;
+	wl_signal_add(&xdg_shell_view->toplevel->base->events.new_popup,
+	              &xdg_shell_view->new_popup);
+	xdg_shell_view->request_fullscreen.notify =
+	    handle_xdg_shell_surface_request_fullscreen;
+	wl_signal_add(&xdg_shell_view->toplevel->events.request_fullscreen,
+	              &xdg_shell_view->request_fullscreen);
 	view_map(view, xdg_shell_view->toplevel->base->surface,
 	         view->server->curr_output
 	             ->workspaces[view->server->curr_output->curr_workspace]);
@@ -190,8 +198,6 @@ handle_xdg_shell_surface_destroy(struct wl_listener *listener,
 	wl_list_remove(&xdg_shell_view->map.link);
 	wl_list_remove(&xdg_shell_view->unmap.link);
 	wl_list_remove(&xdg_shell_view->destroy.link);
-	wl_list_remove(&xdg_shell_view->new_popup.link);
-	wl_list_remove(&xdg_shell_view->request_fullscreen.link);
 	wl_list_remove(&xdg_shell_view->commit.link);
 	xdg_shell_view->toplevel = NULL;
 
@@ -247,9 +253,6 @@ handle_xdg_shell_toplevel_new(struct wl_listener *listener, void *data) {
 
 	xdg_shell_view->toplevel = xdg_toplevel;
 
-	xdg_shell_view->new_popup.notify = handle_xdg_shell_popup_new;
-	wl_signal_add(&xdg_toplevel->base->events.new_popup,
-	              &xdg_shell_view->new_popup);
 	xdg_shell_view->commit.notify = handle_xdg_shell_toplevel_commit;
 	wl_signal_add(&xdg_toplevel->base->surface->events.commit,
 	              &xdg_shell_view->commit);
@@ -262,10 +265,6 @@ handle_xdg_shell_toplevel_new(struct wl_listener *listener, void *data) {
 	xdg_shell_view->destroy.notify = handle_xdg_shell_surface_destroy;
 	wl_signal_add(&xdg_toplevel->base->events.destroy,
 	              &xdg_shell_view->destroy);
-	xdg_shell_view->request_fullscreen.notify =
-	    handle_xdg_shell_surface_request_fullscreen;
-	wl_signal_add(&xdg_toplevel->events.request_fullscreen,
-	              &xdg_shell_view->request_fullscreen);
 
 	wlr_scene_xdg_surface_create(xdg_shell_view->view.scene_tree,
 	                             xdg_toplevel->base);
@@ -362,15 +361,8 @@ handle_xdg_shell_popup_new(struct wl_listener *listener, void *data) {
 	    wl_container_of(listener, xdg_shell_view, new_popup);
 	struct wlr_xdg_popup *xdg_popup = data;
 
-	struct cg_xdg_shell_popup *popup = create_xdg_popup(
-	    xdg_popup, &xdg_shell_view->view, xdg_shell_view->view.scene_tree);
-	if(!popup) {
-		return;
-	}
-
-	int lx, ly;
-	wlr_scene_node_coords(&popup->view->scene_tree->node, &lx, &ly);
-	wlr_scene_node_set_position(&popup->scene_tree->node, lx, ly);
+	create_xdg_popup(xdg_popup, &xdg_shell_view->view,
+	                 xdg_shell_view->view.scene_tree);
 	return;
 }
 

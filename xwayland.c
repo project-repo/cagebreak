@@ -102,7 +102,8 @@ maximize(struct cg_view *view, int width, int height) {
 	    view->ox + output_get_layout_box(view->server->curr_output).x,
 	    view->oy + output_get_layout_box(view->server->curr_output).y, width,
 	    height);
-	wlr_xwayland_surface_set_maximized(xwayland_view->xwayland_surface, true);
+	wlr_xwayland_surface_set_maximized(xwayland_view->xwayland_surface, true,
+	                                   true);
 }
 
 static void
@@ -159,6 +160,8 @@ handle_xwayland_surface_destroy(struct wl_listener *listener,
 	    wl_container_of(listener, xwayland_view, destroy);
 	struct cg_view *view = &xwayland_view->view;
 
+	wl_list_remove(&xwayland_view->associate.link);
+	wl_list_remove(&xwayland_view->dissociate.link);
 	wl_list_remove(&xwayland_view->destroy.link);
 	wl_list_remove(&xwayland_view->request_fullscreen.link);
 	xwayland_view->xwayland_surface = NULL;
