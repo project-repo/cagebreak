@@ -18,6 +18,7 @@ struct wlr_output_layout;
 struct wlr_idle_inhibit_manager_v1;
 struct cg_output_config;
 struct cg_input_manager;
+struct wlr_layer_shell_v1;
 
 struct cg_server {
 	struct wl_display *wl_display;
@@ -50,6 +51,9 @@ struct cg_server {
 	struct wl_listener xdg_toplevel_decoration;
 	struct wl_listener new_xdg_shell_toplevel;
 	struct wl_list xdg_decorations;
+
+	struct wlr_layer_shell_v1 *layer_shell;
+	struct wl_listener new_layer_surface;
 #if CG_HAS_XWAYLAND
 	struct wl_listener new_xwayland_surface;
 	struct wlr_xwayland *xwayland;

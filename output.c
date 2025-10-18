@@ -743,8 +743,10 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		free(state);
 	}
 
-	wlr_cursor_set_xcursor(server->seat->cursor, server->seat->xcursor_manager,
-	                       DEFAULT_XCURSOR);
+	if(server->renderer) {
+		wlr_cursor_set_xcursor(server->seat->cursor, server->seat->xcursor_manager,
+		                       DEFAULT_XCURSOR);
+	}
 	wlr_cursor_warp(server->seat->cursor, NULL, 0, 0);
 
 	output->destroy.notify = handle_output_destroy;

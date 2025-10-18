@@ -141,7 +141,6 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	cairo_t *cairo = cairo_create(surface);
 	cairo_set_antialias(cairo, CAIRO_ANTIALIAS_BEST);
 	cairo_set_font_options(cairo, fo);
-	cairo_font_options_destroy(fo);
 	float *bg_col = output->server->message_config.bg_color;
 	cairo_set_source_rgba(cairo, bg_col[0], bg_col[1], bg_col[2], bg_col[3]);
 	cairo_paint(cairo);
@@ -160,12 +159,22 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	int stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, width);
 
 	struct msg_buffer *buf = msg_buffer_create(width, height, stride);
+	if(buf == NULL) {
+		cairo_surface_destroy(surface);
+		cairo_destroy(cairo);
+		cairo_font_options_destroy(fo);
+		return NULL;
+	}
 	void *data_ptr;
 
 	if(!wlr_buffer_begin_data_ptr_access(&buf->base,
 	                                     WLR_BUFFER_DATA_PTR_ACCESS_WRITE,
 	                                     &data_ptr, NULL, NULL)) {
 		wlr_log(WLR_ERROR, "Failed to get pointer access to message buffer");
+		cairo_surface_destroy(surface);
+		cairo_destroy(cairo);
+		cairo_font_options_destroy(fo);
+		msg_buffer_destroy(&buf->base);
 		return NULL;
 	}
 	memcpy(data_ptr, data, stride * height);
@@ -173,6 +182,7 @@ create_message_texture(const char *string, const struct cg_output *output) {
 
 	cairo_surface_destroy(surface);
 	cairo_destroy(cairo);
+	cairo_font_options_destroy(fo);
 	return buf;
 }
 

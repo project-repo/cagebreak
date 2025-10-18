@@ -78,6 +78,7 @@ wayland_scanner_server = generator(
 
 server_protocols = [
   [wl_protocol_dir, 'stable/xdg-shell/xdg-shell.xml'],
+  'protocols/wlr-layer-shell-unstable-v1.xml',
 ]
 
 server_protos_headers = []
@@ -128,6 +129,7 @@ cagebreak_source_strings = [
   'input_manager.c',
   'ipc_server.c',
   'keybinding.c',
+  'layer_shell.c',
   'workspace.c',
   'output.c',
   'parse.c',
@@ -145,6 +147,7 @@ cagebreak_header_strings = [
   'idle_inhibit_v1.h',
   'ipc_server.h',
   'keybinding.h',
+  'layer_shell.h',
   'workspace.h',
   'output.h',
   'parse.h',
