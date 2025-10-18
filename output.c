@@ -16,6 +16,7 @@
 #include <wlr/backend/x11.h>
 #endif
 #include <wlr/backend/headless.h>
+#include <wlr/backend/session.h>
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_data_device.h>
@@ -150,11 +151,14 @@ output_destroy(struct cg_output *output) {
 		                                             output->layout_box.height);
 		output->scene_output =
 		    wlr_scene_output_create(server->scene, output->wlr_output);
-		struct wlr_output_layout_output *lo =
-		    wlr_output_layout_add(server->output_layout, output->wlr_output,
-		                          output->layout_box.x, output->layout_box.y);
-		wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
-		                                   output->scene_output);
+		// Only add to layout if session is active (skip during TTY switch to avoid cursor updates)
+		if(!server->session || server->session->active) {
+			struct wlr_output_layout_output *lo =
+			    wlr_output_layout_add(server->output_layout, output->wlr_output,
+			                          output->layout_box.x, output->layout_box.y);
+			wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
+			                                   output->scene_output);
+		}
 
 	} else {
 
