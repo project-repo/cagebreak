@@ -36,6 +36,12 @@ struct cg_output {
 	bool destroyed;
 	char *name;
 
+	// Layer shell scene trees (in Z-order)
+	struct wlr_scene_tree *layer_shell_background;
+	struct wlr_scene_tree *layer_shell_bottom;
+	struct wlr_scene_tree *layer_shell_top;
+	struct wlr_scene_tree *layer_shell_overlay;
+
 	struct wl_list link; // cg_server::outputs
 };
 

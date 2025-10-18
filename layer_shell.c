@@ -105,24 +105,25 @@ handle_layer_surface_commit(struct wl_listener *listener,
 	struct wlr_layer_surface_v1 *wlr_layer_surface =
 	    layer_surface->wlr_layer_surface;
 
-	// Arrange/configure the layer surface using the scene helper
-	// This is based on sway's approach
-	if (wlr_layer_surface->output) {
-		struct wlr_output *output = wlr_layer_surface->output;
-		struct wlr_box full_area, usable_area;
+	// Configure on initial commit only - the scene helper handles the rest
+	if (wlr_layer_surface->initial_commit) {
+		if (wlr_layer_surface->output) {
+			struct wlr_output *output = wlr_layer_surface->output;
+			struct wlr_box full_area, usable_area;
 
-		int width, height;
-		wlr_output_effective_resolution(output, &width, &height);
-		full_area.x = full_area.y = 0;
-		full_area.width = width;
-		full_area.height = height;
-		usable_area = full_area;
+			int width, height;
+			wlr_output_effective_resolution(output, &width, &height);
+			full_area.x = full_area.y = 0;
+			full_area.width = width;
+			full_area.height = height;
+			usable_area = full_area;
 
-		wlr_log(WLR_DEBUG, "Configuring layer surface: output=%dx%d", width, height);
+			wlr_log(WLR_DEBUG, "Initial configuration of layer surface: output=%dx%d", width, height);
 
-		// Use the scene helper to configure the layer surface
-		wlr_scene_layer_surface_v1_configure(layer_surface->scene_surface,
-		    &full_area, &usable_area);
+			// Use the scene helper to configure the layer surface
+			wlr_scene_layer_surface_v1_configure(layer_surface->scene_surface,
+			    &full_area, &usable_area);
+		}
 	}
 }
 
@@ -172,10 +173,31 @@ handle_new_layer_surface(struct wl_listener *listener, void *data) {
 		}
 	}
 
-	// Create a scene node for this layer surface
-	// For now, we'll attach all layer surfaces to the root scene tree
-	// A more sophisticated implementation would create separate scene trees for each layer
-	struct wlr_scene_tree *parent = &server->scene->tree;
+	// Get the output's layer tree based on the layer surface's layer
+	struct cg_output *output = wlr_layer_surface->output->data;
+	struct wlr_scene_tree *parent = NULL;
+
+	switch (wlr_layer_surface->pending.layer) {
+	case ZWLR_LAYER_SHELL_V1_LAYER_BACKGROUND:
+		parent = output->layer_shell_background;
+		break;
+	case ZWLR_LAYER_SHELL_V1_LAYER_BOTTOM:
+		parent = output->layer_shell_bottom;
+		break;
+	case ZWLR_LAYER_SHELL_V1_LAYER_TOP:
+		parent = output->layer_shell_top;
+		break;
+	case ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY:
+		parent = output->layer_shell_overlay;
+		break;
+	}
+
+	if (!parent) {
+		wlr_log(WLR_ERROR, "Invalid layer for layer surface");
+		wlr_layer_surface_v1_destroy(wlr_layer_surface);
+		free(layer_surface);
+		return;
+	}
 
 	layer_surface->scene_surface = wlr_scene_layer_surface_v1_create(
 	    parent, wlr_layer_surface);
