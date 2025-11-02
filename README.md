@@ -1,6 +1,6 @@
 # Cagebreak: A Tiling Wayland Compositor
 
-[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=3.0.1)](https://repology.org/project/cagebreak/versions)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6532/badge)](https://bestpractices.coreinfrastructure.org/projects/6532) [![Packaging status](https://repology.org/badge/tiny-repos/cagebreak.svg)](https://repology.org/project/cagebreak/versions) [![AUR package](https://repology.org/badge/version-for-repo/aur/cagebreak.svg?minversion=3.1.0)](https://repology.org/project/cagebreak/versions)
 
 [![Contact](img/mail.svg)](SECURITY.md) [![Manuals](img/manuals.svg)](manuals.md) [![FAQ](img/faq.svg)](FAQ.md) [![CONTRIBUTING](img/contributing.svg)](CONTRIBUTING.md) [![ArchWiki](img/archwiki.svg)](https://wiki.archlinux.org/title/Cagebreak) [![AUR](img/aur.svg)](https://aur.archlinux.org/packages?O=0&K=cagebreak)
 

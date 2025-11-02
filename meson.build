@@ -3,7 +3,7 @@
 project(
   'cagebreak',
   'c',
-version : '3.0.1',
+version : '3.1.0',
 license : 'MIT',
 default_options : ['c_std=c23,c11', 'warning_level=3']
 )
@@ -203,17 +203,17 @@ cagebreak_dependencies_dict = {
 reproducible_build_versions = { 
   'server_protos': '-1',
   'wayland_server': '1.19.0',
-  'wayland_client': '1.23.1',
-  'wayland_cursor': '1.23.1',
-  'wlroots': '0.19.0',
-  'xkbcommon': '1.10.0',
+  'wayland_client': '1.24.0',
+  'wayland_cursor': '1.24.0',
+  'wlroots': '0.19.2',
+  'xkbcommon': '1.12.3',
   'fontconfig': '2.17.1',
-  'libinput': '1.28.1',
-  'libevdev': '1.13.4',
-  'libudev': '257',
-  'pango': '1.56.4',
+  'libinput': '1.29.2',
+  'libevdev': '1.13.5',
+  'libudev': '258',
+  'pango': '1.57.0',
   'cairo': '1.18.4',
-  'pangocairo': '1.56.4',
+  'pangocairo': '1.57.0',
   'math': '-1'
 }
 
@@ -239,7 +239,7 @@ foreach name, dep : cagebreak_dependencies_dict
 endforeach
 
 reproducible_build_compiler = 'gcc'
-reproducible_build_compiler_version = '15.1.1'
+reproducible_build_compiler_version = '15.2.1'
 
 if cc.get_id() != reproducible_build_compiler
   warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in Hashes.md (' + reproducible_build_compiler + ').')
@@ -261,7 +261,7 @@ install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_nam
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1751745126
+  secssinceepoch = 1762086729
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.full_path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')

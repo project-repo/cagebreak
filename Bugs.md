@@ -1354,3 +1354,11 @@ relative to the workspace instead of the view.
 Before 3.0.1 if an ipc socket was opened, cagebreak ignored FIN packages, which
 led to typical clients repeating their FIN packages indefinitely.
 
+## Issue 79
+
+  * github issue number: N/A
+  * Fixed: 3.1.0
+
+Before 3.1.0 cagebreak erroneously updated internal data structures during switches
+of TTY.
+
