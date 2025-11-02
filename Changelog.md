@@ -1,5 +1,13 @@
 # Changelog
 
+## Release 3.1.0
+
+New Features:
+- Add layer-shell protocol
+
+Fixes:
+- Fix Issue 79 (in Bugs.md)
+
 ## Release 3.0.0
 
 BREAKING CHANGES:

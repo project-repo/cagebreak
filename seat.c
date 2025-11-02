@@ -59,10 +59,16 @@ update_capabilities(const struct cg_seat *seat) {
 	/* Hide cursor if the seat doesn't have pointer capability. */
 	if(((caps & WL_SEAT_CAPABILITY_POINTER) == 0) ||
 	   seat->enable_cursor == false) {
-		wlr_cursor_unset_image(seat->cursor);
+		// Only unset cursor image if renderer is available
+		if(seat->server->renderer) {
+			wlr_cursor_unset_image(seat->cursor);
+		}
 	} else {
-		wlr_cursor_set_xcursor(seat->cursor, seat->xcursor_manager,
-		                       DEFAULT_XCURSOR);
+		// Only set cursor image if renderer is available
+		if(seat->server->renderer) {
+			wlr_cursor_set_xcursor(seat->cursor, seat->xcursor_manager,
+			                       DEFAULT_XCURSOR);
+		}
 	}
 }
 
@@ -202,7 +208,7 @@ handle_command_key_bindings(struct cg_server *server, xkb_keysym_t sym,
 		struct wlr_scene_node *node = wlr_scene_node_at(
 		    &server->scene->tree.node, server->seat->cursor->x,
 		    server->seat->cursor->y, &sx, &sy);
-		if(server->seat->enable_cursor) {
+		if(server->seat->enable_cursor && server->renderer) {
 			wlr_cursor_set_xcursor(server->seat->cursor,
 			                       server->seat->xcursor_manager, "left_ptr");
 			if(node && node->type == WLR_SCENE_NODE_BUFFER) {
@@ -567,7 +573,7 @@ handle_request_set_cursor(struct wl_listener *listener, void *data) {
 
 	/* This can be sent by any client, so we check to make sure
 	 * this one actually has pointer focus first. */
-	if(focused_client == event->seat_client->client) {
+	if(focused_client == event->seat_client->client && seat->server->renderer) {
 		wlr_cursor_set_surface(seat->cursor, event->surface, event->hotspot_x,
 		                       event->hotspot_y);
 	}
@@ -895,8 +901,10 @@ handle_destroy(struct wl_listener *listener,
 	struct cg_keyboard_group *group, *group_tmp;
 	wl_list_for_each_safe(group, group_tmp, &seat->keyboard_groups, link) {
 		wl_list_remove(&group->link);
-		wlr_keyboard_group_destroy(group->wlr_group);
+		wl_list_remove(&group->key.link);
+		wl_list_remove(&group->modifiers.link);
 		wl_event_source_remove(group->key_repeat_timer);
+		wlr_keyboard_group_destroy(group->wlr_group);
 		if(group->identifier) {
 			free(group->identifier);
 		}

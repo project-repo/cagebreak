@@ -49,6 +49,7 @@
 #include "idle_inhibit_v1.h"
 #include "input_manager.h"
 #include "ipc_server.h"
+#include "layer_shell.h"
 #include "keybinding.h"
 #include "message.h"
 #include "output.h"
@@ -591,6 +592,9 @@ main(int argc, char *argv[]) {
 	wl_signal_add(&server.gamma_control->events.set_gamma,
 	              &server.gamma_control_set_gamma);
 
+	// Initialize layer shell support for screensharing and overlays
+	cg_layer_shell_init(&server);
+
 #if CG_HAS_XWAYLAND
 	server.xwayland = wlr_xwayland_create(server.wl_display, compositor, true);
 	if(!server.xwayland) {
@@ -714,6 +718,9 @@ main(int argc, char *argv[]) {
 	wl_display_destroy_clients(server.wl_display);
 
 end:
+	// Clean up layer shell
+	cg_layer_shell_destroy(&server);
+
 #ifndef __clang_analyzer__
 	if(server.modecursors) {
 		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
