@@ -4,6 +4,7 @@
 #ifndef CG_SEAT_H
 #define CG_SEAT_H
 
+#include <pixman.h>
 #include <wayland-server-core.h>
 
 struct cg_server;
@@ -15,6 +16,7 @@ struct wlr_seat;
 struct wlr_xcursor_manager;
 struct wlr_backend;
 struct wlr_surface;
+struct wlr_pointer_constraint_v1;
 struct cg_input_config;
 
 #define DEFAULT_XCURSOR "left_ptr"
@@ -40,6 +42,10 @@ struct cg_seat {
 	struct wl_listener cursor_button;
 	struct wl_listener cursor_axis;
 	struct wl_listener cursor_frame;
+
+	struct wlr_pointer_constraint_v1 *active_constraint;
+	struct wl_listener constraint_commit;
+	pixman_region32_t confine;
 
 	int32_t touch_id;
 	double touch_lx;
@@ -114,4 +120,8 @@ void
 seat_add_device(struct cg_seat *seat, struct cg_input_device *device);
 void
 seat_remove_device(struct cg_seat *seat, struct cg_input_device *device);
+void
+handle_new_pointer_constraint(struct wl_listener *listener, void *data);
+void
+seat_maybe_set_constraint(struct cg_seat *seat, struct wlr_surface *surface);
 #endif

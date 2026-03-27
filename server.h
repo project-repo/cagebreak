@@ -54,6 +54,10 @@ struct cg_server {
 
 	struct wlr_layer_shell_v1 *layer_shell;
 	struct wl_listener new_layer_surface;
+
+	struct wlr_relative_pointer_manager_v1 *relative_pointer_manager;
+	struct wlr_pointer_constraints_v1 *pointer_constraints;
+	struct wl_listener new_pointer_constraint;
 #if CG_HAS_XWAYLAND
 	struct wl_listener new_xwayland_surface;
 	struct wlr_xwayland *xwayland;

@@ -66,6 +66,7 @@ fontconfig     = dependency('fontconfig')
 libinput       = dependency('libinput')
 libevdev       = dependency('libevdev')
 libudev       = dependency('libudev')
+pixman         = dependency('pixman-1')
 math           = cc.find_library('m')
 
 wl_protocol_dir = wayland_protos.get_variable(pkgconfig : 'pkgdatadir')
@@ -78,6 +79,7 @@ wayland_scanner_server = generator(
 
 server_protocols = [
   [wl_protocol_dir, 'stable/xdg-shell/xdg-shell.xml'],
+  [wl_protocol_dir, 'unstable/pointer-constraints/pointer-constraints-unstable-v1.xml'],
   'protocols/wlr-layer-shell-unstable-v1.xml',
 ]
 
@@ -197,6 +199,7 @@ cagebreak_dependencies_dict = {
   'pango': [pango,true],
   'cairo': [cairo,true],
   'pangocairo': [pangocairo,true],
+  'pixman': [pixman,true],
   'math': [math,true],
 }
 
@@ -214,6 +217,7 @@ reproducible_build_versions = {
   'pango': '1.57.0',
   'cairo': '1.18.4',
   'pangocairo': '1.57.0',
+  'pixman': '-1',
   'math': '-1'
 }
 

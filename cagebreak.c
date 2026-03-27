@@ -31,11 +31,13 @@
 #include <wlr/types/wlr_idle_inhibit_v1.h>
 #include <wlr/types/wlr_idle_notify_v1.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_pointer_constraints_v1.h>
 #include <wlr/types/wlr_primary_selection_v1.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_screencopy_v1.h>
 #include <wlr/types/wlr_server_decoration.h>
 #include <wlr/types/wlr_subcompositor.h>
+#include <wlr/types/wlr_relative_pointer_v1.h>
 #include <wlr/types/wlr_viewporter.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
 #include <wlr/types/wlr_xdg_output_v1.h>
@@ -594,6 +596,25 @@ main(int argc, char *argv[]) {
 
 	// Initialize layer shell support for screensharing and overlays
 	cg_layer_shell_init(&server);
+
+	server.relative_pointer_manager =
+	    wlr_relative_pointer_manager_v1_create(server.wl_display);
+	if(!server.relative_pointer_manager) {
+		wlr_log(WLR_ERROR, "Unable to create the relative pointer manager");
+		ret = 1;
+		goto end;
+	}
+
+	server.pointer_constraints =
+	    wlr_pointer_constraints_v1_create(server.wl_display);
+	if(!server.pointer_constraints) {
+		wlr_log(WLR_ERROR, "Unable to create the pointer constraints manager");
+		ret = 1;
+		goto end;
+	}
+	server.new_pointer_constraint.notify = handle_new_pointer_constraint;
+	wl_signal_add(&server.pointer_constraints->events.new_constraint,
+	              &server.new_pointer_constraint);
 
 #if CG_HAS_XWAYLAND
 	server.xwayland = wlr_xwayland_create(server.wl_display, compositor, true);

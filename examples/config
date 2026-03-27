@@ -3,7 +3,7 @@
 
 # General settings and key bindings
 
-exec xterm
+exec alacritty
 
 workspaces 6
 background 0.25 0.21 0.2
@@ -33,7 +33,7 @@ bind h focusleft
 bind j focusdown
 bind k focusup
 bind l focusright
-bind t exec xterm
+bind t exec alacritty
 bind C-k close
 # bind m message Hello World!
 definekey resize h resizeleft
