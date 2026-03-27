@@ -640,8 +640,7 @@ main(int argc, char *argv[]) {
 
 	if(xcursor) {
 		struct wlr_xcursor_image *image = xcursor->images[0];
-		wlr_xwayland_set_cursor(server.xwayland, image->buffer,
-		                        image->width * 4, image->width, image->height,
+		wlr_xwayland_set_cursor(server.xwayland, wlr_xcursor_image_get_buffer(image),
 		                        image->hotspot_x, image->hotspot_y);
 	}
 #endif
