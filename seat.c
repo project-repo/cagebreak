@@ -720,7 +720,7 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 		}
 
 		bool focus_changed = wlr_seat->pointer_state.focused_surface != surface;
-		if(!focus_changed && time > 0) {
+		if(time > 0 && (!focus_changed || wlr_seat->drag != NULL)) {
 			wlr_seat_pointer_notify_motion(wlr_seat, time, sx, sy);
 		}
 	} else {
