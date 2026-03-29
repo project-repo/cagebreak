@@ -35,6 +35,8 @@ struct cg_input_manager {
 	struct wl_listener new_input;
 	struct wl_listener virtual_keyboard_new;
 	struct wl_listener virtual_pointer_new;
+	struct wl_listener virtual_keyboard_manager_destroy;
+	struct wl_listener virtual_pointer_manager_destroy;
 };
 
 struct cg_input_config_mapped_from_region {

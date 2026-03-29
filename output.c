@@ -382,7 +382,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	if(config->angle != -1) {
 		wlr_output_state_set_transform(state, config->angle);
 	}
-	if(config->scale != -1) {
+	if(config->scale != -1 && config->scale<=10) {
 		wlr_log(WLR_INFO, "Setting output scale to %f", config->scale);
 		wlr_output_state_set_scale(state, config->scale);
 	}

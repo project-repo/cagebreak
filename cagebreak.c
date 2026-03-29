@@ -798,6 +798,36 @@ end:
 		wl_event_source_remove(sigpipe_source);
 	}
 
+	if(server.input) {
+		wl_list_remove(&server.input->new_input.link);
+		wl_list_remove(&server.input->virtual_keyboard_new.link);
+		wl_list_remove(&server.input->virtual_pointer_new.link);
+	}
+
+	if(server.idle_inhibit_v1) {
+		wl_list_remove(&server.new_idle_inhibitor_v1.link);
+	}
+
+	if(xdg_shell) {
+		wl_list_remove(&server.new_xdg_shell_toplevel.link);
+	}
+
+	if(xdg_decoration_manager) {
+		wl_list_remove(&server.xdg_toplevel_decoration.link);
+	}
+
+	if(server.gamma_control) {
+		wl_list_remove(&server.gamma_control_set_gamma.link);
+	}
+
+	if(server.pointer_constraints) {
+		wl_list_remove(&server.new_pointer_constraint.link);
+	}
+
+	if(server.new_output.notify) {
+		wl_list_remove(&server.new_output.link);
+	}
+
 	/* This function is not null-safe, but we only ever get here
 	   with a proper wl_display. */
 	if(server.wl_display != NULL) {
