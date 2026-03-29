@@ -1362,3 +1362,18 @@ led to typical clients repeating their FIN packages indefinitely.
 Before 3.1.0 cagebreak erroneously updated internal data structures during switches
 of TTY.
 
+## Issue 80
+
+  * github issue number: N/A
+  * Fixed: 3.2.0
+
+Before 3.2.0 cagebreak incorrectly handled overflows of floating point numbers
+for output scaling.
+
+## Issue 81
+
+  * github issue number: N/A
+  * Fixed: 3.2.0
+
+Before 3.2.0 cagebreak incorrectly handled pointer focus for drag and drop.
+
