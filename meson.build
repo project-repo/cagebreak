@@ -217,7 +217,7 @@ reproducible_build_versions = {
   'pango': '1.57.0',
   'cairo': '1.18.4',
   'pangocairo': '1.57.0',
-  'pixman': '0.46',
+  'pixman': '0.46.4',
   'math': '-1'
 }
 
