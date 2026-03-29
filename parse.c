@@ -129,7 +129,7 @@ parse_uint(char **saveptr, const char *delim) {
 		return -1;
 	}
 	long uint = strtol(uint_str, NULL, 10);
-	if(uint >= 0 && uint <= INT_MAX) {
+	if(uint >= 0 && uint <= INT_MAX && errno != ERANGE) {
 		return uint;
 	} else {
 		wlr_log(WLR_ERROR,
@@ -616,7 +616,7 @@ parse_output_config(char **saveptr, char **errstr) {
 
 	if(strcmp(key_str, "scale") == 0) {
 		cfg->scale = parse_float(saveptr, " ");
-		if(cfg->scale <= 0.0) {
+		if(cfg->scale <= 0.01) {
 			*errstr =
 			    log_error("Error parsing scale of output configuration for "
 			              "output %s, expected positive float",
@@ -688,7 +688,7 @@ parse_output_config(char **saveptr, char **errstr) {
 	}
 
 	cfg->refresh_rate = parse_float(saveptr, " ");
-	if(cfg->refresh_rate <= 0.0) {
+	if(cfg->refresh_rate <= 0.01) {
 		*errstr =
 		    log_error("Error parsing refresh rate of output configuration for "
 		              "output %s, expected positive float",
@@ -824,7 +824,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 				wlr_log(WLR_ERROR, "Error parsing float.");
 				return -1;
 			}
-			if(percentage >= 1.0 || percentage <= 0.0) {
+			if(percentage >= 1.0 || percentage <= 0.01) {
 				wlr_log(WLR_ERROR, "Expected a float between 0 and 1, got %f.",
 				        percentage);
 				return -1;
@@ -843,7 +843,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 				wlr_log(WLR_ERROR, "Error parsing float.");
 				return -1;
 			}
-			if(percentage >= 1.0 || percentage <= 0.0) {
+			if(percentage >= 1.0 || percentage <= 0.01) {
 				wlr_log(WLR_ERROR, "Expected a float between 0 and 1, got %f.",
 				        percentage);
 				return -1;
@@ -1320,7 +1320,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 
 		long tile = strtol(tile_str, NULL, 10);
-		if(tile < 1) {
+		if(tile < 1 || errno == ERANGE) {
 			*errstr = log_error("Tile number must be an integer larger or "
 			                    "equal to 1. Got %ld",
 			                    tile);
@@ -1348,7 +1348,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
 			long tile_id = strtol(tile_str, NULL, 10);
-			if(tile_id < 1) {
+			if(tile_id < 1 || errno == ERANGE) {
 				*errstr = log_error("The tile id must be an integer number "
 				                    "larger or equal to 1. Got %ld",
 				                    tile_id);
@@ -1362,7 +1362,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
 			long tile_id = strtol(tile_str, NULL, 10);
-			if(tile_id < 1) {
+			if(tile_id < 1 || errno == ERANGE) {
 				*errstr = log_error("The tile id must be an integer number "
 				                    "larger or equal to 1. Got %ld",
 				                    tile_id);
@@ -1376,7 +1376,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
 			long tile_id = strtol(tile_str, NULL, 10);
-			if(tile_id < 1) {
+			if(tile_id < 1 || errno == ERANGE) {
 				*errstr = log_error("The tile id must be an integer number "
 				                    "larger or equal to 1. Got %ld",
 				                    tile_id);
@@ -1390,7 +1390,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		char *tile_str = strtok_r(NULL, " ", &saveptr);
 		if(tile_str != NULL) {
 			long tile_id = strtol(tile_str, NULL, 10);
-			if(tile_id < 1) {
+			if(tile_id < 1 || errno == ERANGE) {
 				*errstr = log_error("The tile id must be an integer number "
 				                    "larger or equal to 1. Got %ld",
 				                    tile_id);
@@ -1407,7 +1407,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			if(strcmp(tile_str, "true") != 0 &&
 			   strcmp(tile_str, "false") != 0) {
 				long tile_id = strtol(tile_str, NULL, 10);
-				if(tile_id < 1) {
+				if(tile_id < 1 || errno == ERANGE) {
 					*errstr = log_error("The tile id must be an integer number "
 					                    "larger or equal to 1. Got %ld",
 					                    tile_id);
@@ -1438,7 +1438,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			if(strcmp(tile_str, "true") != 0 &&
 			   strcmp(tile_str, "false") != 0) {
 				long tile_id = strtol(tile_str, NULL, 10);
-				if(tile_id < 1) {
+				if(tile_id < 1 || errno == ERANGE) {
 					*errstr = log_error("The tile id must be an integer number "
 					                    "larger or equal to 1. Got %ld",
 					                    tile_id);
@@ -1469,7 +1469,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			if(strcmp(tile_str, "true") != 0 &&
 			   strcmp(tile_str, "false") != 0) {
 				long tile_id = strtol(tile_str, NULL, 10);
-				if(tile_id < 1) {
+				if(tile_id < 1 || errno == ERANGE) {
 					*errstr = log_error("The tile id must be an integer number "
 					                    "larger or equal to 1. Got %ld",
 					                    tile_id);
@@ -1500,7 +1500,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			if(strcmp(tile_str, "true") != 0 &&
 			   strcmp(tile_str, "false") != 0) {
 				long tile_id = strtol(tile_str, NULL, 10);
-				if(tile_id < 1) {
+				if(tile_id < 1 || errno == ERANGE) {
 					*errstr = log_error("The tile id must be an integer number "
 					                    "larger or equal to 1. Got %ld",
 					                    tile_id);
@@ -1532,7 +1532,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			return -1;
 		}
 		long tile1_id = strtol(tile1_str, NULL, 10);
-		if(tile1_id < 1) {
+		if(tile1_id < 1 || errno == ERANGE) {
 			*errstr = log_error("The tile id must be an integer number "
 			                    "larger or equal to 1. Got %ld",
 			                    tile1_id);
@@ -1548,7 +1548,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 
 		long tile2_id = strtol(tile2_str, NULL, 10);
-		if(tile2_id < 1) {
+		if(tile2_id < 1 || errno == ERANGE) {
 			*errstr = log_error("The tile id must be an integer number "
 			                    "larger or equal to 1. Got %ld",
 			                    tile2_id);
@@ -1594,6 +1594,11 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			return -1;
 		}
 		long tty = strtol(ntty, NULL, 10);
+		if(errno == ERANGE) {
+			*errstr = log_error(
+			    "TTY number out of range.");
+			return -1;
+		}
 		keybinding->data.u = tty;
 	} else if(strcmp(action, "mode") == 0) {
 		keybinding->action = KEYBINDING_SWITCH_MODE;
