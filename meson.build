@@ -3,7 +3,7 @@
 project(
   'cagebreak',
   'c',
-version : '3.1.0',
+version : '3.2.0',
 license : 'MIT',
 default_options : ['c_std=c23,c11', 'warning_level=3']
 )
@@ -208,15 +208,15 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.24.0',
   'wayland_cursor': '1.24.0',
-  'wlroots': '0.19.2',
-  'xkbcommon': '1.12.3',
+  'wlroots': '0.20.0',
+  'xkbcommon': '1.13.1',
   'fontconfig': '2.17.1',
-  'libinput': '1.29.2',
-  'libevdev': '1.13.5',
-  'libudev': '258',
-  'pango': '1.57.0',
+  'libinput': '1.31.0',
+  'libevdev': '1.13.6',
+  'libudev': '260',
+  'pango': '1.57.1',
   'cairo': '1.18.4',
-  'pangocairo': '1.57.0',
+  'pangocairo': '1.57.1',
   'pixman': '0.46.4',
   'math': '-1'
 }
