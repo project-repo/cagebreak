@@ -1,4 +1,4 @@
-cagebreak-socket(7) "Version 3.1.0" "Cagebreak Manual"
+cagebreak-socket(7) "Version 3.2.0" "Cagebreak Manual"
 
 # NAME
 
