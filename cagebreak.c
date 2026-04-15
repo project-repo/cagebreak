@@ -33,11 +33,11 @@
 #include <wlr/types/wlr_output_layout.h>
 #include <wlr/types/wlr_pointer_constraints_v1.h>
 #include <wlr/types/wlr_primary_selection_v1.h>
+#include <wlr/types/wlr_relative_pointer_v1.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_screencopy_v1.h>
 #include <wlr/types/wlr_server_decoration.h>
 #include <wlr/types/wlr_subcompositor.h>
-#include <wlr/types/wlr_relative_pointer_v1.h>
 #include <wlr/types/wlr_viewporter.h>
 #include <wlr/types/wlr_xdg_decoration_v1.h>
 #include <wlr/types/wlr_xdg_output_v1.h>
@@ -51,8 +51,8 @@
 #include "idle_inhibit_v1.h"
 #include "input_manager.h"
 #include "ipc_server.h"
-#include "layer_shell.h"
 #include "keybinding.h"
+#include "layer_shell.h"
 #include "message.h"
 #include "output.h"
 #include "parse.h"
@@ -640,7 +640,8 @@ main(int argc, char *argv[]) {
 
 	if(xcursor) {
 		struct wlr_xcursor_image *image = xcursor->images[0];
-		wlr_xwayland_set_cursor(server.xwayland, wlr_xcursor_image_get_buffer(image),
+		wlr_xwayland_set_cursor(server.xwayland,
+		                        wlr_xcursor_image_get_buffer(image),
 		                        image->hotspot_x, image->hotspot_y);
 	}
 #endif

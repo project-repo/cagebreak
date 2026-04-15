@@ -14,11 +14,11 @@
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_data_device.h>
-#include <wlr/types/wlr_pointer_constraints_v1.h>
-#include <wlr/types/wlr_relative_pointer_v1.h>
 #include <wlr/types/wlr_idle_notify_v1.h>
 #include <wlr/types/wlr_keyboard_group.h>
+#include <wlr/types/wlr_pointer_constraints_v1.h>
 #include <wlr/types/wlr_primary_selection.h>
+#include <wlr/types/wlr_relative_pointer_v1.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_seat.h>
 #include <wlr/types/wlr_touch.h>
@@ -825,7 +825,7 @@ warp_to_constraint_cursor_hint(struct cg_seat *seat) {
 
 		double lx, ly;
 		wlr_scene_node_at(&seat->server->scene->tree.node, seat->cursor->x,
-		                   seat->cursor->y, &lx, &ly);
+		                  seat->cursor->y, &lx, &ly);
 
 		/* Compute surface position in layout coords */
 		double cx = seat->cursor->x - lx + sx;
@@ -934,8 +934,7 @@ handle_new_pointer_constraint(struct wl_listener *listener, void *data) {
 	cg_constraint->constraint = constraint;
 
 	cg_constraint->set_region.notify = handle_constraint_set_region;
-	wl_signal_add(&constraint->events.set_region,
-	              &cg_constraint->set_region);
+	wl_signal_add(&constraint->events.set_region, &cg_constraint->set_region);
 
 	cg_constraint->destroy.notify = handle_constraint_destroy;
 	wl_signal_add(&constraint->events.destroy, &cg_constraint->destroy);
@@ -975,9 +974,9 @@ handle_cursor_motion(struct wl_listener *listener, void *data) {
 	if(seat->active_constraint) {
 		double sx, sy;
 		struct wlr_surface *surface = NULL;
-		struct wlr_scene_node *node = wlr_scene_node_at(
-		    &seat->server->scene->tree.node, seat->cursor->x,
-		    seat->cursor->y, &sx, &sy);
+		struct wlr_scene_node *node =
+		    wlr_scene_node_at(&seat->server->scene->tree.node, seat->cursor->x,
+		                      seat->cursor->y, &sx, &sy);
 		if(node && node->type == WLR_SCENE_NODE_BUFFER) {
 			struct wlr_scene_surface *scene_surface =
 			    wlr_scene_surface_try_from_buffer(

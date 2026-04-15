@@ -1595,8 +1595,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		}
 		long tty = strtol(ntty, NULL, 10);
 		if(errno == ERANGE) {
-			*errstr = log_error(
-			    "TTY number out of range.");
+			*errstr = log_error("TTY number out of range.");
 			return -1;
 		}
 		keybinding->data.u = tty;

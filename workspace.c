@@ -120,8 +120,10 @@ workspace_focus(struct cg_output *outp, int ws) {
 		return;
 	}
 	// Hide old workspace and show new one
-	// The bg stays in a fixed position (above background layer, below everything else)
-	wlr_scene_node_lower_to_bottom(&outp->workspaces[outp->curr_workspace]->scene->node);
+	// The bg stays in a fixed position (above background layer, below
+	// everything else)
+	wlr_scene_node_lower_to_bottom(
+	    &outp->workspaces[outp->curr_workspace]->scene->node);
 	wlr_scene_node_raise_to_top(&outp->workspaces[ws]->scene->node);
 
 	// Keep layer shell top and overlay above workspaces
