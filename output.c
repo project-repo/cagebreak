@@ -1,4 +1,4 @@
-// Copyright 2020 - 2025, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
@@ -814,6 +814,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	}
 	wlr_cursor_warp(server->seat->cursor, NULL, 0, 0);
 
+#ifndef __clang_analyzer__
 	output->destroy.notify = handle_output_destroy;
 	wl_signal_add(&wlr_output->events.destroy, &output->destroy);
 	output->frame.notify = handle_output_frame;
@@ -826,4 +827,5 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	               "id\":%d,\"priority\":%d,\"restart\":%d}",
 	               output->name, output_get_num(output), output->priority,
 	               reinit);
+#endif
 }

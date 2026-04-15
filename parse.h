@@ -1,4 +1,4 @@
-// Copyright 2020 - 2025, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #ifndef PARSE_H
