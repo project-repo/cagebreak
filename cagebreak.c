@@ -739,9 +739,9 @@ main(int argc, char *argv[]) {
 
 end:
 	// Clean up layer shell
+#ifndef __clang_analyzer__
 	cg_layer_shell_destroy(&server);
 
-#ifndef __clang_analyzer__
 	if(server.modecursors) {
 		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
 			free(server.modecursors[i]);
