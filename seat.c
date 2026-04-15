@@ -1,4 +1,4 @@
-// Copyright 2020 - 2025, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200812L
@@ -16,12 +16,15 @@
 #include <wlr/types/wlr_data_device.h>
 #include <wlr/types/wlr_idle_notify_v1.h>
 #include <wlr/types/wlr_keyboard_group.h>
+#include <wlr/types/wlr_pointer_constraints_v1.h>
 #include <wlr/types/wlr_primary_selection.h>
+#include <wlr/types/wlr_relative_pointer_v1.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_seat.h>
 #include <wlr/types/wlr_touch.h>
 #include <wlr/types/wlr_xcursor_manager.h>
 #include <wlr/util/log.h>
+#include <wlr/util/region.h>
 #if CG_HAS_XWAYLAND
 #include <wlr/xwayland.h>
 #endif
@@ -717,7 +720,7 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 		}
 
 		bool focus_changed = wlr_seat->pointer_state.focused_surface != surface;
-		if(!focus_changed && time > 0) {
+		if(time > 0 && (!focus_changed || wlr_seat->drag != NULL)) {
 			wlr_seat_pointer_notify_motion(wlr_seat, time, sx, sy);
 		}
 	} else {
@@ -775,6 +778,174 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 	}
 }
 
+struct cg_pointer_constraint {
+	struct wlr_pointer_constraint_v1 *constraint;
+	struct cg_seat *seat;
+	struct wl_listener set_region;
+	struct wl_listener destroy;
+};
+
+static void
+check_constraint_region(struct cg_seat *seat) {
+	struct wlr_pointer_constraint_v1 *constraint = seat->active_constraint;
+	pixman_region32_t *region = &constraint->region;
+
+	if(constraint->type == WLR_POINTER_CONSTRAINT_V1_CONFINED) {
+		pixman_region32_copy(&seat->confine, region);
+	} else {
+		pixman_region32_clear(&seat->confine);
+	}
+}
+
+static void
+handle_constraint_commit(struct wl_listener *listener,
+                         __attribute__((unused)) void *data) {
+	struct cg_seat *seat = wl_container_of(listener, seat, constraint_commit);
+	struct wlr_pointer_constraint_v1 *constraint = seat->active_constraint;
+
+	if(pixman_region32_not_empty(&constraint->current.region)) {
+		pixman_region32_intersect(&constraint->region,
+		                          &constraint->surface->input_region,
+		                          &constraint->current.region);
+	} else {
+		pixman_region32_copy(&constraint->region,
+		                     &constraint->surface->input_region);
+	}
+
+	check_constraint_region(seat);
+}
+
+static void
+warp_to_constraint_cursor_hint(struct cg_seat *seat) {
+	struct wlr_pointer_constraint_v1 *constraint = seat->active_constraint;
+
+	if(constraint->current.cursor_hint.enabled) {
+		double sx = constraint->current.cursor_hint.x;
+		double sy = constraint->current.cursor_hint.y;
+
+		double lx, ly;
+		wlr_scene_node_at(&seat->server->scene->tree.node, seat->cursor->x,
+		                  seat->cursor->y, &lx, &ly);
+
+		/* Compute surface position in layout coords */
+		double cx = seat->cursor->x - lx + sx;
+		double cy = seat->cursor->y - ly + sy;
+
+		wlr_cursor_warp(seat->cursor, NULL, cx, cy);
+		wlr_seat_pointer_warp(constraint->seat, sx, sy);
+	}
+}
+
+static void
+seat_set_constraint(struct cg_seat *seat,
+                    struct wlr_pointer_constraint_v1 *constraint) {
+	if(seat->active_constraint == constraint) {
+		return;
+	}
+
+	wl_list_remove(&seat->constraint_commit.link);
+	if(seat->active_constraint) {
+		if(constraint == NULL) {
+			warp_to_constraint_cursor_hint(seat);
+		}
+		wlr_pointer_constraint_v1_send_deactivated(seat->active_constraint);
+	}
+
+	seat->active_constraint = constraint;
+
+	if(constraint == NULL) {
+		wl_list_init(&seat->constraint_commit.link);
+		return;
+	}
+
+	if(pixman_region32_not_empty(&constraint->current.region)) {
+		pixman_region32_intersect(&constraint->region,
+		                          &constraint->surface->input_region,
+		                          &constraint->current.region);
+	} else {
+		pixman_region32_copy(&constraint->region,
+		                     &constraint->surface->input_region);
+	}
+
+	check_constraint_region(seat);
+
+	wlr_pointer_constraint_v1_send_activated(constraint);
+
+	seat->constraint_commit.notify = handle_constraint_commit;
+	wl_signal_add(&constraint->surface->events.commit,
+	              &seat->constraint_commit);
+}
+
+void
+seat_maybe_set_constraint(struct cg_seat *seat, struct wlr_surface *surface) {
+	if(surface == NULL) {
+		seat_set_constraint(seat, NULL);
+		return;
+	}
+	struct wlr_pointer_constraint_v1 *constraint =
+	    wlr_pointer_constraints_v1_constraint_for_surface(
+	        seat->server->pointer_constraints, surface, seat->seat);
+	seat_set_constraint(seat, constraint);
+}
+
+static void
+handle_constraint_set_region(struct wl_listener *listener,
+                             __attribute__((unused)) void *data) {
+	struct cg_pointer_constraint *cg_constraint =
+	    wl_container_of(listener, cg_constraint, set_region);
+	(void)cg_constraint;
+	/* Region will be recalculated on next commit */
+}
+
+static void
+handle_constraint_destroy(struct wl_listener *listener, void *data) {
+	struct cg_pointer_constraint *cg_constraint =
+	    wl_container_of(listener, cg_constraint, destroy);
+	struct wlr_pointer_constraint_v1 *constraint = data;
+	struct cg_seat *seat = cg_constraint->seat;
+
+	wl_list_remove(&cg_constraint->set_region.link);
+	wl_list_remove(&cg_constraint->destroy.link);
+
+	if(seat->active_constraint == constraint) {
+		warp_to_constraint_cursor_hint(seat);
+
+		wl_list_remove(&seat->constraint_commit.link);
+		wl_list_init(&seat->constraint_commit.link);
+		seat->active_constraint = NULL;
+	}
+
+	free(cg_constraint);
+}
+
+void
+handle_new_pointer_constraint(struct wl_listener *listener, void *data) {
+	struct cg_server *server =
+	    wl_container_of(listener, server, new_pointer_constraint);
+	struct wlr_pointer_constraint_v1 *constraint = data;
+
+	struct cg_pointer_constraint *cg_constraint =
+	    calloc(1, sizeof(struct cg_pointer_constraint));
+	if(!cg_constraint) {
+		wlr_log(WLR_ERROR, "Cannot allocate pointer constraint");
+		return;
+	}
+	cg_constraint->seat = server->seat;
+	cg_constraint->constraint = constraint;
+
+	cg_constraint->set_region.notify = handle_constraint_set_region;
+	wl_signal_add(&constraint->events.set_region, &cg_constraint->set_region);
+
+	cg_constraint->destroy.notify = handle_constraint_destroy;
+	wl_signal_add(&constraint->events.destroy, &cg_constraint->destroy);
+
+	struct wlr_surface *surface =
+	    server->seat->seat->keyboard_state.focused_surface;
+	if(surface && surface == constraint->surface) {
+		seat_set_constraint(server->seat, constraint);
+	}
+}
+
 static void
 handle_cursor_motion_absolute(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat =
@@ -792,8 +963,46 @@ handle_cursor_motion(struct wl_listener *listener, void *data) {
 	struct cg_seat *seat = wl_container_of(listener, seat, cursor_motion);
 	struct wlr_pointer_motion_event *event = data;
 
-	wlr_cursor_move(seat->cursor, &event->pointer->base, event->delta_x,
-	                event->delta_y);
+	wlr_relative_pointer_manager_v1_send_relative_motion(
+	    seat->server->relative_pointer_manager, seat->seat,
+	    (uint64_t)event->time_msec * 1000, event->delta_x, event->delta_y,
+	    event->unaccel_dx, event->unaccel_dy);
+
+	double dx = event->delta_x;
+	double dy = event->delta_y;
+
+	if(seat->active_constraint) {
+		double sx, sy;
+		struct wlr_surface *surface = NULL;
+		struct wlr_scene_node *node =
+		    wlr_scene_node_at(&seat->server->scene->tree.node, seat->cursor->x,
+		                      seat->cursor->y, &sx, &sy);
+		if(node && node->type == WLR_SCENE_NODE_BUFFER) {
+			struct wlr_scene_surface *scene_surface =
+			    wlr_scene_surface_try_from_buffer(
+			        wlr_scene_buffer_from_node(node));
+			if(scene_surface != NULL) {
+				surface = scene_surface->surface;
+			}
+		}
+		if(seat->active_constraint->surface == surface &&
+		   seat->active_constraint->type ==
+		       WLR_POINTER_CONSTRAINT_V1_CONFINED) {
+			double sx_confined, sy_confined;
+			if(!wlr_region_confine(&seat->confine, sx, sy, sx + dx, sy + dy,
+			                       &sx_confined, &sy_confined)) {
+				return;
+			}
+			dx = sx_confined - sx;
+			dy = sy_confined - sy;
+		} else if(seat->active_constraint->surface == surface &&
+		          seat->active_constraint->type ==
+		              WLR_POINTER_CONSTRAINT_V1_LOCKED) {
+			return;
+		}
+	}
+
+	wlr_cursor_move(seat->cursor, &event->pointer->base, dx, dy);
 	process_cursor_motion(seat, event->time_msec);
 	wlr_idle_notifier_v1_notify_activity(seat->server->idle, seat->seat);
 }
@@ -898,6 +1107,20 @@ handle_destroy(struct wl_listener *listener,
 	struct cg_seat *seat = wl_container_of(listener, seat, destroy);
 	wl_list_remove(&seat->destroy.link);
 
+	wlr_xcursor_manager_destroy(seat->xcursor_manager);
+	wl_list_remove(&seat->cursor_motion.link);
+	wl_list_remove(&seat->cursor_motion_absolute.link);
+	wl_list_remove(&seat->cursor_button.link);
+	wl_list_remove(&seat->cursor_axis.link);
+	wl_list_remove(&seat->cursor_frame.link);
+	wl_list_remove(&seat->touch_down.link);
+	wl_list_remove(&seat->touch_up.link);
+	wl_list_remove(&seat->touch_motion.link);
+	wl_list_remove(&seat->request_set_cursor.link);
+	wl_list_remove(&seat->request_set_selection.link);
+	wl_list_remove(&seat->request_set_primary_selection.link);
+	wl_list_remove(&seat->constraint_commit.link);
+
 	struct cg_keyboard_group *group, *group_tmp;
 	wl_list_for_each_safe(group, group_tmp, &seat->keyboard_groups, link) {
 		wl_list_remove(&group->link);
@@ -916,21 +1139,11 @@ handle_destroy(struct wl_listener *listener,
 		input_manager_handle_device_destroy(&it->device_destroy, NULL);
 	}
 
-	wlr_xcursor_manager_destroy(seat->xcursor_manager);
 	if(seat->cursor) {
 		wlr_cursor_destroy(seat->cursor);
 	}
-	wl_list_remove(&seat->cursor_motion.link);
-	wl_list_remove(&seat->cursor_motion_absolute.link);
-	wl_list_remove(&seat->cursor_button.link);
-	wl_list_remove(&seat->cursor_axis.link);
-	wl_list_remove(&seat->cursor_frame.link);
-	wl_list_remove(&seat->touch_down.link);
-	wl_list_remove(&seat->touch_up.link);
-	wl_list_remove(&seat->touch_motion.link);
-	wl_list_remove(&seat->request_set_cursor.link);
-	wl_list_remove(&seat->request_set_selection.link);
-	wl_list_remove(&seat->request_set_primary_selection.link);
+
+	pixman_region32_fini(&seat->confine);
 	seat->server->seat = NULL;
 	free(seat);
 }
@@ -1020,6 +1233,10 @@ seat_create(struct cg_server *server) {
 	seat->mode = 0;
 	seat->default_mode = 0;
 
+	seat->active_constraint = NULL;
+	pixman_region32_init(&seat->confine);
+	wl_list_init(&seat->constraint_commit.link);
+
 	return seat;
 }
 
@@ -1060,6 +1277,7 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 			view_activate(prev_view, false);
 		}
 		wlr_seat_keyboard_clear_focus(wlr_seat);
+		seat_maybe_set_constraint(seat, NULL);
 		process_cursor_motion(seat, -1);
 		return;
 	}
@@ -1110,6 +1328,7 @@ seat_set_focus(struct cg_seat *seat, struct cg_view *view) {
 		                               NULL);
 	}
 
+	seat_maybe_set_constraint(seat, view->wlr_surface);
 	wlr_scene_node_raise_to_top(&view->scene_tree->node);
 	process_cursor_motion(seat, -1);
 	wlr_scene_node_set_position(

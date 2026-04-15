@@ -1,5 +1,13 @@
 # Changelog
 
+## Release 3.2.0
+
+New Features:
+- pointer constraints protocol
+
+Fixes:
+- Fix Issue 80 & 81 (in Bugs.md)
+
 ## Release 3.1.0
 
 New Features:

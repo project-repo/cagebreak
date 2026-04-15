@@ -1,4 +1,4 @@
-// Copyright 2020 - 2025, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _DEFAULT_SOURCE
@@ -31,7 +31,9 @@
 #include <wlr/types/wlr_idle_inhibit_v1.h>
 #include <wlr/types/wlr_idle_notify_v1.h>
 #include <wlr/types/wlr_output_layout.h>
+#include <wlr/types/wlr_pointer_constraints_v1.h>
 #include <wlr/types/wlr_primary_selection_v1.h>
+#include <wlr/types/wlr_relative_pointer_v1.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_screencopy_v1.h>
 #include <wlr/types/wlr_server_decoration.h>
@@ -49,8 +51,8 @@
 #include "idle_inhibit_v1.h"
 #include "input_manager.h"
 #include "ipc_server.h"
-#include "layer_shell.h"
 #include "keybinding.h"
+#include "layer_shell.h"
 #include "message.h"
 #include "output.h"
 #include "parse.h"
@@ -595,6 +597,25 @@ main(int argc, char *argv[]) {
 	// Initialize layer shell support for screensharing and overlays
 	cg_layer_shell_init(&server);
 
+	server.relative_pointer_manager =
+	    wlr_relative_pointer_manager_v1_create(server.wl_display);
+	if(!server.relative_pointer_manager) {
+		wlr_log(WLR_ERROR, "Unable to create the relative pointer manager");
+		ret = 1;
+		goto end;
+	}
+
+	server.pointer_constraints =
+	    wlr_pointer_constraints_v1_create(server.wl_display);
+	if(!server.pointer_constraints) {
+		wlr_log(WLR_ERROR, "Unable to create the pointer constraints manager");
+		ret = 1;
+		goto end;
+	}
+	server.new_pointer_constraint.notify = handle_new_pointer_constraint;
+	wl_signal_add(&server.pointer_constraints->events.new_constraint,
+	              &server.new_pointer_constraint);
+
 #if CG_HAS_XWAYLAND
 	server.xwayland = wlr_xwayland_create(server.wl_display, compositor, true);
 	if(!server.xwayland) {
@@ -619,8 +640,8 @@ main(int argc, char *argv[]) {
 
 	if(xcursor) {
 		struct wlr_xcursor_image *image = xcursor->images[0];
-		wlr_xwayland_set_cursor(server.xwayland, image->buffer,
-		                        image->width * 4, image->width, image->height,
+		wlr_xwayland_set_cursor(server.xwayland,
+		                        wlr_xcursor_image_get_buffer(image),
 		                        image->hotspot_x, image->hotspot_y);
 	}
 #endif
@@ -719,9 +740,9 @@ main(int argc, char *argv[]) {
 
 end:
 	// Clean up layer shell
+#ifndef __clang_analyzer__
 	cg_layer_shell_destroy(&server);
 
-#ifndef __clang_analyzer__
 	if(server.modecursors) {
 		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
 			free(server.modecursors[i]);
@@ -776,6 +797,36 @@ end:
 		wl_event_source_remove(sigterm_source);
 		wl_event_source_remove(sigalrm_source);
 		wl_event_source_remove(sigpipe_source);
+	}
+
+	if(server.input) {
+		wl_list_remove(&server.input->new_input.link);
+		wl_list_remove(&server.input->virtual_keyboard_new.link);
+		wl_list_remove(&server.input->virtual_pointer_new.link);
+	}
+
+	if(server.idle_inhibit_v1) {
+		wl_list_remove(&server.new_idle_inhibitor_v1.link);
+	}
+
+	if(xdg_shell) {
+		wl_list_remove(&server.new_xdg_shell_toplevel.link);
+	}
+
+	if(xdg_decoration_manager) {
+		wl_list_remove(&server.xdg_toplevel_decoration.link);
+	}
+
+	if(server.gamma_control) {
+		wl_list_remove(&server.gamma_control_set_gamma.link);
+	}
+
+	if(server.pointer_constraints) {
+		wl_list_remove(&server.new_pointer_constraint.link);
+	}
+
+	if(server.new_output.notify) {
+		wl_list_remove(&server.new_output.link);
 	}
 
 	/* This function is not null-safe, but we only ever get here

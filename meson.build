@@ -1,9 +1,9 @@
-# Copyright 2020 - 2025, project-repo and the cagebreak contributors
+# Copyright 2020 - 2026, project-repo and the cagebreak contributors
 # SPDX-License-Identifier: MIT
 project(
   'cagebreak',
   'c',
-version : '3.1.0',
+version : '3.2.0',
 license : 'MIT',
 default_options : ['c_std=c23,c11', 'warning_level=3']
 )
@@ -53,7 +53,7 @@ if is_freebsd
   )
 endif
 
-wlroots        = dependency('wlroots-0.19')
+wlroots        = dependency('wlroots-0.20')
 wayland_protos = dependency('wayland-protocols', version: '>=1.14')
 wayland_server = dependency('wayland-server')
 wayland_cursor = dependency('wayland-cursor')
@@ -66,6 +66,7 @@ fontconfig     = dependency('fontconfig')
 libinput       = dependency('libinput')
 libevdev       = dependency('libevdev')
 libudev       = dependency('libudev')
+pixman         = dependency('pixman-1')
 math           = cc.find_library('m')
 
 wl_protocol_dir = wayland_protos.get_variable(pkgconfig : 'pkgdatadir')
@@ -78,6 +79,7 @@ wayland_scanner_server = generator(
 
 server_protocols = [
   [wl_protocol_dir, 'stable/xdg-shell/xdg-shell.xml'],
+  [wl_protocol_dir, 'unstable/pointer-constraints/pointer-constraints-unstable-v1.xml'],
   'protocols/wlr-layer-shell-unstable-v1.xml',
 ]
 
@@ -197,6 +199,7 @@ cagebreak_dependencies_dict = {
   'pango': [pango,true],
   'cairo': [cairo,true],
   'pangocairo': [pangocairo,true],
+  'pixman': [pixman,true],
   'math': [math,true],
 }
 
@@ -205,15 +208,16 @@ reproducible_build_versions = {
   'wayland_server': '1.19.0',
   'wayland_client': '1.24.0',
   'wayland_cursor': '1.24.0',
-  'wlroots': '0.19.2',
-  'xkbcommon': '1.12.3',
+  'wlroots': '0.20.0',
+  'xkbcommon': '1.13.1',
   'fontconfig': '2.17.1',
-  'libinput': '1.29.2',
-  'libevdev': '1.13.5',
-  'libudev': '258',
-  'pango': '1.57.0',
+  'libinput': '1.31.1',
+  'libevdev': '1.13.6',
+  'libudev': '260',
+  'pango': '1.57.1',
   'cairo': '1.18.4',
-  'pangocairo': '1.57.0',
+  'pangocairo': '1.57.1',
+  'pixman': '0.46.4',
   'math': '-1'
 }
 
@@ -261,7 +265,7 @@ install_data('LICENSE', install_dir : '/usr/share/licenses/' + meson.project_nam
 
 if get_option('man-pages')
   scdoc = find_program('scdoc')
-  secssinceepoch = 1762086729
+  secssinceepoch = 1776282114
   shcommand = 'export SOURCE_DATE_EPOCH=' + secssinceepoch.to_string() + ' ; @0@ < @INPUT@'.format(scdoc.full_path())
   sh = find_program('sh')
   mandir1 = join_paths(get_option('mandir'), 'man1')

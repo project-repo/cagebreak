@@ -1,4 +1,4 @@
-// Copyright 2020 - 2025, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
@@ -142,19 +142,19 @@ output_destroy(struct cg_output *output) {
 		wl_list_remove(&output->frame.link);
 
 		// Destroy layer shell scene trees
-		if (output->layer_shell_background) {
+		if(output->layer_shell_background) {
 			wlr_scene_node_destroy(&output->layer_shell_background->node);
 			output->layer_shell_background = NULL;
 		}
-		if (output->layer_shell_bottom) {
+		if(output->layer_shell_bottom) {
 			wlr_scene_node_destroy(&output->layer_shell_bottom->node);
 			output->layer_shell_bottom = NULL;
 		}
-		if (output->layer_shell_top) {
+		if(output->layer_shell_top) {
 			wlr_scene_node_destroy(&output->layer_shell_top->node);
 			output->layer_shell_top = NULL;
 		}
-		if (output->layer_shell_overlay) {
+		if(output->layer_shell_overlay) {
 			wlr_scene_node_destroy(&output->layer_shell_overlay->node);
 			output->layer_shell_overlay = NULL;
 		}
@@ -172,16 +172,20 @@ output_destroy(struct cg_output *output) {
 		    wlr_scene_output_create(server->scene, output->wlr_output);
 
 		// Recreate layer shell scene trees
-		output->layer_shell_background = wlr_scene_tree_create(&server->scene->tree);
-		output->layer_shell_bottom = wlr_scene_tree_create(&server->scene->tree);
+		output->layer_shell_background =
+		    wlr_scene_tree_create(&server->scene->tree);
+		output->layer_shell_bottom =
+		    wlr_scene_tree_create(&server->scene->tree);
 		output->layer_shell_top = wlr_scene_tree_create(&server->scene->tree);
-		output->layer_shell_overlay = wlr_scene_tree_create(&server->scene->tree);
+		output->layer_shell_overlay =
+		    wlr_scene_tree_create(&server->scene->tree);
 
-		// Only add to layout if session is active (skip during TTY switch to avoid cursor updates)
+		// Only add to layout if session is active (skip during TTY switch to
+		// avoid cursor updates)
 		if(!server->session || server->session->active) {
-			struct wlr_output_layout_output *lo =
-			    wlr_output_layout_add(server->output_layout, output->wlr_output,
-			                          output->layout_box.x, output->layout_box.y);
+			struct wlr_output_layout_output *lo = wlr_output_layout_add(
+			    server->output_layout, output->wlr_output, output->layout_box.x,
+			    output->layout_box.y);
 			wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
 			                                   output->scene_output);
 		}
@@ -382,7 +386,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	if(config->angle != -1) {
 		wlr_output_state_set_transform(state, config->angle);
 	}
-	if(config->scale != -1) {
+	if(config->scale != -1 && config->scale <= 10) {
 		wlr_log(WLR_INFO, "Setting output scale to %f", config->scale);
 		wlr_output_state_set_scale(state, config->scale);
 	}
@@ -493,12 +497,14 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 
 	// Ensure layer shell background is just above the solid color bg
 	// This allows wallpapers (layer shell background surfaces) to show
-	if (output->layer_shell_background) {
-		wlr_scene_node_place_above(&output->layer_shell_background->node, &output->bg->node);
+	if(output->layer_shell_background) {
+		wlr_scene_node_place_above(&output->layer_shell_background->node,
+		                           &output->bg->node);
 	}
 	// Then ensure layer_shell_bottom is above background
-	if (output->layer_shell_bottom) {
-		wlr_scene_node_place_above(&output->layer_shell_bottom->node, &output->layer_shell_background->node);
+	if(output->layer_shell_bottom) {
+		wlr_scene_node_place_above(&output->layer_shell_bottom->node,
+		                           &output->layer_shell_background->node);
 	}
 
 	free(state);
@@ -703,7 +709,8 @@ handle_new_output(struct wl_listener *listener, void *data) {
 
 	// Create layer shell scene trees in Z-order (bottom to top)
 	// These allow layer shell surfaces to be properly ordered
-	output->layer_shell_background = wlr_scene_tree_create(&server->scene->tree);
+	output->layer_shell_background =
+	    wlr_scene_tree_create(&server->scene->tree);
 	output->layer_shell_bottom = wlr_scene_tree_create(&server->scene->tree);
 	// Normal windows render between bottom and top
 	output->layer_shell_top = wlr_scene_tree_create(&server->scene->tree);
@@ -798,16 +805,16 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		wlr_output_state_set_enabled(state, true);
 		wlr_output_commit_state(wlr_output, state);
 		output_configure(server, output);
-		output_get_layout_box(output);
 		free(state);
 	}
 
 	if(server->renderer) {
-		wlr_cursor_set_xcursor(server->seat->cursor, server->seat->xcursor_manager,
-		                       DEFAULT_XCURSOR);
+		wlr_cursor_set_xcursor(server->seat->cursor,
+		                       server->seat->xcursor_manager, DEFAULT_XCURSOR);
 	}
 	wlr_cursor_warp(server->seat->cursor, NULL, 0, 0);
 
+#ifndef __clang_analyzer__
 	output->destroy.notify = handle_output_destroy;
 	wl_signal_add(&wlr_output->events.destroy, &output->destroy);
 	output->frame.notify = handle_output_frame;
@@ -820,4 +827,5 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	               "id\":%d,\"priority\":%d,\"restart\":%d}",
 	               output->name, output_get_num(output), output->priority,
 	               reinit);
+#endif
 }

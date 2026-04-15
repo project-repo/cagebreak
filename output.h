@@ -1,4 +1,4 @@
-// Copyright 2020 - 2025, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #ifndef CG_OUTPUT_H
@@ -75,6 +75,9 @@ void
 handle_new_output(struct wl_listener *listener, void *data);
 void
 output_configure(struct cg_server *server, struct cg_output *output);
+void
+output_apply_config(struct cg_server *server, struct cg_output *output,
+                    struct cg_output_config *cfg);
 void
 output_set_window_title(struct cg_output *output, const char *title);
 void

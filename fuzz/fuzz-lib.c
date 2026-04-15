@@ -1,4 +1,4 @@
-// Copyright 2020 - 2025, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200812L
@@ -105,7 +105,9 @@ cleanup(void) {
 
 	keybinding_list_free(server.keybindings);
 
-	seat_destroy(server.seat);
+	if(server.seat != NULL) {
+		seat_destroy(server.seat);
+	}
 	/* This function is not null-safe, but we only ever get here
 	   with a proper wl_display. */
 	wlr_output_layout_destroy(server.output_layout);
@@ -435,9 +437,8 @@ LLVMFuzzerInitialize(int *argc, char ***argv) {
 
 	if(xcursor) {
 		struct wlr_xcursor_image *image = xcursor->images[0];
-		wlr_xwayland_set_cursor(xwayland, image->buffer, image->width * 4,
-		                        image->width, image->height, image->hotspot_x,
-		                        image->hotspot_y);
+		wlr_xwayland_set_cursor(xwayland, wlr_xcursor_image_get_buffer(image),
+		                        image->hotspot_x, image->hotspot_y);
 	}
 #endif
 
