@@ -798,7 +798,6 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		wlr_output_state_set_enabled(state, true);
 		wlr_output_commit_state(wlr_output, state);
 		output_configure(server, output);
-		output_get_layout_box(output);
 		free(state);
 	}
 

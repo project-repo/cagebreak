@@ -128,11 +128,9 @@ handle_layer_surface_commit(struct wl_listener *listener,
 }
 
 static void
-handle_new_popup(struct wl_listener *listener,
+handle_new_popup(__attribute__((unused)) struct wl_listener *listener,
                 __attribute__((unused)) void *data) {
 	// Handle popups from layer surfaces
-	struct cg_layer_surface *layer_surface =
-	    wl_container_of(listener, layer_surface, new_popup);
 	wlr_log(WLR_DEBUG, "New popup from layer surface");
 }
 
