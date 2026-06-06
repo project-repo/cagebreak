@@ -53,7 +53,7 @@ discouraged).
 
 1. Check which gpg key versions are currently valid.
 2. Generate keys with incremented numbers/emails/dates/passphrase.
-   * Use 4096 Bit RSA Keys
+   * Use Ed25519 keys for certification and signing, and Curve25519 for encryption subkeys.
 3. Sign the new keys with at least one then-old signing key.
 4. Genereate new cagebreak@project-repo.co key
 5. Sign the new mail key with the new signing keys.

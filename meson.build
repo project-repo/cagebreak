@@ -3,7 +3,7 @@
 project(
   'cagebreak',
   'c',
-version : '3.2.0',
+version : '3.2.1',
 license : 'MIT',
 default_options : ['c_std=c23,c11', 'warning_level=3']
 )
@@ -206,12 +206,12 @@ cagebreak_dependencies_dict = {
 reproducible_build_versions = { 
   'server_protos': '-1',
   'wayland_server': '1.19.0',
-  'wayland_client': '1.24.0',
-  'wayland_cursor': '1.24.0',
-  'wlroots': '0.20.0',
-  'xkbcommon': '1.13.1',
-  'fontconfig': '2.17.1',
-  'libinput': '1.31.1',
+  'wayland_client': '1.25.0',
+  'wayland_cursor': '1.25.0',
+  'wlroots': '0.20.1',
+  'xkbcommon': '1.13.2',
+  'fontconfig': '2.18.1',
+  'libinput': '1.31.3',
   'libevdev': '1.13.6',
   'libudev': '260',
   'pango': '1.57.1',
@@ -243,7 +243,7 @@ foreach name, dep : cagebreak_dependencies_dict
 endforeach
 
 reproducible_build_compiler = 'gcc'
-reproducible_build_compiler_version = '15.2.1'
+reproducible_build_compiler_version = '16.1.1'
 
 if cc.get_id() != reproducible_build_compiler
   warning('The compiler "' + cc.get_id() + '" differs from the one used to generate to binary specified in Hashes.md (' + reproducible_build_compiler + ').')

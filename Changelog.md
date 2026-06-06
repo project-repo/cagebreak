@@ -1,5 +1,12 @@
 # Changelog
 
+## Release 3.2.1
+
+Update dependencies and rotate keys
+
+Fixes:
+- Fix test/illegal-strings static test
+
 ## Release 3.2.0
 
 New Features:
