@@ -5,7 +5,8 @@
 Update dependencies and rotate keys
 
 Fixes:
-- Fix test/illegal-strings static test
+- Fix test/illegal-strings, test/arguments and test/environment-variables static tests
+- Fix bug on early quit
 
 ## Release 3.2.0
 

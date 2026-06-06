@@ -1377,3 +1377,9 @@ for output scaling.
 
 Before 3.2.0 cagebreak incorrectly handled pointer focus for drag and drop.
 
+# Issue 82
+
+  * github issue number: N/A
+  * Fixed: 3.2.1
+
+Before 3.2.1 cagebreak would crash when `quit'' was specified in the config file.
