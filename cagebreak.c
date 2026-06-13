@@ -332,6 +332,7 @@ main(int argc, char *argv[]) {
 	server.wl_display = wl_display_create();
 	if(!server.wl_display) {
 		wlr_log(WLR_ERROR, "Cannot allocate a Wayland display");
+		free(server.modecursors);
 		free(server.modes);
 		server.modes = NULL;
 		server.modecursors = NULL;
@@ -703,8 +704,11 @@ main(int argc, char *argv[]) {
 			conf_ret = set_configuration(&server, default_conf);
 		}
 
-		if(conf_ret != 0 || !server.running) {
+		if(conf_ret != 0) {
 			ret = 1;
+			goto end;
+		}
+		if(!server.running) {
 			goto end;
 		}
 	}
@@ -728,36 +732,40 @@ main(int argc, char *argv[]) {
 	wlr_cursor_warp(server.seat->cursor, NULL, 0, 0);
 
 	wl_display_run(server.wl_display);
+end:
+	if(server.modecursors != NULL) {
+		for(unsigned int i = 0; server.modes != NULL && server.modes[i] != NULL;
+		    ++i) {
+			free(server.modecursors[i]);
+		}
+		free(server.modecursors);
+		server.modecursors = NULL;
+	}
+
+	if(server.modes != NULL) {
+		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
+			free(server.modes[i]);
+		}
+		free(server.modes);
+		server.modes = NULL;
+	}
 
 #if CG_HAS_XWAYLAND
 	if(server.xwayland != NULL) {
 		wl_list_remove(&server.new_xwayland_surface.link);
 		wlr_xwayland_destroy(server.xwayland);
+		server.xwayland = NULL;
 	}
 #endif
 
-	wl_display_destroy_clients(server.wl_display);
+	if(server.wl_display != NULL) {
+		wl_display_destroy_clients(server.wl_display);
+	}
 
-end:
 	// Clean up layer shell
 #ifndef __clang_analyzer__
 	cg_layer_shell_destroy(&server);
-
-	if(server.modecursors) {
-		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
-			free(server.modecursors[i]);
-		}
-		free(server.modecursors);
-	}
 #endif
-
-	if(server.modes) {
-		for(unsigned int i = 0; server.modes[i] != NULL; ++i) {
-			free(server.modes[i]);
-		}
-		free(server.modes);
-	}
-
 	if(config_path) {
 		free(config_path);
 	}
