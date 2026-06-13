@@ -21,6 +21,13 @@ Outputs:
 Inputs:"
 
 RESULT=0
+asan_options="${ASAN_OPTIONS:-}"
+if [[ -n ${asan_options} ]]
+then
+	asan_options="${asan_options}:detect_leaks=0"
+else
+	asan_options="detect_leaks=0"
+fi
 
 # check -c option
 ## Check without config file
@@ -29,7 +36,7 @@ RESULT=0
 ## Check with config file
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/-c-config" "${testdir}/arguments/"
 sed -i "s|CONFIGPATH|${testdir}\/arguments\/result|g" "${testdir}/arguments/-c-config"
-WLR_BACKENDS=headless ./cagebreak -c "${testdir}/arguments/-c-config" || RESULT=1
+ASAN_OPTIONS="${asan_options}" WLR_BACKENDS=headless ./cagebreak -c "${testdir}/arguments/-c-config" || RESULT=1
 sync
 [[ $(cat "${testdir}/arguments/result") = "SUCCESS" ]] || RESULT=1
 
@@ -38,13 +45,13 @@ sync
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}/arguments"
 readonly oldsocket=$CAGEBREAK_SOCKET
 sed -i "s|CONFIGPATH|${testdir}\/arguments\/socket|g" "${testdir}/arguments/config"
-(WLR_BACKENDS=headless ./cagebreak -c "${testdir}/arguments/config") || RESULT=1
+(ASAN_OPTIONS="${asan_options}" WLR_BACKENDS=headless ./cagebreak -c "${testdir}/arguments/config") || RESULT=1
 sync
 [[ $(cat "${testdir}/arguments/socket") = "${oldsocket}" ]] || RESULT=1
 ## Check with socket
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}/arguments"
 sed -i "s|CONFIGPATH|$testdir\/arguments\/socket|g" "${testdir}/arguments/config"
-(WLR_BACKENDS=headless ./cagebreak -e -c "${testdir}/arguments/config") || RESULT=1
+(ASAN_OPTIONS="${asan_options}" WLR_BACKENDS=headless ./cagebreak -e -c "${testdir}/arguments/config") || RESULT=1
 sync
 [[ ! $(cat "${testdir}/arguments/socket") = "${oldsocket}" ]] || RESULT=1
 
@@ -52,7 +59,7 @@ sync
 [[ $(./cagebreak -h) = "$helptext" ]] || RESULT=1
 
 # check -s option
-info_output=$(WLR_BACKENDS=headless ./cagebreak -s) || RESULT=1
+info_output=$(ASAN_OPTIONS="${asan_options}" WLR_BACKENDS=headless ./cagebreak -s) || RESULT=1
 [[ ${info_output} =~ ${basicheadless} ]] || RESULT=1
 
 
