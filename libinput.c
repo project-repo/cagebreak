@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #include "input.h"
@@ -252,7 +252,7 @@ input_device_get_type(struct cg_input_device *device) {
 		return "keyboard";
 	case WLR_INPUT_DEVICE_TOUCH:
 		return "touch";
-	case WLR_INPUT_DEVICE_TABLET_TOOL:
+	case WLR_INPUT_DEVICE_TABLET:
 		return "tablet_tool";
 	case WLR_INPUT_DEVICE_TABLET_PAD:
 		return "tablet_pad";

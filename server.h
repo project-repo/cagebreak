@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #ifndef CG_SERVER_H
@@ -18,6 +18,7 @@ struct wlr_output_layout;
 struct wlr_idle_inhibit_manager_v1;
 struct cg_output_config;
 struct cg_input_manager;
+struct wlr_layer_shell_v1;
 
 struct cg_server {
 	struct wl_display *wl_display;
@@ -48,7 +49,15 @@ struct cg_server {
 	struct wlr_scene *scene;
 
 	struct wl_listener xdg_toplevel_decoration;
-	struct wl_listener new_xdg_shell_surface;
+	struct wl_listener new_xdg_shell_toplevel;
+	struct wl_list xdg_decorations;
+
+	struct wlr_layer_shell_v1 *layer_shell;
+	struct wl_listener new_layer_surface;
+
+	struct wlr_relative_pointer_manager_v1 *relative_pointer_manager;
+	struct wlr_pointer_constraints_v1 *pointer_constraints;
+	struct wl_listener new_pointer_constraint;
 #if CG_HAS_XWAYLAND
 	struct wl_listener new_xwayland_surface;
 	struct wlr_xwayland *xwayland;
@@ -65,6 +74,7 @@ struct cg_server {
 	bool bs;
 	bool running;
 	char **modes;
+	char **modecursors;
 	uint16_t nws;
 	float *bg_color;
 	uint32_t views_curr_id;

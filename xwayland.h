@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #ifndef CG_XWAYLAND_H
@@ -9,6 +9,7 @@
 struct cg_xwayland_view {
 	struct cg_view view;
 	struct wlr_xwayland_surface *xwayland_surface;
+	struct wlr_scene_tree *scene_tree;
 
 	struct wl_listener destroy;
 	struct wl_listener unmap;

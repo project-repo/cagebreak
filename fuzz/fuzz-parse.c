@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200812L
@@ -68,6 +68,8 @@ LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 	}
 	server.modes[3] = NULL;
 	server.modes = realloc(server.modes, 4 * sizeof(char *));
+	server.modecursors[3] = NULL;
+	server.modecursors = realloc(server.modecursors, 4 * sizeof(char *));
 
 	struct cg_output_config *output_config, *output_config_tmp;
 	wl_list_for_each_safe(output_config, output_config_tmp,
@@ -76,5 +78,24 @@ LLVMFuzzerTestOneInput(const uint8_t *data, size_t size) {
 		free(output_config->output_name);
 		free(output_config);
 	}
+	struct cg_output_config *cfg = calloc(1, sizeof(struct cg_output_config));
+
+	cfg->status = OUTPUT_DEFAULT;
+	cfg->role = OUTPUT_ROLE_DEFAULT;
+	cfg->pos.x = 0;
+	cfg->pos.y = 0;
+	cfg->pos.width = 1000;
+	cfg->pos.height = 400;
+	cfg->output_name = NULL;
+	cfg->refresh_rate = 60;
+	cfg->priority = -1;
+	cfg->scale = 1;
+	cfg->angle = 0;
+
+	wl_list_for_each(output, &server.outputs, link) {
+		output_apply_config(&server, output, cfg);
+	}
+	free(cfg);
+
 	return 0;
 }

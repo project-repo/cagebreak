@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #ifndef CG_OUTPUT_H
@@ -36,6 +36,12 @@ struct cg_output {
 	bool destroyed;
 	char *name;
 
+	// Layer shell scene trees (in Z-order)
+	struct wlr_scene_tree *layer_shell_background;
+	struct wlr_scene_tree *layer_shell_bottom;
+	struct wlr_scene_tree *layer_shell_top;
+	struct wlr_scene_tree *layer_shell_overlay;
+
 	struct wl_list link; // cg_server::outputs
 };
 
@@ -70,9 +76,12 @@ handle_new_output(struct wl_listener *listener, void *data);
 void
 output_configure(struct cg_server *server, struct cg_output *output);
 void
+output_apply_config(struct cg_server *server, struct cg_output *output,
+                    struct cg_output_config *cfg);
+void
 output_set_window_title(struct cg_output *output, const char *title);
 void
-output_make_workspace_fullscreen(struct cg_output *output, int ws);
+output_make_workspace_fullscreen(struct cg_output *output, uint32_t ws);
 int
 output_get_num(const struct cg_output *output);
 void

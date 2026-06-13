@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
@@ -6,6 +6,7 @@
 #include "config.h"
 #include <wlr/config.h>
 
+#include <limits.h>
 #include <string.h>
 #include <unistd.h>
 #include <wayland-server-core.h>
@@ -15,6 +16,7 @@
 #include <wlr/backend/x11.h>
 #endif
 #include <wlr/backend/headless.h>
+#include <wlr/backend/session.h>
 #include <wlr/types/wlr_compositor.h>
 #include <wlr/types/wlr_cursor.h>
 #include <wlr/types/wlr_data_device.h>
@@ -138,26 +140,61 @@ output_destroy(struct cg_output *output) {
 		wl_list_remove(&output->destroy.link);
 		wl_list_remove(&output->commit.link);
 		wl_list_remove(&output->frame.link);
+
+		// Destroy layer shell scene trees
+		if(output->layer_shell_background) {
+			wlr_scene_node_destroy(&output->layer_shell_background->node);
+			output->layer_shell_background = NULL;
+		}
+		if(output->layer_shell_bottom) {
+			wlr_scene_node_destroy(&output->layer_shell_bottom->node);
+			output->layer_shell_bottom = NULL;
+		}
+		if(output->layer_shell_top) {
+			wlr_scene_node_destroy(&output->layer_shell_top->node);
+			output->layer_shell_top = NULL;
+		}
+		if(output->layer_shell_overlay) {
+			wlr_scene_node_destroy(&output->layer_shell_overlay->node);
+			output->layer_shell_overlay = NULL;
+		}
+
 		wlr_scene_output_destroy(output->scene_output);
 		output->scene_output = NULL;
 	}
 	output->destroyed = true;
 	enum output_role role = output->role;
-	if(role == OUTPUT_ROLE_PERMANENT) {
+	if(role == OUTPUT_ROLE_PERMANENT && server->running) {
 		output->wlr_output = wlr_headless_add_output(server->headless_backend,
 		                                             output->layout_box.width,
 		                                             output->layout_box.height);
 		output->scene_output =
 		    wlr_scene_output_create(server->scene, output->wlr_output);
-		struct wlr_output_layout_output *lo =
-		    wlr_output_layout_add(server->output_layout, output->wlr_output,
-		                          output->layout_box.x, output->layout_box.y);
-		wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
-		                                   output->scene_output);
+
+		// Recreate layer shell scene trees
+		output->layer_shell_background =
+		    wlr_scene_tree_create(&server->scene->tree);
+		output->layer_shell_bottom =
+		    wlr_scene_tree_create(&server->scene->tree);
+		output->layer_shell_top = wlr_scene_tree_create(&server->scene->tree);
+		output->layer_shell_overlay =
+		    wlr_scene_tree_create(&server->scene->tree);
+
+		// Only add to layout if session is active (skip during TTY switch to
+		// avoid cursor updates)
+		if(!server->session || server->session->active) {
+			struct wlr_output_layout_output *lo = wlr_output_layout_add(
+			    server->output_layout, output->wlr_output, output->layout_box.x,
+			    output->layout_box.y);
+			wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
+			                                   output->scene_output);
+		}
 
 	} else {
 
 		output_clear(output);
+
+		wlr_scene_node_destroy(&output->bg->node);
 
 		for(unsigned int i = 0; i < server->nws; ++i) {
 			workspace_free(output->workspaces[i]);
@@ -177,13 +214,14 @@ output_destroy(struct cg_output *output) {
 		wlr_log(WLR_ERROR,
 		        "Failed to allocate memory for output name in output_destroy");
 	}
-	if(wl_list_empty(&server->outputs)) {
+	if(wl_list_empty(&server->outputs) && server->running) {
 		wl_display_terminate(server->wl_display);
 	}
 }
 
 static void
-handle_output_destroy(struct wl_listener *listener, void *data) {
+handle_output_destroy(struct wl_listener *listener,
+                      __attribute__((unused)) void *data) {
 	struct cg_output *output = wl_container_of(listener, output, destroy);
 	output_destroy(output);
 }
@@ -210,7 +248,8 @@ handle_output_gamma_control_set_gamma(struct wl_listener *listener,
 }
 
 static void
-handle_output_frame(struct wl_listener *listener, void *data) {
+handle_output_frame(struct wl_listener *listener,
+                    __attribute__((unused)) void *data) {
 	struct cg_output *output = wl_container_of(listener, output, frame);
 	if(!output->wlr_output->enabled) {
 		return;
@@ -228,14 +267,17 @@ handle_output_frame(struct wl_listener *listener, void *data) {
 }
 
 static int
-output_set_mode(struct wlr_output *output, int width, int height,
-                float refresh_rate) {
+output_set_mode(struct wlr_output *output, struct wlr_output_state *state,
+                int width, int height, float refresh_rate) {
+	if(refresh_rate * 1000 > (float)INT_MAX || refresh_rate * 1000 < 0) {
+		refresh_rate = 0;
+	}
 	int mhz = (int)(refresh_rate * 1000);
 
 	if(wl_list_empty(&output->modes)) {
 		wlr_log(WLR_DEBUG, "Assigning custom mode to %s", output->name);
-		wlr_output_set_custom_mode(output, width, height,
-		                           refresh_rate > 0 ? mhz : 0);
+		wlr_output_state_set_custom_mode(state, width, height,
+		                                 refresh_rate > 0 ? mhz : 0);
 		return 0;
 	}
 
@@ -259,9 +301,9 @@ output_set_mode(struct wlr_output *output, int width, int height,
 	} else {
 		wlr_log(WLR_DEBUG, "Assigning configured mode to %s", output->name);
 	}
-	wlr_output_set_mode(output, best);
-	wlr_output_commit(output);
-	if(!wlr_output_test(output)) {
+	wlr_output_state_set_mode(state, best);
+	wlr_output_commit_state(output, state);
+	if(!wlr_output_test_state(output, state)) {
 		wlr_log(WLR_ERROR,
 		        "Unable to assign configured mode to %s, picking arbitrary "
 		        "available mode",
@@ -271,13 +313,13 @@ output_set_mode(struct wlr_output *output, int width, int height,
 			if(mode == best) {
 				continue;
 			}
-			wlr_output_set_mode(output, mode);
-			wlr_output_commit(output);
-			if(wlr_output_test(output)) {
+			wlr_output_state_set_mode(state, mode);
+			wlr_output_commit_state(output, state);
+			if(wlr_output_test_state(output, state)) {
 				break;
 			}
 		}
-		if(!wlr_output_test(output)) {
+		if(!wlr_output_test_state(output, state)) {
 			return 1;
 		}
 	}
@@ -312,6 +354,13 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
                     struct cg_output_config *config) {
 	struct wlr_output *wlr_output = output->wlr_output;
 
+	struct wlr_output_state *state = calloc(1, sizeof(*state));
+	if(!state) {
+		wlr_log(WLR_ERROR, "Could not allocate memory for output state, "
+		                   "skipping output configuration.");
+		return;
+	}
+	wlr_output_state_init(state);
 	struct wlr_box prev_box;
 	prev_box.x = output->layout_box.x;
 	prev_box.y = output->layout_box.y;
@@ -324,6 +373,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		   (output->destroyed == true)) {
 			output_destroy(output);
 			wlr_output_destroy(wlr_output);
+			free(state);
 			return;
 		}
 	}
@@ -334,20 +384,21 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	}
 
 	if(config->angle != -1) {
-		wlr_output_set_transform(wlr_output, config->angle);
+		wlr_output_state_set_transform(state, config->angle);
 	}
-	if(config->scale != -1) {
+	if(config->scale != -1 && config->scale <= 10) {
 		wlr_log(WLR_INFO, "Setting output scale to %f", config->scale);
-		wlr_output_set_scale(wlr_output, config->scale);
+		wlr_output_state_set_scale(state, config->scale);
 	}
 	if(config->pos.x != -1) {
-		if(output_set_mode(wlr_output, config->pos.width, config->pos.height,
-		                   config->refresh_rate) != 0) {
+		if(output_set_mode(wlr_output, state, config->pos.width,
+		                   config->pos.height, config->refresh_rate) != 0) {
 			wlr_log(WLR_ERROR, "Setting output mode failed, disabling output.");
 			output_clear(output);
 			wl_list_insert(&server->disabled_outputs, &output->link);
-			wlr_output_enable(wlr_output, false);
-			wlr_output_commit(wlr_output);
+			wlr_output_state_set_enabled(state, false);
+			wlr_output_commit_state(wlr_output, state);
+			free(state);
 			return;
 		}
 		if(wlr_box_empty(&output->layout_box)) {
@@ -407,7 +458,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		struct wlr_output_mode *preferred_mode =
 		    wlr_output_preferred_mode(wlr_output);
 		if(preferred_mode) {
-			wlr_output_set_mode(wlr_output, preferred_mode);
+			wlr_output_state_set_mode(state, preferred_mode);
 		}
 	}
 	/* Refuse to disable the only output */
@@ -415,15 +466,15 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	   wl_list_length(&server->outputs) > 1) {
 		output_clear(output);
 		wl_list_insert(&server->disabled_outputs, &output->link);
-		wlr_output_enable(wlr_output, false);
-		wlr_output_commit(wlr_output);
+		wlr_output_state_set_enabled(state, false);
+		wlr_output_commit_state(wlr_output, state);
 	} else {
 		if(prio_changed) {
 			wl_list_remove(&output->link);
 			output_insert(server, output);
 		}
-		wlr_output_enable(wlr_output, true);
-		wlr_output_commit(wlr_output);
+		wlr_output_state_set_enabled(state, true);
+		wlr_output_commit_state(wlr_output, state);
 	}
 
 	if(output->bg != NULL) {
@@ -433,6 +484,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	struct wlr_scene_output *scene_output =
 	    wlr_scene_get_scene_output(output->server->scene, output->wlr_output);
 	if(scene_output == NULL) {
+		free(state);
 		return;
 	}
 	output->bg = wlr_scene_rect_create(
@@ -440,7 +492,22 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	    output->wlr_output->height, server->bg_color);
 	wlr_scene_node_set_position(&output->bg->node, scene_output->x,
 	                            scene_output->y);
+	// Place background at the very bottom
 	wlr_scene_node_lower_to_bottom(&output->bg->node);
+
+	// Ensure layer shell background is just above the solid color bg
+	// This allows wallpapers (layer shell background surfaces) to show
+	if(output->layer_shell_background) {
+		wlr_scene_node_place_above(&output->layer_shell_background->node,
+		                           &output->bg->node);
+	}
+	// Then ensure layer_shell_bottom is above background
+	if(output->layer_shell_bottom) {
+		wlr_scene_node_place_above(&output->layer_shell_bottom->node,
+		                           &output->layer_shell_background->node);
+	}
+
+	free(state);
 }
 
 struct cg_output_config *
@@ -571,8 +638,11 @@ handle_output_commit(struct wl_listener *listener, void *data) {
 }
 
 void
-output_make_workspace_fullscreen(struct cg_output *output, int ws) {
+output_make_workspace_fullscreen(struct cg_output *output, uint32_t ws) {
 	struct cg_server *server = output->server;
+	if(ws >= server->nws) {
+		return;
+	}
 	struct cg_view *current_view = output->workspaces[ws]->focused_tile->view;
 
 	if(current_view == NULL) {
@@ -586,8 +656,7 @@ output_make_workspace_fullscreen(struct cg_output *output, int ws) {
 	}
 
 	workspace_free_tiles(output->workspaces[ws]);
-	if(full_screen_workspace_tiles(server->output_layout,
-	                               output->workspaces[ws],
+	if(full_screen_workspace_tiles(output->workspaces[ws],
 	                               &server->tiles_curr_id) != 0) {
 		wlr_log(WLR_ERROR, "Failed to allocate space for fullscreen workspace");
 		return;
@@ -600,7 +669,8 @@ output_make_workspace_fullscreen(struct cg_output *output, int ws) {
 
 	workspace_tile_update_view(output->workspaces[ws]->focused_tile,
 	                           current_view);
-	if((ws == output->curr_workspace) && (output == server->curr_output)) {
+	if((ws == (uint32_t)output->curr_workspace) &&
+	   (output == server->curr_output)) {
 		seat_set_focus(server->seat, current_view);
 	}
 }
@@ -609,7 +679,6 @@ void
 handle_new_output(struct wl_listener *listener, void *data) {
 	struct cg_server *server = wl_container_of(listener, server, new_output);
 	struct wlr_output *wlr_output = data;
-	wlr_output_enable(wlr_output, true);
 
 	if(!wlr_output_init_render(wlr_output, server->allocator,
 	                           server->renderer)) {
@@ -638,10 +707,29 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	}
 	output->scene_output = wlr_scene_output_create(server->scene, wlr_output);
 
+	// Create layer shell scene trees in Z-order (bottom to top)
+	// These allow layer shell surfaces to be properly ordered
+	output->layer_shell_background =
+	    wlr_scene_tree_create(&server->scene->tree);
+	output->layer_shell_bottom = wlr_scene_tree_create(&server->scene->tree);
+	// Normal windows render between bottom and top
+	output->layer_shell_top = wlr_scene_tree_create(&server->scene->tree);
+	output->layer_shell_overlay = wlr_scene_tree_create(&server->scene->tree);
+
 	output->wlr_output = wlr_output;
 	output->destroyed = false;
 
+	// Store reference to cg_output in wlr_output for layer shell access
+	wlr_output->data = output;
+
 	if(!reinit) {
+		struct wlr_output_state *state = calloc(1, sizeof(*state));
+		wlr_output_state_init(state);
+		wlr_output_state_set_transform(state, WL_OUTPUT_TRANSFORM_NORMAL);
+		wlr_output_state_set_enabled(state, true);
+		wlr_output_commit_state(wlr_output, state);
+		free(state);
+
 		output->server = server;
 		output->name = strdup(wlr_output->name);
 
@@ -653,7 +741,6 @@ handle_new_output(struct wl_listener *listener, void *data) {
 			}
 		}
 		output->priority = prio;
-		wlr_output_set_transform(wlr_output, WL_OUTPUT_TRANSFORM_NORMAL);
 		output->workspaces = NULL;
 
 		wl_list_init(&output->messages);
@@ -688,6 +775,12 @@ handle_new_output(struct wl_listener *listener, void *data) {
 		wlr_scene_node_raise_to_top(&output->workspaces[0]->scene->node);
 		workspace_focus(output, 0);
 
+		// Ensure layer shell trees are in correct Z-order
+		// Background and bottom are already below (created first)
+		// Now raise top and overlay above the workspaces
+		wlr_scene_node_raise_to_top(&output->layer_shell_top->node);
+		wlr_scene_node_raise_to_top(&output->layer_shell_overlay->node);
+
 		/* We are the first output. Set the current output to this one. */
 		if(server->curr_output == NULL) {
 			server->curr_output = output;
@@ -701,22 +794,27 @@ handle_new_output(struct wl_listener *listener, void *data) {
 
 		struct wlr_output_mode *preferred_mode =
 		    wlr_output_preferred_mode(wlr_output);
+		struct wlr_output_state *state = calloc(1, sizeof(*state));
+		wlr_output_state_init(state);
+		wlr_output_state_set_transform(state, WL_OUTPUT_TRANSFORM_NORMAL);
 		if(preferred_mode) {
-			wlr_output_set_mode(wlr_output, preferred_mode);
+			wlr_output_state_set_mode(state, preferred_mode);
 		}
-		wlr_output_set_transform(wlr_output, WL_OUTPUT_TRANSFORM_NORMAL);
 		wlr_scene_output_set_position(
 		    output->scene_output, output->layout_box.x, output->layout_box.y);
-		wlr_output_enable(wlr_output, true);
-		wlr_output_commit(wlr_output);
+		wlr_output_state_set_enabled(state, true);
+		wlr_output_commit_state(wlr_output, state);
 		output_configure(server, output);
-		output_get_layout_box(output);
+		free(state);
 	}
 
-	wlr_cursor_set_xcursor(server->seat->cursor, server->seat->xcursor_manager,
-	                       DEFAULT_XCURSOR);
+	if(server->renderer) {
+		wlr_cursor_set_xcursor(server->seat->cursor,
+		                       server->seat->xcursor_manager, DEFAULT_XCURSOR);
+	}
 	wlr_cursor_warp(server->seat->cursor, NULL, 0, 0);
 
+#ifndef __clang_analyzer__
 	output->destroy.notify = handle_output_destroy;
 	wl_signal_add(&wlr_output->events.destroy, &output->destroy);
 	output->frame.notify = handle_output_frame;
@@ -729,4 +827,5 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	               "id\":%d,\"priority\":%d,\"restart\":%d}",
 	               output->name, output_get_num(output), output->priority,
 	               reinit);
+#endif
 }

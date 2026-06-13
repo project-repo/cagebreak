@@ -44,8 +44,7 @@ at the time of release.
 
 However, Cagebreak may also work on other distributions given the
 proper library versions (Some package maintainers have done this and it
-seems to work (To date, we dealt with a few Issues and never felt the
-need to ask for the distribution the user was having the issue on.)).
+seems to work.
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/cagebreak.svg)](https://repology.org/project/cagebreak/versions)
 
@@ -119,12 +118,6 @@ time has to be set in `meson.build`:
 meson compile adjust-epoch -C build
 ```
 
-or
-
-```
-./scripts/adjust-epoch
-```
-
 #### Git tag
 
 If you are on the master branch, everything is ready and you want to create
@@ -137,12 +130,6 @@ meson compile git-tag -C build
 If you want to use another signing key than the prespecified one, configure
 Cagebreak with `-Dgpg_id=GPGID`.
 
-```
-./scripts/git-tag GPGID CBVERSION
-```
-
-can be used alternatively.
-
 #### Output Hashes
 
 Hashes of release versions of all binaries can be output to `local-hashes.txt`
@@ -151,14 +138,6 @@ via:
 ```
 meson compile output-hashes -C build
 ```
-
-Or
-
-```
-./scripts/output-hashes VERSION
-```
-
-if meson is unavailable.
 
 #### Create Signatures
 
@@ -170,12 +149,6 @@ meson compile create-sigs -C build
 
 Configure Cagebreak with `-Dgpg_id=GPGID` for a different gpg signing
 key.
-
-Without meson use:
-
-```
-./scripts/create-signatures GPGID
-```
 
 #### Set Version Number
 
@@ -228,6 +201,22 @@ and after
 #pragma GCC diagnostic pop
 #endif
 ```
+
+## LLVM scan-build Static Analyzer
+
+Scan-build is used in addition to -fanalyzer.
+
+False-positives can be removed by
+
+```
+#ifndef __clang_analyzer__
+
+CODE
+
+#endif
+```
+
+[https://clang.llvm.org/docs/analyzer/user-docs/FAQ.html#excluding-code-from-analysis]
 
 ## Test Suite
 
@@ -302,12 +291,6 @@ You may want to tweak `-jobs` or add other options depending on your own setup.
 We have found code path discovery to increase rapidly when the fuzzer is supplied
 with an initial config file. We are working on improving our fuzzing coverage to
 find bugs in other areas of the code.
-
-### Caveat
-
-Currently, there are memory leaks which do not seem to stem from our code but rather
-the code of wlroots or some other library we depend on. We are working on the problem.
-In the meantime, add `-Db_detect-leaks=0` to the meson command to exclude memory leaks.
 
 ## Reproducible Builds
 

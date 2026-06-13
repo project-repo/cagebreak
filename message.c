@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #include <cairo/cairo.h>
@@ -37,7 +37,8 @@ msg_buffer_destroy(struct wlr_buffer *wlr_buffer) {
 }
 
 static bool
-msg_buffer_begin_data_ptr_access(struct wlr_buffer *wlr_buffer, uint32_t flags,
+msg_buffer_begin_data_ptr_access(struct wlr_buffer *wlr_buffer,
+                                 __attribute__((unused)) uint32_t flags,
                                  void **data, uint32_t *format,
                                  size_t *stride) {
 	struct msg_buffer *buffer = wl_container_of(wlr_buffer, buffer, base);
@@ -54,7 +55,8 @@ msg_buffer_begin_data_ptr_access(struct wlr_buffer *wlr_buffer, uint32_t flags,
 }
 
 static void
-msg_buffer_end_data_ptr_access(struct wlr_buffer *wlr_buffer) {
+msg_buffer_end_data_ptr_access(
+    __attribute__((unused)) struct wlr_buffer *wlr_buffer) {
 	// This space is intentionally left blank
 }
 
@@ -139,7 +141,6 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	cairo_t *cairo = cairo_create(surface);
 	cairo_set_antialias(cairo, CAIRO_ANTIALIAS_BEST);
 	cairo_set_font_options(cairo, fo);
-	cairo_font_options_destroy(fo);
 	float *bg_col = output->server->message_config.bg_color;
 	cairo_set_source_rgba(cairo, bg_col[0], bg_col[1], bg_col[2], bg_col[3]);
 	cairo_paint(cairo);
@@ -158,12 +159,22 @@ create_message_texture(const char *string, const struct cg_output *output) {
 	int stride = cairo_format_stride_for_width(CAIRO_FORMAT_ARGB32, width);
 
 	struct msg_buffer *buf = msg_buffer_create(width, height, stride);
+	if(buf == NULL) {
+		cairo_surface_destroy(surface);
+		cairo_destroy(cairo);
+		cairo_font_options_destroy(fo);
+		return NULL;
+	}
 	void *data_ptr;
 
 	if(!wlr_buffer_begin_data_ptr_access(&buf->base,
 	                                     WLR_BUFFER_DATA_PTR_ACCESS_WRITE,
 	                                     &data_ptr, NULL, NULL)) {
 		wlr_log(WLR_ERROR, "Failed to get pointer access to message buffer");
+		cairo_surface_destroy(surface);
+		cairo_destroy(cairo);
+		cairo_font_options_destroy(fo);
+		msg_buffer_destroy(&buf->base);
 		return NULL;
 	}
 	memcpy(data_ptr, data, stride * height);
@@ -171,6 +182,7 @@ create_message_texture(const char *string, const struct cg_output *output) {
 
 	cairo_surface_destroy(surface);
 	cairo_destroy(cairo);
+	cairo_font_options_destroy(fo);
 	return buf;
 }
 
@@ -238,6 +250,7 @@ message_set_output(struct cg_output *output, const char *string,
 	}
 	message->message =
 	    wlr_scene_buffer_create(&scene_output->scene->tree, &buf->base);
+	message->buf = buf;
 	wlr_scene_node_raise_to_top(&message->message->node);
 	wlr_scene_node_set_enabled(&message->message->node, true);
 	wlr_scene_buffer_set_dest_size(message->message, width, height);
@@ -249,7 +262,7 @@ message_set_output(struct cg_output *output, const char *string,
 
 void
 message_printf(struct cg_output *output, const char *fmt, ...) {
-	if(output->destroyed) {
+	if(output->destroyed || output->server->message_config.enabled == 0) {
 		return;
 	}
 	va_list ap;
@@ -312,7 +325,7 @@ message_printf(struct cg_output *output, const char *fmt, ...) {
 void
 message_printf_pos(struct cg_output *output, struct wlr_box *position,
                    const enum cg_message_anchor anchor, const char *fmt, ...) {
-	if(output->destroyed) {
+	if(output->destroyed || output->server->message_config.enabled == 0) {
 		free(position);
 		return;
 	}
@@ -334,10 +347,11 @@ message_clear(struct cg_output *output) {
 	struct cg_message *message, *tmp;
 	wl_list_for_each_safe(message, tmp, &output->messages, link) {
 		wl_list_remove(&message->link);
-		struct wlr_buffer *buf = message->message->buffer;
 		wlr_scene_node_destroy(&message->message->node);
 		free(message->position);
-		buf->impl->destroy(buf);
+		if(message->buf != NULL) {
+			msg_buffer_destroy(&message->buf->base);
+		}
 		free(message);
 	}
 }

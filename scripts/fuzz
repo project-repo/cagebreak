@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2023 - 2024, project-repo and the cagebreak contributors
+# Copyright 2023 - 2026, project-repo and the cagebreak contributors
 # SPDX-License-Identifier: MIT
 
 readonly fuzzing_corpus="${1}"
@@ -11,7 +11,7 @@ then
 fi
 
 rm -rf fuzzing-directory
-CC=clang meson setup fuzzing-directory -Dfuzz=true -Db_sanitize=address,undefined -Db_lundef=false -Db_detect-leaks=0
+CC=clang CCXFLAGS=-std=c11 meson setup fuzzing-directory -Dfuzz=true -Db_sanitize=address,undefined -Db_lundef=false
 ninja -C fuzzing-directory/
-WLR_BACKENDS=headless ./fuzzing-directory/fuzz-parse -jobs=12 -max_len=50000 -close_fd_mask=3 "${fuzzing_corpus}"
+ASAN_OPTIONS=detect_leaks=0 WLR_BACKENDS=headless ./fuzzing-directory/fuzz-parse -jobs=1 -max_len=50000 -close_fd_mask=3 "${fuzzing_corpus}"
 rm -rf fuzzing-directory

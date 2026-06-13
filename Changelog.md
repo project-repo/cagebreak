@@ -1,5 +1,50 @@
 # Changelog
 
+## Release 3.2.1
+
+Update dependencies and rotate keys
+
+Fixes:
+- Fix test/illegal-strings, test/arguments and test/environment-variables static tests
+- Fix bug on early quit
+
+## Release 3.2.0
+
+New Features:
+- pointer constraints protocol
+
+Fixes:
+- Fix Issue 80 & 81 (in Bugs.md)
+
+## Release 3.1.0
+
+New Features:
+- Add layer-shell protocol
+
+Fixes:
+- Fix Issue 79 (in Bugs.md)
+
+## Release 3.0.0
+
+BREAKING CHANGES:
+- Add option to set cursor in arbitrary mode
+- Add feature to remove message display
+
+New Features:
+- Add merging tiles
+- Add option for splitting by percentage
+- Add focus with optional tile id
+- Add next with optional view id
+- Add numeric only command
+- Add numeric resize with tile id
+- Add numeric exchange
+- moveviewtotile
+- moveviewtoworkspace
+
+Fixes:
+- Fix Issue 75 - 76 in Bugs.md
+
+
 ## Release 2.3.0
 
 Functionality:

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2023 - 2024, project-repo and the cagebreak contributors
+# Copyright 2023 - 2026, project-repo and the cagebreak contributors
 # SPDX-License-Identifier: MIT
 
 testdir="${MESONCURRENTCONFIGDIR}/_build-envvars"
@@ -8,26 +8,33 @@ mkdir "${testdir}/envvars/"
 mkdir "${testdir}/cagebreak"
 
 RESULT=0
+asan_options="${ASAN_OPTIONS:-}"
+if [[ -n ${asan_options} ]]
+then
+	asan_options="${asan_options}:detect_leaks=0"
+else
+	asan_options="detect_leaks=0"
+fi
 
 # CAGEBREAK_SOCKET (duplicate of arguments test)
 ## Check without socket
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}/envvars"
 readonly oldsocket="${CAGEBREAK_SOCKET}"
 sed -i "s|CONFIGPATH|$testdir\/envvars\/socket|g" "${testdir}/envvars/config"
-(WLR_BACKENDS=headless ./cagebreak -c "${testdir}/envvars/config")
+(ASAN_OPTIONS="${asan_options}" WLR_BACKENDS=headless ./cagebreak -c "${testdir}/envvars/config") || RESULT=1
 sync
 [[ $(cat "${testdir}/envvars/socket") = "${oldsocket}" ]] || RESULT=1
 ## Check with socket
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}/envvars"
 sed -i "s|CONFIGPATH|$testdir\/envvars\/socket|g" "${testdir}/envvars/config"
-(WLR_BACKENDS=headless ./cagebreak -e -c "${testdir}/envvars/config")
+(ASAN_OPTIONS="${asan_options}" WLR_BACKENDS=headless ./cagebreak -e -c "${testdir}/envvars/config") || RESULT=1
 sync
 [[ $(cat "${testdir}/envvars/socket") != "${oldsocket}" ]] || RESULT=1
 
 # XDG_CONFIG_HOME
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/env-var-config" "${testdir}/cagebreak/config"
 sed -i "s|CONFIGPATH|${testdir}\/cagebreak\/result|g" "${testdir}/cagebreak/config"
-XDG_CONFIG_HOME="${testdir}/" WLR_BACKENDS=headless ./cagebreak
+ASAN_OPTIONS="${asan_options}" XDG_CONFIG_HOME="${testdir}/" WLR_BACKENDS=headless ./cagebreak || RESULT=1
 sync
 [[ $(cat "${testdir}/cagebreak/result") = "SUCCESS" ]] || RESULT=1
 

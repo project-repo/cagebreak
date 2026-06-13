@@ -1,4 +1,4 @@
-cagebreak-socket(7) "Version 2.3.2" "Cagebreak Manual"
+cagebreak-socket(7) "Version 3.2.1" "Cagebreak Manual"
 
 # NAME
 
@@ -710,8 +710,8 @@ Mail contact: `cagebreak @ project-repo . co`
 
 GPG Fingerprints:
 
-- 0A268C188D7949FEB39FD1462F2AD980247E4918
-- 283D10F54201B0C6CCEE2C561DE04E4B056C749D
+- 846FCCA537A3FB114202B85C513248B63C1C3BEB
+
 
 # LICENSE
 

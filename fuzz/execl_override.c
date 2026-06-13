@@ -1,13 +1,11 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 // This file is used by the fuzzer in order to prevent executing shell commands.
 
 #define _GNU_SOURCE
-#include "../output.h"
 #include <cairo.h>
 #include <cairo/cairo.h>
 #include <stdlib.h>
-#include <wlr/render/wlr_renderer.h>
 
 int
 fork(void) {

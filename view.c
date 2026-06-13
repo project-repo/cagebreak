@@ -1,4 +1,4 @@
-// Copyright 2020 - 2024, project-repo and the cagebreak contributors
+// Copyright 2020 - 2026, project-repo and the cagebreak contributors
 // SPDX-License-Identifier: MIT
 
 #define _POSIX_C_SOURCE 200809L
@@ -91,7 +91,6 @@ view_maximize(struct cg_view *view, struct cg_tile *tile) {
 
 void
 view_unmap(struct cg_view *view) {
-
 	uint32_t id = view->id;
 	uint32_t tile_id = 0;
 	uint32_t ws = view->workspace->num;
@@ -108,8 +107,6 @@ view_unmap(struct cg_view *view) {
 	} else {
 		tile_id = view->tile->id;
 	}
-
-	wlr_scene_node_destroy(&view->scene_tree->node);
 
 #if CG_HAS_XWAYLAND
 	if((view->type != CG_XWAYLAND_VIEW || xwayland_view_should_manage(view)))
@@ -156,7 +153,7 @@ view_map(struct cg_view *view, struct wlr_surface *surface,
 	struct cg_output *output = ws->output;
 	view->wlr_surface = surface;
 
-	view->scene_tree = wlr_scene_subsurface_tree_create(ws->scene, surface);
+	wlr_scene_node_reparent(&view->scene_tree->node, ws->scene);
 	if(!view->scene_tree) {
 		wl_resource_post_no_memory(surface->resource);
 		return;
@@ -201,6 +198,8 @@ view_destroy(struct cg_view *view) {
 		view_unmap(view);
 	}
 
+	wlr_scene_node_destroy(&view->scene_tree->node);
+
 	view->impl->destroy(view);
 	view_activate(curr_output->workspaces[curr_output->curr_workspace]
 	                  ->focused_tile->view,
@@ -217,4 +216,7 @@ view_init(struct cg_view *view, enum cg_view_type type,
 	view->impl = impl;
 	view->id = server->views_curr_id;
 	++server->views_curr_id;
+	view->scene_tree = wlr_scene_tree_create(
+	    server->curr_output->workspaces[server->curr_output->curr_workspace]
+	        ->scene);
 }
