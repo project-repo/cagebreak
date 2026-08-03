@@ -131,6 +131,24 @@ output_get_layout_box(struct cg_output *output) {
 }
 
 static void
+output_position_layer_shell_trees(struct cg_output *output) {
+	struct wlr_scene_tree *layers[] = {
+	    output->layer_shell_background,
+	    output->layer_shell_bottom,
+	    output->layer_shell_top,
+	    output->layer_shell_overlay,
+	};
+
+	for(size_t i = 0; i < sizeof(layers) / sizeof(layers[0]); ++i) {
+		if(layers[i]) {
+			wlr_scene_node_set_position(&layers[i]->node,
+			                            output->scene_output->x,
+			                            output->scene_output->y);
+		}
+	}
+}
+
+static void
 output_destroy(struct cg_output *output) {
 	struct cg_server *server = output->server;
 	char *outp_name = strdup(output->name);
@@ -188,6 +206,7 @@ output_destroy(struct cg_output *output) {
 			    output->layout_box.y);
 			wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
 			                                   output->scene_output);
+			output_position_layer_shell_trees(output);
 		}
 
 	} else {
@@ -487,6 +506,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		free(state);
 		return;
 	}
+	output_position_layer_shell_trees(output);
 	output->bg = wlr_scene_rect_create(
 	    &scene_output->scene->tree, output->wlr_output->width,
 	    output->wlr_output->height, server->bg_color);
