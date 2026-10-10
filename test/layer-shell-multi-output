@@ -1,0 +1,135 @@
+#!/bin/bash
+# Copyright 2026, project-repo and the cagebreak contributors
+# SPDX-License-Identifier: MIT
+
+set -u
+
+if ! command -v swaybg >/dev/null || ! command -v grim >/dev/null
+then
+	echo "Skipping multi-output layer-shell test: swaybg and grim are required"
+	exit 77
+fi
+
+testdir=$(mktemp -d /tmp/cagebreak-layer-shell.XXXXXX) || exit 1
+runtime_dir="${testdir}/runtime"
+cagebreak_pid=
+swaybg_pid=
+
+cleanup() {
+	if [[ -n "${swaybg_pid}" ]]
+	then
+		kill "${swaybg_pid}" 2>/dev/null || true
+		wait "${swaybg_pid}" 2>/dev/null || true
+	fi
+	if [[ -n "${cagebreak_pid}" ]]
+	then
+		kill "${cagebreak_pid}" 2>/dev/null || true
+		wait "${cagebreak_pid}" 2>/dev/null || true
+	fi
+	case "${testdir}" in
+	/tmp/cagebreak-layer-shell.*) rm -rf -- "${testdir}" ;;
+	esac
+}
+trap cleanup EXIT
+
+mkdir -m 700 "${runtime_dir}" || exit 1
+
+printf '%s\n' \
+	'output HEADLESS-1 pos 0 0 res 64x64 rate 60' \
+	'output HEADLESS-2 pos 64 0 res 64x64 rate 60' \
+	>"${testdir}/config" || exit 1
+
+XDG_RUNTIME_DIR="${runtime_dir}" \
+	WLR_BACKENDS=headless \
+	WLR_HEADLESS_OUTPUTS=2 \
+	WLR_RENDERER=pixman \
+	./cagebreak -c "${testdir}/config" \
+	>"${testdir}/cagebreak.log" 2>&1 &
+cagebreak_pid=$!
+
+for _ in {1..100}
+do
+	if [[ -S "${runtime_dir}/wayland-0" ]]
+	then
+		break
+	fi
+	if ! kill -0 "${cagebreak_pid}" 2>/dev/null
+	then
+		cat "${testdir}/cagebreak.log"
+		exit 1
+	fi
+	sleep 0.05
+done
+
+if [[ ! -S "${runtime_dir}/wayland-0" ]]
+then
+	cat "${testdir}/cagebreak.log"
+	echo "Cagebreak did not create a Wayland socket"
+	exit 1
+fi
+
+capture_output() {
+	local output=$1
+	local destination=$2
+	XDG_RUNTIME_DIR="${runtime_dir}" WAYLAND_DISPLAY=wayland-0 \
+		grim -t ppm -o "${output}" "${destination}" \
+		>/dev/null 2>>"${testdir}/grim.log"
+}
+
+print_log() {
+	local path=$1
+	if [[ -s "${path}" ]]
+	then
+		echo "${path}:"
+		tail -80 "${path}"
+	fi
+}
+
+baseline_captured=false
+for _ in {1..100}
+do
+	if capture_output HEADLESS-1 "${testdir}/baseline.ppm"
+	then
+		baseline_captured=true
+		break
+	fi
+	sleep 0.05
+done
+
+if [[ "${baseline_captured}" != true ]]
+then
+	print_log "${testdir}/cagebreak.log"
+	print_log "${testdir}/grim.log"
+	exit 1
+fi
+
+XDG_RUNTIME_DIR="${runtime_dir}" WAYLAND_DISPLAY=wayland-0 \
+	swaybg -c ff0000 >"${testdir}/swaybg.log" 2>&1 &
+swaybg_pid=$!
+
+matched=false
+for _ in {1..100}
+do
+	if capture_output HEADLESS-1 "${testdir}/headless-1.ppm" && \
+	   capture_output HEADLESS-2 "${testdir}/headless-2.ppm" && \
+	   ! cmp -s "${testdir}/baseline.ppm" "${testdir}/headless-1.ppm" && \
+	   cmp -s "${testdir}/headless-1.ppm" "${testdir}/headless-2.ppm"
+	then
+		matched=true
+		break
+	fi
+	if ! kill -0 "${swaybg_pid}" 2>/dev/null
+	then
+		break
+	fi
+	sleep 0.05
+done
+
+if [[ "${matched}" != true ]]
+then
+	print_log "${testdir}/cagebreak.log"
+	print_log "${testdir}/swaybg.log"
+	print_log "${testdir}/grim.log"
+	echo "Layer-shell backgrounds did not match across both outputs"
+	exit 1
+fi

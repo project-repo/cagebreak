@@ -230,9 +230,9 @@ invokes all tests. This is required for a release to occur.
 There are four test suites:
 
   * basic: tests actual outward-facing functionality
-    * Note optional dependencies for efficient socket interaction
-      * nc (openbsd-netcat)
-      * jq
+    * Note optional dependencies
+      * efficient socket interaction: nc (openbsd-netcat), jq
+      * multi-output layer-shell rendering: swaybg, grim
   * devel: tests internal properties of the repository
     * Note potentially heavier dependencies such as
       * shellcheck
