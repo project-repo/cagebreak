@@ -4,8 +4,13 @@
 #ifndef CG_LAYER_SHELL_H
 #define CG_LAYER_SHELL_H
 
+struct cg_output;
 struct cg_server;
 
+void
+cg_layer_shell_arrange(struct cg_output *output);
+void
+cg_layer_shell_close_output(struct cg_output *output);
 void
 cg_layer_shell_init(struct cg_server *server);
 void

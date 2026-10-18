@@ -33,6 +33,7 @@
 #endif
 
 #include "keybinding.h"
+#include "layer_shell.h"
 #include "message.h"
 #include "output.h"
 #include "seat.h"
@@ -130,6 +131,20 @@ output_get_layout_box(struct cg_output *output) {
 	return output->layout_box;
 }
 
+/* The usable box is the layout box without the exclusive zones of the layer
+ * surfaces. In contrast to the layout box, it is relative to the output. It
+ * covers the whole output as long as no layer surface has been arranged. */
+struct wlr_box
+output_get_usable_box(struct cg_output *output) {
+	if(wlr_box_empty(&output->usable_area)) {
+		struct wlr_box box = output_get_layout_box(output);
+		box.x = 0;
+		box.y = 0;
+		return box;
+	}
+	return output->usable_area;
+}
+
 static void
 output_position_layer_shell_trees(struct cg_output *output,
                                   struct wlr_scene_output *scene_output) {
@@ -192,6 +207,8 @@ output_destroy(struct cg_output *output) {
 		wl_list_remove(&output->destroy.link);
 		wl_list_remove(&output->commit.link);
 		wl_list_remove(&output->frame.link);
+
+		cg_layer_shell_close_output(output);
 
 		// Destroy layer shell scene trees
 		if(output->layer_shell_background) {
@@ -694,6 +711,9 @@ handle_output_commit(struct wl_listener *listener, void *data) {
 	if(event->state->committed &
 	   (WLR_OUTPUT_STATE_TRANSFORM | WLR_OUTPUT_STATE_SCALE |
 	    WLR_OUTPUT_STATE_MODE)) {
+		/* The layer surfaces are positioned relative to the output and
+		 * therefore have to be rearranged along with the views */
+		cg_layer_shell_arrange(output);
 		struct cg_view *view;
 		wl_list_for_each(
 		    view, &output->workspaces[output->curr_workspace]->views, link) {

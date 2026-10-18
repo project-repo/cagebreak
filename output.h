@@ -30,6 +30,7 @@ struct cg_output {
 	struct cg_workspace **workspaces;
 	struct wl_list messages;
 	struct wlr_box layout_box;
+	struct wlr_box usable_area;
 	int curr_workspace;
 	int priority;
 	enum output_role role;
@@ -71,6 +72,8 @@ typedef void (*cg_surface_iterator_func_t)(struct cg_output *output,
                                            void *user_data);
 struct wlr_box
 output_get_layout_box(struct cg_output *output);
+struct wlr_box
+output_get_usable_box(struct cg_output *output);
 void
 handle_new_output(struct wl_listener *listener, void *data);
 bool

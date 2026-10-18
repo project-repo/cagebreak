@@ -12,6 +12,7 @@
 #include <wlr/types/wlr_output.h>
 #include <wlr/types/wlr_scene.h>
 #include <wlr/types/wlr_seat.h>
+#include <wlr/types/wlr_xdg_shell.h>
 #include <wlr/util/box.h>
 #include <wlr/util/log.h>
 
@@ -31,6 +32,83 @@ struct cg_layer_surface {
 	struct wl_listener commit;
 	struct wl_listener new_popup;
 };
+
+struct cg_layer_popup {
+	struct cg_layer_surface *layer_surface;
+	struct wlr_xdg_popup *wlr_popup;
+	struct wlr_scene_tree *scene_tree;
+
+	struct wl_listener commit;
+	struct wl_listener new_popup;
+	struct wl_listener destroy;
+};
+
+static struct cg_output *
+layer_surface_get_output(struct cg_layer_surface *layer_surface) {
+	struct wlr_output *wlr_output = layer_surface->wlr_layer_surface->output;
+	return wlr_output != NULL ? wlr_output->data : NULL;
+}
+
+/* wlroots does not notify layer surfaces of the destruction of the output
+ * they are assigned to, so they are closed along with it */
+void
+cg_layer_shell_close_output(struct cg_output *output) {
+	struct wlr_scene_tree *layers[] = {
+	    output->layer_shell_background, output->layer_shell_bottom,
+	    output->layer_shell_top, output->layer_shell_overlay};
+
+	for(size_t i = 0; i < sizeof(layers) / sizeof(layers[0]); ++i) {
+		struct wlr_scene_node *node, *tmp;
+		if(layers[i] == NULL) {
+			continue;
+		}
+		wl_list_for_each_safe(node, tmp, &layers[i]->children, link) {
+			struct cg_layer_surface *it = node->data;
+			/* Keep the destroy handler from rearranging the output which
+			 * is being destroyed */
+			it->wlr_layer_surface->output = NULL;
+			wlr_layer_surface_v1_destroy(it->wlr_layer_surface);
+		}
+	}
+}
+
+/* Configure the layer surfaces of an output from the bottom layer upwards,
+ * subtracting the exclusive zone of each surface from the area which remains
+ * usable for the surfaces above it and for the views. */
+void
+cg_layer_shell_arrange(struct cg_output *output) {
+	struct wlr_scene_tree *layers[] = {
+	    output->layer_shell_background, output->layer_shell_bottom,
+	    output->layer_shell_top, output->layer_shell_overlay};
+
+	struct wlr_box full_area = {0};
+	wlr_output_effective_resolution(output->wlr_output, &full_area.width,
+	                                &full_area.height);
+	struct wlr_box usable_area = full_area;
+
+	for(size_t i = 0; i < sizeof(layers) / sizeof(layers[0]); ++i) {
+		struct wlr_scene_node *node;
+		if(layers[i] == NULL) {
+			continue;
+		}
+		wl_list_for_each(node, &layers[i]->children, link) {
+			struct cg_layer_surface *it = node->data;
+			wlr_scene_layer_surface_v1_configure(it->scene_surface, &full_area,
+			                                     &usable_area);
+		}
+	}
+
+	if(!wlr_box_equal(&usable_area, &output->usable_area)) {
+		output->usable_area = usable_area;
+		/* The size of the tiles changed, so the workspaces are
+		 * reinitialized with a fullscreen layout */
+		if(output->workspaces != NULL) {
+			for(unsigned int i = 0; i < output->server->nws; ++i) {
+				output_make_workspace_fullscreen(output, i);
+			}
+		}
+	}
+}
 
 static void
 handle_layer_surface_map(struct wl_listener *listener,
@@ -58,6 +136,12 @@ handle_layer_surface_map(struct wl_listener *listener,
 			wlr_log(WLR_DEBUG, "Gave keyboard focus to layer surface");
 		}
 	}
+
+	// The exclusive zone of the surface is taken from the usable area
+	struct cg_output *output = layer_surface_get_output(layer_surface);
+	if(output != NULL) {
+		cg_layer_shell_arrange(output);
+	}
 }
 
 static void
@@ -81,6 +165,12 @@ handle_layer_surface_unmap(struct wl_listener *listener,
 			wlr_log(WLR_DEBUG, "Cleared keyboard focus from layer surface");
 		}
 	}
+
+	// The exclusive zone of the surface is given back to the usable area
+	struct cg_output *output = layer_surface_get_output(layer_surface);
+	if(output != NULL) {
+		cg_layer_shell_arrange(output);
+	}
 }
 
 static void
@@ -88,6 +178,7 @@ handle_layer_surface_destroy(struct wl_listener *listener,
                              __attribute__((unused)) void *data) {
 	struct cg_layer_surface *layer_surface =
 	    wl_container_of(listener, layer_surface, destroy);
+	struct cg_output *output = layer_surface_get_output(layer_surface);
 
 	wl_list_remove(&layer_surface->map.link);
 	wl_list_remove(&layer_surface->unmap.link);
@@ -96,6 +187,10 @@ handle_layer_surface_destroy(struct wl_listener *listener,
 	wl_list_remove(&layer_surface->new_popup.link);
 
 	free(layer_surface);
+
+	if(output != NULL) {
+		cg_layer_shell_arrange(output);
+	}
 }
 
 static void
@@ -106,35 +201,99 @@ handle_layer_surface_commit(struct wl_listener *listener,
 	struct wlr_layer_surface_v1 *wlr_layer_surface =
 	    layer_surface->wlr_layer_surface;
 
-	// Configure on initial commit only - the scene helper handles the rest
-	if(wlr_layer_surface->initial_commit) {
-		if(wlr_layer_surface->output) {
-			struct wlr_output *output = wlr_layer_surface->output;
-			struct wlr_box full_area, usable_area;
-
-			int width, height;
-			wlr_output_effective_resolution(output, &width, &height);
-			full_area.x = full_area.y = 0;
-			full_area.width = width;
-			full_area.height = height;
-			usable_area = full_area;
-
-			wlr_log(WLR_DEBUG,
-			        "Initial configuration of layer surface: output=%dx%d",
-			        width, height);
-
-			// Use the scene helper to configure the layer surface
-			wlr_scene_layer_surface_v1_configure(layer_surface->scene_surface,
-			                                     &full_area, &usable_area);
-		}
+	// Rearrange whenever the state which determines the usable area changed
+	struct cg_output *output = layer_surface_get_output(layer_surface);
+	if(output != NULL && (wlr_layer_surface->initial_commit ||
+	                      wlr_layer_surface->current.committed != 0)) {
+		cg_layer_shell_arrange(output);
 	}
 }
 
 static void
-handle_new_popup(__attribute__((unused)) struct wl_listener *listener,
-                 __attribute__((unused)) void *data) {
-	// Handle popups from layer surfaces
+layer_popup_unconstrain(struct cg_layer_popup *popup) {
+	struct wlr_output *output =
+	    popup->layer_surface->wlr_layer_surface->output;
+	if(output == NULL) {
+		return;
+	}
+	struct wlr_scene_tree *tree = popup->layer_surface->scene_surface->tree;
+
+	/* The box is relative to the layer surface, which is positioned
+	 * relative to the output it belongs to */
+	struct wlr_box output_box = {.x = -tree->node.x,
+	                             .y = -tree->node.y,
+	                             .width = output->width,
+	                             .height = output->height};
+
+	wlr_xdg_popup_unconstrain_from_box(popup->wlr_popup, &output_box);
+}
+
+static void
+handle_layer_popup_destroy(struct wl_listener *listener,
+                           __attribute__((unused)) void *data) {
+	struct cg_layer_popup *popup = wl_container_of(listener, popup, destroy);
+
+	wl_list_remove(&popup->new_popup.link);
+	wl_list_remove(&popup->destroy.link);
+	wl_list_remove(&popup->commit.link);
+	free(popup);
+}
+
+static void
+handle_layer_popup_commit(struct wl_listener *listener,
+                          __attribute__((unused)) void *data) {
+	struct cg_layer_popup *popup = wl_container_of(listener, popup, commit);
+	if(popup->wlr_popup->base->initial_commit) {
+		layer_popup_unconstrain(popup);
+	}
+}
+
+static struct cg_layer_popup *
+create_layer_popup(struct wlr_xdg_popup *wlr_popup,
+                   struct cg_layer_surface *layer_surface,
+                   struct wlr_scene_tree *parent_tree);
+
+static void
+handle_layer_popup_new_popup(struct wl_listener *listener, void *data) {
+	struct cg_layer_popup *popup = wl_container_of(listener, popup, new_popup);
+	create_layer_popup(data, popup->layer_surface, popup->scene_tree);
+}
+
+static struct cg_layer_popup *
+create_layer_popup(struct wlr_xdg_popup *wlr_popup,
+                   struct cg_layer_surface *layer_surface,
+                   struct wlr_scene_tree *parent_tree) {
+	struct cg_layer_popup *popup = calloc(1, sizeof(struct cg_layer_popup));
+	if(!popup) {
+		return NULL;
+	}
+
+	popup->layer_surface = layer_surface;
+	popup->wlr_popup = wlr_popup;
+	/* The scene tree is destroyed along with the popup surface */
+	popup->scene_tree =
+	    wlr_scene_xdg_surface_create(parent_tree, wlr_popup->base);
+	if(!popup->scene_tree) {
+		free(popup);
+		return NULL;
+	}
+
+	wl_signal_add(&wlr_popup->base->surface->events.commit, &popup->commit);
+	popup->commit.notify = handle_layer_popup_commit;
+	wl_signal_add(&wlr_popup->base->events.new_popup, &popup->new_popup);
+	popup->new_popup.notify = handle_layer_popup_new_popup;
+	wl_signal_add(&wlr_popup->events.destroy, &popup->destroy);
+	popup->destroy.notify = handle_layer_popup_destroy;
+	return popup;
+}
+
+static void
+handle_new_popup(struct wl_listener *listener, void *data) {
+	struct cg_layer_surface *layer_surface =
+	    wl_container_of(listener, layer_surface, new_popup);
 	wlr_log(WLR_DEBUG, "New popup from layer surface");
+	create_layer_popup(data, layer_surface,
+	                   layer_surface->scene_surface->tree);
 }
 
 static void
@@ -208,6 +367,8 @@ handle_new_layer_surface(struct wl_listener *listener, void *data) {
 		free(layer_surface);
 		return;
 	}
+	// The scene tree of a layer is iterated to arrange its surfaces
+	layer_surface->scene_surface->tree->node.data = layer_surface;
 
 	// Set up event listeners
 	layer_surface->map.notify = handle_layer_surface_map;

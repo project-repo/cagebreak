@@ -39,12 +39,11 @@ full_screen_workspace_tiles(struct cg_workspace *workspace,
 	workspace->focused_tile->workspace = workspace;
 	workspace->focused_tile->next = workspace->focused_tile;
 	workspace->focused_tile->prev = workspace->focused_tile;
-	workspace->focused_tile->tile.x = 0;
-	workspace->focused_tile->tile.y = 0;
-	workspace->focused_tile->tile.width =
-	    output_get_layout_box(workspace->output).width;
-	workspace->focused_tile->tile.height =
-	    output_get_layout_box(workspace->output).height;
+	struct wlr_box usable_box = output_get_usable_box(workspace->output);
+	workspace->focused_tile->tile.x = usable_box.x;
+	workspace->focused_tile->tile.y = usable_box.y;
+	workspace->focused_tile->tile.width = usable_box.width;
+	workspace->focused_tile->tile.height = usable_box.height;
 	workspace_tile_update_view(workspace->focused_tile, NULL);
 	workspace->focused_tile->id = *tiles_curr_id;
 	++(*tiles_curr_id);

@@ -624,14 +624,13 @@ resize_tile(struct cg_server *server, int hpixs, int vpixs, int tile_id) {
 	if(tile == NULL) {
 		return;
 	}
+	struct wlr_box usable_box = output_get_usable_box(output);
 	/* First do the horizontal adjustment */
-	if(hpixs != 0 && tile->tile.width < output_get_layout_box(output).width &&
-	   is_between_strict(0, output_get_layout_box(output).width,
-	                     tile->tile.width + hpixs)) {
+	if(hpixs != 0 && tile->tile.width < usable_box.width &&
+	   is_between_strict(0, usable_box.width, tile->tile.width + hpixs)) {
 		int x_offset = 0;
 		/* In case we are on the total right, move the left edge of the tile */
-		if(tile->tile.x + tile->tile.width ==
-		   output_get_layout_box(output).width) {
+		if(tile->tile.x + tile->tile.width == usable_box.x + usable_box.width) {
 			x_offset = -hpixs;
 		}
 		bool resize_allowed =
@@ -641,12 +640,11 @@ resize_tile(struct cg_server *server, int hpixs, int vpixs, int tile_id) {
 		}
 	}
 	/* Repeat for vertical */
-	if(vpixs != 0 && tile->tile.height < output_get_layout_box(output).height &&
-	   is_between_strict(0, output_get_layout_box(output).height,
-	                     tile->tile.height + vpixs)) {
+	if(vpixs != 0 && tile->tile.height < usable_box.height &&
+	   is_between_strict(0, usable_box.height, tile->tile.height + vpixs)) {
 		int y_offset = 0;
 		if(tile->tile.y + tile->tile.height ==
-		   output_get_layout_box(output).height) {
+		   usable_box.y + usable_box.height) {
 			y_offset = -vpixs;
 		}
 		bool resize_allowed =
