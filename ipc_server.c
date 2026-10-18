@@ -110,7 +110,7 @@ ipc_init(struct cg_server *server) {
 
 	ipc->event_source =
 	    wl_event_loop_add_fd(server->event_loop, ipc->socket, WL_EVENT_READABLE,
-	                         ipc_handle_connection, server);
+		                     ipc_handle_connection, server);
 	return 0;
 }
 
@@ -199,10 +199,10 @@ ipc_handle_connection(int fd, uint32_t mask, void *data) {
 	client->fd = client_fd;
 	client->event_source =
 	    wl_event_loop_add_fd(server->event_loop, client_fd, WL_EVENT_READABLE,
-	                         ipc_client_handle_readable, client);
+		                     ipc_client_handle_readable, client);
 	client->writable_event_source =
 	    wl_event_loop_add_fd(server->event_loop, client_fd, WL_EVENT_WRITABLE,
-	                         ipc_client_handle_writable, client);
+		                     ipc_client_handle_writable, client);
 
 	client->write_buffer_size = 128;
 	client->write_buffer_len = 0;
@@ -254,7 +254,7 @@ ipc_client_handle_readable(int client_fd, uint32_t mask, void *data) {
 	// Append to buffer
 	ssize_t received =
 	    recv(client_fd, client->read_buffer + client->read_buf_len,
-	         read_available, 0);
+		     read_available, 0);
 	if(received == -1) {
 		wlr_log(WLR_ERROR, "Unable to receive data from IPC client");
 		ipc_client_disconnect(client);

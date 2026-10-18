@@ -300,7 +300,7 @@ handle_key_event(struct cg_keyboard_group *group, struct cg_seat *seat,
 			 */
 			xkb_mod_mask_t consumed_modifiers =
 			    xkb_state_key_get_consumed_mods2(keyboard->xkb_state, keycode,
-			                                     XKB_CONSUMED_MODE_GTK);
+				                                 XKB_CONSUMED_MODE_GTK);
 			if(handle_command_key_bindings(seat->server, syms[i],
 			                               modifiers & ~consumed_modifiers,
 			                               seat->mode, group)) {
@@ -707,7 +707,7 @@ process_cursor_motion(struct cg_seat *seat, uint32_t time) {
 
 	struct wlr_scene_node *node =
 	    wlr_scene_node_at(&seat->server->scene->tree.node, seat->cursor->x,
-	                      seat->cursor->y, &sx, &sy);
+		                  seat->cursor->y, &sx, &sy);
 
 	if(node && node->type == WLR_SCENE_NODE_BUFFER) {
 		struct wlr_scene_surface *scene_surface =
@@ -976,7 +976,7 @@ handle_cursor_motion(struct wl_listener *listener, void *data) {
 		struct wlr_surface *surface = NULL;
 		struct wlr_scene_node *node =
 		    wlr_scene_node_at(&seat->server->scene->tree.node, seat->cursor->x,
-		                      seat->cursor->y, &sx, &sy);
+			                  seat->cursor->y, &sx, &sy);
 		if(node && node->type == WLR_SCENE_NODE_BUFFER) {
 			struct wlr_scene_surface *scene_surface =
 			    wlr_scene_surface_try_from_buffer(

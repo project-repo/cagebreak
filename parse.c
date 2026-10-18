@@ -194,7 +194,7 @@ parse_input_config(char **saveptr, char **errstr) {
 			if(cfg->calibration_matrix.matrix[i] == FLT_MIN) {
 				*errstr =
 				    log_error("Failed to read calibration matrix, expected 6 "
-				              "floating point values separated by spaces");
+					          "floating point values separated by spaces");
 				goto error;
 			}
 		}
@@ -619,8 +619,8 @@ parse_output_config(char **saveptr, char **errstr) {
 		if(cfg->scale <= 0.01) {
 			*errstr =
 			    log_error("Error parsing scale of output configuration for "
-			              "output %s, expected positive float",
-			              name);
+				          "output %s, expected positive float",
+				          name);
 			goto error;
 		}
 		cfg->output_name = strdup(name);
@@ -691,8 +691,8 @@ parse_output_config(char **saveptr, char **errstr) {
 	if(cfg->refresh_rate <= 0.01) {
 		*errstr =
 		    log_error("Error parsing refresh rate of output configuration for "
-		              "output %s, expected positive float",
-		              name);
+			          "output %s, expected positive float",
+			          name);
 		goto error;
 	}
 
@@ -741,7 +741,7 @@ parse_message_config(char **saveptr, char **errstr) {
 		if(cfg->display_time < 0) {
 			*errstr =
 			    log_error("Error parsing command \"configure_message "
-			              "display_time\", expected a non-negative integer");
+				          "display_time\", expected a non-negative integer");
 			goto error;
 		}
 	} else if(strcmp(setting, "bg_color") == 0) {
@@ -777,7 +777,7 @@ parse_message_config(char **saveptr, char **errstr) {
 		if(cfg->anchor == CG_MESSAGE_NOPT) {
 			*errstr =
 			    log_error("Error parsing command \"configure_message anchor\", "
-			              "the given anchor value is not a valid option");
+				          "the given anchor value is not a valid option");
 			goto error;
 		}
 	} else if(strcmp(setting, "enable") == 0) {
@@ -933,7 +933,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		if(saveptr == NULL) {
 			*errstr =
 			    log_error("Not enough paramaters to \"message\". Expected "
-			              "string to display.");
+				          "string to display.");
 			return -1;
 		}
 		keybinding->data.c = strdup(saveptr);
@@ -942,7 +942,7 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 		if(saveptr == NULL) {
 			*errstr =
 			    log_error("Not enough paramaters to \"custom_event\". Expected "
-			              "string to send.");
+				          "string to send.");
 			return -1;
 		}
 		keybinding->data.c = strdup(saveptr);
@@ -972,8 +972,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			if(n_pixels < 1) {
 				*errstr =
 				    log_error("Number of pixels must be an integer number "
-				              "larger or equal to 1. Got %ld",
-				              n_pixels);
+					          "larger or equal to 1. Got %ld",
+					          n_pixels);
 				return -1;
 			}
 			keybinding->data.is[0] = -n_pixels;
@@ -999,8 +999,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			if(n_pixels < 1) {
 				*errstr =
 				    log_error("Number of pixels must be an integer number "
-				              "larger or equal to 1. Got %ld",
-				              n_pixels);
+					          "larger or equal to 1. Got %ld",
+					          n_pixels);
 				return -1;
 			}
 			keybinding->data.is[0] = n_pixels;
@@ -1026,8 +1026,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			if(n_pixels < 1) {
 				*errstr =
 				    log_error("Number of pixels must be an integer number "
-				              "larger or equal to 1. Got %ld",
-				              n_pixels);
+					          "larger or equal to 1. Got %ld",
+					          n_pixels);
 				return -1;
 			}
 			keybinding->data.is[0] = n_pixels;
@@ -1053,8 +1053,8 @@ parse_command(struct cg_server *server, struct keybinding *keybinding,
 			if(n_pixels < 1) {
 				*errstr =
 				    log_error("Number of pixels must be an integer number "
-				              "larger or equal to 1. Got %ld",
-				              n_pixels);
+					          "larger or equal to 1. Got %ld",
+					          n_pixels);
 				return -1;
 			}
 			keybinding->data.is[0] = -n_pixels;

@@ -338,7 +338,7 @@ merge_tile(struct cg_tile *tile,
 	    *get_compl_dim(merge_tile, get_dim) + *get_compl_dim(tile, get_dim);
 	*get_compl_coord(tile, get_coord) =
 	    fmin(*get_compl_coord(merge_tile, get_coord),
-	         *get_compl_coord(tile, get_coord));
+		     *get_compl_coord(tile, get_coord));
 	if(tile->workspace->server->seat->cursor_tile == merge_tile) {
 		tile->workspace->server->seat->cursor_tile = tile;
 	}
@@ -1370,10 +1370,10 @@ print_input_device(struct cg_input_device *dev) {
 	          : dev->wlr_device->type == WLR_INPUT_DEVICE_SWITCH ? "switch"
 	          : dev->wlr_device->type == WLR_INPUT_DEVICE_TABLET_PAD
 	              ? "tablet pad"
-	          : dev->wlr_device->type == WLR_INPUT_DEVICE_TABLET   ? "tablet"
-	          : dev->wlr_device->type == WLR_INPUT_DEVICE_TOUCH    ? "touch"
-	          : dev->wlr_device->type == WLR_INPUT_DEVICE_KEYBOARD ? "keyboard"
-	                                                               : "unknown");
+			  : dev->wlr_device->type == WLR_INPUT_DEVICE_TABLET   ? "tablet"
+			  : dev->wlr_device->type == WLR_INPUT_DEVICE_TOUCH    ? "touch"
+			  : dev->wlr_device->type == WLR_INPUT_DEVICE_KEYBOARD ? "keyboard"
+				                                                   : "unknown");
 	print_str(&outp_str, "}");
 	return dyn_str_to_str(&outp_str);
 }

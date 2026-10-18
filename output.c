@@ -131,7 +131,8 @@ output_get_layout_box(struct cg_output *output) {
 }
 
 static void
-output_position_layer_shell_trees(struct cg_output *output) {
+output_position_layer_shell_trees(struct cg_output *output,
+                                  struct wlr_scene_output *scene_output) {
 	struct wlr_scene_tree *layers[] = {
 	    output->layer_shell_background,
 	    output->layer_shell_bottom,
@@ -141,10 +142,43 @@ output_position_layer_shell_trees(struct cg_output *output) {
 
 	for(size_t i = 0; i < sizeof(layers) / sizeof(layers[0]); ++i) {
 		if(layers[i]) {
-			wlr_scene_node_set_position(&layers[i]->node,
-			                            output->scene_output->x,
-			                            output->scene_output->y);
+			wlr_scene_node_set_position(&layers[i]->node, scene_output->x,
+			                            scene_output->y);
 		}
+	}
+}
+
+/* The layer shell trees live in the scene root next to the solid background
+ * rectangle and the workspace trees, so their Z-order has to be restored
+ * explicitly whenever they are created. The order is, bottom to top:
+ * bg, layer_shell_background, layer_shell_bottom, views, layer_shell_top,
+ * layer_shell_overlay. */
+static void
+output_restore_layer_shell_order(struct cg_output *output) {
+	if(output->layer_shell_background) {
+		// Just above the solid color bg, so that wallpapers show
+		if(output->bg) {
+			wlr_scene_node_place_above(&output->layer_shell_background->node,
+			                           &output->bg->node);
+		} else {
+			wlr_scene_node_lower_to_bottom(
+			    &output->layer_shell_background->node);
+		}
+	}
+	if(output->layer_shell_bottom) {
+		if(output->layer_shell_background) {
+			wlr_scene_node_place_above(&output->layer_shell_bottom->node,
+			                           &output->layer_shell_background->node);
+		} else {
+			wlr_scene_node_lower_to_bottom(&output->layer_shell_bottom->node);
+		}
+	}
+	// Top and overlay belong above the workspaces, overlay topmost
+	if(output->layer_shell_top) {
+		wlr_scene_node_raise_to_top(&output->layer_shell_top->node);
+	}
+	if(output->layer_shell_overlay) {
+		wlr_scene_node_raise_to_top(&output->layer_shell_overlay->node);
 	}
 }
 
@@ -188,6 +222,11 @@ output_destroy(struct cg_output *output) {
 		                                             output->layout_box.height);
 		output->scene_output =
 		    wlr_scene_output_create(server->scene, output->wlr_output);
+		if(output->scene_output == NULL) {
+			wlr_log(WLR_ERROR,
+			        "Failed to recreate the scene output for output '%s'",
+			        output->name);
+		}
 
 		// Recreate layer shell scene trees
 		output->layer_shell_background =
@@ -200,14 +239,19 @@ output_destroy(struct cg_output *output) {
 
 		// Only add to layout if session is active (skip during TTY switch to
 		// avoid cursor updates)
-		if(!server->session || server->session->active) {
+		if(output->scene_output != NULL &&
+		   (!server->session || server->session->active)) {
 			struct wlr_output_layout_output *lo = wlr_output_layout_add(
 			    server->output_layout, output->wlr_output, output->layout_box.x,
 			    output->layout_box.y);
 			wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
 			                                   output->scene_output);
-			output_position_layer_shell_trees(output);
+			output_position_layer_shell_trees(output, output->scene_output);
 		}
+
+		// The trees were just created, so they sit on top of the scene.
+		// Restore their Z-order even if the layout update above was skipped.
+		output_restore_layer_shell_order(output);
 
 	} else {
 
@@ -254,7 +298,7 @@ handle_output_gamma_control_set_gamma(struct wl_listener *listener,
 
 	struct wlr_gamma_control_v1 *gamma_control =
 	    wlr_gamma_control_manager_v1_get_control(server->gamma_control,
-	                                             event->output);
+		                                         event->output);
 
 	struct wlr_output_state pending = {0};
 	wlr_gamma_control_v1_apply(gamma_control, &pending);
@@ -423,7 +467,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		if(wlr_box_empty(&output->layout_box)) {
 			struct wlr_output_layout_output *lo =
 			    wlr_output_layout_add(server->output_layout, wlr_output,
-			                          config->pos.x, config->pos.y);
+				                      config->pos.x, config->pos.y);
 			wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
 			                                   output->scene_output);
 		} else {
@@ -470,7 +514,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		wlr_output_layout_remove(server->output_layout, output->wlr_output);
 		struct wlr_output_layout_output *lo =
 		    wlr_output_layout_add(server->output_layout, output->wlr_output,
-		                          output->layout_box.x, output->layout_box.y);
+			                      output->layout_box.x, output->layout_box.y);
 		wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
 		                                   output->scene_output);
 
@@ -506,7 +550,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 		free(state);
 		return;
 	}
-	output_position_layer_shell_trees(output);
+	output_position_layer_shell_trees(output, scene_output);
 	output->bg = wlr_scene_rect_create(
 	    &scene_output->scene->tree, output->wlr_output->width,
 	    output->wlr_output->height, server->bg_color);
@@ -515,17 +559,7 @@ output_apply_config(struct cg_server *server, struct cg_output *output,
 	// Place background at the very bottom
 	wlr_scene_node_lower_to_bottom(&output->bg->node);
 
-	// Ensure layer shell background is just above the solid color bg
-	// This allows wallpapers (layer shell background surfaces) to show
-	if(output->layer_shell_background) {
-		wlr_scene_node_place_above(&output->layer_shell_background->node,
-		                           &output->bg->node);
-	}
-	// Then ensure layer_shell_bottom is above background
-	if(output->layer_shell_bottom) {
-		wlr_scene_node_place_above(&output->layer_shell_bottom->node,
-		                           &output->layer_shell_background->node);
-	}
+	output_restore_layer_shell_order(output);
 
 	free(state);
 }
@@ -808,7 +842,7 @@ handle_new_output(struct wl_listener *listener, void *data) {
 	} else {
 		struct wlr_output_layout_output *lo =
 		    wlr_output_layout_add(server->output_layout, wlr_output,
-		                          output->layout_box.x, output->layout_box.y);
+			                      output->layout_box.x, output->layout_box.y);
 		wlr_scene_output_layout_add_output(server->scene_output_layout, lo,
 		                                   output->scene_output);
 

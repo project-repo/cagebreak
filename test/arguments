@@ -6,6 +6,10 @@ testdir="${MESONCURRENTCONFIGDIR}/_build-arguments/"
 mkdir "${testdir}"
 mkdir "${testdir}/arguments/"
 
+# Keep the wayland and ipc sockets out of the ambient runtime directory
+runtime_dir="${testdir}/runtime"
+mkdir -m 700 "${runtime_dir}"
+
 readonly helptext="Usage: ./cagebreak [OPTIONS]
 
  -c <path>	 Load configuration file from <path>
@@ -36,7 +40,7 @@ fi
 ## Check with config file
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/-c-config" "${testdir}/arguments/"
 sed -i "s|CONFIGPATH|${testdir}\/arguments\/result|g" "${testdir}/arguments/-c-config"
-ASAN_OPTIONS="${asan_options}" WLR_BACKENDS=headless ./cagebreak -c "${testdir}/arguments/-c-config" || RESULT=1
+ASAN_OPTIONS="${asan_options}" XDG_RUNTIME_DIR="${runtime_dir}" WLR_BACKENDS=headless ./cagebreak -c "${testdir}/arguments/-c-config" || RESULT=1
 sync
 [[ $(cat "${testdir}/arguments/result") = "SUCCESS" ]] || RESULT=1
 
@@ -45,13 +49,13 @@ sync
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}/arguments"
 readonly oldsocket=$CAGEBREAK_SOCKET
 sed -i "s|CONFIGPATH|${testdir}\/arguments\/socket|g" "${testdir}/arguments/config"
-(ASAN_OPTIONS="${asan_options}" WLR_BACKENDS=headless ./cagebreak -c "${testdir}/arguments/config") || RESULT=1
+(ASAN_OPTIONS="${asan_options}" XDG_RUNTIME_DIR="${runtime_dir}" WLR_BACKENDS=headless ./cagebreak -c "${testdir}/arguments/config") || RESULT=1
 sync
 [[ $(cat "${testdir}/arguments/socket") = "${oldsocket}" ]] || RESULT=1
 ## Check with socket
 cp "${MESONCURRENTCONFIGDIR}/test/testing-configurations/config" "${testdir}/arguments"
 sed -i "s|CONFIGPATH|$testdir\/arguments\/socket|g" "${testdir}/arguments/config"
-(ASAN_OPTIONS="${asan_options}" WLR_BACKENDS=headless ./cagebreak -e -c "${testdir}/arguments/config") || RESULT=1
+(ASAN_OPTIONS="${asan_options}" XDG_RUNTIME_DIR="${runtime_dir}" WLR_BACKENDS=headless ./cagebreak -e -c "${testdir}/arguments/config") || RESULT=1
 sync
 [[ ! $(cat "${testdir}/arguments/socket") = "${oldsocket}" ]] || RESULT=1
 
@@ -59,7 +63,7 @@ sync
 [[ $(./cagebreak -h) = "$helptext" ]] || RESULT=1
 
 # check -s option
-info_output=$(ASAN_OPTIONS="${asan_options}" WLR_BACKENDS=headless ./cagebreak -s) || RESULT=1
+info_output=$(ASAN_OPTIONS="${asan_options}" XDG_RUNTIME_DIR="${runtime_dir}" WLR_BACKENDS=headless ./cagebreak -s) || RESULT=1
 [[ ${info_output} =~ ${basicheadless} ]] || RESULT=1
 
 
