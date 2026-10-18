@@ -1810,25 +1810,25 @@ keybinding_configure_output(struct cg_server *server,
 	wl_list_insert(&server->output_config, &config->link);
 
 	struct cg_output *output, *tmp_output;
+	/* Disabled outputs are configured first, since configuring an enabled
+	 * output may move it to server->disabled_outputs */
+	wl_list_for_each_safe(output, tmp_output, &server->disabled_outputs, link) {
+		if(output_name_matches(config->output_name, output->name)) {
+			output_configure(server, output);
+			ipc_send_event(
+			    output->server,
+			    "{\"event_name\":\"configure_output\",\"output\":\"%s\"}",
+			    output->name);
+		}
+	}
 	wl_list_for_each_safe(output, tmp_output, &server->outputs, link) {
-		if(strcmp(config->output_name, output->name) == 0) {
+		if(output_name_matches(config->output_name, output->name)) {
 			int output_num = output_get_num(output);
 			output_configure(server, output);
 			ipc_send_event(server,
 			               "{\"event_name\":\"configure_output\",\"output\":\"%"
 			               "s\",\"output_id\":%d}",
-			               cfg->output_name, output_num);
-			return;
-		}
-	}
-	wl_list_for_each_safe(output, tmp_output, &server->disabled_outputs, link) {
-		if(strcmp(config->output_name, output->name) == 0) {
-			output_configure(server, output);
-			ipc_send_event(
-			    output->server,
-			    "{\"event_name\":\"configure_output\",\"output\":\"%s\"}",
-			    cfg->output_name);
-			return;
+			               output->name, output_num);
 		}
 	}
 }

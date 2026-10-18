@@ -696,13 +696,31 @@ parse_output_config(char **saveptr, char **errstr) {
 		goto error;
 	}
 
+	char *scale_str = strtok_r(NULL, " ", saveptr);
+	if(scale_str != NULL) {
+		if(strcmp(scale_str, "scale") != 0) {
+			*errstr = log_error("Expected keyword \"scale\" in output "
+			                    "configuration for output %s",
+			                    name);
+			goto error;
+		}
+		cfg->scale = parse_float(saveptr, " ");
+		if(cfg->scale <= 0.01) {
+			*errstr =
+			    log_error("Error parsing scale of output configuration for "
+			              "output %s, expected positive float",
+			              name);
+			goto error;
+		}
+	}
+
 	cfg->output_name = strdup(name);
 	return cfg;
 error:
 	free(cfg);
 	wlr_log(WLR_ERROR,
 	        "Output configuration must be of the form \"output <name> pos <x> "
-	        "<y> res <width>x<height> rate <refresh_rate>");
+	        "<y> res <width>x<height> rate <refresh_rate> [scale <scale>]");
 	return NULL;
 }
 

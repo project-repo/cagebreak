@@ -73,6 +73,8 @@ struct wlr_box
 output_get_layout_box(struct cg_output *output);
 void
 handle_new_output(struct wl_listener *listener, void *data);
+bool
+output_name_matches(const char *config_name, const char *output_name);
 void
 output_configure(struct cg_server *server, struct cg_output *output);
 void

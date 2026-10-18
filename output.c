@@ -645,17 +645,30 @@ merge_output_configs(struct cg_output_config *cfg1,
 	return out_cfg;
 }
 
+/* The output name "*" of a configuration matches any output */
+bool
+output_name_matches(const char *config_name, const char *output_name) {
+	return strcmp(config_name, "*") == 0 ||
+	       strcmp(config_name, output_name) == 0;
+}
+
 void
 output_configure(struct cg_server *server, struct cg_output *output) {
 	struct cg_output_config *tot_config = empty_output_config();
 	struct cg_output_config *config;
 	wl_list_for_each(config, &server->output_config, link) {
-		if(strcmp(config->output_name, output->name) == 0) {
+		if(output_name_matches(config->output_name, output->name)) {
 			if(tot_config == NULL) {
 				return;
 			}
 			struct cg_output_config *prev_config = tot_config;
-			tot_config = merge_output_configs(config, tot_config);
+			/* A configuration for a specific output takes precedence
+			 * over a wildcard configuration */
+			if(strcmp(config->output_name, "*") == 0) {
+				tot_config = merge_output_configs(tot_config, config);
+			} else {
+				tot_config = merge_output_configs(config, tot_config);
+			}
 			if(prev_config->output_name != NULL) {
 				free(prev_config->output_name);
 			}

@@ -312,6 +312,10 @@ message <text\>
 
 *output <name\> [[pos <xpos\> <ypos\> res <width\>x<height\> rate <rate\> [scale <scale\>]] | enable | disable | [permanent|peripheral] | prio <n\> | rotate <n\>]*
 	Configure output "<name\>" -
+	- <name\> can be "\*" (wildcard), which matches every output. A
+	  configuration for a specific output takes precedence over a
+	  wildcard configuration, independently of the order in which they
+	  are given.
 	- <xpos\> and <ypos\> are the position of the
 	  monitor in pixels. The top-left monitor should have the coordinates 0 0.
 	- <width\> and <height\> specify the resolution in pixels.
