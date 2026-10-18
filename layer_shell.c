@@ -211,8 +211,7 @@ handle_layer_surface_commit(struct wl_listener *listener,
 
 static void
 layer_popup_unconstrain(struct cg_layer_popup *popup) {
-	struct wlr_output *output =
-	    popup->layer_surface->wlr_layer_surface->output;
+	struct wlr_output *output = popup->layer_surface->wlr_layer_surface->output;
 	if(output == NULL) {
 		return;
 	}
@@ -292,8 +291,7 @@ handle_new_popup(struct wl_listener *listener, void *data) {
 	struct cg_layer_surface *layer_surface =
 	    wl_container_of(listener, layer_surface, new_popup);
 	wlr_log(WLR_DEBUG, "New popup from layer surface");
-	create_layer_popup(data, layer_surface,
-	                   layer_surface->scene_surface->tree);
+	create_layer_popup(data, layer_surface, layer_surface->scene_surface->tree);
 }
 
 static void

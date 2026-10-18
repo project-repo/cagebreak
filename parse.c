@@ -708,8 +708,8 @@ parse_output_config(char **saveptr, char **errstr) {
 		if(cfg->scale <= 0.01) {
 			*errstr =
 			    log_error("Error parsing scale of output configuration for "
-			              "output %s, expected positive float",
-			              name);
+				          "output %s, expected positive float",
+				          name);
 			goto error;
 		}
 	}
